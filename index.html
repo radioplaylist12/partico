@@ -15,7 +15,6 @@
         .fullscreen-video-container video { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
         .controls-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
         
-        /* ===== MODO CARRO ===== */
         .car-mode-active .fullscreen-video-container { display: none; }
         .car-mode-video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; background: #000; display: none; }
         .car-mode-active .car-mode-video { display: block; }
@@ -119,20 +118,22 @@
         .genre-button:active { transform: scale(0.9); }
         
         .exit-car-btn {
-            position: absolute;
+            position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
             color: white;
             border: 2px solid #e63946;
-            padding: 10px 18px;
+            padding: 12px 20px;
             border-radius: 50px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: bold;
             cursor: pointer;
             z-index: 102;
             display: none;
             pointer-events: auto;
+            transition: all 0.2s ease;
         }
         .exit-car-btn:active { transform: scale(0.95); background: #e63946; color: #000; }
         
@@ -536,18 +537,18 @@
         
         .video-ad-overlay {
             position: fixed;
-            bottom: 100px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 320px;
-            max-width: 90vw;
+            width: 300px;
+            max-width: 85vw;
             z-index: 1000;
             pointer-events: auto;
             cursor: pointer;
             border-radius: 16px;
             overflow: hidden;
             display: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
             border: 2px solid #e63946;
             opacity: 0.95;
         }
@@ -558,13 +559,13 @@
             right: 5px;
             background: rgba(0,0,0,0.7);
             color: white;
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             z-index: 1001;
             font-weight: bold;
@@ -640,7 +641,7 @@
     
     <div class="app">
         <div class="fullscreen-video-container">
-            <video id="mainVideo" autoplay loop muted playsinline><source src="testem.mp4" type="video/mp4"></video>
+            <video id="mainVideo" autoplay loop muted playsinline><source src="pai.mp4" type="video/mp4"></video>
         </div>
         
         <div class="car-mode-video">
@@ -693,7 +694,7 @@
         
         <button class="genre-button" id="genreButton"><i class="fas fa-guitar"></i></button>
         
-        <button class="exit-car-btn" id="exitCarBtn">✕ SAIR DO MODO CARRO</button>
+        <button class="exit-car-btn" id="exitCarBtn"><i class="fas fa-car"></i> SAIR DO MODO CARRO</button>
         
         <div id="notificationTop" class="notification-top">
             <div class="message" id="notificationMessage"></div>
@@ -779,7 +780,7 @@
             <div class="dica">💡 Quanto mais você avalia, mais inteligente fica a playlist!</div>
             
             <h2><i class="fas fa-video"></i> 2. Anúncios</h2>
-            <p>📹 <strong>Anúncio em vídeo (anu.mp4)</strong> - aparece a cada 30 segundos (NÃO interrompe a música)</p>
+            <p>📹 <strong>Anúncio em vídeo (testem.mp4)</strong> - aparece a cada 30 segundos (NÃO interrompe a música)</p>
             <p>🎵 <strong>Anúncio em áudio (zzvc.mp3)</strong> - a cada 20 músicas (pausa a música, toca e volta)</p>
             
             <h2><i class="fas fa-hand-peace"></i> 3. Gestos</h2>
@@ -832,7 +833,10 @@
         const NUMERO_WHATSAPP = "5512988461978";
         const LINK_DO_SITE = window.location.href;
         
-        // ==================== PLAYLIST (BREGA substituiu VARIADAS) ====================
+        const GENEROS_DISPONIVEIS = ["SERTANEJO", "FORRÓ", "SAMBA", "POP", "BREGA"];
+        let generoAtual = "SERTANEJO";
+        let trocaAutomaticaAtiva = true;
+        
         const musicas = [
             { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO" },
             { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO" },
@@ -1037,6 +1041,29 @@
             showNotification(`🧠 IA gerou playlist baseada nas suas preferências!`, 3000);
         }
         
+        function mudarGeneroAutomaticamente() {
+            if (!trocaAutomaticaAtiva) return;
+            
+            let indiceAtual = GENEROS_DISPONIVEIS.indexOf(generoAtual);
+            let proximoIndice = (indiceAtual + 1) % GENEROS_DISPONIVEIS.length;
+            let novoGenero = GENEROS_DISPONIVEIS[proximoIndice];
+            
+            const musicasDoNovoGenero = musicas.filter(m => m.genero === novoGenero);
+            
+            if (musicasDoNovoGenero.length > 0) {
+                generoAtual = novoGenero;
+                filteredPlaylist = [...musicasDoNovoGenero];
+                for (let i = filteredPlaylist.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [filteredPlaylist[i], filteredPlaylist[j]] = [filteredPlaylist[j], filteredPlaylist[i]];
+                }
+                currentIndex = 0;
+                loadTrackUI(currentIndex);
+                if (isCarMode) updateCarOverlayInfo();
+                showNotification(`🎵 Mudando para ${novoGenero}! 🎵`, 3000);
+            }
+        }
+        
         // ==================== ANÚNCIOS ====================
         let videoAdInterval = null;
         let adVideoPlaying = false;
@@ -1090,14 +1117,11 @@
         
         let musicCounter = 0;
         let adAudioPlaying = false;
-        let adTimeout = null;
         const adAudio = document.getElementById('adAudio');
         
         function playAudioAd() {
             if (isCarMode) return;
             if (adAudioPlaying) return;
-            
-            console.log("🎵 Tocando anúncio em áudio:", ARQUIVO_ANUNCIO_AUDIO);
             
             const wasPlaying = isPlaying;
             if (wasPlaying) {
@@ -1121,8 +1145,7 @@
             toast.classList.add('show');
             
             adAudio.play().catch(e => {
-                console.log('Erro no anúncio de áudio:', e);
-                showNotification(`⚠️ Erro ao carregar anúncio: ${ARQUIVO_ANUNCIO_AUDIO}`, 3000);
+                console.log('⚠️ Erro no anúncio de áudio:', e);
                 finishAudioAd(wasPlaying);
             });
             
@@ -1131,8 +1154,7 @@
             };
             
             adAudio.onerror = () => {
-                console.log('Erro: arquivo de áudio não encontrado:', ARQUIVO_ANUNCIO_AUDIO);
-                showNotification(`⚠️ Arquivo não encontrado: ${ARQUIVO_ANUNCIO_AUDIO}`, 3000);
+                console.log('⚠️ Arquivo não encontrado:', ARQUIVO_ANUNCIO_AUDIO);
                 finishAudioAd(wasPlaying);
             };
         }
@@ -1141,15 +1163,11 @@
             adAudioPlaying = false;
             const toast = document.getElementById('audioAdToast');
             toast.classList.remove('show');
-            
-            if (wasPlaying) {
-                playMusic().catch(e => console.log);
-            }
+            if (wasPlaying) playMusic().catch(e => console.log);
         }
         
         function incrementMusicCounter() {
             musicCounter++;
-            console.log(`Música contada: ${musicCounter}/${QUANTIDADE_MUSICAS_AUDIO}`);
             if (musicCounter >= QUANTIDADE_MUSICAS_AUDIO) {
                 musicCounter = 0;
                 playAudioAd();
@@ -1294,9 +1312,9 @@
         
         // ==================== CORE DO PLAYER ====================
         const videosList = [
-            { src: "pai.mp4", nome: "Rádio Patico", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Olá,%20quero%20mais%20informações!", botaoTexto: "Peça sua Playlist" },
-            { src: "pai.mp4", nome: "MUTV", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Gostaria%20de%20um%20orçamento", botaoTexto: "WhatsApp" },
-            { src: "pai.mp4", nome: "Diversão", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Quero%20saber%20mais", botaoTexto: "Contato" }
+            { src: "patico12.mp4", nome: "Rádio Patico", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Olá,%20quero%20mais%20informações!", botaoTexto: "Peça sua Playlist" },
+            { src: "patico12.mp4", nome: "MUTV", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Gostaria%20de%20um%20orçamento", botaoTexto: "WhatsApp" },
+            { src: "patico12.mp4", nome: "Diversão", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Quero%20saber%20mais", botaoTexto: "Contato" }
         ];
         
         const musicPlayerEl = document.getElementById('musicPlayer');
@@ -1322,7 +1340,7 @@
         
         let currentIndex = 0, isPlaying = false, shuffleMode = MODO_ALEATORIO_PADRAO;
         let timerInterval = null;
-        let filteredPlaylist = [...musicas];
+        let filteredPlaylist = [...musicas.filter(m => m.genero === "SERTANEJO")];
         let notificationTimeout = null;
         let backgroundInterval = null;
         let isBackgroundActive = false;
@@ -1399,10 +1417,19 @@
         }
         
         function loadTrackUI(index) {
-            if (index >= filteredPlaylist.length) index = 0;
+            if (index >= filteredPlaylist.length) {
+                if (trocaAutomaticaAtiva) {
+                    mudarGeneroAutomaticamente();
+                    return;
+                } else {
+                    index = 0;
+                }
+            }
             if (index < 0) index = filteredPlaylist.length - 1;
+            if (filteredPlaylist.length === 0) return;
             currentIndex = index;
             const track = filteredPlaylist[currentIndex];
+            if (!track) return;
             trackArtist.textContent = `${track.title} - ${track.artist} [${track.genero}]`;
             currentTimeEl.textContent = '0:00';
             totalTimeEl.textContent = '0:00';
@@ -1530,25 +1557,18 @@
                     
                     stopTimer();
                     
-                    let nextIndex;
-                    if (shuffleMode) {
-                        const weightedSongs = filteredPlaylist.map((song, idx) => ({ idx, weight: calculateSongWeight(song) }));
-                        const totalWeight = weightedSongs.reduce((sum, s) => sum + s.weight, 0);
-                        let random = Math.random() * totalWeight;
-                        let accumulated = 0;
-                        for (const song of weightedSongs) {
-                            accumulated += song.weight;
-                            if (random <= accumulated) { nextIndex = song.idx; break; }
+                    let nextIndex = currentIndex + 1;
+                    
+                    if (nextIndex >= filteredPlaylist.length) {
+                        if (trocaAutomaticaAtiva) {
+                            mudarGeneroAutomaticamente();
+                            setTimeout(() => playMusic(), 100);
+                            return;
+                        } else {
+                            nextIndex = 0;
                         }
-                        if (nextIndex === undefined) nextIndex = 0;
-                    } else {
-                        nextIndex = (currentIndex + 1) % filteredPlaylist.length;
                     }
                     
-                    if (nextIndex === 0 && !shuffleMode && filteredPlaylist.length > 0) {
-                        filteredPlaylist = generateSmartPlaylist();
-                        showNotification("🔄 IA renovou a playlist!", 3000);
-                    }
                     currentIndex = nextIndex;
                     loadTrackUI(currentIndex);
                     if (isCarMode) updateCarOverlayInfo();
@@ -1578,20 +1598,18 @@
         async function nextTrack() { 
             if (isLoadingTrack) return;
             stopTimer(); 
-            let nextIndex;
-            if (shuffleMode) {
-                const weightedSongs = filteredPlaylist.map((song, idx) => ({ idx, weight: calculateSongWeight(song) }));
-                const totalWeight = weightedSongs.reduce((sum, s) => sum + s.weight, 0);
-                let random = Math.random() * totalWeight;
-                let accumulated = 0;
-                for (const song of weightedSongs) {
-                    accumulated += song.weight;
-                    if (random <= accumulated) { nextIndex = song.idx; break; }
+            let nextIndex = currentIndex + 1;
+            
+            if (nextIndex >= filteredPlaylist.length) {
+                if (trocaAutomaticaAtiva) {
+                    mudarGeneroAutomaticamente();
+                    setTimeout(() => playMusic(), 100);
+                    return;
+                } else {
+                    nextIndex = 0;
                 }
-                if (nextIndex === undefined) nextIndex = 0;
-            } else {
-                nextIndex = (currentIndex + 1) % filteredPlaylist.length;
             }
+            
             currentIndex = nextIndex; 
             loadTrackUI(currentIndex); 
             if (isCarMode) updateCarOverlayInfo(); 
@@ -1601,7 +1619,8 @@
         async function prevTrack() { 
             if (isLoadingTrack) return;
             stopTimer(); 
-            let prevIndex = shuffleMode ? Math.floor(Math.random() * filteredPlaylist.length) : (currentIndex - 1 + filteredPlaylist.length) % filteredPlaylist.length; 
+            let prevIndex = currentIndex - 1;
+            if (prevIndex < 0) prevIndex = filteredPlaylist.length - 1;
             currentIndex = prevIndex; 
             loadTrackUI(currentIndex); 
             if (isCarMode) updateCarOverlayInfo(); 
@@ -1609,6 +1628,7 @@
         }
         
         function filterByGenre(genero) {
+            trocaAutomaticaAtiva = false;
             let novaPlaylist = [];
             if (genero === "TODOS") {
                 novaPlaylist = generateSmartPlaylist();
@@ -1620,6 +1640,7 @@
                 if (novaPlaylist.length === 0) { showNotification(`⚠️ Nenhuma música encontrada para ${genero}`, 2000); return false; }
                 showNotification(`🎵 ${genero} ativado - IA priorizando suas favoritas`, 2000);
                 updateGenreBadge(genero);
+                generoAtual = genero;
             }
             filteredPlaylist = novaPlaylist;
             currentIndex = 0;
@@ -1631,11 +1652,13 @@
         }
         
         function iniciarComGeneroAleatorio() {
-            filteredPlaylist = generateSmartPlaylist();
+            trocaAutomaticaAtiva = true;
+            generoAtual = "SERTANEJO";
+            filteredPlaylist = [...musicas.filter(m => m.genero === "SERTANEJO")];
             currentIndex = 0;
             loadTrackUI(currentIndex);
             if (isCarMode) updateCarOverlayInfo();
-            updateGenreBadge("IA");
+            updateGenreBadge("SERTANEJO");
         }
         
         // ==================== MODO CARRO ====================
@@ -1656,6 +1679,7 @@
                 document.addEventListener('touchstart', showCarControls);
                 document.addEventListener('click', showCarControls);
                 if (videoAdInterval) clearInterval(videoAdInterval);
+                pararVideoAd();
             } else {
                 appEl.classList.remove('car-mode-active');
                 document.getElementById('carModeMenuBtn').style.background = "";
@@ -1905,7 +1929,16 @@
         });
         
         document.getElementById('carModeMenuBtn').addEventListener('click', () => { toggleCarMode(); closeMenu(); });
-        document.getElementById('exitCarBtn').addEventListener('click', (e) => { e.stopPropagation(); if (isCarMode) toggleCarMode(); });
+        
+        // Botão SAIR DO MODO CARRO - CORRIGIDO!
+        document.getElementById('exitCarBtn').addEventListener('click', (e) => { 
+            e.stopPropagation(); 
+            e.preventDefault();
+            if (isCarMode) {
+                toggleCarMode();
+            }
+        });
+        
         document.getElementById('carOverlayPlay').addEventListener('click', (e) => { 
             e.stopPropagation(); 
             if (!isBackgroundActive) showNotification('⚠️ Clique em "ATIVAR RÁDIO" primeiro!', 3000); 
@@ -1928,10 +1961,11 @@
             iniciarComGeneroAleatorio(); 
             tapToStart.style.display = 'block'; 
             iniciarVisualizer(); 
-            console.log("🎬 Rádio Patico IA - Anúncios configurados:");
-            console.log("   Vídeo (sobreposição):", ARQUIVO_ANUNCIO_VIDEO, "- a cada", INTERVALO_VIDEO_MS/1000, "segundos");
-            console.log("   Áudio (pausa música):", ARQUIVO_ANUNCIO_AUDIO, "- a cada", QUANTIDADE_MUSICAS_AUDIO, "músicas");
-            console.log("🔗 Link para compartilhar:", LINK_DO_SITE);
+            console.log("🎬 Rádio Patico IA - Correções aplicadas:");
+            console.log("   ✅ Botão SAIR DO MODO CARRO corrigido");
+            console.log("   ✅ Anúncio testem.mp4 movido para bottom: 20px");
+            console.log("   ✅ Alternância automática de gêneros ATIVADA");
+            console.log("   ✅ Músicas tocam infinitamente sem parar");
         });
     </script>
 </body>
