@@ -1312,9 +1312,9 @@
         
         // ==================== CORE DO PLAYER ====================
         const videosList = [
-            { src: "patico12.mp4", nome: "Rádio Patico", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Olá,%20quero%20mais%20informações!", botaoTexto: "Peça sua Playlist" },
-            { src: "patico12.mp4", nome: "MUTV", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Gostaria%20de%20um%20orçamento", botaoTexto: "WhatsApp" },
-            { src: "patico12.mp4", nome: "Diversão", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Quero%20saber%20mais", botaoTexto: "Contato" }
+            { src: "bbcc.mp4", nome: "Rádio Patico", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Olá,%20quero%20mais%20informações!", botaoTexto: "Peça sua Playlist" },
+            { src: "bbcc.mp4", nome: "MUTV", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Gostaria%20de%20um%20orçamento", botaoTexto: "WhatsApp" },
+            { src: "bbcc.mp4", nome: "Diversão", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Quero%20saber%20mais", botaoTexto: "Contato" }
         ];
         
         const musicPlayerEl = document.getElementById('musicPlayer');
@@ -1340,7 +1340,7 @@
         
         let currentIndex = 0, isPlaying = false, shuffleMode = MODO_ALEATORIO_PADRAO;
         let timerInterval = null;
-        let filteredPlaylist = [...musicas.filter(m => m.genero === "SERTANEJO")];
+        let filteredPlaylist = [];
         let notificationTimeout = null;
         let backgroundInterval = null;
         let isBackgroundActive = false;
@@ -1417,6 +1417,7 @@
         }
         
         function loadTrackUI(index) {
+            if (filteredPlaylist.length === 0) return;
             if (index >= filteredPlaylist.length) {
                 if (trocaAutomaticaAtiva) {
                     mudarGeneroAutomaticamente();
@@ -1651,22 +1652,39 @@
             return true;
         }
         
-        function iniciarComGeneroAleatorio() {
+        // ==================== FUNÇÃO CORRIGIDA: Música inicial ALEATÓRIA de QUALQUER GÊNERO ====================
+        function iniciarComMusicaAleatoria() {
             trocaAutomaticaAtiva = true;
-            generoAtual = "SERTANEJO";
-            filteredPlaylist = [...musicas.filter(m => m.genero === "SERTANEJO")];
-            currentIndex = 0;
+            
+            // Embaralha TODAS as músicas
+            const todasMusicas = [...musicas];
+            for (let i = todasMusicas.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [todasMusicas[i], todasMusicas[j]] = [todasMusicas[j], todasMusicas[i]];
+            }
+            
+            filteredPlaylist = todasMusicas;
+            
+            // Escolhe um índice aleatório
+            currentIndex = Math.floor(Math.random() * filteredPlaylist.length);
+            
+            const track = filteredPlaylist[currentIndex];
+            generoAtual = track.genero;
+            
             loadTrackUI(currentIndex);
             if (isCarMode) updateCarOverlayInfo();
-            updateGenreBadge("SERTANEJO");
+            updateGenreBadge(track.genero);
+            
+            console.log(`🎵 Iniciou com música ALEATÓRIA: ${track.title} (${track.genero}) - Índice ${currentIndex}`);
         }
         
-        // ==================== MODO CARRO ====================
+        // ==================== MODO CARRO CORRIGIDO ====================
         function toggleCarMode() {
             isCarMode = !isCarMode;
             const appEl = document.querySelector('.app');
             const carModeVideoDiv = document.querySelector('.car-mode-video');
             const carVideoEl = document.getElementById('carVideo');
+            const exitBtn = document.getElementById('exitCarBtn');
             
             if (isCarMode) {
                 appEl.classList.add('car-mode-active');
@@ -1680,6 +1698,7 @@
                 document.addEventListener('click', showCarControls);
                 if (videoAdInterval) clearInterval(videoAdInterval);
                 pararVideoAd();
+                if (exitBtn) exitBtn.style.display = 'block';
             } else {
                 appEl.classList.remove('car-mode-active');
                 document.getElementById('carModeMenuBtn').style.background = "";
@@ -1691,6 +1710,7 @@
                 document.removeEventListener('touchstart', showCarControls);
                 document.removeEventListener('click', showCarControls);
                 videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
+                if (exitBtn) exitBtn.style.display = 'none';
             }
         }
         
@@ -1930,14 +1950,17 @@
         
         document.getElementById('carModeMenuBtn').addEventListener('click', () => { toggleCarMode(); closeMenu(); });
         
-        // Botão SAIR DO MODO CARRO - CORRIGIDO!
-        document.getElementById('exitCarBtn').addEventListener('click', (e) => { 
-            e.stopPropagation(); 
-            e.preventDefault();
-            if (isCarMode) {
-                toggleCarMode();
-            }
-        });
+        // BOTÃO SAIR DO MODO CARRO - CORRIGIDO!
+        const exitCarBtnElement = document.getElementById('exitCarBtn');
+        if (exitCarBtnElement) {
+            exitCarBtnElement.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                e.preventDefault();
+                if (isCarMode) {
+                    toggleCarMode();
+                }
+            });
+        }
         
         document.getElementById('carOverlayPlay').addEventListener('click', (e) => { 
             e.stopPropagation(); 
@@ -1958,14 +1981,14 @@
         loadPreferences();
         loadStats();
         window.addEventListener('load', () => { 
-            iniciarComGeneroAleatorio(); 
+            iniciarComMusicaAleatoria();  // ← FUNÇÃO CORRIGIDA: música aleatória de QUALQUER gênero!
             tapToStart.style.display = 'block'; 
             iniciarVisualizer(); 
-            console.log("🎬 Rádio Patico IA - Correções aplicadas:");
-            console.log("   ✅ Botão SAIR DO MODO CARRO corrigido");
-            console.log("   ✅ Anúncio testem.mp4 movido para bottom: 20px");
-            console.log("   ✅ Alternância automática de gêneros ATIVADA");
-            console.log("   ✅ Músicas tocam infinitamente sem parar");
+            console.log("🎬 Rádio Patico IA - CORREÇÕES APLICADAS:");
+            console.log("   ✅ 1. Música inicial ALEATÓRIA de QUALQUER GÊNERO (Sertanejo, Forró, Samba, Pop ou Brega)!");
+            console.log("   ✅ 2. Botão SAIR DO MODO CARRO corrigido e funcionando!");
+            console.log("   ✅ 3. Alternância automática entre gêneros ATIVADA");
+            console.log("   ✅ 4. Anúncio testem.mp4 movido para bottom: 20px");
         });
     </script>
 </body>
