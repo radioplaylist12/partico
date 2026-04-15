@@ -1272,9 +1272,9 @@
         
         // ==================== CORE DO PLAYER ====================
         const videosList = [
-            { src: "txp.mp4", nome: "Rádio Patico", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Olá,%20quero%20mais%20informações!", botaoTexto: "Peça sua Playlist" },
-            { src: "txp.mp4", nome: "MUTV", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Gostaria%20de%20um%20orçamento", botaoTexto: "WhatsApp" },
-            { src: "txp.mp4", nome: "Diversão", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Quero%20saber%20mais", botaoTexto: "Contato" }
+            { src: "ppt.mp4", nome: "Rádio Patico", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Olá,%20quero%20mais%20informações!", botaoTexto: "Peça sua Playlist" },
+            { src: "ppt.mp4", nome: "MUTV", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Gostaria%20de%20um%20orçamento", botaoTexto: "WhatsApp" },
+            { src: "ppt.mp4", nome: "Diversão", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Quero%20saber%20mais", botaoTexto: "Contato" }
         ];
         
         const musicPlayerEl = document.getElementById('musicPlayer');
@@ -1629,12 +1629,14 @@
             console.log(`🎵 Iniciou com música ALEATÓRIA: ${track.title} (${track.genero})`);
         }
         
-        // ==================== MODO CARRO CORRIGIDO ====================
+        // ==================== MODO CARRO CORRIGIDO (VERSÃO FINAL) ====================
         function toggleCarMode() {
             const appEl = document.querySelector('.app');
             const carModeVideoDiv = document.querySelector('.car-mode-video');
             const carVideoEl = document.getElementById('carVideo');
             const exitBtn = document.getElementById('exitCarBtn');
+            const carOverlay = document.getElementById('carOverlayControls');
+            const carTrack = document.getElementById('carTrackOverlay');
             
             if (!isCarMode) {
                 // ATIVAR MODO CARRO
@@ -1652,9 +1654,12 @@
                 if (videoAdInterval) clearInterval(videoAdInterval);
                 pararVideoAd();
                 if (exitBtn) exitBtn.style.display = 'block';
+                // Força remover o overlay fosco
+                if (carOverlay) carOverlay.classList.remove('visible');
+                if (carTrack) carTrack.classList.remove('visible');
                 console.log("✅ Modo Carro ATIVADO");
             } else {
-                // DESATIVAR MODO CARRO
+                // DESATIVAR MODO CARRO - FORÇA A REMOÇÃO COMPLETA
                 isCarMode = false;
                 appEl.classList.remove('car-mode-active');
                 document.body.classList.remove('car-mode-active');
@@ -1662,13 +1667,23 @@
                 document.getElementById('carIndicator').style.display = 'none';
                 carModeVideoDiv.style.display = 'none';
                 if (carVideoEl) { carVideoEl.pause(); carVideoEl.currentTime = 0; }
-                hideCarControlsImmediately();
+                // Força remover o overlay fosco e controles
+                if (carOverlay) {
+                    carOverlay.classList.remove('visible');
+                    carOverlay.style.opacity = '0';
+                    carOverlay.style.pointerEvents = 'none';
+                }
+                if (carTrack) {
+                    carTrack.classList.remove('visible');
+                    carTrack.style.opacity = '0';
+                }
+                document.getElementById('tapInstruction').classList.remove('visible');
                 showNotification('🚗 Modo Carro desativado.', 2000);
                 document.removeEventListener('touchstart', showCarControls);
                 document.removeEventListener('click', showCarControls);
                 videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
                 if (exitBtn) exitBtn.style.display = 'none';
-                console.log("✅ Modo Carro DESATIVADO");
+                console.log("✅ Modo Carro DESATIVADO - Tela normal restaurada");
             }
         }
         
@@ -1906,7 +1921,7 @@
         
         document.getElementById('carModeMenuBtn').addEventListener('click', () => { toggleCarMode(); closeMenu(); });
         
-        // BOTÃO SAIR DO MODO CARRO - CORRIGIDO
+        // BOTÃO SAIR DO MODO CARRO - VERSÃO FINAL CORRIGIDA
         const exitCarBtnElement = document.getElementById('exitCarBtn');
         if (exitCarBtnElement) {
             exitCarBtnElement.addEventListener('click', function(e) {
@@ -1915,6 +1930,8 @@
                 console.log("🔘 Botão SAIR clicado! Modo Carro ativo:", isCarMode);
                 if (isCarMode) {
                     toggleCarMode();
+                } else {
+                    console.log("⚠️ Modo Carro já está desativado!");
                 }
             });
         }
@@ -1943,7 +1960,7 @@
             iniciarVisualizer(); 
             console.log("🎬 Rádio Patico IA - CORREÇÕES APLICADAS:");
             console.log("   ✅ Música inicial ALEATÓRIA de QUALQUER GÊNERO");
-            console.log("   ✅ Botão SAIR DO MODO CARRO corrigido");
+            console.log("   ✅ Botão SAIR DO MODO CARRO corrigido (remove o fosco)");
             console.log("   ✅ X do anúncio de vídeo REMOVIDO");
             console.log("   ✅ Mensagem 'Tela Bloqueada OK' OCULTADA");
             console.log("   ✅ Anúncio de áudio: paticom.mp3");
