@@ -553,25 +553,6 @@
             opacity: 0.95;
         }
         .video-ad-overlay video { width: 100%; height: auto; display: block; }
-        .close-video-ad {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            cursor: pointer;
-            z-index: 1001;
-            font-weight: bold;
-            border: 1px solid white;
-        }
-        .close-video-ad:active { background: #e63946; transform: scale(0.9); }
         .car-mode-active .video-ad-overlay { display: none !important; }
         
         .audio-ad-container {
@@ -701,7 +682,6 @@
         </div>
         
         <div class="video-ad-overlay" id="videoAdOverlay">
-            <span class="close-video-ad" id="closeVideoAdBtn">✕</span>
             <video id="adVideo" autoplay muted playsinline loop>
                 <source src="tea.mp4" type="video/mp4">
             </video>
@@ -780,8 +760,8 @@
             <div class="dica">💡 Quanto mais você avalia, mais inteligente fica a playlist!</div>
             
             <h2><i class="fas fa-video"></i> 2. Anúncios</h2>
-            <p>📹 <strong>Anúncio em vídeo (testem.mp4)</strong> - aparece a cada 30 segundos (NÃO interrompe a música)</p>
-            <p>🎵 <strong>Anúncio em áudio (zzvc.mp3)</strong> - a cada 20 músicas (pausa a música, toca e volta)</p>
+            <p>📹 <strong>Anúncio em vídeo (tea.mp4)</strong> - aparece a cada 30 segundos (NÃO interrompe a música)</p>
+            <p>🎵 <strong>Anúncio em áudio (paticom.mp3)</strong> - a cada 20 músicas (pausa a música, toca e volta)</p>
             
             <h2><i class="fas fa-hand-peace"></i> 3. Gestos</h2>
             <p>👉 Deslize para esquerda/direita = próxima/anterior música</p>
@@ -900,9 +880,7 @@
             { id: 60, title: "Seu-Matruz", artist: "Seu-Matruz-França", src: "Seu-Matruz-França.m4a", genero: "FORRÓ" },
             { id: 61, title: "Pout-Pourri Sirano & Sirino", artist: "Mono-walter", src: "Mono-walter (1).m4a", genero: "FORRÓ" },
             { id: 62, title: "Lembranças de um beijo", artist: "Cham", src: "Lembran_a_de_um_Beijo_Chambinho_Do_Acordeon_Waldonys_muzzik.m4a", genero: "FORRÓ" },
-              { id: 63, title: "La Barca", artist: "Murilo Huff", src: "Murilo_Huff_La_Barca.m4a", genero: "SERTANEJO" },
-            
-
+            { id: 63, title: "La Barca", artist: "Murilo Huff", src: "Murilo_Huff_La_Barca.m4a", genero: "SERTANEJO" },
         ];
         
         // ==================== ALGORITMO DE IA ====================
@@ -1107,17 +1085,6 @@
             }
         }
         
-        document.getElementById('closeVideoAdBtn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            pararVideoAd();
-        });
-        
-        videoAdOverlay.addEventListener('click', (e) => {
-            if (e.target !== document.getElementById('closeVideoAdBtn')) {
-                window.open('https://wa.me/' + NUMERO_WHATSAPP + '?text=Vi%20o%20anúncio%20na%20Rádio%20Patico!', '_blank');
-            }
-        });
-        
         let musicCounter = 0;
         let adAudioPlaying = false;
         const adAudio = document.getElementById('adAudio');
@@ -1175,16 +1142,7 @@
                 musicCounter = 0;
                 playAudioAd();
             }
-            const audioIndicatorEl = document.getElementById('audioIndicator');
-            if (audioIndicatorEl) {
-                const remaining = QUANTIDADE_MUSICAS_AUDIO - musicCounter;
-                audioIndicatorEl.innerHTML = `<i class="fas fa-brain"></i> IA | Áudio em ${remaining} músicas`;
-                setTimeout(() => {
-                    if (audioIndicatorEl.innerHTML.includes('Áudio em')) {
-                        audioIndicatorEl.innerHTML = '<i class="fas fa-brain"></i> IA Ativa | Tela Bloqueada OK';
-                    }
-                }, 3000);
-            }
+            // Mensagem do áudio removida - agora fica apenas o indicador padrão
         }
         
         // ==================== ESTATÍSTICAS ====================
@@ -1655,7 +1613,7 @@
             return true;
         }
         
-        // ==================== FUNÇÃO CORRIGIDA: Música inicial ALEATÓRIA de QUALQUER GÊNERO ====================
+        // ==================== FUNÇÃO: Música inicial ALEATÓRIA de QUALQUER GÊNERO ====================
         function iniciarComMusicaAleatoria() {
             trocaAutomaticaAtiva = true;
             
@@ -1678,42 +1636,49 @@
             if (isCarMode) updateCarOverlayInfo();
             updateGenreBadge(track.genero);
             
-            console.log(`🎵 Iniciou com música ALEATÓRIA: ${track.title} (${track.genero}) - Índice ${currentIndex}`);
+            console.log(`🎵 Iniciou com música ALEATÓRIA: ${track.title} (${track.genero})`);
         }
         
         // ==================== MODO CARRO CORRIGIDO ====================
         function toggleCarMode() {
-            isCarMode = !isCarMode;
             const appEl = document.querySelector('.app');
             const carModeVideoDiv = document.querySelector('.car-mode-video');
             const carVideoEl = document.getElementById('carVideo');
             const exitBtn = document.getElementById('exitCarBtn');
             
-            if (isCarMode) {
+            if (!isCarMode) {
+                // ATIVAR MODO CARRO
+                isCarMode = true;
                 appEl.classList.add('car-mode-active');
+                document.body.classList.add('car-mode-active');
                 document.getElementById('carModeMenuBtn').style.background = "linear-gradient(135deg, #e63946, #ff6b6b)";
                 document.getElementById('carIndicator').style.display = 'flex';
                 carModeVideoDiv.style.display = 'block';
                 carVideoEl.play().catch(e => console.log('Vídeo carro:', e));
                 updateCarOverlayInfo();
-                showNotification('🚗 MODO CARRO ATIVADO! Toque na tela para controles');
+                showNotification('🚗 MODO CARRO ATIVADO! Toque na tela para controles', 3000);
                 document.addEventListener('touchstart', showCarControls);
                 document.addEventListener('click', showCarControls);
                 if (videoAdInterval) clearInterval(videoAdInterval);
                 pararVideoAd();
                 if (exitBtn) exitBtn.style.display = 'block';
+                console.log("✅ Modo Carro ATIVADO");
             } else {
+                // DESATIVAR MODO CARRO
+                isCarMode = false;
                 appEl.classList.remove('car-mode-active');
+                document.body.classList.remove('car-mode-active');
                 document.getElementById('carModeMenuBtn').style.background = "";
                 document.getElementById('carIndicator').style.display = 'none';
                 carModeVideoDiv.style.display = 'none';
                 if (carVideoEl) { carVideoEl.pause(); carVideoEl.currentTime = 0; }
                 hideCarControlsImmediately();
-                showNotification('🚗 Modo Carro desativado.');
+                showNotification('🚗 Modo Carro desativado.', 2000);
                 document.removeEventListener('touchstart', showCarControls);
                 document.removeEventListener('click', showCarControls);
                 videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
                 if (exitBtn) exitBtn.style.display = 'none';
+                console.log("✅ Modo Carro DESATIVADO");
             }
         }
         
@@ -1782,7 +1747,7 @@
                 backgroundAudio.volume = 0.001;
                 await backgroundAudio.play();
                 isBackgroundActive = true;
-                document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-brain"></i> IA Ativa | Tela Bloqueada OK';
+                document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-brain"></i> IA Ativa';
                 document.getElementById('audioIndicator').style.color = '#4ade80';
                 iniciarManutencaoConstante();
                 
@@ -1939,13 +1904,13 @@
         
         tapToStart.addEventListener('click', async (e) => { 
             e.stopPropagation(); 
-            showNotification('🔊 Ativando áudio para tocar com tela bloqueada...', 2000); 
+            showNotification('🔊 Ativando áudio...', 2000); 
             const audioOk = await ativarAudioBackground(); 
             if (audioOk) { 
                 await playMusic(); 
                 tapToStart.style.display = 'none'; 
                 try { await document.documentElement.requestFullscreen(); } catch(err) {} 
-                showNotification('✅ Áudio ativado! Anúncio em vídeo a cada 30s e áudio a cada ' + QUANTIDADE_MUSICAS_AUDIO + ' músicas! ✅', 5000); 
+                showNotification('✅ Áudio ativado!', 3000); 
             } else { 
                 showNotification('❌ Falha ao ativar áudio.', 3000); 
             } 
@@ -1953,12 +1918,17 @@
         
         document.getElementById('carModeMenuBtn').addEventListener('click', () => { toggleCarMode(); closeMenu(); });
         
-        // BOTÃO SAIR DO MODO CARRO - CORRIGIDO!
+        // BOTÃO SAIR DO MODO CARRO - CORRIGIDO
         const exitCarBtnElement = document.getElementById('exitCarBtn');
         if (exitCarBtnElement) {
-            exitCarBtnElement.addEventListener('click', (e) => { 
-                e.stopPropagation(); 
+            // Remove eventos antigos e adiciona novo
+            const newExitBtn = exitCarBtnElement.cloneNode(true);
+            exitCarBtnElement.parentNode.replaceChild(newExitBtn, exitCarBtnElement);
+            
+            newExitBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
                 e.preventDefault();
+                console.log("🔘 Botão SAIR clicado! Modo Carro ativo:", isCarMode);
                 if (isCarMode) {
                     toggleCarMode();
                 }
@@ -1984,14 +1954,15 @@
         loadPreferences();
         loadStats();
         window.addEventListener('load', () => { 
-            iniciarComMusicaAleatoria();  // ← FUNÇÃO CORRIGIDA: música aleatória de QUALQUER gênero!
+            iniciarComMusicaAleatoria();
             tapToStart.style.display = 'block'; 
             iniciarVisualizer(); 
             console.log("🎬 Rádio Patico IA - CORREÇÕES APLICADAS:");
-            console.log("   ✅ 1. Música inicial ALEATÓRIA de QUALQUER GÊNERO (Sertanejo, Forró, Samba, Pop ou Brega)!");
-            console.log("   ✅ 2. Botão SAIR DO MODO CARRO corrigido e funcionando!");
-            console.log("   ✅ 3. Alternância automática entre gêneros ATIVADA");
-            console.log("   ✅ 4. Anúncio testem.mp4 movido para bottom: 20px");
+            console.log("   ✅ 1. Música inicial ALEATÓRIA de QUALQUER GÊNERO");
+            console.log("   ✅ 2. Botão SAIR DO MODO CARRO corrigido e funcionando");
+            console.log("   ✅ 3. X do anúncio de vídeo REMOVIDO");
+            console.log("   ✅ 4. Mensagem 'Tela Bloqueada OK' OCULTADA");
+            console.log("   ✅ 5. Anúncio de áudio: paticom.mp3");
         });
     </script>
 </body>
