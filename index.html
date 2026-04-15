@@ -125,15 +125,16 @@
             backdrop-filter: blur(10px);
             color: white;
             border: 2px solid #e63946;
-            padding: 12px 20px;
+            padding: 15px 25px;
             border-radius: 50px;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
             z-index: 102;
             display: none;
             pointer-events: auto !important;
             transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
         }
         .exit-car-btn:active { transform: scale(0.95); background: #e63946; color: #000; }
         
@@ -1629,7 +1630,7 @@
             console.log(`🎵 Iniciou com música ALEATÓRIA: ${track.title} (${track.genero})`);
         }
         
-        // ==================== MODO CARRO CORRIGIDO (VERSÃO FINAL) ====================
+        // ==================== MODO CARRO CORRIGIDO PARA ANDROID ====================
         function toggleCarMode() {
             const appEl = document.querySelector('.app');
             const carModeVideoDiv = document.querySelector('.car-mode-video');
@@ -1654,12 +1655,11 @@
                 if (videoAdInterval) clearInterval(videoAdInterval);
                 pararVideoAd();
                 if (exitBtn) exitBtn.style.display = 'block';
-                // Força remover o overlay fosco
                 if (carOverlay) carOverlay.classList.remove('visible');
                 if (carTrack) carTrack.classList.remove('visible');
                 console.log("✅ Modo Carro ATIVADO");
             } else {
-                // DESATIVAR MODO CARRO - FORÇA A REMOÇÃO COMPLETA
+                // DESATIVAR MODO CARRO
                 isCarMode = false;
                 appEl.classList.remove('car-mode-active');
                 document.body.classList.remove('car-mode-active');
@@ -1667,11 +1667,12 @@
                 document.getElementById('carIndicator').style.display = 'none';
                 carModeVideoDiv.style.display = 'none';
                 if (carVideoEl) { carVideoEl.pause(); carVideoEl.currentTime = 0; }
-                // Força remover o overlay fosco e controles
+                // Força remover overlay
                 if (carOverlay) {
                     carOverlay.classList.remove('visible');
                     carOverlay.style.opacity = '0';
                     carOverlay.style.pointerEvents = 'none';
+                    carOverlay.style.display = 'flex';
                 }
                 if (carTrack) {
                     carTrack.classList.remove('visible');
@@ -1683,7 +1684,7 @@
                 document.removeEventListener('click', showCarControls);
                 videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
                 if (exitBtn) exitBtn.style.display = 'none';
-                console.log("✅ Modo Carro DESATIVADO - Tela normal restaurada");
+                console.log("✅ Modo Carro DESATIVADO");
             }
         }
         
@@ -1921,19 +1922,19 @@
         
         document.getElementById('carModeMenuBtn').addEventListener('click', () => { toggleCarMode(); closeMenu(); });
         
-        // BOTÃO SAIR DO MODO CARRO - VERSÃO FINAL CORRIGIDA
+        // BOTÃO SAIR DO MODO CARRO - PARA ANDROID (click + touchstart)
         const exitCarBtnElement = document.getElementById('exitCarBtn');
         if (exitCarBtnElement) {
-            exitCarBtnElement.addEventListener('click', function(e) {
+            const sairHandler = function(e) {
                 e.stopPropagation();
                 e.preventDefault();
-                console.log("🔘 Botão SAIR clicado! Modo Carro ativo:", isCarMode);
+                console.log("🔘 Botão SAIR acionado! Modo Carro ativo:", isCarMode);
                 if (isCarMode) {
                     toggleCarMode();
-                } else {
-                    console.log("⚠️ Modo Carro já está desativado!");
                 }
-            });
+            };
+            exitCarBtnElement.addEventListener('click', sairHandler);
+            exitCarBtnElement.addEventListener('touchstart', sairHandler);
         }
         
         document.getElementById('carOverlayPlay').addEventListener('click', (e) => { 
@@ -1958,12 +1959,10 @@
             iniciarComMusicaAleatoria();
             tapToStart.style.display = 'block'; 
             iniciarVisualizer(); 
-            console.log("🎬 Rádio Patico IA - CORREÇÕES APLICADAS:");
-            console.log("   ✅ Música inicial ALEATÓRIA de QUALQUER GÊNERO");
-            console.log("   ✅ Botão SAIR DO MODO CARRO corrigido (remove o fosco)");
-            console.log("   ✅ X do anúncio de vídeo REMOVIDO");
-            console.log("   ✅ Mensagem 'Tela Bloqueada OK' OCULTADA");
-            console.log("   ✅ Anúncio de áudio: paticom.mp3");
+            console.log("🎬 Rádio Patico IA - CORREÇÕES ANDROID:");
+            console.log("   ✅ Botão SAIR com eventos click e touchstart");
+            console.log("   ✅ Forçada remoção do overlay fosco");
+            console.log("   ✅ Música aleatória funcionando");
         });
     </script>
 </body>
