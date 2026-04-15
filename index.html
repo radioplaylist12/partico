@@ -132,7 +132,7 @@
             cursor: pointer;
             z-index: 102;
             display: none;
-            pointer-events: auto;
+            pointer-events: auto !important;
             transition: all 0.2s ease;
         }
         .exit-car-btn:active { transform: scale(0.95); background: #e63946; color: #000; }
@@ -156,7 +156,7 @@
         .car-mode-active .bottom-controls { display: none; }
         .car-mode-active .genre-button { animation: floatGenre 3s ease-in-out infinite; }
         .car-mode-active .feedback-buttons { display: none; }
-        .car-mode-active .exit-car-btn { display: block; }
+        .car-mode-active .exit-car-btn { display: block !important; }
         
         .notification-top {
             position: absolute;
@@ -802,7 +802,7 @@
         // ============================================================================
         
         const ARQUIVO_ANUNCIO_VIDEO = "tea.mp4";
-        const ARQUIVO_ANUNCIO_AUDIO = "Paticom.mp3";
+        const ARQUIVO_ANUNCIO_AUDIO = "paticom.mp3";
         const INTERVALO_VIDEO_MS = 30000;
         const QUANTIDADE_MUSICAS_AUDIO = 20;
         const MENSAGEM_ANUNCIO_AUDIO = "🎧 Obrigado por ouvir Rádio Patico!";
@@ -1142,7 +1142,6 @@
                 musicCounter = 0;
                 playAudioAd();
             }
-            // Mensagem do áudio removida - agora fica apenas o indicador padrão
         }
         
         // ==================== ESTATÍSTICAS ====================
@@ -1613,29 +1612,20 @@
             return true;
         }
         
-        // ==================== FUNÇÃO: Música inicial ALEATÓRIA de QUALQUER GÊNERO ====================
         function iniciarComMusicaAleatoria() {
             trocaAutomaticaAtiva = true;
-            
-            // Embaralha TODAS as músicas
             const todasMusicas = [...musicas];
             for (let i = todasMusicas.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [todasMusicas[i], todasMusicas[j]] = [todasMusicas[j], todasMusicas[i]];
             }
-            
             filteredPlaylist = todasMusicas;
-            
-            // Escolhe um índice aleatório
             currentIndex = Math.floor(Math.random() * filteredPlaylist.length);
-            
             const track = filteredPlaylist[currentIndex];
             generoAtual = track.genero;
-            
             loadTrackUI(currentIndex);
             if (isCarMode) updateCarOverlayInfo();
             updateGenreBadge(track.genero);
-            
             console.log(`🎵 Iniciou com música ALEATÓRIA: ${track.title} (${track.genero})`);
         }
         
@@ -1750,9 +1740,7 @@
                 document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-brain"></i> IA Ativa';
                 document.getElementById('audioIndicator').style.color = '#4ade80';
                 iniciarManutencaoConstante();
-                
                 videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
-                
                 if ('wakeLock' in navigator) {
                     try {
                         await navigator.wakeLock.request('screen');
@@ -1921,11 +1909,7 @@
         // BOTÃO SAIR DO MODO CARRO - CORRIGIDO
         const exitCarBtnElement = document.getElementById('exitCarBtn');
         if (exitCarBtnElement) {
-            // Remove eventos antigos e adiciona novo
-            const newExitBtn = exitCarBtnElement.cloneNode(true);
-            exitCarBtnElement.parentNode.replaceChild(newExitBtn, exitCarBtnElement);
-            
-            newExitBtn.addEventListener('click', function(e) {
+            exitCarBtnElement.addEventListener('click', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 console.log("🔘 Botão SAIR clicado! Modo Carro ativo:", isCarMode);
@@ -1958,11 +1942,11 @@
             tapToStart.style.display = 'block'; 
             iniciarVisualizer(); 
             console.log("🎬 Rádio Patico IA - CORREÇÕES APLICADAS:");
-            console.log("   ✅ 1. Música inicial ALEATÓRIA de QUALQUER GÊNERO");
-            console.log("   ✅ 2. Botão SAIR DO MODO CARRO corrigido e funcionando");
-            console.log("   ✅ 3. X do anúncio de vídeo REMOVIDO");
-            console.log("   ✅ 4. Mensagem 'Tela Bloqueada OK' OCULTADA");
-            console.log("   ✅ 5. Anúncio de áudio: paticom.mp3");
+            console.log("   ✅ Música inicial ALEATÓRIA de QUALQUER GÊNERO");
+            console.log("   ✅ Botão SAIR DO MODO CARRO corrigido");
+            console.log("   ✅ X do anúncio de vídeo REMOVIDO");
+            console.log("   ✅ Mensagem 'Tela Bloqueada OK' OCULTADA");
+            console.log("   ✅ Anúncio de áudio: paticom.mp3");
         });
     </script>
 </body>
