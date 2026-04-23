@@ -117,6 +117,39 @@
         @keyframes floatGenre { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
         .genre-button:active { transform: scale(0.9); }
         
+        /* Botão AO VIVO */
+        .live-button {
+            position: fixed;
+            bottom: 80px;
+            right: 90px;
+            background: linear-gradient(135deg, #e63946, #ff0000);
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 26;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: pulseRed 1.5s infinite;
+        }
+        .live-button.active {
+            background: linear-gradient(135deg, #ff0000, #8b0000);
+            box-shadow: 0 0 20px rgba(255,0,0,0.8);
+        }
+        @keyframes pulseRed {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 12px rgba(255,0,0,0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 4px 20px rgba(255,0,0,0.6); }
+        }
+        .live-button:active { transform: scale(0.9); }
+        .car-mode-active .live-button { animation: floatGenre 3s ease-in-out infinite; }
+        
         .exit-car-btn {
             position: fixed;
             top: 20px;
@@ -125,9 +158,9 @@
             backdrop-filter: blur(10px);
             color: white;
             border: 2px solid #e63946;
-            padding: 15px 25px;
+            padding: 12px 20px;
             border-radius: 50px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: bold;
             cursor: pointer;
             z-index: 102;
@@ -156,6 +189,7 @@
         .car-mode-active .car-indicator { display: flex; align-items: center; gap: 5px; }
         .car-mode-active .bottom-controls { display: none; }
         .car-mode-active .genre-button { animation: floatGenre 3s ease-in-out infinite; }
+        .car-mode-active .live-button { animation: pulseRed 1.5s infinite; }
         .car-mode-active .feedback-buttons { display: none; }
         .car-mode-active .exit-car-btn { display: block !important; }
         
@@ -351,7 +385,7 @@
         
         .feedback-buttons {
             position: fixed;
-            bottom: 80px;
+            bottom: 140px;
             left: 20px;
             display: flex;
             gap: 10px;
@@ -479,6 +513,11 @@
             pointer-events: none;
             border-left: 3px solid #e63946;
             font-weight: bold;
+        }
+        .genre-badge.live {
+            border-left: 3px solid #ff0000;
+            background: rgba(255,0,0,0.8);
+            animation: pulseRed 1s infinite;
         }
         
         .audio-indicator {
@@ -623,11 +662,11 @@
     
     <div class="app">
         <div class="fullscreen-video-container">
-            <video id="mainVideo" autoplay loop muted playsinline><source src="ads.mp4" type="video/mp4"></video>
+            <video id="mainVideo" autoplay loop muted playsinline><source src="pai.mp4" type="video/mp4"></video>
         </div>
         
         <div class="car-mode-video">
-            <video id="carVideo" autoplay loop muted playsinline><source src="ads.mp4" type="video/mp4"></video>
+            <video id="carVideo" autoplay loop muted playsinline><source src="pai.mp4" type="video/mp4"></video>
         </div>
         
         <div class="car-overlay-controls" id="carOverlayControls">
@@ -675,6 +714,7 @@
         </div>
         
         <button class="genre-button" id="genreButton"><i class="fas fa-guitar"></i></button>
+        <button class="live-button" id="liveBtn"><i class="fas fa-broadcast-tower"></i></button>
         
         <button class="exit-car-btn" id="exitCarBtn"><i class="fas fa-car"></i> SAIR DO MODO CARRO</button>
         
@@ -818,6 +858,10 @@
         let generoAtual = "SERTANEJO";
         let trocaAutomaticaAtiva = true;
         
+        // MODO AO VIVO
+        let isAoVivo = false;
+        let historicoMusicasLive = []; // Para não repetir músicas recentemente
+        
         const musicas = [
             { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO" },
             { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO" },
@@ -849,7 +893,7 @@
             { id: 28, title: "Thank You", artist: "Dido", src: "Dido_Thank_You.m4a", genero: "POP" },
             { id: 29, title: "AA", artist: "Rogerplay", src: "Rogerplay1.m4a", genero: "FORRÓ" },
             { id: 30, title: "Onde Anda Você", artist: "Edimilson Batista", src: "01 onde andara vc.mp3", genero: "FORRÓ" },
-            { id: 31, title: "Despacito", artist: "Solange_Almeida", src: "Despacito_Solange_Almeida_feat_Erika_Ender_muzzik (1).m4a", genero: "FORRÓ" },
+            { id: 31, title: "Vagabundo", artist: "Forró Boys", src: "02 VAGABUNDO (1) (1).mp3", genero: "FORRÓ" },
             { id: 32, title: "Saudade", artist: "Dan Ventura", src: "Dan_Ventura_Saudade_muzzik.m4a", genero: "FORRÓ" }, 
             { id: 33, title: "Vida Cigana", artist: "Dayanna", src: "Dayanna_Vida_Cigana_muzzik.m4a", genero: "FORRÓ" },
             { id: 34, title: "Pout-Pourri", artist: "Huberto e Ronaldo", src: "Humao_aPand.m4a", genero: "FORRÓ" },
@@ -873,7 +917,7 @@
             { id: 52, title: "Que Era Eu", artist: "Lauana Prado", src: "LAUANA_PRADO_QUE_ERA_EU_UM_DIA_DE_DOMINGO.m4a", genero: "SERTANEJO" },
             { id: 53, title: "Assino com X", artist: "VH e Alexandre", src: "VH_e_Alexandre_Assino_com_X.m4a", genero: "SERTANEJO" },
             { id: 54, title: "Muleca Estrela", artist: "VH e Alexandre", src: "VH_e_Alexandre_Muleca_Estrela_Guia_A_Gente_Se_Enrosca.m4a", genero: "FORRÓ" }, 
-            { id: 55, title: "Pout-pourri", artist: "Murilo_Huff_Pout-pourri.m4a", src: "Murilo_Huff_Pout-pourri.m4a", genero: "SERTANEJO" },
+            { id: 55, title: "Mocano Hits", artist: "Mocano", src: "Mocano-Hists.m4a", genero: "FORRÓ" },
             { id: 56, title: "Pout-Pourri Toca do Vale", artist: "Toca do Vale", src: "Toca_do_Vale_ Pout-Pourri.m4a", genero: "FORRÓ" },
             { id: 57, title: "Senta Danada", artist: "Zé Felipe", src: "Zé Felipe e Os Barões Da Pisadinha - Senta Danada .mp3", genero: "FORRÓ" }, 
             { id: 58, title: "Another Day In Paradise", artist: "Ivan Barreto", src: "Ivan_Barreto_Another_Day_In_Paradise_.m4a", genero: "POP" },
@@ -881,29 +925,124 @@
             { id: 60, title: "Seu-Matruz", artist: "Seu-Matruz-França", src: "Seu-Matruz-França.m4a", genero: "FORRÓ" },
             { id: 61, title: "Pout-Pourri Sirano & Sirino", artist: "Mono-walter", src: "Mono-walter (1).m4a", genero: "FORRÓ" },
             { id: 62, title: "Lembranças de um beijo", artist: "Cham", src: "Lembran_a_de_um_Beijo_Chambinho_Do_Acordeon_Waldonys_muzzik.m4a", genero: "FORRÓ" },
-            { id: 63, title: "La Barca", artist: "Murilo Huff", src: "Guilherme_Ferri_Mar_de_Solid_o_muzzik.m4a", genero: "SERTANEJO" },
-             { id: 64, title: "Brigas-Brigas", artist: "MIlhonario & José Rico", src: "Brigas-Brigas.m4a", genero: "SERTANEJO" }, 
-                 { id: 65, title: "Pout_Pourri", artist: "Luiza_Martins", src: "Luiza_Martins_Pout_Pourri_Na_Hora_do_Adeus_Fruto_.m4a", genero: "SERTANEJO" },
-                 { id: 67, title: "Anjo Que.", artist: "Solange alm.", src: "Anjo_Querubim_Anjo_Querubim_muzzik.m4a", genero: "FORRÓ" },
-                 { id: 68, title: "Leão_Domado_Filho_do_Mato", artist: "Paraná", src: "Le_o_Domado_Filho_do_Mato_Paran_O_Canto_do_Can_rio_muzzik.m4a", genero: "SERTANEJO" },
-                 { id: 69, title: "Mar_de_Solidão", artist: "Gui. Ferri", src: "Guilherme_Ferri_Mar_de_Solid_o_muzzik.m4a", genero: "FORRÓ" },
-                 { id: 70, title: "A_Natureza_das_Coisas", artist: "Coisas_Joyce_Alane_e_Zeca_Baleiro", src: "A_Natureza_das_Coisas_Joyce_Alane_e_Zeca_Baleiro_muzzik.m4a", genero: "FORRÓ" },
-                 { id: 71, title: "Toque_Toque_DJ. Samara", artist: "VH_e_Alexandre", src: "VH_e_Alexandre_Toque_Toque_DJ..m4a", genero: "FORRÓ" },
-                 { id: 72, title: "CANTEIROS", artist: " A Vontade", src: "CANTEIROS_Vontade_muzzik.m4a", genero: "FORRÓ" },
-                 { id: 73, title: "Bye_Bye_My_Love", artist: "Fernandinha", src: "Fernandinha_Bye_Bye_My_Love_muzzik.m4a", genero: "FORRÓ" },
-                 { id: 74, title: "Bison_e_ComaSe_Z_Rico_Estivesse_Vivo", artist: "Bison", src: "Bison_e_Comassetto_Se_Z_Rico_Estivesse_Vivo_muzzik.m4a", genero: "SERTANEJO" },
-                 { id: 75, title: "vfd", artist: "Odair JOsé", src: "Mande_Nem_Mande_Nem_Que_Seja_um_Telegrama_muzzik.m4a", genero: "BREGA" },
-              { id: 76, title: "Roberto MILER", artist: "Entre_Espumas", src: "Entre_Espumas_Entre_Espumas_muzzik.m4a", genero: "BREGA" },
-            { id: 77, title: "AAASER", artist: "HG", src: "Hugo_e_Guilherme_Pot_pourri_Devolva_me_Voc_N_o_Me_Ensinou_a_Te_Esquecer_muzzik.m4a", genero: "FORRÓ" },
-         { id: 78, title: "NA QUELA MESA", artist: "Zezo_Sem_Fronteiras", src: "Zezo_Sem_Fronteiras_Naquela_Mesa_Part_Nattan_muzzik.m4a", genero: "BREGA" },
-    { id: 79, title: "SA", artist: "ZEZO", src: "Zezo_Sem_Fronteiras_Naquela_Mesa_Part_Nattan_muzzik.m4a", genero: "FORRÓ" },
-            { id: 80, title: "Roger", artist: "Não me perdoei", src: "1 - Não me perdoei (2).mp3", genero: "FORRÓ" },
-            { id: 7, title: "MANO_A_MANO", artist: "MANO_A_MANO", src: "MANO_A_MANO_Pedindo_Amor_Video_Clipe_Oficial_muzzik.m4a", genero: "SERTANEJO" },
-            { id: 7, title: "", artist: "", src: "", genero: "FORRÓ" },
-            
-            
+            { id: 63, title: "La Barca", artist: "Murilo Huff", src: "Murilo_Huff_La_Barca.m4a", genero: "SERTANEJO" },
         ];
-        1 - Não me perdoei (2).mp3
+        
+        // ==================== FUNÇÕES DO MODO AO VIVO ====================
+        function ativarModoAoVivo() {
+            isAoVivo = true;
+            trocaAutomaticaAtiva = false;
+            
+            // Para os anúncios
+            if (videoAdInterval) clearInterval(videoAdInterval);
+            
+            // Muda o badge para LIVE
+            const badge = document.getElementById('genreBadge');
+            badge.innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE';
+            badge.classList.add('live');
+            
+            // Muda o botão ao vivo para estado ativo
+            const liveBtn = document.getElementById('liveBtn');
+            liveBtn.classList.add('active');
+            liveBtn.style.animation = 'pulseRed 1.5s infinite';
+            
+            // Cria playlist infinita com todas as músicas embaralhadas
+            const todasMusicas = [...musicas];
+            for (let i = todasMusicas.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [todasMusicas[i], todasMusicas[j]] = [todasMusicas[j], todasMusicas[i]];
+            }
+            filteredPlaylist = todasMusicas;
+            currentIndex = 0;
+            historicoMusicasLive = [];
+            loadTrackUI(currentIndex);
+            
+            showNotification('🔴 MODO AO VIVO ATIVADO! Músicas sem parar!', 3000);
+            console.log("🔴 Modo AO VIVO ativado - Anúncios desativados");
+            
+            if (isPlaying) {
+                playMusic().catch(e => console.log);
+            }
+        }
+        
+        function desativarModoAoVivo() {
+            isAoVivo = false;
+            trocaAutomaticaAtiva = true;
+            
+            // Reativa os anúncios
+            if (videoAdInterval) clearInterval(videoAdInterval);
+            videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
+            
+            // Volta o badge para o gênero normal
+            const badge = document.getElementById('genreBadge');
+            badge.classList.remove('live');
+            const track = filteredPlaylist[currentIndex];
+            if (track) {
+                updateGenreBadge(track.genero);
+            } else {
+                updateGenreBadge("SERTANEJO");
+            }
+            
+            // Remove estado ativo do botão
+            const liveBtn = document.getElementById('liveBtn');
+            liveBtn.classList.remove('active');
+            liveBtn.style.animation = '';
+            
+            // Volta para a playlist normal do gênero atual
+            const musicasDoGenero = musicas.filter(m => m.genero === generoAtual);
+            if (musicasDoGenero.length > 0) {
+                filteredPlaylist = [...musicasDoGenero];
+                for (let i = filteredPlaylist.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [filteredPlaylist[i], filteredPlaylist[j]] = [filteredPlaylist[j], filteredPlaylist[i]];
+                }
+            } else {
+                filteredPlaylist = generateSmartPlaylist();
+            }
+            currentIndex = 0;
+            loadTrackUI(currentIndex);
+            
+            showNotification('🔘 Modo AO VIVO desativado. Voltando ao modo normal.', 3000);
+            console.log("🔘 Modo AO VIVO desativado - Anúncios reativados");
+            
+            if (isPlaying) {
+                playMusic().catch(e => console.log);
+            }
+        }
+        
+        function toggleAoVivo() {
+            if (isAoVivo) {
+                desativarModoAoVivo();
+            } else {
+                ativarModoAoVivo();
+            }
+        }
+        
+        function proximaMusicaLive() {
+            if (!isAoVivo) return null;
+            
+            // Filtra músicas que não estão no histórico recente (últimas 5)
+            const musicasDisponiveis = musicas.filter(m => !historicoMusicasLive.includes(m.id));
+            
+            let proxima;
+            if (musicasDisponiveis.length === 0) {
+                // Se todas já foram tocadas recentemente, limpa o histórico e começa de novo
+                historicoMusicasLive = [];
+                proxima = musicas[Math.floor(Math.random() * musicas.length)];
+            } else {
+                proxima = musicasDisponiveis[Math.floor(Math.random() * musicasDisponiveis.length)];
+            }
+            
+            // Adiciona ao histórico
+            historicoMusicasLive.push(proxima.id);
+            // Mantém apenas as últimas 5
+            if (historicoMusicasLive.length > 5) {
+                historicoMusicasLive.shift();
+            }
+            
+            return proxima;
+        }
+        
         // ==================== ALGORITMO DE IA ====================
         let userPreferences = {
             likedSongs: [],
@@ -1044,7 +1183,7 @@
         }
         
         function mudarGeneroAutomaticamente() {
-            if (!trocaAutomaticaAtiva) return;
+            if (!trocaAutomaticaAtiva || isAoVivo) return;
             
             let indiceAtual = GENEROS_DISPONIVEIS.indexOf(generoAtual);
             let proximoIndice = (indiceAtual + 1) % GENEROS_DISPONIVEIS.length;
@@ -1074,7 +1213,7 @@
         const videoAdOverlay = document.getElementById('videoAdOverlay');
         
         function iniciarVideoAd() {
-            if (isCarMode) return;
+            if (isCarMode || isAoVivo) return;
             if (adVideoPlaying) return;
             
             adVideoPlaying = true;
@@ -1111,7 +1250,7 @@
         const adAudio = document.getElementById('adAudio');
         
         function playAudioAd() {
-            if (isCarMode) return;
+            if (isCarMode || isAoVivo) return;
             if (adAudioPlaying) return;
             
             const wasPlaying = isPlaying;
@@ -1158,6 +1297,7 @@
         }
         
         function incrementMusicCounter() {
+            if (isAoVivo) return; // Não conta músicas no modo AO VIVO
             musicCounter++;
             if (musicCounter >= QUANTIDADE_MUSICAS_AUDIO) {
                 musicCounter = 0;
@@ -1293,9 +1433,9 @@
         
         // ==================== CORE DO PLAYER ====================
         const videosList = [
-            { src: "pat12.mp4", nome: "Rádio Patico", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Olá,%20quero%20mais%20informações!", botaoTexto: "Peça sua Playlist" },
-            { src: "pat12.mp4", nome: "MUTV", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Gostaria%20de%20um%20orçamento", botaoTexto: "WhatsApp" },
-            { src: "pat12.mp4", nome: "Diversão", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Quero%20saber%20mais", botaoTexto: "Contato" }
+            { src: "pai.mp4", nome: "Rádio Patico", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Olá,%20quero%20mais%20informações!", botaoTexto: "Peça sua Playlist" },
+            { src: "pai.mp4", nome: "MUTV", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Gostaria%20de%20um%20orçamento", botaoTexto: "WhatsApp" },
+            { src: "pai.mp4", nome: "Diversão", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Quero%20saber%20mais", botaoTexto: "Contato" }
         ];
         
         const musicPlayerEl = document.getElementById('musicPlayer');
@@ -1395,14 +1535,36 @@
                 default: icon = "fa-headphones"; 
             }
             genreBadge.innerHTML = `<i class="fas ${icon}"></i> ${genero === "MIX" ? "TODOS" : genero}`;
+            genreBadge.classList.remove('live');
         }
         
         function loadTrackUI(index) {
             if (filteredPlaylist.length === 0) return;
             if (index >= filteredPlaylist.length) {
-                if (trocaAutomaticaAtiva) {
+                if (trocaAutomaticaAtiva && !isAoVivo) {
                     mudarGeneroAutomaticamente();
                     return;
+                } else if (isAoVivo) {
+                    // No modo AO VIVO, busca uma próxima música sem repetir
+                    const proxima = proximaMusicaLive();
+                    if (proxima) {
+                        filteredPlaylist = [proxima];
+                        currentIndex = 0;
+                        const track = filteredPlaylist[currentIndex];
+                        if (track) {
+                            trackArtist.textContent = `${track.title} - ${track.artist} [${track.genero}]`;
+                            currentTimeEl.textContent = '0:00';
+                            totalTimeEl.textContent = '0:00';
+                            progressFill.style.width = '0%';
+                            if (isCarMode) {
+                                document.getElementById('carTrackText').textContent = `${track.title} - ${track.artist} [${track.genero}]`;
+                                document.getElementById('carCurrentOverlay').textContent = '0:00';
+                                document.getElementById('carTotalOverlay').textContent = '0:00';
+                                document.getElementById('carProgressFillOverlay').style.width = '0%';
+                            }
+                        }
+                        return;
+                    }
                 } else {
                     index = 0;
                 }
@@ -1416,7 +1578,9 @@
             currentTimeEl.textContent = '0:00';
             totalTimeEl.textContent = '0:00';
             progressFill.style.width = '0%';
-            updateGenreBadge(track.genero);
+            if (!isAoVivo) {
+                updateGenreBadge(track.genero);
+            }
             if (isCarMode) {
                 document.getElementById('carTrackText').textContent = `${track.title} - ${track.artist} [${track.genero}]`;
                 document.getElementById('carCurrentOverlay').textContent = '0:00';
@@ -1443,7 +1607,9 @@
             musicPlayerEl.pause();
             musicPlayerEl.src = track.src;
             musicPlayerEl.load();
-            updateGenreBadge(track.genero);
+            if (!isAoVivo) {
+                updateGenreBadge(track.genero);
+            }
             if (isCarMode) updateCarOverlayInfo();
             
             return new Promise((resolve) => {
@@ -1542,7 +1708,18 @@
                     let nextIndex = currentIndex + 1;
                     
                     if (nextIndex >= filteredPlaylist.length) {
-                        if (trocaAutomaticaAtiva) {
+                        if (isAoVivo) {
+                            // Modo AO VIVO: busca próxima música sem repetir
+                            const proxima = proximaMusicaLive();
+                            if (proxima) {
+                                filteredPlaylist = [proxima];
+                                currentIndex = 0;
+                                loadTrackUI(currentIndex);
+                                if (isCarMode) updateCarOverlayInfo();
+                                setTimeout(() => playMusic(), 100);
+                                return;
+                            }
+                        } else if (trocaAutomaticaAtiva) {
                             mudarGeneroAutomaticamente();
                             setTimeout(() => playMusic(), 100);
                             return;
@@ -1583,7 +1760,17 @@
             let nextIndex = currentIndex + 1;
             
             if (nextIndex >= filteredPlaylist.length) {
-                if (trocaAutomaticaAtiva) {
+                if (isAoVivo) {
+                    const proxima = proximaMusicaLive();
+                    if (proxima) {
+                        filteredPlaylist = [proxima];
+                        currentIndex = 0;
+                        loadTrackUI(currentIndex);
+                        if (isCarMode) updateCarOverlayInfo();
+                        if (isPlaying) await playMusic();
+                        return;
+                    }
+                } else if (trocaAutomaticaAtiva) {
                     mudarGeneroAutomaticamente();
                     setTimeout(() => playMusic(), 100);
                     return;
@@ -1610,6 +1797,10 @@
         }
         
         function filterByGenre(genero) {
+            if (isAoVivo) {
+                showNotification(`⚠️ Desative o modo AO VIVO primeiro para trocar de gênero!`, 2000);
+                return false;
+            }
             trocaAutomaticaAtiva = false;
             let novaPlaylist = [];
             if (genero === "TODOS") {
@@ -1635,22 +1826,27 @@
         
         function iniciarComMusicaAleatoria() {
             trocaAutomaticaAtiva = true;
+            isAoVivo = false;
+            
             const todasMusicas = [...musicas];
             for (let i = todasMusicas.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [todasMusicas[i], todasMusicas[j]] = [todasMusicas[j], todasMusicas[i]];
             }
+            
             filteredPlaylist = todasMusicas;
             currentIndex = Math.floor(Math.random() * filteredPlaylist.length);
             const track = filteredPlaylist[currentIndex];
             generoAtual = track.genero;
+            
             loadTrackUI(currentIndex);
             if (isCarMode) updateCarOverlayInfo();
             updateGenreBadge(track.genero);
+            
             console.log(`🎵 Iniciou com música ALEATÓRIA: ${track.title} (${track.genero})`);
         }
         
-        // ==================== MODO CARRO CORRIGIDO PARA ANDROID ====================
+        // ==================== MODO CARRO CORRIGIDO ====================
         function toggleCarMode() {
             const appEl = document.querySelector('.app');
             const carModeVideoDiv = document.querySelector('.car-mode-video');
@@ -1660,7 +1856,6 @@
             const carTrack = document.getElementById('carTrackOverlay');
             
             if (!isCarMode) {
-                // ATIVAR MODO CARRO
                 isCarMode = true;
                 appEl.classList.add('car-mode-active');
                 document.body.classList.add('car-mode-active');
@@ -1679,7 +1874,6 @@
                 if (carTrack) carTrack.classList.remove('visible');
                 console.log("✅ Modo Carro ATIVADO");
             } else {
-                // DESATIVAR MODO CARRO
                 isCarMode = false;
                 appEl.classList.remove('car-mode-active');
                 document.body.classList.remove('car-mode-active');
@@ -1687,12 +1881,10 @@
                 document.getElementById('carIndicator').style.display = 'none';
                 carModeVideoDiv.style.display = 'none';
                 if (carVideoEl) { carVideoEl.pause(); carVideoEl.currentTime = 0; }
-                // Força remover overlay
                 if (carOverlay) {
                     carOverlay.classList.remove('visible');
                     carOverlay.style.opacity = '0';
                     carOverlay.style.pointerEvents = 'none';
-                    carOverlay.style.display = 'flex';
                 }
                 if (carTrack) {
                     carTrack.classList.remove('visible');
@@ -1702,7 +1894,9 @@
                 showNotification('🚗 Modo Carro desativado.', 2000);
                 document.removeEventListener('touchstart', showCarControls);
                 document.removeEventListener('click', showCarControls);
-                videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
+                if (!isAoVivo) {
+                    videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
+                }
                 if (exitBtn) exitBtn.style.display = 'none';
                 console.log("✅ Modo Carro DESATIVADO");
             }
@@ -1776,7 +1970,11 @@
                 document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-brain"></i> IA Ativa';
                 document.getElementById('audioIndicator').style.color = '#4ade80';
                 iniciarManutencaoConstante();
-                videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
+                
+                if (!isAoVivo) {
+                    videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
+                }
+                
                 if ('wakeLock' in navigator) {
                     try {
                         await navigator.wakeLock.request('screen');
@@ -1821,6 +2019,10 @@
         prevBtn.addEventListener('click', () => { prevTrack(); resetHideTimer(); });
         nextBtn.addEventListener('click', () => { nextTrack(); resetHideTimer(); });
         shuffleBtn.addEventListener('click', () => { 
+            if (isAoVivo) {
+                showNotification(`⚠️ Modo AO VIVO ativo - aleatório não disponível!`, 2000);
+                return;
+            }
             shuffleMode = !shuffleMode; 
             showNotification(shuffleMode ? '🔀 Aleatório INTELIGENTE ON' : '➡️ Sequencial', 2000); 
             resetHideTimer(); 
@@ -1829,7 +2031,13 @@
         document.getElementById('likeBtn').addEventListener('click', () => { likeCurrentSong(); resetHideTimer(); });
         document.getElementById('dislikeBtn').addEventListener('click', () => { dislikeCurrentSong(); resetHideTimer(); });
         
-        function openGenresModal() { genresModal.classList.add('open'); }
+        function openGenresModal() { 
+            if (isAoVivo) {
+                showNotification(`⚠️ Desative o modo AO VIVO primeiro para trocar de gênero!`, 2000);
+                return;
+            }
+            genresModal.classList.add('open'); 
+        }
         function closeGenresModal() { genresModal.classList.remove('open'); }
         genreButton.addEventListener('click', openGenresModal);
         document.querySelectorAll('.genre-card').forEach(card => { 
@@ -1837,6 +2045,11 @@
         });
         document.getElementById('closeGenresBtn').addEventListener('click', closeGenresModal);
         genresModal.addEventListener('click', (e) => { if (e.target === genresModal) closeGenresModal(); });
+        
+        // Botão AO VIVO
+        const liveBtn = document.getElementById('liveBtn');
+        liveBtn.addEventListener('click', () => { toggleAoVivo(); resetHideTimer(); });
+        liveBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleAoVivo(); resetHideTimer(); });
         
         function toggleMenu() { menuPopup.classList.toggle('open'); }
         function closeMenu() { menuPopup.classList.remove('open'); }
@@ -1942,7 +2155,6 @@
         
         document.getElementById('carModeMenuBtn').addEventListener('click', () => { toggleCarMode(); closeMenu(); });
         
-        // BOTÃO SAIR DO MODO CARRO - PARA ANDROID (click + touchstart)
         const exitCarBtnElement = document.getElementById('exitCarBtn');
         if (exitCarBtnElement) {
             const sairHandler = function(e) {
@@ -1979,10 +2191,12 @@
             iniciarComMusicaAleatoria();
             tapToStart.style.display = 'block'; 
             iniciarVisualizer(); 
-            console.log("🎬 Rádio Patico IA - CORREÇÕES ANDROID:");
-            console.log("   ✅ Botão SAIR com eventos click e touchstart");
-            console.log("   ✅ Forçada remoção do overlay fosco");
-            console.log("   ✅ Música aleatória funcionando");
+            console.log("🎬 Rádio Patico IA - MODO AO VIVO IMPLEMENTADO:");
+            console.log("   ✅ Botão 🔴 AO VIVO adicionado");
+            console.log("   ✅ Playlist infinita sem repetir músicas recentes");
+            console.log("   ✅ Anúncios desativados no modo AO VIVO");
+            console.log("   ✅ Modo Carro funciona normalmente no LIVE");
+            console.log("   ✅ Todas as funcionalidades anteriores mantidas");
         });
     </script>
 </body>
