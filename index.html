@@ -730,7 +730,6 @@
             </video>
         </div>
         
-        <audio id="adAudio" preload="auto" style="display: none;"></audio>
         <div class="audio-ad-container" id="audioAdToast">
             <i class="fas fa-volume-up"></i>
             <span id="audioAdText">🎧 Anúncio</span>
@@ -812,7 +811,7 @@
             <h2><i class="fas fa-video"></i> 3. Anúncios Configuráveis</h2>
             <p>📹 <strong>Anúncio em vídeo (tea.mp4)</strong> - aparece a cada <strong>30 segundos</strong> (NÃO interrompe a música)</p>
             <p>🎵 <strong>Anúncio em áudio (paticom.mp3)</strong> - a cada <strong>20 músicas</strong> (pausa a música, toca e volta)</p>
-            <p>🎙️ <strong>Vinhetas</strong> - áudios curtos que tocam entre as músicas (configurável)</p>
+            <p>🎙️ <strong>Vinhetas</strong> - áudios curtos que tocam entre as músicas (a cada 3 músicas)</p>
             
             <h2><i class="fas fa-car"></i> 4. Modo Carro</h2>
             <p>🚗 <strong>Ativar</strong> - Menu → Modo Carro</p>
@@ -828,8 +827,9 @@
             
             <div class="atencao">
                 <strong>⚠️ ATENÇÃO:</strong> Para adicionar novas músicas, edite o array "musicas" no código.
-                Cada música precisa ter: id, title, artist, src, genero.
-                Para músicas que tocam apenas no modo AO VIVO, adicione <strong>tipo: "ao vivo"</strong>
+                Cada música precisa ter: id, title, artist, src, genero, tipo.
+                Para músicas que tocam apenas no modo AO VIVO, use <strong>tipo: "ao vivo"</strong>
+                Para músicas normais, use <strong>tipo: "normal"</strong>
             </div>
             
             <button class="close-manual-btn" id="closeManualBtn">✕ FECHAR MANUAL</button>
@@ -868,6 +868,7 @@
         // ==================== CONFIGURAÇÕES ========================================
         // ============================================================================
         
+        // ANÚNCIOS
         const ARQUIVO_ANUNCIO_VIDEO = "tea.mp4";
         const ARQUIVO_ANUNCIO_AUDIO = "paticom.mp3";
         const INTERVALO_VIDEO_MS = 30000;
@@ -875,6 +876,17 @@
         const MENSAGEM_ANUNCIO_AUDIO = "🎧 Obrigado por ouvir Rádio Patico!";
         const VOLUME_ANUNCIO_AUDIO = 0.9;
         const VOLUME_PLAYER = 0.9;
+        
+        // ========== CONFIGURAÇÕES DAS VINHETAS (EDITÁVEIS) ==========
+        const INTERVALO_VINHETA_MUSICAS = 3;   // ← Vinheta a cada X músicas
+        const vinhetas = [
+            "vinheta1.mp3",           // ← Coloque suas vinhetas aqui
+            "zzvc.mp3",
+            "voce_esta_ouvindo.mp3",
+            "radio_patico.mp3"
+        ];
+        // ==============================================================
+        
         const MODO_ALEATORIO_PADRAO = false;
         const INTERVALO_TROCA_VIDEO = 20000;
         const NUMERO_WHATSAPP = "5512988461978";
@@ -887,21 +899,16 @@
         // MODO AO VIVO
         let isAoVivo = false;
         let historicoMusicasLive = [];
-        // CONFIGURAÇÕES DAS VINHETAS
-const INTERVALO_VINHETA_MUSICAS = 3;
-const vinhetas = [
-    "vinheta1.mp3",
-    "zzvc.mp3",
-    "voce_esta_ouvindo.mp3",
-    "radio_patico.mp3"
-];
+        
+        // CONTROLE DE VINHETAS
+        let tocandoVinheta = false;
+        let contadorMusicasVinheta = 0;
+        
         // ==================== PLAYLIST COMPLETA ====================
-        // Músicas com tipo: "ao vivo" -> SÓ TOCAM NO MODO AO VIVO
-        // Músicas com tipo: "normal" ou sem tipo -> TOCAM NO MODO NORMAL
         const musicas = [
             // SERTANEJO
-            { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "ao vivo" },
-            { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "ao vivo" },
+            { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
+            { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
             { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
             { id: 4, title: "Pout Pourri", artist: "Luiza Martins", src: "Luiza_Martins_Pout_Pourri_Na_Hora_do_Adeus_Fruto_.m4a", genero: "SERTANEJO", tipo: "normal" },
             { id: 5, title: "Retrovisor", artist: "Gusttavo Lima", src: "Gusttavo_Lima_Retrovisor_DVD_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -973,16 +980,16 @@ const vinhetas = [
             { id: 63, title: "Easy", artist: "Commodores", src: "Commodores_Easy_6.m4a", genero: "BREGA", tipo: "normal" },
             { id: 64, title: "Tarde Demais", artist: "À Vontade", src: "_Vontade_TARDE_DEMAIS_.m4a", genero: "BREGA", tipo: "normal" },
             
-            // MPB - Músicas normais
-            { id: 100, title: "Palpite", artist: "Vanessa Rangel", src: "Palpite_Palpite_muzzik.m4a", genero: "MPB", tipo: "normal" },
-            { id: 101, title: "Sinais de Fogo", artist: "Preta Gil", src: "Preta_gil_sinais_de_fogo_muzzik.m4a", genero: "MPB", tipo: "normal" },
-            { id: 102, title: "Francesa", artist: "Kiko Zabianch", src: "AFrancesa_Francesa_muzzik.m4a", genero: "MPB", tipo: "normal" },
-            { id: 103, title: "Linda Juventude", artist: "Flavio Venturini", src: "9Flavio_Venturini_Flavio_Venturini_Feat_Jota_muzzik.m4a", genero: "MPB", tipo: "normal" },
-            { id: 104, title: "Quem dera eu Seu Zé", artist: "Ana Carolina", src: "Ana_Carolina_Quem_dera_eu_Seu_Z__muzzik.m4a", genero: "MPB", tipo: "normal" },
-            { id: 105, title: "Fé", artist: "Caetano Veloso", src: "Caetano_Veloso_Maria_Bethania.m4a", genero: "MPB", tipo: "normal" },
+            // MPB
+            { id: 100, title: "Palpite", artist: "Vanessa Rangel", src: "Vanessa_Rangel_Palpite_Palpite_muzzik.m4a", genero: "MPB", tipo: "normal" },
+            { id: 101, title: "Sinais de Fogo", artist: "Preta Gil", src: "Preta_Gil_sinais_de_fogo_muzzik.m4a", genero: "MPB", tipo: "normal" },
+            { id: 102, title: "Francesa", artist: "Kiko Zabianch", src: "Kiko_Zabianch_AFrancesa_Francesa_muzzik.m4a", genero: "MPB", tipo: "normal" },
+            { id: 103, title: "Linda Juventude", artist: "Flavio Venturini", src: "Flavio_Venturini_Jota_Quest_Linda_Juventude_muzzik.m4a", genero: "MPB", tipo: "normal" },
+            { id: 104, title: "Quem dera eu Seu Zé", artist: "Ana Carolina", src: "Ana_Carolina_Quem_dera_eu_Seu_Ze_muzzik.m4a", genero: "MPB", tipo: "normal" },
+            { id: 105, title: "Fé", artist: "Caetano Veloso", src: "Caetano_Veloso_Maria_Bethania_Fe_muzzik.m4a", genero: "MPB", tipo: "normal" },
             { id: 106, title: "Sina", artist: "Djavan", src: "Djavan_Sina_muzzik.m4a", genero: "MPB", tipo: "normal" },
-            { id: 107, title: "Dois Beijinhos", artist: "Seu Jorge", src: "Dois_Beijinhos_Dois_Beijinhos_muzzik.m4a", genero: "MPB", tipo: "normal" },
-            { id: 108, title: "Pra quem tem fé", artist: "Falcão", src: "Falcão-prá-quem-tem fé.m4a", genero: "MPB", tipo: "normal" },
+            { id: 107, title: "Dois Beijinhos", artist: "Seu Jorge", src: "Seu_Jorge_Dois_Beijinhos_muzzik.m4a", genero: "MPB", tipo: "normal" },
+            { id: 108, title: "Pra quem tem fé", artist: "Falcão", src: "Falcao_pra_quem_tem_fe_muzzik.m4a", genero: "MPB", tipo: "normal" },
             { id: 109, title: "Jura Secreta", artist: "Fagner", src: "Fagner_Ze_Ramalho_Jura_Secreta_Revela_muzzik.m4a", genero: "MPB", tipo: "normal" },
             { id: 110, title: "A Tal Canção Pra Lua", artist: "Vitor Kley", src: "Vitor_Kley_Samuel_Rosa_A_Tal_Cancao_Pra_Lua_muzzik.m4a", genero: "MPB", tipo: "normal" },
             { id: 111, title: "Verdade Chinesa", artist: "Emilio Santiago", src: "Verdade_Chinesa_Verdade_Chinesa_Em_lio_Santiago_muzzik.m4a", genero: "MPB", tipo: "normal" },
@@ -1008,9 +1015,9 @@ const vinhetas = [
             { id: 131, title: "Papel Machê", artist: "João Bosco", src: "Jo_o_Bosco_Papel_Machê.m4a", genero: "MPB", tipo: "normal" },
             { id: 132, title: "Uma Brasileira", artist: "Carlinhos Brown", src: "Uma_Brasileira_Uma_Brasileira_muzzik.m4a", genero: "MPB", tipo: "normal" },
             { id: 133, title: "MPB Toada", artist: "Boca Livre", src: "Boca_Livre_MPB_Toada_muzzik.m4a", genero: "MPB", tipo: "normal" },
-            { id: 134, title: "Problemas", artist: "Ana Carolina", src: "Ana_Carolina_Problemas_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
+            { id: 134, title: "Problemas", artist: "Ana Carolina", src: "Ana_Carolina_Problemas_muzzik.m4a", genero: "MPB", tipo: "normal" },
             
-            // MPB - MÚSICAS QUE SÓ TOCAM NO MODO AO VIVO
+            // MÚSICAS EXCLUSIVAS DO MODO AO VIVO
             { id: 135, title: "A Loba", artist: "Alcione", src: "A_Loba_A_Loba_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
             { id: 136, title: "Show Ao Vivo - Especial", artist: "Artista Exemplo", src: "show_ao_vivo.mp3", genero: "MPB", tipo: "ao vivo" },
             
@@ -1021,36 +1028,65 @@ const vinhetas = [
             { id: 203, title: "Internacional", artist: "Top Hits", src: "internacional.mp3", genero: "VARIADAS", tipo: "normal" },
         ];
         
+        // ==================== FUNÇÃO PARA TOCAR VINHETA ====================
+        function tocarVinheta() {
+            if (isAoVivo) return false;
+            if (vinhetas.length === 0) return false;
+            if (tocandoVinheta) return false;
+            
+            const vinhetaAleatoria = vinhetas[Math.floor(Math.random() * vinhetas.length)];
+            console.log("🎙️ Tocando vinheta:", vinhetaAleatoria);
+            
+            const wasPlaying = isPlaying;
+            if (wasPlaying) {
+                musicPlayerEl.pause();
+                isPlaying = false;
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                if (document.getElementById('carOverlayPlay')) 
+                    document.getElementById('carOverlayPlay').innerHTML = '<i class="fas fa-play"></i>';
+                stopTimer();
+                pararVisualizer();
+            }
+            
+            tocandoVinheta = true;
+            const audioVinheta = new Audio(vinhetaAleatoria);
+            audioVinheta.volume = VOLUME_PLAYER;
+            audioVinheta.play().catch(e => console.log("Erro na vinheta:", e));
+            
+            audioVinheta.onended = () => {
+                tocandoVinheta = false;
+                if (wasPlaying) {
+                    playMusic().catch(e => console.log);
+                }
+            };
+            
+            return true;
+        }
+        
         // ==================== FUNÇÕES DO MODO AO VIVO ====================
         function ativarModoAoVivo() {
             isAoVivo = true;
             trocaAutomaticaAtiva = false;
             
-            // Para os anúncios
             if (videoAdInterval) clearInterval(videoAdInterval);
             
-            // Muda o badge para LIVE
             const badge = document.getElementById('genreBadge');
             badge.innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE';
             badge.classList.add('live');
             
-            // Muda o botão ao vivo para estado ativo
             const liveBtn = document.getElementById('liveBtn');
             liveBtn.classList.add('active');
             liveBtn.style.animation = 'pulseRed 1.5s infinite';
             
-            // 🔥 FILTRA APENAS MÚSICAS COM tipo "ao vivo"
             let musicasAoVivo = musicas.filter(m => m.tipo === "ao vivo");
             
             if (musicasAoVivo.length === 0) {
-                // Se não tiver nenhuma música exclusiva, avisa
                 showNotification('🔴 MODO AO VIVO ATIVADO! (Nenhuma música exclusiva encontrada)', 3000);
                 musicasAoVivo = [...musicas];
             } else {
                 showNotification(`🔴 MODO AO VIVO ATIVADO! ${musicasAoVivo.length} músicas exclusivas!`, 3000);
             }
             
-            // Embaralha as músicas ao vivo
             for (let i = musicasAoVivo.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [musicasAoVivo[i], musicasAoVivo[j]] = [musicasAoVivo[j], musicasAoVivo[i]];
@@ -1072,25 +1108,20 @@ const vinhetas = [
             isAoVivo = false;
             trocaAutomaticaAtiva = true;
             
-            // Reativa os anúncios
             if (videoAdInterval) clearInterval(videoAdInterval);
             videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
             
-            // Volta o badge para o gênero normal
             const badge = document.getElementById('genreBadge');
             badge.classList.remove('live');
             
-            // 🔥 FILTRA APENAS MÚSICAS COM tipo "normal" ou sem tipo do gênero atual
             let musicasDoGenero = musicas.filter(m => m.genero === generoAtual && (m.tipo === "normal" || !m.tipo));
             
             if (musicasDoGenero.length === 0) {
-                // Se não tiver músicas normais do gênero, usa todas as músicas normais
                 musicasDoGenero = musicas.filter(m => m.tipo === "normal" || !m.tipo);
                 if (musicasDoGenero.length === 0) musicasDoGenero = [...musicas];
                 showNotification(`🎵 Carregando músicas do modo normal`, 2000);
             }
             
-            // Embaralha a playlist
             for (let i = musicasDoGenero.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [musicasDoGenero[i], musicasDoGenero[j]] = [musicasDoGenero[j], musicasDoGenero[i]];
@@ -1101,7 +1132,6 @@ const vinhetas = [
             loadTrackUI(currentIndex);
             updateGenreBadge(generoAtual);
             
-            // Remove estado ativo do botão
             const liveBtn = document.getElementById('liveBtn');
             liveBtn.classList.remove('active');
             liveBtn.style.animation = '';
@@ -1125,21 +1155,17 @@ const vinhetas = [
         function proximaMusicaLive() {
             if (!isAoVivo) return null;
             
-            // Filtra músicas que não estão no histórico recente (últimas 5)
             const musicasDisponiveis = filteredPlaylist.filter(m => !historicoMusicasLive.includes(m.id));
             
             let proxima;
             if (musicasDisponiveis.length === 0) {
-                // Se todas já foram tocadas recentemente, limpa o histórico e começa de novo
                 historicoMusicasLive = [];
                 proxima = filteredPlaylist[Math.floor(Math.random() * filteredPlaylist.length)];
             } else {
                 proxima = musicasDisponiveis[Math.floor(Math.random() * musicasDisponiveis.length)];
             }
             
-            // Adiciona ao histórico
             historicoMusicasLive.push(proxima.id);
-            // Mantém apenas as últimas 5
             if (historicoMusicasLive.length > 5) {
                 historicoMusicasLive.shift();
             }
@@ -1223,7 +1249,6 @@ const vinhetas = [
         }
         
         function generateSmartPlaylist() {
-            // No smart, pega apenas músicas normais (não ao vivo)
             const musicasNormais = musicas.filter(m => m.tipo === "normal" || !m.tipo);
             const scoredSongs = musicasNormais.map(song => ({ ...song, weight: calculateSongWeight(song) }));
             scoredSongs.sort((a, b) => b.weight - a.weight);
@@ -1295,7 +1320,6 @@ const vinhetas = [
             let proximoIndice = (indiceAtual + 1) % GENEROS_DISPONIVEIS.length;
             let novoGenero = GENEROS_DISPONIVEIS[proximoIndice];
             
-            // Busca apenas músicas normais do novo gênero
             const musicasDoNovoGenero = musicas.filter(m => m.genero === novoGenero && (m.tipo === "normal" || !m.tipo));
             
             if (musicasDoNovoGenero.length > 0) {
@@ -1406,19 +1430,18 @@ const vinhetas = [
         function incrementMusicCounter() {
             if (isAoVivo) return;
             musicCounter++;
+            
+            // Verifica se é hora de tocar vinheta
+            contadorMusicasVinheta++;
+            if (contadorMusicasVinheta >= INTERVALO_VINHETA_MUSICAS && !tocandoVinheta && vinhetas.length > 0) {
+                contadorMusicasVinheta = 0;
+                tocarVinheta();
+                return; // Sai da função para não tocar anúncio junto com vinheta
+            }
+            
             if (musicCounter >= QUANTIDADE_MUSICAS_AUDIO) {
                 musicCounter = 0;
                 playAudioAd();
-            }
-            const audioIndicatorEl = document.getElementById('audioIndicator');
-            if (audioIndicatorEl) {
-                const remaining = QUANTIDADE_MUSICAS_AUDIO - musicCounter;
-                audioIndicatorEl.innerHTML = `<i class="fas fa-brain"></i> IA | Áudio em ${remaining} músicas`;
-                setTimeout(() => {
-                    if (audioIndicatorEl.innerHTML.includes('Áudio em')) {
-                        audioIndicatorEl.innerHTML = '<i class="fas fa-brain"></i> IA Ativa';
-                    }
-                }, 3000);
             }
         }
         
@@ -1711,6 +1734,7 @@ const vinhetas = [
             if (!isBackgroundActive) { showNotification('⚠️ Clique em "ATIVAR RÁDIO" primeiro!', 3000); return false; }
             if (filteredPlaylist.length === 0) return false;
             if (isLoadingTrack) return false;
+            if (tocandoVinheta) return false;
             
             isLoadingTrack = true;
             showLoading();
@@ -1926,7 +1950,6 @@ const vinhetas = [
                 updateGenreBadge("MIX");
                 generoAtual = "MIX";
             } else {
-                // Busca apenas músicas normais do gênero
                 novaPlaylist = musicas.filter(m => m.genero === genero && (m.tipo === "normal" || !m.tipo));
                 novaPlaylist.sort((a, b) => calculateSongWeight(b) - calculateSongWeight(a));
                 
@@ -1954,7 +1977,6 @@ const vinhetas = [
             trocaAutomaticaAtiva = true;
             isAoVivo = false;
             
-            // Pega apenas músicas normais
             const musicasNormais = musicas.filter(m => m.tipo === "normal" || !m.tipo);
             const todasMusicas = musicasNormais.length > 0 ? musicasNormais : [...musicas];
             
@@ -2175,7 +2197,6 @@ const vinhetas = [
         document.getElementById('closeGenresBtn').addEventListener('click', closeGenresModal);
         genresModal.addEventListener('click', (e) => { if (e.target === genresModal) closeGenresModal(); });
         
-        // Botão AO VIVO
         const liveBtn = document.getElementById('liveBtn');
         liveBtn.addEventListener('click', () => { toggleAoVivo(); resetHideTimer(); });
         liveBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleAoVivo(); resetHideTimer(); });
@@ -2320,10 +2341,10 @@ const vinhetas = [
             iniciarComMusicaAleatoria();
             tapToStart.style.display = 'block'; 
             iniciarVisualizer(); 
-            console.log("🎬 Rádio Patico IA - VERSÃO FINAL:");
+            console.log("🎬 Rádio Patico IA - VERSÃO COMPLETA:");
+            console.log("   ✅ Vinhetas funcionando a cada " + INTERVALO_VINHETA_MUSICAS + " músicas");
             console.log("   ✅ Músicas com tipo 'ao vivo' → Modo AO VIVO");
             console.log("   ✅ Músicas com tipo 'normal' → Modo NORMAL");
-            console.log("   ✅ NOVOS GÊNEROS: MPB e VARIADAS");
             console.log("   ✅ Modo Carro funcionando");
             console.log("   ✅ IA aprendendo com likes/dislikes");
         });
