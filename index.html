@@ -20,10 +20,6 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes glowPulse {
-            0%, 100% { box-shadow: 0 0 5px rgba(230,57,70,0.3); }
-            50% { box-shadow: 0 0 20px rgba(230,57,70,0.6); }
-        }
         
         .car-mode-active .fullscreen-video-container { display: none; }
         .car-mode-video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; background: #000; display: none; }
@@ -100,7 +96,7 @@
         }
         .car-track-overlay.visible { opacity: 1; }
         .car-mode-active .car-track-overlay { display: block; }
-        .car-track-overlay p { color: white; font-size: 0.9rem; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .car-track-overlay p { color: white; font-size: 0.9rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .car-progress-bar-overlay { height: 4px; background: rgba(255,255,255,0.3); border-radius: 4px; cursor: pointer; margin-top: 8px; }
         .car-progress-fill-overlay { height: 100%; background: #e63946; width: 0%; border-radius: 4px; }
         .car-time-overlay { display: flex; justify-content: space-between; font-size: 0.65rem; color: #ccc; margin-top: 5px; }
@@ -128,46 +124,6 @@
         }
         @keyframes floatGenre { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
         .genre-button:active { transform: scale(0.9); }
-        
-        /* Botão AO VIVO - oculto no início */
-        .live-button {
-            position: fixed;
-            bottom: 80px;
-            right: 90px;
-            background: linear-gradient(135deg, #e63946, #ff0000);
-            color: white;
-            border: none;
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            cursor: pointer;
-            z-index: 26;
-            pointer-events: auto;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            animation: pulseRed 1.5s infinite;
-            opacity: 0;
-            visibility: hidden;
-            transform: scale(0.8);
-        }
-        .live-button.visible {
-            opacity: 1;
-            visibility: visible;
-            transform: scale(1);
-        }
-        .live-button.active {
-            background: linear-gradient(135deg, #ff0000, #8b0000);
-            box-shadow: 0 0 20px rgba(255,0,0,0.8);
-        }
-        @keyframes pulseRed {
-            0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(255,0,0,0.3); }
-            50% { transform: scale(1.05); box-shadow: 0 4px 25px rgba(255,0,0,0.6); }
-        }
-        .live-button:active { transform: scale(0.9); }
         
         .exit-car-btn {
             position: fixed;
@@ -233,73 +189,84 @@
             border-left: 3px solid #e63946;
         }
         
-        /* BALÃO FLUTUANTE MODO AO VIVO */
+        /* BALÃO MODERNO - ESTILO GLASSMORPHISM */
         .live-info-balloon {
             position: fixed;
-            top: 70px;
+            top: 80px;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(135deg, #e63946, #ff0000);
-            border-radius: 60px;
-            padding: 12px 24px;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(16px);
+            border-radius: 80px;
+            padding: 10px 24px;
             z-index: 1000;
-            box-shadow: 0 5px 25px rgba(230, 57, 70, 0.5);
-            animation: balloonPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            border: 2px solid rgba(255,255,255,0.3);
-            min-width: 300px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15);
+            animation: balloonSlideDown 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
             cursor: pointer;
-            backdrop-filter: blur(4px);
+            border: none;
         }
         
-        @keyframes balloonPop {
-            0% { transform: translateX(-50%) scale(0.2); opacity: 0; }
-            70% { transform: translateX(-50%) scale(1.05); }
-            100% { transform: translateX(-50%) scale(1); opacity: 1; }
+        @keyframes balloonSlideDown {
+            0% { transform: translateX(-50%) translateY(-30px); opacity: 0; }
+            100% { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
         
         .live-info-balloon .balloon-content {
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 12px;
             color: white;
-            font-size: 0.95rem;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
         }
         
         .live-info-balloon .balloon-content i {
-            font-size: 1.2rem;
-            animation: micPulse 1s infinite;
+            font-size: 1rem;
+            opacity: 0.9;
         }
         
-        @keyframes micPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+        .live-info-balloon .balloon-content i:first-child {
+            color: #ff5e7e;
+            text-shadow: 0 0 8px rgba(255, 94, 126, 0.5);
+            animation: livePulse 1.2s infinite;
+        }
+        
+        @keyframes livePulse {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        .live-info-balloon .balloon-content span {
+            background: linear-gradient(135deg, #fff, #ffb3c1);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            font-weight: 600;
         }
         
         .live-info-balloon .balloon-timer {
-            margin-top: 8px;
-            height: 4px;
-            background: rgba(255,255,255,0.4);
-            border-radius: 4px;
+            margin-top: 6px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
             overflow: hidden;
         }
         
         .live-info-balloon .timer-bar {
             height: 100%;
             width: 100%;
-            background: white;
-            border-radius: 4px;
+            background: linear-gradient(90deg, #ff5e7e, #ffb347);
+            border-radius: 2px;
             transition: width linear;
         }
         
         .live-info-balloon.fade-out {
-            animation: balloonFadeOut 0.3s ease forwards;
+            animation: balloonFadeOut 0.25s ease forwards;
         }
         
         @keyframes balloonFadeOut {
-            to { opacity: 0; transform: translateX(-50%) scale(0.8); visibility: hidden; }
+            to { opacity: 0; transform: translateX(-50%) translateY(-20px); visibility: hidden; }
         }
         
         .menu-button {
@@ -609,6 +576,7 @@
             background: rgba(255,0,0,0.8);
             animation: pulseRed 1s infinite;
         }
+        @keyframes pulseRed { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         
         .audio-indicator {
             position: absolute;
@@ -804,15 +772,14 @@
         </div>
         
         <button class="genre-button" id="genreButton"><i class="fas fa-guitar"></i></button>
-        <button class="live-button" id="liveBtn"><i class="fas fa-broadcast-tower"></i></button>
         
         <button class="exit-car-btn" id="exitCarBtn"><i class="fas fa-car"></i> SAIR DO MODO CARRO</button>
         
-        <!-- BALÃO FLUTUANTE DO MODO AO VIVO -->
+        <!-- BALÃO MODERNO - ESTILO TRANSPARENTE -->
         <div class="live-info-balloon" id="liveInfoBalloon" style="display: none;">
             <div class="balloon-content">
-                <i class="fas fa-broadcast-tower"></i>
-                <span id="liveInfoText">🎙️ VOCÊ ESTÁ NO MODO AO VIVO!</span>
+                <i class="fas fa-circle"></i>
+                <span id="liveInfoText">AO VIVO • TRANSMISSÃO ESPECIAL</span>
                 <i class="fas fa-microphone-alt"></i>
             </div>
             <div class="balloon-timer">
@@ -905,18 +872,15 @@
             <p>🔴 <strong>Rádio inicia em MODO AO VIVO</strong> - tocando apenas músicas com <strong>tipo: "ao vivo"</strong></p>
             <p>📺 <strong>Anúncios e vinhetas</strong> - Só tocam no modo AO VIVO!</p>
             <p>🎵 Após terminar todas as músicas ao vivo, o modo normal é ativado automaticamente</p>
-            <p>📀 No modo normal, tocam músicas com <strong>tipo: "normal"</strong> e TODOS os gêneros</p>
-            <div class="dica">💡 Clique no botão vermelho para alternar entre os modos manualmente</div>
+            <div class="dica">💡 Para voltar ao modo AO VIVO, clique no botão roxo (guitarra) e escolha "🔴 VOLTAR AO VIVO"</div>
             
             <h2><i class="fas fa-video"></i> 3. Anúncios Configuráveis</h2>
             <p>📹 <strong>Anúncio em vídeo (tea.mp4)</strong> - aparece a cada <strong>30 segundos</strong> (apenas modo AO VIVO)</p>
             <p>🎵 <strong>Anúncio em áudio (radiom.mp3)</strong> - a cada <strong>20 músicas</strong> (apenas modo AO VIVO)</p>
-            <p>🎙️ <strong>Vinhetas</strong> - tocam a cada <strong>16 músicas</strong> no modo AO VIVO</p>
             
             <h2><i class="fas fa-car"></i> 4. Modo Carro</h2>
             <p>🚗 <strong>Ativar</strong> - Menu → Modo Carro</p>
             <p>👆 <strong>Controles</strong> - Toque na tela para aparecer os botões grandes</p>
-            <p>❌ <strong>Sair</strong> - Botão "SAIR DO MODO CARRO" no canto superior direito</p>
             
             <h2><i class="fas fa-hand-peace"></i> 5. Gestos</h2>
             <p>👉 <strong>Deslizar ESQUERDA/DIREITA</strong> = Próxima / anterior música</p>
@@ -924,13 +888,6 @@
             
             <h2><i class="fas fa-music"></i> 6. Gêneros Disponíveis</h2>
             <p>🎸 SERTANEJO | 🥁 FORRÓ | 🎵 SAMBA | 🎤 POP | ❤️ BREGA | 🎸 MPB | 🔀 VARIADAS</p>
-            
-            <div class="atencao">
-                <strong>⚠️ ATENÇÃO:</strong> Para adicionar novas músicas, edite o array "musicas" no código.
-                Cada música precisa ter: id, title, artist, src, genero, tipo.
-                Para músicas que tocam apenas no modo AO VIVO, use <strong>tipo: "ao vivo"</strong>
-                Para músicas normais, use <strong>tipo: "normal"</strong>
-            </div>
             
             <button class="close-manual-btn" id="closeManualBtn">✕ FECHAR MANUAL</button>
         </div>
@@ -947,7 +904,6 @@
             <div class="genre-card" data-genero="MPB"><i class="fas fa-guitar"></i><span>MPB</span></div>
             <div class="genre-card" data-genero="VARIADAS"><i class="fas fa-random"></i><span>VARIADAS</span></div>
             <div class="genre-card" data-genero="TODOS"><i class="fas fa-list-ul"></i><span>TODOS OS ESTILOS</span></div>
-            <!-- BOTÃO VOLTAR AO VIVO -->
             <div class="genre-card" data-genero="LIVE" style="background: linear-gradient(135deg, #e63946, #ff0000);">
                 <i class="fas fa-broadcast-tower"></i>
                 <span>🔴 VOLTAR AO VIVO</span>
@@ -983,7 +939,7 @@
         const VOLUME_PLAYER = 0.9;
         
         // TEMPO DO BALÃO AO VIVO (EDITÁVEL) - ALTERE AQUI QUANTOS SEGUNDOS FICA NA TELA
-        const TEMPO_BALAO_LIVE = 6; // <--- MUDE AQUI (segundos)
+        const TEMPO_BALAO_LIVE = 5; // <--- MUDE AQUI (segundos)
         
         // VINHETAS
         const INTERVALO_VINHETA_MUSICAS = 16;
@@ -1165,7 +1121,7 @@
             { id: 203, title: "Internacional", artist: "Top Hits", src: "internacional.mp3", genero: "VARIADAS", tipo: "normal" }
         ];
         
-        // ==================== FUNÇÕES DO BALÃO AO VIVO ====================
+        // ==================== FUNÇÕES DO BALÃO MODERNO ====================
         let balaoTimeout = null;
         
         function mostrarBalaoAoVivo(mensagemPersonalizada = null) {
@@ -1176,19 +1132,18 @@
             if (!balao) return;
             
             const mensagensLive = [
-                "🎙️ VOCÊ ESTÁ OUVINDO BREGÃO DO PATICO!",
-                "🔴 TRANSMISSÃO EXCLUSIVA!",
-                "🎤 SÓ AS MELHORES!",
-                "📻 RÁDIO PATICO - AO VIVO!",
-                "🎸 TESTE MIDIA! ROGER12<ç>",
-                "🎵 ALÔ SERTÃO,ALÔ GRACINHA E MARTA!",
-                "🔥 O MELHOR DO MOMENTO!",
-                "🎙️ EITA SAUDADES!",
-                "⚡ SUCESSOS DO PASSADO ",
-                "🎶 VOCÊ ESTÁ CONECTADO!"
+                "LIVE • TRANSMISSÃO EXCLUSIVA",
+                "🔴 AO VIVO • SUCESSOS",
+                "🎤 GRAVAÇÕES ORIGINAIS",
+                "📻 RÁDIO PATICO • AO VIVO",
+                "🎸 SOM DOS PALCOS",
+                "⚡ ENERGIA PURA • AO VIVO",
+                "🎵 ESPECIAL AO VIVO",
+                "🔴 VOCÊ ESTÁ CONECTADO"
             ];
+            
             const mensagem = mensagemPersonalizada || mensagensLive[Math.floor(Math.random() * mensagensLive.length)];
-            textoEl.innerHTML = `<i class="fas fa-broadcast-tower"></i> ${mensagem} <i class="fas fa-microphone-alt"></i>`;
+            textoEl.innerHTML = `${mensagem}`;
             
             balao.classList.remove('fade-out');
             balao.style.display = 'block';
@@ -1207,12 +1162,12 @@
                         balao.style.display = 'none';
                     }
                     balao.classList.remove('fade-out');
-                }, 300);
+                }, 250);
             }, TEMPO_BALAO_LIVE * 1000);
             
             balao.onclick = () => {
                 const qtdMusicas = filteredPlaylist ? filteredPlaylist.length : 0;
-                showNotification(`📻 AO VIVO | 🎵 ${qtdMusicas} músicas na fila | 👍 ${userPreferences.likedSongs.length} curtidas`, 3000);
+                showNotification(`📻 AO VIVO | 🎵 ${qtdMusicas} músicas | 👍 ${userPreferences.likedSongs.length} curtidas`, 3000);
                 if (balaoTimeout) {
                     clearTimeout(balaoTimeout);
                     timerBar.style.transition = 'none';
@@ -1222,12 +1177,13 @@
                     timerBar.style.width = '0%';
                     balaoTimeout = setTimeout(() => {
                         balao.classList.add('fade-out');
-                        setTimeout(() => balao.style.display = 'none', 300);
+                        setTimeout(() => balao.style.display = 'none', 250);
                     }, TEMPO_BALAO_LIVE * 1000);
                 }
             };
         }
         
+        // ==================== FUNÇÕES DO PLAYER ====================
         function tocarVinheta() {
             if (!isAoVivo) return false;
             if (vinhetas.length === 0) return false;
@@ -1270,10 +1226,6 @@
             const badge = document.getElementById('genreBadge');
             badge.innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE';
             badge.classList.add('live');
-            
-            const liveBtn = document.getElementById('liveBtn');
-            liveBtn.classList.add('active');
-            liveBtn.classList.add('visible');
             
             let musicasAoVivo = musicas.filter(m => m.tipo === "ao vivo");
             musicasAoVivo = shuffleArray(musicasAoVivo);
@@ -1325,9 +1277,6 @@
             filteredPlaylist = musicasDoGenero;
             currentIndex = 0;
             loadTrackUI(currentIndex);
-            
-            const liveBtn = document.getElementById('liveBtn');
-            liveBtn.classList.remove('active');
             
             const balao = document.getElementById('liveInfoBalloon');
             if (balao) balao.style.display = 'none';
@@ -2084,8 +2033,6 @@
                 trocaAutomaticaAtiva = true;
                 if (videoAdInterval) clearInterval(videoAdInterval);
                 pararVideoAd();
-                const liveBtn = document.getElementById('liveBtn');
-                liveBtn.classList.remove('active');
                 const badge = document.getElementById('genreBadge');
                 badge.classList.remove('live');
                 const balao = document.getElementById('liveInfoBalloon');
@@ -2148,10 +2095,6 @@
             const badge = document.getElementById('genreBadge');
             badge.innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE';
             badge.classList.add('live');
-            
-            const liveBtn = document.getElementById('liveBtn');
-            liveBtn.classList.add('active');
-            liveBtn.classList.remove('visible');
             
             loadTrackUI(currentIndex);
             if (isCarMode) updateCarOverlayInfo();
@@ -2308,6 +2251,7 @@
             }, 1000);
         }
         
+        // ==================== EVENTOS ====================
         document.getElementById('progressBar').addEventListener('click', (e) => { 
             const rect = e.currentTarget.getBoundingClientRect(); 
             const percent = (e.clientX - rect.left) / rect.width; 
@@ -2344,10 +2288,6 @@
         });
         document.getElementById('closeGenresBtn').addEventListener('click', closeGenresModal);
         genresModal.addEventListener('click', (e) => { if (e.target === genresModal) closeGenresModal(); });
-        
-        const liveBtn = document.getElementById('liveBtn');
-        liveBtn.addEventListener('click', () => { toggleAoVivo(); resetHideTimer(); });
-        liveBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleAoVivo(); resetHideTimer(); });
         
         function toggleMenu() { menuPopup.classList.toggle('open'); }
         function closeMenu() { menuPopup.classList.remove('open'); }
@@ -2487,10 +2427,11 @@
             iniciarComMusicaAleatoria();
             tapToStart.style.display = 'block'; 
             iniciarVisualizer(); 
-            console.log("🎬 Rádio Patico IA - VERSÃO COMPLETA!");
-            console.log("   ✅ Balão flutuante no modo AO VIVO");
-            console.log("   ✅ Botão VOLTAR AO VIVO nos gêneros");
-            console.log("   ✅ Tempo do balão editável: " + TEMPO_BALAO_LIVE + " segundos");
+            console.log("🎬 Rádio Patico IA - VERSÃO MODERNA!");
+            console.log("   ✅ Botão AO VIVO vermelho REMOVIDO");
+            console.log("   ✅ Balão moderno estilo glassmorphism");
+            console.log("   ✅ Botão VOLTAR AO VIVO dentro dos gêneros");
+            console.log("   ✅ Tempo do balão: " + TEMPO_BALAO_LIVE + " segundos");
         });
     </script>
 </body>
