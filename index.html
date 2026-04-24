@@ -694,7 +694,7 @@
         
         <div class="tap-instruction" id="tapInstruction"><i class="fas fa-hand-pointer"></i> Toque na tela para controles</div>
         
-        <div class="genre-badge" id="genreBadge"><i class="fas fa-guitar"></i> SERTANEJO</div>
+        <div class="genre-badge" id="genreBadge"><i class="fas fa-broadcast-tower"></i> 🔴 LIVE</div>
         <div class="audio-indicator" id="audioIndicator"><i class="fas fa-circle"></i> Aguardando</div>
         <div class="car-indicator" id="carIndicator"><i class="fas fa-car"></i> MODO CARRO ATIVO</div>
         
@@ -716,7 +716,7 @@
         </div>
         
         <button class="genre-button" id="genreButton"><i class="fas fa-guitar"></i></button>
-        <button class="live-button" id="liveBtn"><i class="fas fa-broadcast-tower"></i></button>
+        <button class="live-button active" id="liveBtn"><i class="fas fa-broadcast-tower"></i></button>
         
         <button class="exit-car-btn" id="exitCarBtn"><i class="fas fa-car"></i> SAIR DO MODO CARRO</button>
         
@@ -802,16 +802,16 @@
             <div class="dica">💡 Quanto mais você avalia, mais inteligente fica a playlist!</div>
             
             <h2><i class="fas fa-broadcast-tower"></i> 2. Modo AO VIVO</h2>
-            <p>🔴 <strong>Botão AO VIVO</strong> - Ativa playlist com músicas marcadas como <strong>"tipo: 'ao vivo'"</strong></p>
-            <p>🎵 <strong>Músicas exclusivas</strong> - Apenas músicas com <strong>tipo: "ao vivo"</strong> tocam nesse modo</p>
-            <p>📀 <strong>Músicas normais</strong> - Músicas com <strong>tipo: "normal"</strong> ou sem tipo tocam no modo normal</p>
-            <p>⛔ <strong>Anúncios desativados</strong> - No modo LIVE, anúncios são desligados</p>
-            <div class="dica">💡 Clique no botão vermelho para ativar/desativar o modo LIVE</div>
+            <p>🔴 <strong>Rádio inicia em MODO AO VIVO</strong> - tocando apenas músicas com <strong>tipo: "ao vivo"</strong></p>
+            <p>📺 <strong>Anúncios e vinhetas</strong> - Só tocam no modo AO VIVO!</p>
+            <p>🎵 Após terminar todas as músicas ao vivo, o modo normal é ativado automaticamente</p>
+            <p>📀 No modo normal, tocam músicas com <strong>tipo: "normal"</strong> e TODOS os gêneros</p>
+            <div class="dica">💡 Clique no botão vermelho para alternar entre os modos manualmente</div>
             
             <h2><i class="fas fa-video"></i> 3. Anúncios Configuráveis</h2>
-            <p>📹 <strong>Anúncio em vídeo (tea.mp4)</strong> - aparece a cada <strong>30 segundos</strong> (NÃO interrompe a música)</p>
-            <p>🎵 <strong>Anúncio em áudio (paticom.mp3)</strong> - a cada <strong>20 músicas</strong> (pausa a música, toca e volta)</p>
-            <p>🎙️ <strong>Vinhetas</strong> - áudios curtos que tocam entre as músicas (a cada 3 músicas)</p>
+            <p>📹 <strong>Anúncio em vídeo (tea.mp4)</strong> - aparece a cada <strong>30 segundos</strong> (apenas modo AO VIVO)</p>
+            <p>🎵 <strong>Anúncio em áudio (paticom.mp3)</strong> - a cada <strong>20 músicas</strong> (apenas modo AO VIVO)</p>
+            <p>🎙️ <strong>Vinhetas</strong> - tocam a cada <strong>3 músicas</strong> no modo AO VIVO</p>
             
             <h2><i class="fas fa-car"></i> 4. Modo Carro</h2>
             <p>🚗 <strong>Ativar</strong> - Menu → Modo Carro</p>
@@ -868,7 +868,6 @@
         // ==================== CONFIGURAÇÕES ========================================
         // ============================================================================
         
-        // ANÚNCIOS
         const ARQUIVO_ANUNCIO_VIDEO = "tea.mp4";
         const ARQUIVO_ANUNCIO_AUDIO = "paticom.mp3";
         const INTERVALO_VIDEO_MS = 30000;
@@ -877,15 +876,14 @@
         const VOLUME_ANUNCIO_AUDIO = 0.9;
         const VOLUME_PLAYER = 0.9;
         
-        // ========== CONFIGURAÇÕES DAS VINHETAS (EDITÁVEIS) ==========
-        const INTERVALO_VINHETA_MUSICAS = 3;   // ← Vinheta a cada X músicas
+        // VINHETAS (intervenções de áudio)
+        const INTERVALO_VINHETA_MUSICAS = 3;
         const vinhetas = [
-            "radiopm.mp3",           // ← Coloque suas vinhetas aqui
+            "vinheta1.mp3",
             "zzvc.mp3",
-            "radiopm.mp3",
-            "zzvc.mp3",
+            "voce_esta_ouvindo.mp3",
+            "radio_patico.mp3"
         ];
-        // ==============================================================
         
         const MODO_ALEATORIO_PADRAO = false;
         const INTERVALO_TROCA_VIDEO = 20000;
@@ -896,15 +894,20 @@
         let generoAtual = "SERTANEJO";
         let trocaAutomaticaAtiva = true;
         
-        // MODO AO VIVO
-        let isAoVivo = false;
+        // MODO AO VIVO - Inicia em AO VIVO
+        let isAoVivo = true;
+        let aoVivoAcabou = false;
         let historicoMusicasLive = [];
         
-        // CONTROLE DE VINHETAS
+        // CONTROLE DE VINHETAS E ANÚNCIOS
         let tocandoVinheta = false;
         let contadorMusicasVinheta = 0;
+        let musicCounter = 0;
+        let adAudioPlaying = false;
+        let videoAdInterval = null;
+        let adVideoPlaying = false;
         
-        // ==================== PLAYLIST COMPLETA ====================
+        // ==================== PLAYLIST ====================
         const musicas = [
             // SERTANEJO
             { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -980,7 +983,7 @@
             { id: 63, title: "Easy", artist: "Commodores", src: "Commodores_Easy_6.m4a", genero: "BREGA", tipo: "normal" },
             { id: 64, title: "Tarde Demais", artist: "À Vontade", src: "_Vontade_TARDE_DEMAIS_.m4a", genero: "BREGA", tipo: "normal" },
             
-            // MPB
+            // MPB - Músicas normais
             { id: 100, title: "Palpite", artist: "Vanessa Rangel", src: "Vanessa_Rangel_Palpite_Palpite_muzzik.m4a", genero: "MPB", tipo: "normal" },
             { id: 101, title: "Sinais de Fogo", artist: "Preta Gil", src: "Preta_Gil_sinais_de_fogo_muzzik.m4a", genero: "MPB", tipo: "normal" },
             { id: 102, title: "Francesa", artist: "Kiko Zabianch", src: "Kiko_Zabianch_AFrancesa_Francesa_muzzik.m4a", genero: "MPB", tipo: "normal" },
@@ -1030,7 +1033,8 @@
         
         // ==================== FUNÇÃO PARA TOCAR VINHETA ====================
         function tocarVinheta() {
-            if (isAoVivo) return false;
+            // 🔥 CORRIGIDO: Vinhetas só tocam no modo AO VIVO
+            if (!isAoVivo) return false;
             if (vinhetas.length === 0) return false;
             if (tocandoVinheta) return false;
             
@@ -1066,9 +1070,12 @@
         // ==================== FUNÇÕES DO MODO AO VIVO ====================
         function ativarModoAoVivo() {
             isAoVivo = true;
+            aoVivoAcabou = false;
             trocaAutomaticaAtiva = false;
             
+            // Reativa os anúncios (só no modo AO VIVO)
             if (videoAdInterval) clearInterval(videoAdInterval);
+            videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
             
             const badge = document.getElementById('genreBadge');
             badge.innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE';
@@ -1076,13 +1083,13 @@
             
             const liveBtn = document.getElementById('liveBtn');
             liveBtn.classList.add('active');
-            liveBtn.style.animation = 'pulseRed 1.5s infinite';
             
             let musicasAoVivo = musicas.filter(m => m.tipo === "ao vivo");
             
             if (musicasAoVivo.length === 0) {
                 showNotification('🔴 MODO AO VIVO ATIVADO! (Nenhuma música exclusiva encontrada)', 3000);
                 musicasAoVivo = [...musicas];
+                aoVivoAcabou = true;
             } else {
                 showNotification(`🔴 MODO AO VIVO ATIVADO! ${musicasAoVivo.length} músicas exclusivas!`, 3000);
             }
@@ -1097,6 +1104,10 @@
             historicoMusicasLive = [];
             loadTrackUI(currentIndex);
             
+            // Reseta contadores para os anúncios no modo AO VIVO
+            musicCounter = 0;
+            contadorMusicasVinheta = 0;
+            
             console.log("🔴 Modo AO VIVO ativado - Músicas exclusivas:", filteredPlaylist.length);
             
             if (isPlaying) {
@@ -1108,18 +1119,21 @@
             isAoVivo = false;
             trocaAutomaticaAtiva = true;
             
+            // Desativa os anúncios (não tocam no modo normal)
             if (videoAdInterval) clearInterval(videoAdInterval);
-            videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
+            pararVideoAd();
             
             const badge = document.getElementById('genreBadge');
             badge.classList.remove('live');
             
-            let musicasDoGenero = musicas.filter(m => m.genero === generoAtual && (m.tipo === "normal" || !m.tipo));
+            let musicasDoGenero = musicas.filter(m => (m.tipo === "normal" || !m.tipo) && m.genero === generoAtual);
             
             if (musicasDoGenero.length === 0) {
                 musicasDoGenero = musicas.filter(m => m.tipo === "normal" || !m.tipo);
                 if (musicasDoGenero.length === 0) musicasDoGenero = [...musicas];
-                showNotification(`🎵 Carregando músicas do modo normal`, 2000);
+                showNotification(`🎵 Modo NORMAL ativado!`, 2000);
+            } else {
+                updateGenreBadge(generoAtual);
             }
             
             for (let i = musicasDoGenero.length - 1; i > 0; i--) {
@@ -1130,14 +1144,12 @@
             filteredPlaylist = musicasDoGenero;
             currentIndex = 0;
             loadTrackUI(currentIndex);
-            updateGenreBadge(generoAtual);
             
             const liveBtn = document.getElementById('liveBtn');
             liveBtn.classList.remove('active');
-            liveBtn.style.animation = '';
             
-            showNotification(`🔘 Modo AO VIVO desativado. Voltando ao modo normal.`, 3000);
-            console.log("🔘 Modo AO VIVO desativado - Músicas normais:", filteredPlaylist.length);
+            showNotification(`🔘 Modo NORMAL ativado! Sem anúncios e vinhetas.`, 3000);
+            console.log("🔘 Modo NORMAL ativado - Anúncios desativados");
             
             if (isPlaying) {
                 playMusic().catch(e => console.log);
@@ -1305,6 +1317,10 @@
         };
         
         function recreatePlaylistFromAI() {
+            if (isAoVivo) {
+                showNotification(`⚠️ Desative o modo AO VIVO primeiro para usar a IA!`, 2000);
+                return;
+            }
             filteredPlaylist = generateSmartPlaylist();
             currentIndex = 0;
             loadTrackUI(currentIndex);
@@ -1337,14 +1353,13 @@
         }
         
         // ==================== ANÚNCIOS ====================
-        let videoAdInterval = null;
-        let adVideoPlaying = false;
-        
         const adVideo = document.getElementById('adVideo');
         const videoAdOverlay = document.getElementById('videoAdOverlay');
+        const adAudio = document.getElementById('adAudio');
         
         function iniciarVideoAd() {
-            if (isCarMode || isAoVivo) return;
+            // 🔥 CORRIGIDO: Vídeo só toca no modo AO VIVO
+            if (isCarMode || !isAoVivo) return;
             if (adVideoPlaying) return;
             
             adVideoPlaying = true;
@@ -1376,12 +1391,9 @@
             }
         }
         
-        let musicCounter = 0;
-        let adAudioPlaying = false;
-        const adAudio = document.getElementById('adAudio');
-        
         function playAudioAd() {
-            if (isCarMode || isAoVivo) return;
+            // 🔥 CORRIGIDO: Áudio só toca no modo AO VIVO
+            if (isCarMode || !isAoVivo) return;
             if (adAudioPlaying) return;
             
             const wasPlaying = isPlaying;
@@ -1428,7 +1440,8 @@
         }
         
         function incrementMusicCounter() {
-            if (isAoVivo) return;
+            // 🔥 CORRIGIDO: Só conta músicas no modo AO VIVO
+            if (!isAoVivo) return;
             musicCounter++;
             
             // Verifica se é hora de tocar vinheta
@@ -1436,7 +1449,7 @@
             if (contadorMusicasVinheta >= INTERVALO_VINHETA_MUSICAS && !tocandoVinheta && vinhetas.length > 0) {
                 contadorMusicasVinheta = 0;
                 tocarVinheta();
-                return; // Sai da função para não tocar anúncio junto com vinheta
+                return;
             }
             
             if (musicCounter >= QUANTIDADE_MUSICAS_AUDIO) {
@@ -1683,29 +1696,16 @@
         function loadTrackUI(index) {
             if (filteredPlaylist.length === 0) return;
             if (index >= filteredPlaylist.length) {
-                if (trocaAutomaticaAtiva && !isAoVivo) {
-                    mudarGeneroAutomaticamente();
-                    return;
-                } else if (isAoVivo) {
-                    const proxima = proximaMusicaLive();
-                    if (proxima) {
-                        filteredPlaylist = [proxima];
-                        currentIndex = 0;
-                        const track = filteredPlaylist[currentIndex];
-                        if (track) {
-                            trackArtist.textContent = `${track.title} - ${track.artist} [${track.genero}]`;
-                            currentTimeEl.textContent = '0:00';
-                            totalTimeEl.textContent = '0:00';
-                            progressFill.style.width = '0%';
-                            if (isCarMode) {
-                                document.getElementById('carTrackText').textContent = `${track.title} - ${track.artist} [${track.genero}]`;
-                                document.getElementById('carCurrentOverlay').textContent = '0:00';
-                                document.getElementById('carTotalOverlay').textContent = '0:00';
-                                document.getElementById('carProgressFillOverlay').style.width = '0%';
-                            }
-                        }
+                if (isAoVivo) {
+                    if (!aoVivoAcabou) {
+                        aoVivoAcabou = true;
+                        showNotification(`🎵 Músicas AO VIVO terminaram! Ativando modo NORMAL...`, 4000);
+                        desativarModoAoVivo();
                         return;
                     }
+                } else if (trocaAutomaticaAtiva) {
+                    mudarGeneroAutomaticamente();
+                    return;
                 } else {
                     index = 0;
                 }
@@ -1851,15 +1851,24 @@
                     
                     if (nextIndex >= filteredPlaylist.length) {
                         if (isAoVivo) {
-                            const proxima = proximaMusicaLive();
-                            if (proxima) {
-                                filteredPlaylist = [proxima];
-                                currentIndex = 0;
-                                loadTrackUI(currentIndex);
-                                if (isCarMode) updateCarOverlayInfo();
-                                setTimeout(() => playMusic(), 100);
-                                return;
+                            if (!aoVivoAcabou) {
+                                const proxima = proximaMusicaLive();
+                                if (proxima) {
+                                    filteredPlaylist = [proxima];
+                                    currentIndex = 0;
+                                    loadTrackUI(currentIndex);
+                                    if (isCarMode) updateCarOverlayInfo();
+                                    setTimeout(() => playMusic(), 100);
+                                    return;
+                                }
                             }
+                            if (!aoVivoAcabou) {
+                                aoVivoAcabou = true;
+                                showNotification(`🎵 Músicas AO VIVO terminaram! Ativando modo NORMAL...`, 4000);
+                                desativarModoAoVivo();
+                                setTimeout(() => playMusic(), 200);
+                            }
+                            return;
                         } else if (trocaAutomaticaAtiva) {
                             mudarGeneroAutomaticamente();
                             setTimeout(() => playMusic(), 100);
@@ -1902,15 +1911,24 @@
             
             if (nextIndex >= filteredPlaylist.length) {
                 if (isAoVivo) {
-                    const proxima = proximaMusicaLive();
-                    if (proxima) {
-                        filteredPlaylist = [proxima];
-                        currentIndex = 0;
-                        loadTrackUI(currentIndex);
-                        if (isCarMode) updateCarOverlayInfo();
-                        if (isPlaying) await playMusic();
-                        return;
+                    if (!aoVivoAcabou) {
+                        const proxima = proximaMusicaLive();
+                        if (proxima) {
+                            filteredPlaylist = [proxima];
+                            currentIndex = 0;
+                            loadTrackUI(currentIndex);
+                            if (isCarMode) updateCarOverlayInfo();
+                            if (isPlaying) await playMusic();
+                            return;
+                        }
                     }
+                    if (!aoVivoAcabou) {
+                        aoVivoAcabou = true;
+                        showNotification(`🎵 Músicas AO VIVO terminaram! Ativando modo NORMAL...`, 4000);
+                        desativarModoAoVivo();
+                        setTimeout(() => playMusic(), 200);
+                    }
+                    return;
                 } else if (trocaAutomaticaAtiva) {
                     mudarGeneroAutomaticamente();
                     setTimeout(() => playMusic(), 100);
@@ -1974,27 +1992,51 @@
         }
         
         function iniciarComMusicaAleatoria() {
-            trocaAutomaticaAtiva = true;
-            isAoVivo = false;
+            // Rádio inicia em MODO AO VIVO
+            isAoVivo = true;
+            aoVivoAcabou = false;
+            trocaAutomaticaAtiva = false;
             
-            const musicasNormais = musicas.filter(m => m.tipo === "normal" || !m.tipo);
-            const todasMusicas = musicasNormais.length > 0 ? musicasNormais : [...musicas];
+            // Pega apenas músicas do tipo "ao vivo"
+            let musicasAoVivo = musicas.filter(m => m.tipo === "ao vivo");
             
-            for (let i = todasMusicas.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [todasMusicas[i], todasMusicas[j]] = [todasMusicas[j], todasMusicas[i]];
+            if (musicasAoVivo.length === 0) {
+                showNotification('🔴 Iniciando em MODO AO VIVO! (Nenhuma música exclusiva encontrada)', 3000);
+                musicasAoVivo = [...musicas];
+            } else {
+                showNotification(`🔴 Rádio iniciando em MODO AO VIVO! ${musicasAoVivo.length} músicas exclusivas!`, 3000);
             }
             
-            filteredPlaylist = todasMusicas;
-            currentIndex = Math.floor(Math.random() * filteredPlaylist.length);
-            const track = filteredPlaylist[currentIndex];
-            generoAtual = track.genero;
+            // Embaralha as músicas ao vivo
+            for (let i = musicasAoVivo.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [musicasAoVivo[i], musicasAoVivo[j]] = [musicasAoVivo[j], musicasAoVivo[i]];
+            }
+            
+            filteredPlaylist = musicasAoVivo;
+            currentIndex = 0;
+            historicoMusicasLive = [];
+            
+            // Atualiza a interface para LIVE
+            const badge = document.getElementById('genreBadge');
+            badge.innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE';
+            badge.classList.add('live');
+            
+            const liveBtn = document.getElementById('liveBtn');
+            liveBtn.classList.add('active');
             
             loadTrackUI(currentIndex);
             if (isCarMode) updateCarOverlayInfo();
-            updateGenreBadge(track.genero);
             
-            console.log(`🎵 Iniciou com música ALEATÓRIA: ${track.title} (${track.genero})`);
+            // Reseta contadores para os anúncios
+            musicCounter = 0;
+            contadorMusicasVinheta = 0;
+            
+            // Inicia anúncios
+            if (videoAdInterval) clearInterval(videoAdInterval);
+            videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
+            
+            console.log(`🎵 Rádio iniciou em MODO AO VIVO - ${filteredPlaylist.length} músicas`);
         }
         
         // ==================== MODO CARRO ====================
@@ -2045,7 +2087,7 @@
                 showNotification('🚗 Modo Carro desativado.', 2000);
                 document.removeEventListener('touchstart', showCarControls);
                 document.removeEventListener('click', showCarControls);
-                if (!isAoVivo) {
+                if (isAoVivo) {
                     videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
                 }
                 if (exitBtn) exitBtn.style.display = 'none';
@@ -2122,7 +2164,7 @@
                 document.getElementById('audioIndicator').style.color = '#4ade80';
                 iniciarManutencaoConstante();
                 
-                if (!isAoVivo) {
+                if (isAoVivo) {
                     videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
                 }
                 
@@ -2297,7 +2339,7 @@
                 await playMusic(); 
                 tapToStart.style.display = 'none'; 
                 try { await document.documentElement.requestFullscreen(); } catch(err) {} 
-                showNotification('✅ Áudio ativado!', 3000); 
+                showNotification('✅ Áudio ativado! Rádio em MODO AO VIVO!', 3000); 
             } else { 
                 showNotification('❌ Falha ao ativar áudio.', 3000); 
             } 
@@ -2341,12 +2383,11 @@
             iniciarComMusicaAleatoria();
             tapToStart.style.display = 'block'; 
             iniciarVisualizer(); 
-            console.log("🎬 Rádio Patico IA - VERSÃO COMPLETA:");
-            console.log("   ✅ Vinhetas funcionando a cada " + INTERVALO_VINHETA_MUSICAS + " músicas");
-            console.log("   ✅ Músicas com tipo 'ao vivo' → Modo AO VIVO");
-            console.log("   ✅ Músicas com tipo 'normal' → Modo NORMAL");
-            console.log("   ✅ Modo Carro funcionando");
-            console.log("   ✅ IA aprendendo com likes/dislikes");
+            console.log("🎬 Rádio Patico IA - LÓGICA CORRIGIDA:");
+            console.log("   ✅ Rádio inicia em MODO AO VIVO");
+            console.log("   ✅ Anúncios e vinhetas → Só no modo AO VIVO");
+            console.log("   ✅ Quando acabam as músicas AO VIVO → vai para modo NORMAL (sem anúncios)");
+            console.log("   ✅ Alternância entre gêneros no modo normal");
         });
     </script>
 </body>
