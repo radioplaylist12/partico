@@ -100,88 +100,181 @@
         .car-progress-fill-overlay { height: 100%; background: #e63946; width: 0%; border-radius: 4px; }
         .car-time-overlay { display: flex; justify-content: space-between; font-size: 0.65rem; color: #ccc; margin-top: 5px; }
         
-        /* BOTÃO DE GÊNEROS - 3 CORES DIFERENTES */
+        /* BOTÃO DE GÊNEROS - ESTILO ROSCA/ALVO COM 3 ANÉIS */
         .genre-button {
             position: fixed;
             bottom: 80px;
             right: 20px;
-            background: linear-gradient(135deg, #ff8c00, #ff6600);
-            color: white;
-            border: none;
-            width: 85px;
-            height: 85px;
+            width: 110px;
+            height: 110px;
             border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             cursor: pointer;
             z-index: 26;
-            pointer-events: auto;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(255, 102, 0, 0.4);
+            background: transparent;
+            border: none;
             animation: floatGenre 3s ease-in-out infinite;
-            gap: 4px;
+            transition: transform 0.2s ease;
+        }
+        
+        .genre-button:active {
+            transform: scale(0.95);
         }
         
         @keyframes floatGenre {
-            0%, 100% { transform: translateY(0px); box-shadow: 0 4px 20px rgba(255, 102, 0, 0.4); }
-            50% { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(255, 102, 0, 0.6); }
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
         }
         
-        .genre-button:active { transform: scale(0.92); }
-        
-        .genre-button .icon {
-            font-size: 1.6rem;
-            margin-bottom: 2px;
+        /* ANEL EXTERNO - LARANJA (CLICA AQUI) */
+        .ring-outer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff8c00, #ff6600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.5);
+            animation: pulseRingOuter 1.2s infinite;
         }
         
-        /* Texto CLICA AQUI - Laranja */
-        .genre-button .text-clique {
+        @keyframes pulseRingOuter {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 102, 0, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(255, 102, 0, 0.9); }
+        }
+        
+        /* ANEL DO MEIO - VERMELHO (PARA MUDAR) */
+        .ring-middle {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: calc(100% - 24px);
+            height: calc(100% - 24px);
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e63946, #ff0000);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(230, 57, 70, 0.4);
+            animation: pulseRingMiddle 1s infinite;
+        }
+        
+        @keyframes pulseRingMiddle {
+            0%, 100% { box-shadow: 0 0 5px rgba(230, 57, 70, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(230, 57, 70, 0.8); }
+        }
+        
+        /* ANEL INTERNO - ROXO (GÊNEROS) */
+        .ring-inner {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            width: calc(100% - 48px);
+            height: calc(100% - 48px);
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8E2DE2, #4A00E0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(142, 45, 226, 0.5);
+            animation: pulseRingInner 0.8s infinite;
+        }
+        
+        @keyframes pulseRingInner {
+            0%, 100% { box-shadow: 0 0 5px rgba(142, 45, 226, 0.5); }
+            50% { box-shadow: 0 0 15px rgba(142, 45, 226, 0.9); }
+        }
+        
+        /* CENTRO - ÍCONE */
+        .ring-center {
+            position: absolute;
+            top: 36px;
+            left: 36px;
+            width: calc(100% - 72px);
+            height: calc(100% - 72px);
+            border-radius: 50%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        /* TEXTOS DOS ANÉIS */
+        .ring-text {
+            position: absolute;
             font-size: 0.6rem;
             font-weight: bold;
-            background: #ff8c00;
-            padding: 2px 6px;
-            border-radius: 20px;
+            text-align: center;
+            white-space: nowrap;
             color: white;
-            animation: blinkText 1s infinite;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+            pointer-events: none;
         }
         
-        @keyframes blinkText {
-            0%, 100% { opacity: 1; background: #ff8c00; }
-            50% { opacity: 0.7; background: #ffaa33; }
-        }
-        
-        /* Texto para mudar - Vermelho */
-        .genre-button .text-mudar {
+        /* Posicionamento dos textos nos anéis */
+        .text-outer {
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 102, 0, 0.9);
+            padding: 2px 8px;
+            border-radius: 20px;
             font-size: 0.55rem;
-            font-weight: bold;
-            background: #e63946;
-            padding: 2px 6px;
+            animation: blinkOuter 1s infinite;
+        }
+        
+        @keyframes blinkOuter {
+            0%, 100% { opacity: 1; background: rgba(255, 102, 0, 0.9); }
+            50% { opacity: 0.7; background: rgba(255, 102, 0, 0.6); }
+        }
+        
+        .text-middle {
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(230, 57, 70, 0.9);
+            padding: 2px 8px;
             border-radius: 20px;
-            color: white;
-            animation: pulseRedText 1.2s infinite;
+            font-size: 0.55rem;
+            animation: blinkMiddle 1.2s infinite;
         }
         
-        @keyframes pulseRedText {
-            0%, 100% { background: #e63946; transform: scale(1); }
-            50% { background: #ff0000; transform: scale(1.05); }
+        @keyframes blinkMiddle {
+            0%, 100% { opacity: 1; background: rgba(230, 57, 70, 0.9); }
+            50% { opacity: 0.7; background: rgba(230, 57, 70, 0.6); }
         }
         
-        /* Texto GÊNEROS - Roxo */
-        .genre-button .text-generos {
-            font-size: 0.65rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #8E2DE2, #4A00E0);
-            padding: 3px 8px;
+        .text-inner {
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(142, 45, 226, 0.9);
+            padding: 2px 8px;
             border-radius: 20px;
-            color: white;
-            animation: pulsePurple 1.5s infinite;
+            font-size: 0.55rem;
+            animation: blinkInner 1.5s infinite;
         }
         
-        @keyframes pulsePurple {
-            0%, 100% { background: linear-gradient(135deg, #8E2DE2, #4A00E0); transform: scale(1); }
-            50% { background: linear-gradient(135deg, #b045f0, #7a2be0); transform: scale(1.02); }
+        @keyframes blinkInner {
+            0%, 100% { opacity: 1; background: rgba(142, 45, 226, 0.9); }
+            50% { opacity: 0.7; background: rgba(142, 45, 226, 0.6); }
+        }
+        
+        .text-outer-left {
+            left: -35px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 102, 0, 0.9);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.55rem;
         }
         
         .exit-car-btn {
@@ -249,7 +342,6 @@
             border-left: 3px solid #e63946;
         }
         
-        /* BALÃO MODERNO */
         .live-info-balloon {
             position: fixed;
             top: 80px;
@@ -278,7 +370,6 @@
             color: white;
             font-size: 0.85rem;
             font-weight: 500;
-            letter-spacing: 0.3px;
         }
         
         .live-info-balloon .balloon-content i:first-child {
@@ -437,7 +528,6 @@
         .close-manual-btn { width: 100%; padding: 14px; background: #e63946; border: none; border-radius: 40px; color: white; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 25px; transition: 0.2s; }
         .close-manual-btn:active { transform: scale(0.98); background: #ff6b6b; }
         
-        /* MODAL DE GÊNEROS - CARDS REDUZIDOS */
         .genres-modal {
             position: fixed;
             bottom: 0;
@@ -610,7 +700,6 @@
         .splash-content i { font-size: 4.5rem; color: #e63946; margin-bottom: 1rem; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.6; transform: scale(1); } }
         
-        /* BOTÃO ATIVAR RÁDIO - LARANJA (único botão de ativação) */
         #tap-to-start {
             position: fixed;
             bottom: 20%;
@@ -794,7 +883,6 @@
 <body>
     <div id="splash"><div class="splash-content"><i class="fas fa-play-circle"></i><h1>Rádio Patico IA</h1><p>🎵 A inteligência artificial aprende seu gosto!</p><p style="font-size:0.8rem; margin-top:10px;">Clique no botão laranja para ativar</p></div></div>
     
-    <!-- BOTÃO ATIVAR RÁDIO (LARANJA) -->
     <div id="tap-to-start"><i class="fas fa-play-circle"></i> 🎵 ATIVAR RÁDIO</div>
     
     <div class="app">
@@ -850,12 +938,17 @@
             <span>Carregando música...</span>
         </div>
         
-        <!-- BOTÃO LARANJA COM 3 CORES DIFERENTES -->
+        <!-- BOTÃO DE GÊNEROS - ESTILO ROSCA/ALVO COM 3 ANÉIS -->
         <button class="genre-button" id="genreButton">
-            <i class="fas fa-music icon"></i>
-            <span class="text-clique">CLICA AQUI</span>
-            <span class="text-mudar">para mudar</span>
-            <span class="text-generos">GÊNEROS</span>
+            <div class="ring-outer"></div>
+            <div class="ring-middle"></div>
+            <div class="ring-inner"></div>
+            <div class="ring-center">
+                <i class="fas fa-music"></i>
+            </div>
+            <span class="ring-text text-outer">CLICA AQUI</span>
+            <span class="ring-text text-middle">PARA MUDAR</span>
+            <span class="ring-text text-inner">GÊNEROS</span>
         </button>
         
         <button class="exit-car-btn" id="exitCarBtn"><i class="fas fa-car"></i> SAIR DO MODO CARRO</button>
@@ -956,7 +1049,7 @@
             <p>🔴 <strong>Rádio inicia em MODO AO VIVO</strong> - tocando apenas músicas com <strong>tipo: "ao vivo"</strong></p>
             <p>📺 <strong>Anúncios e vinhetas</strong> - Só tocam no modo AO VIVO!</p>
             <p>🎵 Após terminar todas as músicas ao vivo, o modo normal é ativado automaticamente</p>
-            <div class="dica">💡 Para voltar ao modo AO VIVO, clique no botão laranja e escolha "🔴 VOLTAR AO VIVO"</div>
+            <div class="dica">💡 Para voltar ao modo AO VIVO, clique no botão com 3 anéis e escolha "🔴 VOLTAR AO VIVO"</div>
             
             <h2><i class="fas fa-video"></i> 3. Anúncios Configuráveis</h2>
             <p>📹 <strong>Anúncio em vídeo (tea.mp4)</strong> - aparece a cada <strong>30 segundos</strong> (apenas modo AO VIVO)</p>
@@ -2506,11 +2599,11 @@
             iniciarComMusicaAleatoria();
             tapToStart.style.display = 'block'; 
             iniciarVisualizer(); 
-            console.log("🎬 Rádio Patico IA - VERSÃO FINAL!");
-            console.log("   ✅ Botão vermelho PLAYER REMOVIDO");
-            console.log("   ✅ Apenas botão laranja 'ATIVAR RÁDIO'");
-            console.log("   ✅ Botão de gêneros com 3 cores diferentes");
-            console.log("   ✅ Textos dentro do botão sem vazar");
+            console.log("🎬 Rádio Patico IA - VERSÃO ROSCA/ALVO!");
+            console.log("   ✅ Botão com 3 ANÉIS concêntricos");
+            console.log("   🟠 ANEL EXTERNO: CLICA AQUI");
+            console.log("   🔴 ANEL DO MEIO: PARA MUDAR");
+            console.log("   🟣 ANEL INTERNO: GÊNEROS");
         });
     </script>
 </body>
