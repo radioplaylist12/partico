@@ -15,7 +15,6 @@
         .fullscreen-video-container video { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
         .controls-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
         
-        /* Animações */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -101,29 +100,90 @@
         .car-progress-fill-overlay { height: 100%; background: #e63946; width: 0%; border-radius: 4px; }
         .car-time-overlay { display: flex; justify-content: space-between; font-size: 0.65rem; color: #ccc; margin-top: 5px; }
         
+        /* BOTÃO DE GÊNEROS - ESTILO MODERNO COM ANIMAÇÃO */
         .genre-button {
             position: fixed;
             bottom: 80px;
             right: 20px;
-            background: linear-gradient(135deg, #8E2DE2, #4A00E0);
+            background: linear-gradient(135deg, #ff8c00, #ff6600);
             color: white;
             border: none;
-            width: 55px;
-            height: 55px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
             cursor: pointer;
             z-index: 26;
             pointer-events: auto;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 20px rgba(255, 102, 0, 0.4);
             animation: floatGenre 3s ease-in-out infinite;
+            gap: 2px;
         }
-        @keyframes floatGenre { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
-        .genre-button:active { transform: scale(0.9); }
+        
+        @keyframes floatGenre {
+            0%, 100% { transform: translateY(0px); box-shadow: 0 4px 20px rgba(255, 102, 0, 0.4); }
+            50% { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(255, 102, 0, 0.6); }
+        }
+        
+        .genre-button:active { transform: scale(0.92); }
+        
+        .genre-button .icon {
+            font-size: 1.6rem;
+            animation: pulseIcon 1s infinite;
+        }
+        
+        @keyframes pulseIcon {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .genre-button .text-clique {
+            font-size: 0.55rem;
+            font-weight: bold;
+            background: rgba(255,255,255,0.3);
+            padding: 2px 6px;
+            border-radius: 20px;
+            animation: blinkText 1.2s infinite;
+        }
+        
+        @keyframes blinkText {
+            0%, 100% { opacity: 1; background: rgba(255,255,255,0.3); }
+            50% { opacity: 0.7; background: rgba(255,255,255,0.6); }
+        }
+        
+        .genre-button .text-mudar {
+            font-size: 0.5rem;
+            font-weight: bold;
+            animation: colorChange 1.5s infinite;
+        }
+        
+        @keyframes colorChange {
+            0% { color: #fff; }
+            25% { color: #ffd700; }
+            50% { color: #ff69b4; }
+            75% { color: #00ff88; }
+            100% { color: #fff; }
+        }
+        
+        .genre-button .text-generos {
+            font-size: 0.65rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #fff, #ffd700, #ff8c00);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: gradientShift 2s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
         
         .exit-car-btn {
             position: fixed;
@@ -165,6 +225,7 @@
         .car-mode-active .feedback-buttons { display: none; }
         .car-mode-active .exit-car-btn { display: block !important; }
         .car-mode-active .live-info-balloon { display: none !important; }
+        .car-mode-active .genre-button { animation: none; transform: scale(0.9); }
         
         .notification-top {
             position: absolute;
@@ -189,7 +250,7 @@
             border-left: 3px solid #e63946;
         }
         
-        /* BALÃO MODERNO - ESTILO GLASSMORPHISM */
+        /* BALÃO MODERNO */
         .live-info-balloon {
             position: fixed;
             top: 80px;
@@ -219,11 +280,6 @@
             font-size: 0.85rem;
             font-weight: 500;
             letter-spacing: 0.3px;
-        }
-        
-        .live-info-balloon .balloon-content i {
-            font-size: 1rem;
-            opacity: 0.9;
         }
         
         .live-info-balloon .balloon-content i:first-child {
@@ -382,24 +438,37 @@
         .close-manual-btn { width: 100%; padding: 14px; background: #e63946; border: none; border-radius: 40px; color: white; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 25px; transition: 0.2s; }
         .close-manual-btn:active { transform: scale(0.98); background: #ff6b6b; }
         
+        /* MODAL DE GÊNEROS - CARDS REDUZIDOS */
         .genres-modal {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 30px 30px 0 0;
-            padding: 25px 20px 30px;
+            border-radius: 25px 25px 0 0;
+            padding: 20px 15px 25px;
             z-index: 2000;
             transform: translateY(100%);
             transition: transform 0.3s ease;
             pointer-events: auto;
         }
         .genres-modal.open { transform: translateY(0); }
-        .genres-modal h3 { text-align: center; margin-bottom: 20px; font-size: 1.5rem; color: #1a1a2e; }
-        .genres-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
-        .genre-card { border-radius: 20px; padding: 20px 15px; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: 2px solid white; }
+        .genres-modal h3 { text-align: center; margin-bottom: 15px; font-size: 1.2rem; color: #1a1a2e; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .genres-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .genre-card { 
+            border-radius: 14px; 
+            padding: 12px 8px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            border: 1px solid rgba(255,255,255,0.3);
+        }
         .genre-card:active { transform: scale(0.96); }
+        .genre-card i { font-size: 1.6rem; display: block; margin-bottom: 6px; }
+        .genre-card span { font-size: 0.7rem; font-weight: 700; color: white; text-shadow: 0 1px 1px rgba(0,0,0,0.2); }
+        
+        /* Cores dos cards reduzidos */
         .genre-card[data-genero="SERTANEJO"] { background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); }
         .genre-card[data-genero="FORRÓ"] { background: linear-gradient(135deg, #f12711 0%, #f5af19 100%); }
         .genre-card[data-genero="SAMBA"] { background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%); }
@@ -410,9 +479,18 @@
         .genre-card[data-genero="TODOS"] { background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%); }
         .genre-card[data-genero="LIVE"] { background: linear-gradient(135deg, #e63946, #ff0000); animation: pulseRedBtn 1.5s infinite; }
         @keyframes pulseRedBtn { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
-        .genre-card i { font-size: 2.8rem; display: block; margin-bottom: 12px; }
-        .genre-card span { font-size: 1rem; font-weight: 800; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
-        .close-genres { width: 100%; padding: 14px; background: #1a1a2e; border: none; border-radius: 30px; color: white; font-size: 1rem; cursor: pointer; font-weight: bold; }
+        
+        .close-genres { 
+            width: 100%; 
+            padding: 10px; 
+            background: #1a1a2e; 
+            border: none; 
+            border-radius: 25px; 
+            color: white; 
+            font-size: 0.85rem; 
+            cursor: pointer; 
+            font-weight: bold; 
+        }
         .close-genres:active { background: #DD2475; transform: scale(0.98); }
         
         .bottom-controls {
@@ -771,11 +849,16 @@
             <span>Carregando música...</span>
         </div>
         
-        <button class="genre-button" id="genreButton"><i class="fas fa-guitar"></i></button>
+        <!-- BOTÃO LARANJA MODERNO COM TEXTOS ANIMADOS -->
+        <button class="genre-button" id="genreButton">
+            <i class="fas fa-music icon"></i>
+            <span class="text-clique">CLICA AQUI</span>
+            <span class="text-mudar">para mudar</span>
+            <span class="text-generos">GÊNEROS</span>
+        </button>
         
         <button class="exit-car-btn" id="exitCarBtn"><i class="fas fa-car"></i> SAIR DO MODO CARRO</button>
         
-        <!-- BALÃO MODERNO - ESTILO TRANSPARENTE -->
         <div class="live-info-balloon" id="liveInfoBalloon" style="display: none;">
             <div class="balloon-content">
                 <i class="fas fa-circle"></i>
@@ -872,7 +955,7 @@
             <p>🔴 <strong>Rádio inicia em MODO AO VIVO</strong> - tocando apenas músicas com <strong>tipo: "ao vivo"</strong></p>
             <p>📺 <strong>Anúncios e vinhetas</strong> - Só tocam no modo AO VIVO!</p>
             <p>🎵 Após terminar todas as músicas ao vivo, o modo normal é ativado automaticamente</p>
-            <div class="dica">💡 Para voltar ao modo AO VIVO, clique no botão roxo (guitarra) e escolha "🔴 VOLTAR AO VIVO"</div>
+            <div class="dica">💡 Para voltar ao modo AO VIVO, clique no botão laranja e escolha "🔴 VOLTAR AO VIVO"</div>
             
             <h2><i class="fas fa-video"></i> 3. Anúncios Configuráveis</h2>
             <p>📹 <strong>Anúncio em vídeo (tea.mp4)</strong> - aparece a cada <strong>30 segundos</strong> (apenas modo AO VIVO)</p>
@@ -894,7 +977,7 @@
     </div>
     
     <div class="genres-modal" id="genresModal">
-        <h3><i class="fas fa-music"></i> Escolha seu Estilo Musical</h3>
+        <h3><i class="fas fa-music"></i> ESCOLHA SEU ESTILO</h3>
         <div class="genres-grid">
             <div class="genre-card" data-genero="SERTANEJO"><i class="fas fa-guitar"></i><span>SERTANEJO</span></div>
             <div class="genre-card" data-genero="FORRÓ"><i class="fas fa-drum"></i><span>FORRÓ</span></div>
@@ -903,7 +986,7 @@
             <div class="genre-card" data-genero="BREGA"><i class="fas fa-heart"></i><span>BREGA</span></div>
             <div class="genre-card" data-genero="MPB"><i class="fas fa-guitar"></i><span>MPB</span></div>
             <div class="genre-card" data-genero="VARIADAS"><i class="fas fa-random"></i><span>VARIADAS</span></div>
-            <div class="genre-card" data-genero="TODOS"><i class="fas fa-list-ul"></i><span>TODOS OS ESTILOS</span></div>
+            <div class="genre-card" data-genero="TODOS"><i class="fas fa-list-ul"></i><span>TODOS</span></div>
             <div class="genre-card" data-genero="LIVE" style="background: linear-gradient(135deg, #e63946, #ff0000);">
                 <i class="fas fa-broadcast-tower"></i>
                 <span>🔴 VOLTAR AO VIVO</span>
@@ -938,10 +1021,8 @@
         const VOLUME_ANUNCIO_AUDIO = 0.9;
         const VOLUME_PLAYER = 0.9;
         
-        // TEMPO DO BALÃO AO VIVO (EDITÁVEL) - ALTERE AQUI QUANTOS SEGUNDOS FICA NA TELA
-        const TEMPO_BALAO_LIVE = 5; // <--- MUDE AQUI (segundos)
+        const TEMPO_BALAO_LIVE = 5;
         
-        // VINHETAS
         const INTERVALO_VINHETA_MUSICAS = 16;
         const vinhetas = [
             "radiopm.mp3",
@@ -1121,7 +1202,6 @@
             { id: 203, title: "Internacional", artist: "Top Hits", src: "internacional.mp3", genero: "VARIADAS", tipo: "normal" }
         ];
         
-        // ==================== FUNÇÕES DO BALÃO MODERNO ====================
         let balaoTimeout = null;
         
         function mostrarBalaoAoVivo(mensagemPersonalizada = null) {
@@ -1183,7 +1263,6 @@
             };
         }
         
-        // ==================== FUNÇÕES DO PLAYER ====================
         function tocarVinheta() {
             if (!isAoVivo) return false;
             if (vinhetas.length === 0) return false;
@@ -2251,7 +2330,6 @@
             }, 1000);
         }
         
-        // ==================== EVENTOS ====================
         document.getElementById('progressBar').addEventListener('click', (e) => { 
             const rect = e.currentTarget.getBoundingClientRect(); 
             const percent = (e.clientX - rect.left) / rect.width; 
@@ -2427,11 +2505,11 @@
             iniciarComMusicaAleatoria();
             tapToStart.style.display = 'block'; 
             iniciarVisualizer(); 
-            console.log("🎬 Rádio Patico IA - VERSÃO MODERNA!");
-            console.log("   ✅ Botão AO VIVO vermelho REMOVIDO");
-            console.log("   ✅ Balão moderno estilo glassmorphism");
-            console.log("   ✅ Botão VOLTAR AO VIVO dentro dos gêneros");
-            console.log("   ✅ Tempo do balão: " + TEMPO_BALAO_LIVE + " segundos");
+            console.log("🎬 Rádio Patico IA - VERSÃO ATUALIZADA!");
+            console.log("   ✅ Botão vermelho REMOVIDO");
+            console.log("   ✅ Botão laranja com animações: 'CLICA AQUI', 'para mudar', 'GÊNEROS'");
+            console.log("   ✅ Cards de gêneros REDUZIDOS (grid 3x3)");
+            console.log("   ✅ Design mais compacto e moderno");
         });
     </script>
 </body>
