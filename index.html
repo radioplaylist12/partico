@@ -254,9 +254,11 @@
     <div class="swipe-indicator" id="swipeIndicator">👉 Deslize para próxima música</div>
 
     <script>
-        // ==================== PLAYLIST (corrigida - sem o erro do colchete) ====================
-        const musicas = [
-          { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
+        // ==================== PLAYLIST ====================
+        // (mantida exatamente igual à sua playlist original)
+        const musicas = [ ... 
+                        
+                { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 4, title: "Pout Pourri", artist: "Luiza Martins", src: "Luiza_Martins_Pout_Pourri_Na_Hora_do_Adeus_Fruto_.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -598,10 +600,10 @@
     { id: 439, title: "Epitáfio", artist: "Titãs", src: "Epit_fio_Epit_fio_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
     { id: 440, title: "Espumas ao Vento", artist: "Fagner", src: "Espumas_ao_Espumas_ao_Vento.m4a", genero: "MPB", tipo: "ao vivo" },
     { id: 441, title: "Esquece e Vem", artist: "Nico Rezende", src: "Esquece_e_Esquece_e_vem_Nico_5.m4a", genero: "MPB", tipo: "ao vivo" },
-    { id: 442, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "MPB", tipo: "ao vivo" }
-            // ... aqui você coloca o restante dos seus 442 objetos, mas sem o colantes do id:241
-        ];
-
+    { id: 442, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "MPB", tipo: "ao vivo" }         
+                        
+                        ];
+        
         // ==================== CONFIGURAÇÕES ====================
         const VOLUME_PLAYER = 0.9;
         const INTERVALO_VIDEO_MS = 30000;
@@ -623,7 +625,7 @@
         let adAudioPlaying = false;
         let videoAdInterval = null;
         let adVideoPlaying = false;
-
+        
         // ==================== FUNÇÕES AUXILIARES ====================
         function shuffleArray(arr) {
             for (let i = arr.length - 1; i > 0; i--) {
@@ -632,7 +634,7 @@
             }
             return arr;
         }
-
+        
         function showNotification(msg, duration = 3000) {
             const msgEl = document.getElementById('notificationMessage');
             const topDiv = document.getElementById('notificationTop');
@@ -642,14 +644,14 @@
             if (window.notifTimeout) clearTimeout(window.notifTimeout);
             window.notifTimeout = setTimeout(() => topDiv.classList.remove('show'), duration);
         }
-
+        
         function formatTime(sec) {
             if (isNaN(sec) || !isFinite(sec)) return "0:00";
             const m = Math.floor(sec / 60);
             const s = Math.floor(sec % 60);
             return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
-
+        
         // ==================== PREFERÊNCIAS DO USUÁRIO (IA) ====================
         let userPreferences = { likedSongs: [], dislikedSongs: [], songPlays: {}, songComplete: {}, genrePreference: {}, lastPlayed: null };
         function loadPreferences() {
@@ -714,7 +716,7 @@
                 updateAIModal();
             } else { showNotification(`👎 Você já marcou "${track.title}"`, 1500); }
         }
-
+        
         // ==================== ESTATÍSTICAS ====================
         let stats = { totalPlayed: 0, totalSeconds: 0, genreCount: { SERTANEJO: 0, FORRÓ: 0, SAMBA: 0, POP: 0, BREGA: 0, MPB: 0, VARIADAS: 0 }, currentStreak: 0 };
         function loadStats() {
@@ -752,7 +754,7 @@
             document.getElementById('statStreak').textContent = stats.currentStreak;
             document.getElementById('statsModal').classList.add('open');
         }
-
+        
         // ==================== EQUALIZADOR ====================
         let audioContext = null, sourceNode = null, gainNodes = { bass: null, mid: null, treble: null }, eqInitialized = false;
         function initEqualizer() {
@@ -780,7 +782,7 @@
             document.getElementById('midVal').textContent = document.getElementById('eqMid').value;
             document.getElementById('trebleVal').textContent = document.getElementById('eqTreble').value;
         }
-
+        
         // ==================== VINHETA E ANÚNCIOS ====================
         function tocarVinheta() {
             if (!isAoVivo || tocandoVinheta || vinhetas.length === 0) return false;
@@ -803,7 +805,7 @@
             };
             return true;
         }
-
+        
         function iniciarVideoAd() {
             if (isCarMode || !isAoVivo || adVideoPlaying) return;
             adVideoPlaying = true;
@@ -851,7 +853,7 @@
             document.getElementById('audioAdToast').classList.remove('show');
             if (wasPlaying) playMusic();
         }
-
+        
         // ==================== PLAYER PRINCIPAL ====================
         let currentIndex = 0, isPlaying = false, shuffleMode = false;
         let filteredPlaylist = [];
@@ -863,7 +865,8 @@
         let isTvMode = false;
         let isBackgroundActive = false;
         let backgroundInterval = null;
-
+        let hideControlsTimeout = null; // necessário para o modo carro
+        
         const musicPlayerEl = document.getElementById('musicPlayer');
         const playBtn = document.getElementById('playPauseBtn');
         const prevBtn = document.getElementById('prevBtn');
@@ -892,7 +895,7 @@
         const carTrackText = document.getElementById('carTrackText');
         
         musicPlayerEl.volume = VOLUME_PLAYER;
-
+        
         function stopTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = null; }
         function startTimer() {
             stopTimer();
@@ -926,7 +929,7 @@
         }
         function showLoading() { loadingSpinner.classList.add('show'); }
         function hideLoading() { loadingSpinner.classList.remove('show'); }
-
+        
         function updateGenreBadge(genero) {
             const badge = document.getElementById('genreBadge');
             let icon = "fa-music";
@@ -943,7 +946,7 @@
             badge.innerHTML = `<i class="fas ${icon}"></i> ${genero === "MIX" ? "TODOS" : genero}`;
             badge.classList.remove('live');
         }
-
+        
         function loadTrackUI(index) {
             if (filteredPlaylist.length === 0) return;
             if (index >= filteredPlaylist.length) {
@@ -973,7 +976,7 @@
                 carProgressFillOverlay.style.width = '0%';
             }
         }
-
+        
         async function playMusic() {
             if (!isBackgroundActive) { showNotification('⚠️ Clique em "ATIVAR RÁDIO" primeiro!', 3000); return false; }
             if (filteredPlaylist.length === 0) return false;
@@ -1138,7 +1141,7 @@
                 showNotification(`🎵 Mudando para ${novo}!`, 3000);
             }
         }
-
+        
         function ativarModoAoVivo() {
             isAoVivo = true; aoVivoAcabou = false; trocaAutomaticaAtiva = false;
             if (videoAdInterval) clearInterval(videoAdInterval);
@@ -1217,11 +1220,8 @@
                 }
             };
         }
-
-        // ==================== MODO CARRO ====================
-        // Variável para timeout dos controles
-        let hideControlsTimeout = null;
-
+        
+        // ==================== MODO CARRO CORRIGIDO ====================
         function showCarControls() {
             if (!isCarMode) return;
             const overlay = document.getElementById('carOverlayControls');
@@ -1237,15 +1237,13 @@
                 instruction.classList.remove('visible');
             }, 4000);
         }
-
+        
         function updateCarOverlayInfo() {
             const track = filteredPlaylist[currentIndex];
-            const carTrackText = document.getElementById('carTrackText');
-            const carTotalOverlay = document.getElementById('carTotalOverlay');
             if (track) carTrackText.textContent = `${track.title} - ${track.artist} [${track.genero}]`;
             if (musicPlayerEl.duration) carTotalOverlay.textContent = formatTime(musicPlayerEl.duration);
         }
-
+        
         function toggleCarMode() {
             const appEl = document.querySelector('.app');
             const carModeVideoDiv = document.querySelector('.car-mode-video');
@@ -1273,9 +1271,12 @@
                 if (exitBtn) exitBtn.style.display = 'block';
                 if (carOverlay) carOverlay.classList.remove('visible');
                 if (carTrack) carTrack.classList.remove('visible');
+                // Esconde o balão ao vivo e pausa o vídeo principal
+                document.querySelector('.live-info-balloon').style.display = 'none';
+                mainVideoEl.pause();
                 console.log("✅ Modo Carro ATIVADO");
             } else {
-                // DESATIVAR MODO CARRO
+                // DESATIVAR MODO CARRO (VOLTA TUDO AO NORMAL)
                 isCarMode = false;
                 appEl.classList.remove('car-mode-active');
                 document.body.classList.remove('car-mode-active');
@@ -1296,14 +1297,21 @@
                 showNotification('🚗 Modo Carro desativado.', 2000);
                 document.removeEventListener('touchstart', showCarControls);
                 document.removeEventListener('click', showCarControls);
-                if (isAoVivo) videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
+                // Reativa os anúncios em vídeo (se estiver em modo ao vivo)
+                if (isAoVivo) {
+                    if (videoAdInterval) clearInterval(videoAdInterval);
+                    videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
+                    mostrarBalaoAoVivo(); // reexibe o balão ao vivo
+                }
                 if (exitBtn) exitBtn.style.display = 'none';
-                if (isAoVivo) mostrarBalaoAoVivo();
-                mainVideoEl.play().catch(e => console.log);
-                console.log("✅ Modo Carro DESATIVADO");
+                // VOLTA O VÍDEO PRINCIPAL (FORÇA RECARREGAR E TOCAR)
+                mainVideoEl.src = mainVideoEl.src; // recarrega o mesmo src
+                mainVideoEl.load();
+                mainVideoEl.play().catch(e => console.log("Erro ao retomar vídeo:", e));
+                console.log("✅ Modo Carro DESATIVADO - Vídeo principal retomado");
             }
         }
-
+        
         // ==================== MODO TV ====================
         function toggleTvMode() {
             const appEl = document.querySelector('.app');
@@ -1311,26 +1319,25 @@
             const exitTvBtn = document.getElementById('exitTvBtn');
             const mainVideoEl = document.getElementById('mainVideo');
             const carVideoEl = document.getElementById('carVideo');
-            
             if (!isTvMode) {
                 isTvMode = true;
                 appEl.classList.add('tv-mode-active');
                 tvOverlay.classList.add('show');
                 exitTvBtn.style.display = 'block';
                 showNotification('📺 MODO TV ATIVADO! Apoie com PIX.', 3000);
-                if (mainVideoEl) { mainVideoEl.src = "modop.mp4"; mainVideoEl.load(); mainVideoEl.play().catch(e=>console.log); }
-                if (carVideoEl) { carVideoEl.src = "modop.mp4"; carVideoEl.load(); carVideoEl.play().catch(e=>console.log); }
+                mainVideoEl.src = "modop.mp4"; mainVideoEl.load(); mainVideoEl.play().catch(e=>console.log);
+                carVideoEl.src = "modop.mp4"; carVideoEl.load(); carVideoEl.play().catch(e=>console.log);
             } else {
                 isTvMode = false;
                 appEl.classList.remove('tv-mode-active');
                 tvOverlay.classList.remove('show');
                 exitTvBtn.style.display = 'none';
                 showNotification('Modo TV desativado.', 2000);
-                if (mainVideoEl) { mainVideoEl.src = "pai.mp4"; mainVideoEl.load(); mainVideoEl.play().catch(e=>console.log); }
-                if (carVideoEl) { carVideoEl.src = "pai.mp4"; carVideoEl.load(); carVideoEl.play().catch(e=>console.log); }
+                mainVideoEl.src = "pai.mp4"; mainVideoEl.load(); mainVideoEl.play().catch(e=>console.log);
+                carVideoEl.src = "pai.mp4"; carVideoEl.load(); carVideoEl.play().catch(e=>console.log);
             }
         }
-
+        
         // ==================== PIX ====================
         document.getElementById('pixKey')?.addEventListener('click', () => {
             navigator.clipboard.writeText("12988461978");
@@ -1340,7 +1347,7 @@
             navigator.clipboard.writeText("12988461978");
             showNotification('✅ Chave PIX copiada', 2000);
         });
-
+        
         // ==================== ÁUDIO DE FUNDO (AUTOPLAY) ====================
         function createSilentAudio() {
             const sampleRate = 44100, duration = 5, numSamples = sampleRate * duration;
@@ -1388,7 +1395,7 @@
                 return false;
             }
         }
-
+        
         function iniciarComMusicaAleatoria() {
             isAoVivo = true; aoVivoAcabou = false; trocaAutomaticaAtiva = false;
             let musicasAoVivo = musicas.filter(m => m.tipo === "ao vivo");
@@ -1406,7 +1413,7 @@
             if (videoAdInterval) clearInterval(videoAdInterval);
             videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
         }
-
+        
         // ==================== GESTOS (TOQUE) ====================
         let touchStartX = 0, lastTap = 0;
         document.addEventListener('touchstart', (e) => {
@@ -1429,7 +1436,7 @@
             el.style.opacity = '1';
             setTimeout(() => el.style.opacity = '0', 1000);
         }
-
+        
         // ==================== VÍDEOS ROTATIVOS ====================
         const videosList = [
             { src: "pai.mp4", link: "https://wa.me/" + NUMERO_WHATSAPP + "?text=Olá" },
@@ -1451,7 +1458,7 @@
             currentVideoIndex = (currentVideoIndex + 1) % videosList.length;
             updateVideoAndButton(currentVideoIndex);
         }, 20000);
-
+        
         // ==================== MENU E MODAIS ====================
         const menuButton = document.getElementById('menuButton');
         const menuPopup = document.getElementById('menuPopup');
@@ -1528,7 +1535,7 @@
             if (isCarMode) updateCarOverlayInfo();
             if (isPlaying) playMusic();
         }
-
+        
         // ==================== BOTÕES PRINCIPAIS ====================
         playBtn.addEventListener('click', () => { if (!isBackgroundActive) showNotification('⚠️ Clique em "ATIVAR RÁDIO" primeiro!', 3000); else togglePlayPause(); });
         prevBtn.addEventListener('click', () => { prevTrack(); });
@@ -1585,7 +1592,7 @@
             currentRating = 0;
             document.querySelectorAll('#ratingStars .star').forEach(s => { s.classList.remove('fas', 'active'); s.classList.add('far'); });
         });
-
+        
         // ==================== CONTROLE DE ESCONDER CONTROLES INFERIORES ====================
         const bottomControlsPanel = document.getElementById('bottomControls');
         let hideTimeout;
@@ -1597,7 +1604,7 @@
         document.addEventListener('touchstart', resetHideTimer);
         document.addEventListener('click', resetHideTimer);
         showControlsPanel();
-
+        
         // ==================== INICIALIZAÇÃO E AUTOPLAY ====================
         tapToStart.addEventListener('click', async (e) => {
             e.stopPropagation();
