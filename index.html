@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rádio Patico IA • Roger</title>
+    <title>Rádio Patico IA • 12 Roger</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -80,7 +80,7 @@
         .tv-pix-overlay.show { display: block; animation: fadeInPix 0.4s ease; }
         @keyframes fadeInPix { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
         .tv-pix-overlay h3 { font-size: 1rem; margin-bottom: 8px; color: #00d4ff; }
-        .tv-pix-overlay img { width: 140px; height: 140px; margin: 8px auto; display: block; background: white; padding: 6px; border-radius: 12px; }
+        .tv-pix-overlay img { width: 140px; height: 140px; margin: 8px auto; display: block; background: white; padding: 6px; border-radius: 12px; cursor: pointer; }
         .tv-pix-overlay .pix-key { font-size: 0.75rem; word-break: break-all; background: #222; padding: 8px; border-radius: 12px; margin-top: 10px; cursor: pointer; }
         .tv-pix-overlay .pix-key:active { background: #00d4ff; color: #000; }
         .exit-tv-btn {
@@ -233,19 +233,13 @@
         <div class="tv-pix-overlay" id="tvPixOverlay">
             <h3><i class="fas fa-qrcode"></i> APOIE A RÁDIO</h3>
             <img id="pixQrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=00020126360014br.gov.bcb.pix0114+551298846197852040000530398654040.095802BR5925Radio Patico IA6009SAO PAULO61080540900062290525radio.patico@email.com6304E2F3" alt="QR Code PIX">
-            <p>Copie a chave:</p>
+            <p>Clique na chave para abrir o banco:</p>
             <div class="pix-key" id="pixKey">12988461978</div>
             <small>Contribua com qualquer valor ❤️</small>
         </div>
         <div class="live-info-balloon" id="liveInfoBalloon" style="display: none;">
-            <div class="balloon-content">
-                <i class="fas fa-circle"></i>
-                <span id="liveInfoText">AO VIVO • TRANSMISSÃO ESPECIAL</span>
-                <i class="fas fa-microphone-alt"></i>
-            </div>
-            <div class="balloon-timer">
-                <div class="timer-bar" id="balloonTimerBar"></div>
-            </div>
+            <div class="balloon-content"><i class="fas fa-circle"></i><span id="liveInfoText">AO VIVO • TRANSMISSÃO ESPECIAL</span><i class="fas fa-microphone-alt"></i></div>
+            <div class="balloon-timer"><div class="timer-bar" id="balloonTimerBar"></div></div>
         </div>
         <div id="notificationTop" class="notification-top"><div class="message" id="notificationMessage"></div></div>
         <div class="video-ad-overlay" id="videoAdOverlay"><video id="adVideo" autoplay muted playsinline loop><source src="tea.mp4" type="video/mp4"></video></div>
@@ -290,9 +284,9 @@
     <div class="swipe-indicator" id="swipeIndicator">👉 Deslize para próxima música</div>
 
     <script>
-        // ==================== PLAYLIST COMPLETA (COLOQUE AQUI SUAS MÚSICAS) ====================
+        // ==================== PLAYLIST (COLOQUE SUAS MÚSICAS AQUI) ====================
         const musicas = [
-             { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
+            { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 4, title: "Pout Pourri", artist: "Luiza Martins", src: "Luiza_Martins_Pout_Pourri_Na_Hora_do_Adeus_Fruto_.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -668,21 +662,21 @@
         let userPreferences = { likedSongs: [], dislikedSongs: [], songPlays: {}, songComplete: {}, genrePreference: {}, lastPlayed: null };
         function loadPreferences() { const saved = localStorage.getItem('radio_patico_ai_preferences'); if (saved) try { Object.assign(userPreferences, JSON.parse(saved)); } catch(e){} }
         function savePreferences() { localStorage.setItem('radio_patico_ai_preferences', JSON.stringify(userPreferences)); }
-        function likeCurrentSong() { const track = filteredPlaylist[currentIndex]; if (!track) return; if (!userPreferences.likedSongs.includes(track.id)) { userPreferences.likedSongs.push(track.id); userPreferences.dislikedSongs = userPreferences.dislikedSongs.filter(id => id !== track.id); savePreferences(); showNotification(`👍 Você curtiu "${track.title}"!`, 2500); updateAIModal(); } else showNotification(`❤️ Você já curtiu "${track.title}"`, 1500); }
-        function dislikeCurrentSong() { const track = filteredPlaylist[currentIndex]; if (!track) return; if (!userPreferences.dislikedSongs.includes(track.id)) { userPreferences.dislikedSongs.push(track.id); userPreferences.likedSongs = userPreferences.likedSongs.filter(id => id !== track.id); savePreferences(); showNotification(`👎 Você não curtiu "${track.title}".`, 2500); setTimeout(() => nextTrack(), 500); updateAIModal(); } else showNotification(`👎 Já marcado.`, 1500); }
+        function likeCurrentSong() { const track = filteredPlaylist[currentIndex]; if (!track) return; if (!userPreferences.likedSongs.includes(track.id)) { userPreferences.likedSongs.push(track.id); userPreferences.dislikedSongs = userPreferences.dislikedSongs.filter(id => id !== track.id); savePreferences(); showNotification(`👍 "${track.title}" curtida! IA vai tocar mais assim.`, 2500); updateAIModal(); } else showNotification(`❤️ Você já curtiu "${track.title}"`, 1500); }
+        function dislikeCurrentSong() { const track = filteredPlaylist[currentIndex]; if (!track) return; if (!userPreferences.dislikedSongs.includes(track.id)) { userPreferences.dislikedSongs.push(track.id); userPreferences.likedSongs = userPreferences.likedSongs.filter(id => id !== track.id); savePreferences(); showNotification(`👎 "${track.title}" não curtida. Pulando...`, 2500); setTimeout(() => nextTrack(), 500); updateAIModal(); } else showNotification(`👎 Você já marcou "${track.title}"`, 1500); }
         function registerCompleteListen(trackId) { userPreferences.songComplete[trackId] = true; userPreferences.songPlays[trackId] = (userPreferences.songPlays[trackId] || 0) + 1; const track = musicas.find(m => m.id === trackId); if (track) userPreferences.genrePreference[track.genero] = (userPreferences.genrePreference[track.genero] || 0) + 1; savePreferences(); }
         function calculateSongWeight(song) { let w = 1; if (userPreferences.likedSongs.includes(song.id)) w += 10; if (userPreferences.dislikedSongs.includes(song.id)) w -= 20; w -= (userPreferences.songPlays[song.id] || 0) * 0.3; w += (userPreferences.genrePreference[song.genero] || 0) * 0.5; if (userPreferences.songComplete[song.id]) w += 2; return Math.max(0.1, w); }
         function generateSmartPlaylist() { const scored = musicas.map(s => ({ ...s, weight: calculateSongWeight(s) })).sort((a,b) => b.weight - a.weight); let top = scored.slice(0,40); if (userPreferences.likedSongs.length < 3) top = [...new Set([...top, ...shuffleArray([...musicas]).slice(0,15)])]; return shuffleArray(top); }
         function updateAIModal() { document.getElementById('aiLikedCount').textContent = userPreferences.likedSongs.length; document.getElementById('aiDislikedCount').textContent = userPreferences.dislikedSongs.length; let topGenre = "Nenhum", maxCount = 0; for (const [g, c] of Object.entries(userPreferences.genrePreference)) if (c > maxCount) { maxCount = c; topGenre = g; } document.getElementById('aiTopGenre').textContent = topGenre; const topSongs = userPreferences.likedSongs.slice(0,5).map(id => musicas.find(m => m.id === id)).filter(s => s); const div = document.getElementById('aiTopSongs'); div.innerHTML = ''; topSongs.forEach(song => { const d = document.createElement('div'); d.className = 'favorite-song-item'; d.innerHTML = `<span>🎵 ${song.title} - ${song.artist}</span><button onclick="removeLike(${song.id})">Remover</button>`; div.appendChild(d); }); }
-        window.removeLike = function(songId) { userPreferences.likedSongs = userPreferences.likedSongs.filter(id => id !== songId); savePreferences(); updateAIModal(); showNotification(`👍 Removido`,1500); if (!isAoVivo) recreatePlaylistFromAI(); };
-        function recreatePlaylistFromAI() { if (isAoVivo) { showNotification(`⚠️ Desative o modo AO VIVO primeiro!`,2000); return; } filteredPlaylist = generateSmartPlaylist(); currentIndex = 0; loadTrackUI(currentIndex); if (isCarMode) updateCarOverlayInfo(); if (isPlaying) playMusic(); showNotification(`🧠 IA gerou nova playlist!`,3000); }
+        window.removeLike = function(songId) { userPreferences.likedSongs = userPreferences.likedSongs.filter(id => id !== songId); savePreferences(); updateAIModal(); showNotification(`👍 Removido dos favoritos`,1500); if (!isAoVivo) recreatePlaylistFromAI(); };
+        function recreatePlaylistFromAI() { if (isAoVivo) { showNotification(`⚠️ Desative o modo AO VIVO primeiro!`,2000); return; } filteredPlaylist = generateSmartPlaylist(); currentIndex = 0; loadTrackUI(currentIndex); if (isCarMode) updateCarOverlayInfo(); if (isPlaying) playMusic(); showNotification(`🧠 IA gerou nova playlist personalizada!`,3000); }
 
-        function mudarGeneroAutomaticamente() { if (!trocaAutomaticaAtiva || isAoVivo) return; let idx = GENEROS_DISPONIVEIS.indexOf(generoAtual); let novo = GENEROS_DISPONIVEIS[(idx+1)%GENEROS_DISPONIVEIS.length]; let novas = musicas.filter(m => m.genero === novo); if (novas.length) { generoAtual = novo; filteredPlaylist = shuffleArray(novas); currentIndex = 0; loadTrackUI(currentIndex); if (isCarMode) updateCarOverlayInfo(); showNotification(`🎵 Mudando para ${novo}!`,3000); } }
+        function mudarGeneroAutomaticamente() { if (!trocaAutomaticaAtiva || isAoVivo) return; let idx = GENEROS_DISPONIVEIS.indexOf(generoAtual); let novo = GENEROS_DISPONIVEIS[(idx+1)%GENEROS_DISPONIVEIS.length]; let novas = musicas.filter(m => m.genero === novo); if (novas.length) { generoAtual = novo; filteredPlaylist = shuffleArray(novas); currentIndex = 0; loadTrackUI(currentIndex); if (isCarMode) updateCarOverlayInfo(); showNotification(`🎵 Agora no estilo ${novo}!`,3000); } }
 
         function tocarVinheta() { if (!isAoVivo || tocandoVinheta || vinhetas.length===0) return false; const wasPlaying = isPlaying; if (wasPlaying) { musicPlayerEl.pause(); isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; if(document.getElementById('carOverlayPlay')) document.getElementById('carOverlayPlay').innerHTML = '<i class="fas fa-play"></i>'; stopTimer(); pararVisualizer(); } tocandoVinheta = true; const audio = new Audio(vinhetas[Math.floor(Math.random()*vinhetas.length)]); audio.volume = VOLUME_PLAYER; audio.play().catch(e=>{}); audio.onended = () => { tocandoVinheta = false; if(wasPlaying) playMusic(); }; return true; }
 
-        function ativarModoAoVivo() { isAoVivo = true; aoVivoAcabou = false; trocaAutomaticaAtiva = false; if(videoAdInterval) clearInterval(videoAdInterval); videoAdInterval = setInterval(()=>iniciarVideoAd(), INTERVALO_VIDEO_MS); document.getElementById('genreBadge').innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE'; document.getElementById('genreBadge').classList.add('live'); let aoVivoList = musicas.filter(m => m.tipo === "ao vivo"); if(aoVivoList.length===0) { aoVivoList = shuffleArray([...musicas]); aoVivoAcabou = true; showNotification('🔴 MODO AO VIVO ATIVADO!',3000); } else showNotification(`🔴 MODO AO VIVO ATIVADO! ${aoVivoList.length} músicas!`,3000); filteredPlaylist = shuffleArray(aoVivoList); currentIndex = 0; historicoMusicasLive = []; loadTrackUI(currentIndex); musicCounter = 0; contadorMusicasVinheta = 0; mostrarBalaoAoVivo(); if(isPlaying) playMusic(); }
-        function desativarModoAoVivo() { isAoVivo = false; trocaAutomaticaAtiva = true; if(videoAdInterval) clearInterval(videoAdInterval); pararVideoAd(); document.getElementById('genreBadge').classList.remove('live'); let musicasGen = musicas.filter(m => m.genero === generoAtual); if(musicasGen.length===0) musicasGen = shuffleArray([...musicas]); filteredPlaylist = shuffleArray(musicasGen); currentIndex = 0; loadTrackUI(currentIndex); updateGenreBadge(generoAtual); document.getElementById('liveInfoBalloon').style.display = 'none'; if(isPlaying) playMusic(); showNotification(`🎵 Modo NORMAL - ${generoAtual}`,2000); }
+        function ativarModoAoVivo() { isAoVivo = true; aoVivoAcabou = false; trocaAutomaticaAtiva = false; if(videoAdInterval) clearInterval(videoAdInterval); videoAdInterval = setInterval(()=>iniciarVideoAd(), INTERVALO_VIDEO_MS); document.getElementById('genreBadge').innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE'; document.getElementById('genreBadge').classList.add('live'); let aoVivoList = musicas.filter(m => m.tipo === "ao vivo"); if(aoVivoList.length===0) { aoVivoList = shuffleArray([...musicas]); aoVivoAcabou = true; showNotification('🔴 MODO AO VIVO ATIVADO! (sem exclusivas)',3000); } else showNotification(`🔴 MODO AO VIVO ATIVADO! ${aoVivoList.length} músicas ao vivo!`,3000); filteredPlaylist = shuffleArray(aoVivoList); currentIndex = 0; historicoMusicasLive = []; loadTrackUI(currentIndex); musicCounter = 0; contadorMusicasVinheta = 0; mostrarBalaoAoVivo(); if(isPlaying) playMusic(); }
+        function desativarModoAoVivo() { isAoVivo = false; trocaAutomaticaAtiva = true; if(videoAdInterval) clearInterval(videoAdInterval); pararVideoAd(); document.getElementById('genreBadge').classList.remove('live'); let musicasGen = musicas.filter(m => m.genero === generoAtual); if(musicasGen.length===0) musicasGen = shuffleArray([...musicas]); filteredPlaylist = shuffleArray(musicasGen); currentIndex = 0; loadTrackUI(currentIndex); updateGenreBadge(generoAtual); document.getElementById('liveInfoBalloon').style.display = 'none'; if(isPlaying) playMusic(); showNotification(`🎵 Modo NORMAL - Gênero: ${generoAtual}`,2000); }
 
         function proximaMusicaLive() { if(!isAoVivo) return null; const disponiveis = filteredPlaylist.filter(m => !historicoMusicasLive.includes(m.id)); let prox; if(disponiveis.length===0) { historicoMusicasLive = []; prox = filteredPlaylist[Math.floor(Math.random()*filteredPlaylist.length)]; } else prox = disponiveis[Math.floor(Math.random()*disponiveis.length)]; historicoMusicasLive.push(prox.id); if(historicoMusicasLive.length>5) historicoMusicasLive.shift(); return prox; }
 
@@ -758,21 +752,21 @@
         function showNotification(msg, dur=3000) { if(notificationTimeout) clearTimeout(notificationTimeout); notificationMessage.innerText = msg; notificationTop.classList.add('show'); notificationTimeout = setTimeout(()=>notificationTop.classList.remove('show'), dur); }
         function updateGenreBadge(g) { let icon = "fa-music"; switch(g){ case "SERTANEJO": icon="fa-guitar"; break; case "FORRÓ": icon="fa-drum"; break; case "SAMBA": icon="fa-music"; break; case "POP": icon="fa-microphone-alt"; break; case "BREGA": icon="fa-heart"; break; case "MPB": icon="fa-guitar"; break; case "VARIADAS": icon="fa-random"; break; } genreBadge.innerHTML = `<i class="fas ${icon}"></i> ${g==="MIX"?"TODOS":g}`; genreBadge.classList.remove('live'); }
 
-        function loadTrackUI(idx) { if(!filteredPlaylist.length) return; if(idx>=filteredPlaylist.length) { if(isAoVivo && !aoVivoAcabou){ aoVivoAcabou = true; showNotification(`🎵 Músicas AO VIVO terminaram! Ativando modo NORMAL...`,4000); desativarModoAoVivo(); return; } else if(trocaAutomaticaAtiva && !isAoVivo){ mudarGeneroAutomaticamente(); return; } else idx = 0; } if(idx<0) idx = filteredPlaylist.length-1; currentIndex = idx; const track = filteredPlaylist[currentIndex]; if(!track) return; trackArtist.textContent = `${track.title} - ${track.artist} [${track.genero}]`; currentTimeEl.textContent = '0:00'; totalTimeEl.textContent = '0:00'; progressFill.style.width = '0%'; if(!isAoVivo) updateGenreBadge(track.genero); if(isCarMode){ document.getElementById('carTrackText').textContent = `${track.title} - ${track.artist} [${track.genero}]`; document.getElementById('carCurrentOverlay').textContent = '0:00'; document.getElementById('carTotalOverlay').textContent = '0:00'; document.getElementById('carProgressFillOverlay').style.width = '0%'; } }
+        function loadTrackUI(idx) { if(!filteredPlaylist.length) return; if(idx>=filteredPlaylist.length) { if(isAoVivo && !aoVivoAcabou){ aoVivoAcabou = true; showNotification(`🎵 Fim das músicas AO VIVO! Ativando modo NORMAL...`,4000); desativarModoAoVivo(); return; } else if(trocaAutomaticaAtiva && !isAoVivo){ mudarGeneroAutomaticamente(); return; } else idx = 0; } if(idx<0) idx = filteredPlaylist.length-1; currentIndex = idx; const track = filteredPlaylist[currentIndex]; if(!track) return; trackArtist.textContent = `${track.title} - ${track.artist} [${track.genero}]`; currentTimeEl.textContent = '0:00'; totalTimeEl.textContent = '0:00'; progressFill.style.width = '0%'; if(!isAoVivo) updateGenreBadge(track.genero); if(isCarMode){ document.getElementById('carTrackText').textContent = `${track.title} - ${track.artist} [${track.genero}]`; document.getElementById('carCurrentOverlay').textContent = '0:00'; document.getElementById('carTotalOverlay').textContent = '0:00'; document.getElementById('carProgressFillOverlay').style.width = '0%'; } }
 
-        async function playMusic() { if(!isBackgroundActive) { showNotification('⚠️ Clique em "ATIVAR RÁDIO" primeiro!',3000); return false; } if(!filteredPlaylist.length) return false; if(isLoadingTrack || tocandoVinheta) return false; isLoadingTrack = true; showLoading(); const track = filteredPlaylist[currentIndex]; if(!track || !track.src) { hideLoading(); isLoadingTrack = false; return false; } musicPlayerEl.pause(); musicPlayerEl.src = track.src; musicPlayerEl.load(); if(!isAoVivo) updateGenreBadge(track.genero); if(isCarMode) updateCarOverlayInfo(); return new Promise((resolve) => { const timeout = setTimeout(()=>{ hideLoading(); isLoadingTrack = false; showNotification(`⚠️ Tempo excedido: "${track.title}"`,2000); nextTrack(); resolve(false); },8000); musicPlayerEl.oncanplaythrough = async () => { clearTimeout(timeout); hideLoading(); isLoadingTrack = false; try { await musicPlayerEl.play(); isPlaying = true; playBtn.innerHTML = '<i class="fas fa-pause"></i>'; if(document.getElementById('carOverlayPlay')) document.getElementById('carOverlayPlay').innerHTML = '<i class="fas fa-pause"></i>'; startTimer(); iniciarVisualizer(); initEqualizer(); updateEQ(); updateStats(track); trackStartTime = Date.now(); if(musicPlayerEl.duration) totalTimeEl.textContent = formatTime(musicPlayerEl.duration); else musicPlayerEl.addEventListener('loadedmetadata',()=>{ totalTimeEl.textContent = formatTime(musicPlayerEl.duration); if(isCarMode) document.getElementById('carTotalOverlay').textContent = formatTime(musicPlayerEl.duration); },{once:true}); splash.classList.add('hidden'); setTimeout(()=>splash.style.display='none',500); tapToStart.style.display = 'none'; if('mediaSession' in navigator){ navigator.mediaSession.metadata = new MediaMetadata({ title:track.title, artist:track.artist+' • '+track.genero, album:'Rádio Patico IA' }); navigator.mediaSession.setActionHandler('play',()=>playMusic()); navigator.mediaSession.setActionHandler('pause',()=>pauseMusic()); navigator.mediaSession.setActionHandler('previoustrack',()=>prevTrack()); navigator.mediaSession.setActionHandler('nexttrack',()=>nextTrack()); } resolve(true); } catch(e){ clearTimeout(timeout); hideLoading(); isLoadingTrack = false; isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; if(document.getElementById('carOverlayPlay')) document.getElementById('carOverlayPlay').innerHTML = '<i class="fas fa-play"></i>'; resolve(false); } }; musicPlayerEl.onerror = () => { clearTimeout(timeout); hideLoading(); isLoadingTrack = false; showNotification(`⚠️ Erro ao carregar "${track.title}"`,2000); setTimeout(()=>{ currentIndex = (currentIndex+1)%filteredPlaylist.length; loadTrackUI(currentIndex); playMusic(); },500); resolve(false); }; musicPlayerEl.onended = () => { if(trackStartTime){ const dur = Math.floor((Date.now()-trackStartTime)/1000); if(dur>0 && dur<600){ updateTimeStats(dur); if(musicPlayerEl.duration && dur > musicPlayerEl.duration*0.7) registerCompleteListen(track.id); } } stopTimer(); if(isAoVivo && !aoVivoAcabou){ const prox = proximaMusicaLive(); if(prox){ filteredPlaylist.push(prox); currentIndex = filteredPlaylist.length-1; loadTrackUI(currentIndex); if(isCarMode) updateCarOverlayInfo(); setTimeout(()=>playMusic(),100); return; } aoVivoAcabou = true; showNotification(`🎵 Músicas AO VIVO terminaram! Ativando modo NORMAL...`,4000); desativarModoAoVivo(); setTimeout(()=>playMusic(),200); return; } else if(!isAoVivo && trocaAutomaticaAtiva){ mudarGeneroAutomaticamente(); setTimeout(()=>playMusic(),100); return; } let nxt = currentIndex+1; if(nxt>=filteredPlaylist.length) nxt=0; currentIndex=nxt; loadTrackUI(currentIndex); if(isCarMode) updateCarOverlayInfo(); setTimeout(()=>playMusic(),100); }; }); }
+        async function playMusic() { if(!isBackgroundActive) { showNotification('⚠️ Clique em "ATIVAR RÁDIO" primeiro!',3000); return false; } if(!filteredPlaylist.length) return false; if(isLoadingTrack || tocandoVinheta) return false; isLoadingTrack = true; showLoading(); const track = filteredPlaylist[currentIndex]; if(!track || !track.src) { hideLoading(); isLoadingTrack = false; return false; } musicPlayerEl.pause(); musicPlayerEl.src = track.src; musicPlayerEl.load(); if(!isAoVivo) updateGenreBadge(track.genero); if(isCarMode) updateCarOverlayInfo(); return new Promise((resolve) => { const timeout = setTimeout(()=>{ hideLoading(); isLoadingTrack = false; showNotification(`⚠️ Timeout: "${track.title}"`,2000); nextTrack(); resolve(false); },8000); musicPlayerEl.oncanplaythrough = async () => { clearTimeout(timeout); hideLoading(); isLoadingTrack = false; try { await musicPlayerEl.play(); isPlaying = true; playBtn.innerHTML = '<i class="fas fa-pause"></i>'; if(document.getElementById('carOverlayPlay')) document.getElementById('carOverlayPlay').innerHTML = '<i class="fas fa-pause"></i>'; startTimer(); iniciarVisualizer(); initEqualizer(); updateEQ(); updateStats(track); trackStartTime = Date.now(); if(musicPlayerEl.duration) totalTimeEl.textContent = formatTime(musicPlayerEl.duration); else musicPlayerEl.addEventListener('loadedmetadata',()=>{ totalTimeEl.textContent = formatTime(musicPlayerEl.duration); if(isCarMode) document.getElementById('carTotalOverlay').textContent = formatTime(musicPlayerEl.duration); },{once:true}); splash.classList.add('hidden'); setTimeout(()=>splash.style.display='none',500); tapToStart.style.display = 'none'; if('mediaSession' in navigator){ navigator.mediaSession.metadata = new MediaMetadata({ title:track.title, artist:track.artist+' • '+track.genero, album:'Rádio Patico IA' }); navigator.mediaSession.setActionHandler('play',()=>playMusic()); navigator.mediaSession.setActionHandler('pause',()=>pauseMusic()); navigator.mediaSession.setActionHandler('previoustrack',()=>prevTrack()); navigator.mediaSession.setActionHandler('nexttrack',()=>nextTrack()); } resolve(true); } catch(e){ clearTimeout(timeout); hideLoading(); isLoadingTrack = false; isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; if(document.getElementById('carOverlayPlay')) document.getElementById('carOverlayPlay').innerHTML = '<i class="fas fa-play"></i>'; resolve(false); } }; musicPlayerEl.onerror = () => { clearTimeout(timeout); hideLoading(); isLoadingTrack = false; showNotification(`⚠️ Erro ao carregar "${track.title}"`,2000); setTimeout(()=>{ currentIndex = (currentIndex+1)%filteredPlaylist.length; loadTrackUI(currentIndex); playMusic(); },500); resolve(false); }; musicPlayerEl.onended = () => { if(trackStartTime){ const dur = Math.floor((Date.now()-trackStartTime)/1000); if(dur>0 && dur<600){ updateTimeStats(dur); if(musicPlayerEl.duration && dur > musicPlayerEl.duration*0.7) registerCompleteListen(track.id); } } stopTimer(); if(isAoVivo && !aoVivoAcabou){ const prox = proximaMusicaLive(); if(prox){ filteredPlaylist.push(prox); currentIndex = filteredPlaylist.length-1; loadTrackUI(currentIndex); if(isCarMode) updateCarOverlayInfo(); setTimeout(()=>playMusic(),100); return; } aoVivoAcabou = true; showNotification(`🎵 Fim das AO VIVO! Ativando NORMAL...`,4000); desativarModoAoVivo(); setTimeout(()=>playMusic(),200); return; } else if(!isAoVivo && trocaAutomaticaAtiva){ mudarGeneroAutomaticamente(); setTimeout(()=>playMusic(),100); return; } let nxt = currentIndex+1; if(nxt>=filteredPlaylist.length) nxt=0; currentIndex=nxt; loadTrackUI(currentIndex); if(isCarMode) updateCarOverlayInfo(); setTimeout(()=>playMusic(),100); }; }); }
         function pauseMusic() { musicPlayerEl.pause(); isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; if(document.getElementById('carOverlayPlay')) document.getElementById('carOverlayPlay').innerHTML = '<i class="fas fa-play"></i>'; stopTimer(); pararVisualizer(); }
         function togglePlayPause() { if(!isBackgroundActive){ showNotification('⚠️ Clique em "ATIVAR RÁDIO" primeiro!',3000); return; } isPlaying ? pauseMusic() : playMusic(); }
-        async function nextTrack() { if(isLoadingTrack) return; stopTimer(); if(isAoVivo && !aoVivoAcabou){ const prox = proximaMusicaLive(); if(prox){ filteredPlaylist.push(prox); currentIndex = filteredPlaylist.length-1; loadTrackUI(currentIndex); if(isCarMode) updateCarOverlayInfo(); if(isPlaying) await playMusic(); return; } aoVivoAcabou = true; showNotification(`🎵 Músicas AO VIVO terminaram! Ativando modo NORMAL...`,4000); desativarModoAoVivo(); setTimeout(()=>playMusic(),200); return; } else if(!isAoVivo && trocaAutomaticaAtiva){ mudarGeneroAutomaticamente(); setTimeout(()=>playMusic(),100); return; } let nxt = currentIndex+1; if(nxt>=filteredPlaylist.length) nxt=0; currentIndex=nxt; loadTrackUI(currentIndex); if(isCarMode) updateCarOverlayInfo(); if(isPlaying) await playMusic(); }
+        async function nextTrack() { if(isLoadingTrack) return; stopTimer(); if(isAoVivo && !aoVivoAcabou){ const prox = proximaMusicaLive(); if(prox){ filteredPlaylist.push(prox); currentIndex = filteredPlaylist.length-1; loadTrackUI(currentIndex); if(isCarMode) updateCarOverlayInfo(); if(isPlaying) await playMusic(); return; } aoVivoAcabou = true; showNotification(`🎵 Fim das AO VIVO! Ativando NORMAL...`,4000); desativarModoAoVivo(); setTimeout(()=>playMusic(),200); return; } else if(!isAoVivo && trocaAutomaticaAtiva){ mudarGeneroAutomaticamente(); setTimeout(()=>playMusic(),100); return; } let nxt = currentIndex+1; if(nxt>=filteredPlaylist.length) nxt=0; currentIndex=nxt; loadTrackUI(currentIndex); if(isCarMode) updateCarOverlayInfo(); if(isPlaying) await playMusic(); }
         async function prevTrack() { if(isLoadingTrack) return; stopTimer(); let prv = currentIndex-1; if(prv<0) prv = filteredPlaylist.length-1; currentIndex=prv; loadTrackUI(currentIndex); if(isCarMode) updateCarOverlayInfo(); if(isPlaying) await playMusic(); }
 
-        function filterByGenre(genero) { if(genero === "LIVE") { ativarModoAoVivo(); closeGenresModal(); return; } if(isAoVivo){ isAoVivo = false; aoVivoAcabou = false; trocaAutomaticaAtiva = true; if(videoAdInterval) clearInterval(videoAdInterval); pararVideoAd(); document.getElementById('genreBadge').classList.remove('live'); document.getElementById('liveInfoBalloon').style.display='none'; showNotification(`🔘 Saindo do modo AO VIVO...`,2000); } trocaAutomaticaAtiva = false; let nova = []; if(genero === "TODOS"){ nova = generateSmartPlaylist(); showNotification("🎵 IA escolhendo as melhores!",2000); updateGenreBadge("MIX"); generoAtual = "MIX"; } else { nova = musicas.filter(m => m.genero === genero); nova = shuffleArray(nova); if(!nova.length){ nova = shuffleArray([...musicas]); showNotification(`⚠️ Nenhuma música para ${genero}.`,2000); updateGenreBadge("MIX"); generoAtual = "MIX"; } else { showNotification(`🎵 ${genero} ativado!`,2000); updateGenreBadge(genero); generoAtual = genero; } } filteredPlaylist = nova; currentIndex = 0; loadTrackUI(currentIndex); if(isCarMode) updateCarOverlayInfo(); if(isPlaying) playMusic(); else if(isBackgroundActive) playMusic(); }
+        function filterByGenre(genero) { if(genero === "LIVE") { ativarModoAoVivo(); closeGenresModal(); return; } if(isAoVivo){ isAoVivo = false; aoVivoAcabou = false; trocaAutomaticaAtiva = true; if(videoAdInterval) clearInterval(videoAdInterval); pararVideoAd(); document.getElementById('genreBadge').classList.remove('live'); document.getElementById('liveInfoBalloon').style.display='none'; showNotification(`🔘 Saindo do modo AO VIVO...`,2000); } trocaAutomaticaAtiva = false; let nova = []; if(genero === "TODOS"){ nova = generateSmartPlaylist(); showNotification("🎵 IA escolhendo as melhores músicas para você!",2000); updateGenreBadge("MIX"); generoAtual = "MIX"; } else { nova = musicas.filter(m => m.genero === genero); nova = shuffleArray(nova); if(!nova.length){ nova = shuffleArray([...musicas]); showNotification(`⚠️ Nenhuma música para ${genero}. Carregando todas.`,2000); updateGenreBadge("MIX"); generoAtual = "MIX"; } else { showNotification(`🎵 Gênero ${genero} ativado! ${nova.length} músicas.`,2000); updateGenreBadge(genero); generoAtual = genero; } } filteredPlaylist = nova; currentIndex = 0; loadTrackUI(currentIndex); if(isCarMode) updateCarOverlayInfo(); if(isPlaying) playMusic(); else if(isBackgroundActive) playMusic(); }
 
         function createSilentAudio() { const sr=44100, dur=5, ns=sr*dur; const buf=new ArrayBuffer(44+ns*2); const dv=new DataView(buf); const w=(o,s)=>{for(let i=0;i<s.length;i++) dv.setUint8(o+i,s.charCodeAt(i));}; w(0,'RIFF'); dv.setUint32(4,36+ns*2,true); w(8,'WAVE'); w(12,'fmt '); dv.setUint32(16,16,true); dv.setUint16(20,1,true); dv.setUint16(22,1,true); dv.setUint32(24,sr,true); dv.setUint32(28,sr*2,true); dv.setUint16(32,2,true); dv.setUint16(34,16,true); w(36,'data'); dv.setUint32(40,ns*2,true); let off=44; for(let i=0;i<ns;i++){ dv.setInt16(off,0,true); off+=2; } return new Blob([buf],{type:'audio/wav'}); }
         const backgroundAudio = document.getElementById('backgroundAudio');
         async function ativarAudioBackground() { try { const silentUrl = URL.createObjectURL(createSilentAudio()); backgroundAudio.src = silentUrl; backgroundAudio.loop = true; backgroundAudio.volume = 0.001; await backgroundAudio.play(); isBackgroundActive = true; document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-brain"></i> IA Ativa'; document.getElementById('audioIndicator').style.color = '#4ade80'; if(backgroundInterval) clearInterval(backgroundInterval); backgroundInterval = setInterval(async ()=>{ try { if(backgroundAudio.paused && isBackgroundActive) await backgroundAudio.play(); if(isPlaying && musicPlayerEl.paused && !musicPlayerEl.ended) await musicPlayerEl.play(); if(musicPlayerEl.ended && isPlaying) nextTrack(); } catch(e){} },1000); if(isAoVivo) videoAdInterval = setInterval(()=>iniciarVideoAd(), INTERVALO_VIDEO_MS); if('wakeLock' in navigator) { await navigator.wakeLock.request('screen'); document.addEventListener('visibilitychange', async () => { if(document.visibilityState === 'visible') await navigator.wakeLock.request('screen'); }); } return true; } catch(e){ document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'; document.getElementById('audioIndicator').style.color = '#ef4444'; return false; } }
 
-        function iniciarComMusicaAleatoria() { isAoVivo = true; aoVivoAcabou = false; trocaAutomaticaAtiva = false; let aoVivoList = musicas.filter(m => m.tipo === "ao vivo"); if(!aoVivoList.length){ aoVivoList = shuffleArray([...musicas]); showNotification('🔴 Iniciando MODO AO VIVO!',3000); } else showNotification(`🔴 Rádio iniciando em MODO AO VIVO! ${aoVivoList.length} músicas!`,3000); filteredPlaylist = shuffleArray(aoVivoList); currentIndex = 0; historicoMusicasLive = []; document.getElementById('genreBadge').innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE'; document.getElementById('genreBadge').classList.add('live'); loadTrackUI(currentIndex); if(isCarMode) updateCarOverlayInfo(); musicCounter = 0; contadorMusicasVinheta = 0; if(videoAdInterval) clearInterval(videoAdInterval); videoAdInterval = setInterval(()=>iniciarVideoAd(), INTERVALO_VIDEO_MS); }
+        function iniciarComMusicaAleatoria() { isAoVivo = true; aoVivoAcabou = false; trocaAutomaticaAtiva = false; let aoVivoList = musicas.filter(m => m.tipo === "ao vivo"); if(!aoVivoList.length){ aoVivoList = shuffleArray([...musicas]); showNotification('🔴 Rádio iniciando em MODO AO VIVO (playlist geral)',3000); } else showNotification(`🔴 Rádio iniciando em MODO AO VIVO! ${aoVivoList.length} músicas exclusivas!`,3000); filteredPlaylist = shuffleArray(aoVivoList); currentIndex = 0; historicoMusicasLive = []; document.getElementById('genreBadge').innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE'; document.getElementById('genreBadge').classList.add('live'); loadTrackUI(currentIndex); if(isCarMode) updateCarOverlayInfo(); musicCounter = 0; contadorMusicasVinheta = 0; if(videoAdInterval) clearInterval(videoAdInterval); videoAdInterval = setInterval(()=>iniciarVideoAd(), INTERVALO_VIDEO_MS); }
 
         function updateCarOverlayInfo() { const track = filteredPlaylist[currentIndex]; if(track) document.getElementById('carTrackText').textContent = `${track.title} - ${track.artist} [${track.genero}]`; if(musicPlayerEl.duration) document.getElementById('carTotalOverlay').textContent = formatTime(musicPlayerEl.duration); }
         function updateCarOverlayProgress() { if(musicPlayerEl.duration && !musicPlayerEl.paused){ const p = (musicPlayerEl.currentTime/musicPlayerEl.duration)*100; document.getElementById('carProgressFillOverlay').style.width = p+'%'; document.getElementById('carCurrentOverlay').textContent = formatTime(musicPlayerEl.currentTime); } }
@@ -790,7 +784,7 @@
                 document.getElementById('carModeMenuBtn').style.background = "linear-gradient(135deg,#e63946,#ff6b6b)"; 
                 document.getElementById('carIndicator').style.display = 'flex'; 
                 carModeVideoDiv.style.display = 'block'; 
-                carVideoEl.play().catch(e=>{}); 
+                if(carVideoEl) carVideoEl.play().catch(e=>{}); 
                 updateCarOverlayInfo(); 
                 showNotification('🚗 MODO CARRO ATIVADO! Toque na tela para controles',3000); 
                 document.addEventListener('touchstart', showCarControls); 
@@ -801,7 +795,6 @@
                 document.getElementById('carOverlayControls').classList.remove('visible'); 
                 document.getElementById('carTrackOverlay').classList.remove('visible'); 
                 document.getElementById('liveInfoBalloon').style.display='none';
-                // Para o vídeo principal quando entra no modo carro
                 if(mainVideo) mainVideo.pause();
             } else {
                 isCarMode = false; 
@@ -822,12 +815,11 @@
                 if(isAoVivo) videoAdInterval = setInterval(()=>iniciarVideoAd(), INTERVALO_VIDEO_MS); 
                 if(exitBtn) exitBtn.style.display = 'none'; 
                 if(isAoVivo) mostrarBalaoAoVivo();
-                // Retorna o vídeo principal ao sair do modo carro
                 if(mainVideo) { mainVideo.play().catch(e=>console.log); }
             }
         }
 
-        // ========== FUNÇÕES DO MODO TV ==========
+        // ========== MODO TV ==========
         function toggleTvMode() {
             const appEl = document.querySelector('.app');
             const tvOverlay = document.getElementById('tvPixOverlay');
@@ -840,10 +832,9 @@
                 if (tvOverlay) tvOverlay.classList.add('show');
                 if (exitTvBtn) exitTvBtn.style.display = 'block';
                 showNotification('📺 MODO TV ATIVADO! PIX disponível na tela.', 3000);
-                // ===== VIDEO MODO TV AQUI =====
+                // Vídeo específico para TV (modop.mp4)
                 if (mainVideo) mainVideo.src = "modop.mp4";
                 if (carVideo) carVideo.src = "modop.mp4";
-                // ==============================
                 if (mainVideo) { mainVideo.load(); mainVideo.play().catch(e => console.log); }
                 if (carVideo) { carVideo.load(); carVideo.play().catch(e => console.log); }
             } else {
@@ -852,28 +843,39 @@
                 if (tvOverlay) tvOverlay.classList.remove('show');
                 if (exitTvBtn) exitTvBtn.style.display = 'none';
                 showNotification('Modo TV desativado.', 2000);
-                // Restaurar vídeos originais
                 if (mainVideo) mainVideo.src = "pai.mp4";
                 if (carVideo) carVideo.src = "pai.mp4";
                 if (mainVideo) { mainVideo.load(); mainVideo.play().catch(e => console.log); }
                 if (carVideo) { carVideo.load(); carVideo.play().catch(e => console.log); }
             }
         }
-        // Copiar chave PIX
-        document.getElementById('pixKey')?.addEventListener('click', () => {
-            const text = document.getElementById('pixKey').innerText;
-            navigator.clipboard.writeText(text);
-            showNotification('✅ Chave PIX copiada!', 2000);
-        });
+
+        // PIX: abrir banco (tenta pix:// ou copia e orienta)
+        function abrirPix() {
+            const chave = "12988461978";
+            // Tenta abrir o app do banco via URL scheme pix://
+            window.location.href = `pix://payment?key=${chapeu}&amount=`;
+            // Fallback: copia a chave e mostra mensagem
+            setTimeout(() => {
+                navigator.clipboard.writeText(chave).then(() => {
+                    showNotification('📱 Chave PIX copiada! Abra o app do seu banco e cole.', 4000);
+                }).catch(() => {
+                    showNotification('❌ Não foi possível copiar a chave. Chave: ' + chave, 5000);
+                });
+            }, 500);
+        }
+        document.getElementById('pixKey')?.addEventListener('click', (e) => { e.stopPropagation(); abrirPix(); });
+        document.getElementById('pixQrCode')?.addEventListener('click', (e) => { e.stopPropagation(); abrirPix(); });
+
         document.getElementById('tvModeMenuBtn').addEventListener('click', () => { toggleTvMode(); closeMenu(); });
         document.getElementById('exitTvBtn').addEventListener('click', () => { if (isTvMode) toggleTvMode(); });
 
-        // ========== DEMAIS EVENT LISTENERS ==========
+        // ========== EVENTOS DOS BOTÕES (garantindo que funcionem) ==========
         document.getElementById('carModeMenuBtn').addEventListener('click',()=>{ toggleCarMode(); closeMenu(); });
         document.getElementById('exitCarBtn').addEventListener('click',(e)=>{ e.stopPropagation(); if(isCarMode) toggleCarMode(); });
         document.getElementById('carOverlayPlay').addEventListener('click',(e)=>{ e.stopPropagation(); if(!isBackgroundActive) showNotification('⚠️ Ative a rádio primeiro!',3000); else togglePlayPause(); showCarControls(); });
-        document.getElementById('carOverlayPrev').addEventListener('click',(e)=>{ e.stopPropagation(); prevTrack(); setTimeout(()=>updateCarOverlayInfo(),50); showCarControls(); });
-        document.getElementById('carOverlayNext').addEventListener('click',(e)=>{ e.stopPropagation(); nextTrack(); setTimeout(()=>updateCarOverlayInfo(),50); showCarControls(); });
+        document.getElementById('carOverlayPrev').addEventListener('click',(e)=>{ e.stopPropagation(); prevTrack(); showCarControls(); });
+        document.getElementById('carOverlayNext').addEventListener('click',(e)=>{ e.stopPropagation(); nextTrack(); showCarControls(); });
         document.getElementById('carProgressBarOverlay').addEventListener('click',(e)=>{ e.stopPropagation(); const rect = e.currentTarget.getBoundingClientRect(); const per = (e.clientX-rect.left)/rect.width; if(musicPlayerEl.duration) musicPlayerEl.currentTime = per*musicPlayerEl.duration; showCarControls(); });
         document.getElementById('progressBar').addEventListener('click',(e)=>{ const rect = e.currentTarget.getBoundingClientRect(); const per = (e.clientX-rect.left)/rect.width; if(musicPlayerEl.duration) musicPlayerEl.currentTime = per*musicPlayerEl.duration; resetHideTimer(); });
         playBtn.addEventListener('click',()=>{ if(!isBackgroundActive) showNotification('⚠️ Clique em "ATIVAR RÁDIO" primeiro!',3000); else togglePlayPause(); resetHideTimer(); });
@@ -883,6 +885,7 @@
         document.getElementById('likeBtn').addEventListener('click',()=>{ likeCurrentSong(); resetHideTimer(); });
         document.getElementById('dislikeBtn').addEventListener('click',()=>{ dislikeCurrentSong(); resetHideTimer(); });
 
+        // Genres modal
         function openGenresModal() { genresModal.classList.add('open'); }
         function closeGenresModal() { genresModal.classList.remove('open'); }
         genreButton.addEventListener('click', openGenresModal);
@@ -895,7 +898,7 @@
         menuButton.addEventListener('click',(e)=>{ e.stopPropagation(); toggleMenu(); });
         document.addEventListener('click',(e)=>{ if(!menuButton.contains(e.target) && !menuPopup.contains(e.target)) closeMenu(); });
         document.getElementById('fullscreenMenuBtn').addEventListener('click',()=>{ document.documentElement.requestFullscreen(); closeMenu(); });
-        document.getElementById('shareMenuBtn').addEventListener('click',()=>{ if(navigator.share) navigator.share({ title:'Rádio Patico IA', text:'🎵 Ouça músicas com IA!', url:LINK_DO_SITE }).catch(e=>{}); else { navigator.clipboard.writeText(LINK_DO_SITE); showNotification('🔗 Link copiado!',3000); } closeMenu(); });
+        document.getElementById('shareMenuBtn').addEventListener('click',()=>{ if(navigator.share) navigator.share({ title:'Rádio Patico IA', text:'🎵 IA aprende seu gosto! Toca com tela bloqueada!', url:LINK_DO_SITE }).catch(e=>{}); else { navigator.clipboard.writeText(LINK_DO_SITE); showNotification('🔗 Link copiado!',3000); } closeMenu(); });
         document.getElementById('feedbackMenuBtn').addEventListener('click',()=>{ document.getElementById('feedbackModal').classList.toggle('open'); closeMenu(); });
         document.getElementById('statsMenuBtn').addEventListener('click',()=>{ showStatsModal(); closeMenu(); });
         document.getElementById('closeStatsBtn').addEventListener('click',()=>{ document.getElementById('statsModal').classList.remove('open'); });
@@ -910,6 +913,7 @@
         document.getElementById('closeManualBtn').addEventListener('click',()=>{ manualModal.classList.remove('open'); });
         manualModal.addEventListener('click',(e)=>{ if(e.target===manualModal) manualModal.classList.remove('open'); });
 
+        // Feedback
         let currentRating = 0;
         document.querySelectorAll('#ratingStars .star').forEach(star => { star.addEventListener('click',()=>{ currentRating = parseInt(star.dataset.rating); document.querySelectorAll('#ratingStars .star').forEach((s,i)=>{ if(i<currentRating){ s.classList.add('fas','active'); s.classList.remove('far'); } else { s.classList.remove('fas','active'); s.classList.add('far'); } }); }); });
         document.getElementById('cancelFeedback').addEventListener('click',()=>{ document.getElementById('feedbackModal').classList.remove('open'); document.getElementById('feedbackText').value=''; currentRating=0; document.querySelectorAll('#ratingStars .star').forEach(s=>{ s.classList.remove('fas','active'); s.classList.add('far'); }); });
