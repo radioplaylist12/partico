@@ -353,6 +353,7 @@
             transition: transform 0.3s ease;
             white-space: nowrap;
             backdrop-filter: blur(10px);
+            font-size: 0.9rem;
         }
 
         .notification.show { transform: translateX(-50%) translateY(0); }
@@ -614,7 +615,7 @@
 <body>
     <div class="app">
         <video id="mainVideo" class="background-video" autoplay loop muted playsinline>
-            <source src="pai.mp4" type="video/mp4">
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
         </video>
         <div class="overlay"></div>
 
@@ -676,7 +677,7 @@
         </div>
 
         <div class="bottom-controls" id="bottomControls">
-            <button class="bottom-btn" id="shuffleBtn"><i class="fas fa-random"></i></button>
+            <button class="bottom-btn" id="shuffleBtn"><i class="fas fa-random"></i> Aleatório</button>
             <button class="bottom-btn" id="carModeMenuBtn"><i class="fas fa-car"></i> Carro</button>
             <button class="bottom-btn" id="tvModeMenuBtn"><i class="fas fa-tv"></i> TV</button>
             <button class="bottom-btn" id="fullscreenMenuBtn"><i class="fas fa-expand"></i></button>
@@ -689,9 +690,11 @@
         <div class="swipe-indicator" id="swipeIndicator"></div>
 
         <!-- Car Mode Elements -->
-        <video id="carVideo" class="car-mode-video" autoplay loop muted playsinline><source src="pai.mp4" type="video/mp4"></video>
+        <video id="carVideo" class="car-mode-video" autoplay loop muted playsinline>
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
         <div class="car-overlay-controls" id="carOverlayControls">
-            <div class="car-track-text" id="carTrackText">Carregando...</div>
+            <div id="carTrackText" style="text-align: center; margin-bottom: 10px;">Carregando...</div>
             <div class="car-progress-bar" id="carProgressBarOverlay">
                 <div class="car-progress-fill" id="carProgressFillOverlay"></div>
             </div>
@@ -705,7 +708,9 @@
                 <button class="car-btn" id="carOverlayNext"><i class="fas fa-forward"></i></button>
             </div>
         </div>
-        <div class="car-track-overlay" id="carTrackOverlay"><div id="carTrackText">Carregando...</div></div>
+        <div class="car-track-overlay" id="carTrackOverlay">
+            <div id="carTrackText2">Carregando...</div>
+        </div>
         <div class="tap-instruction" id="tapInstruction">👆 Toque para controles</div>
 
         <button class="exit-btn" id="exitCarBtn">🚗 Sair Modo Carro</button>
@@ -717,8 +722,14 @@
                 <i class="fas fa-qrcode"></i>
                 <h3>Apoie o Projeto</h3>
                 <p>Faça um PIX e ajude a manter a rádio no ar!</p>
-                <div class="pix-key" id="pixKey"><strong>📱 Clique para copiar</strong><br>12988461978</div>
-                <div class="pix-key" id="pixQrCode"><strong>📱 Gerar QR Code</strong><br>Clique para copiar a chave</div>
+                <div class="pix-key" id="pixKey">
+                    <strong>📱 Clique para copiar</strong><br>
+                    12988461978
+                </div>
+                <div class="pix-key" id="pixQrCode">
+                    <strong>📱 Chave PIX</strong><br>
+                    Clique para copiar
+                </div>
                 <small style="margin-top: 15px; display: block;">Qualquer valor é bem-vindo! ❤️</small>
             </div>
         </div>
@@ -726,7 +737,7 @@
         <!-- Menu Popup -->
         <div class="modal" id="menuPopup">
             <div class="modal-content">
-                <div class="modal-header"><h3>📱 Menu</h3><button class="close-modal" onclick="document.getElementById('menuPopup').classList.remove('open')">✕</button></div>
+                <div class="modal-header"><h3>📱 Menu</h3><button class="close-modal" id="closeMenuBtn">✕</button></div>
                 <div style="display: flex; flex-direction: column; gap: 10px;">
                     <button class="bottom-btn" id="carModeMenuBtn2" style="width: 100%;">🚗 Modo Carro</button>
                     <button class="bottom-btn" id="tvModeMenuBtn2" style="width: 100%;">📺 Modo TV</button>
@@ -754,6 +765,7 @@
             </div>
         </div>
 
+        <!-- Stats Modal -->
         <div class="modal" id="statsModal">
             <div class="modal-content">
                 <div class="modal-header"><h3>📊 Estatísticas</h3><button class="close-modal" id="closeStatsBtn">✕</button></div>
@@ -766,6 +778,7 @@
             </div>
         </div>
 
+        <!-- AI Preferences Modal -->
         <div class="modal" id="aiModal">
             <div class="modal-content">
                 <div class="modal-header"><h3>🧠 Minhas Preferências</h3><button class="close-modal" id="closeAiBtn">✕</button></div>
@@ -773,12 +786,13 @@
                     <p>👍 Curtidas: <strong id="aiLikedCount">0</strong></p>
                     <p>👎 Não Curtidas: <strong id="aiDislikedCount">0</strong></p>
                     <p>🎯 Gênero favorito: <strong id="aiTopGenre">Nenhum</strong></p>
-                    <div id="aiTopSongs"></div>
+                    <div id="aiTopSongs" style="margin-top: 15px;"></div>
                     <button class="bottom-btn" id="recreatePlaylistBtn" style="margin-top: 15px;">🎵 Gerar Playlist Inteligente</button>
                 </div>
             </div>
         </div>
 
+        <!-- Equalizer Modal -->
         <div class="modal" id="equalizerModal">
             <div class="modal-content">
                 <div class="modal-header"><h3>🎛️ Equalizador</h3><button class="close-modal" id="closeEqBtn">✕</button></div>
@@ -793,6 +807,7 @@
             </div>
         </div>
 
+        <!-- Feedback Modal -->
         <div class="modal" id="feedbackModal">
             <div class="modal-content">
                 <div class="modal-header"><h3>⭐ Avalie a Rádio</h3><button class="close-modal" id="closeFeedbackBtn">✕</button></div>
@@ -813,6 +828,7 @@
             </div>
         </div>
 
+        <!-- Manual Modal -->
         <div class="modal" id="manualModal">
             <div class="modal-content">
                 <div class="modal-header"><h3>📖 Manual de Uso</h3><button class="close-modal" id="closeManualBtn">✕</button></div>
@@ -829,6 +845,10 @@
                     <p><strong>🚗 Modo Carro:</strong></p>
                     <p>• Interface otimizada para dirigir</p>
                     <p>• Controles grandes e visíveis</p>
+                    <p><strong>📺 Modo TV:</strong></p>
+                    <p>• Apoie o projeto com PIX</p>
+                    <p><strong>📱 WhatsApp:</strong></p>
+                    <p>• Avalie a rádio e envie feedback</p>
                 </div>
             </div>
         </div>
@@ -848,16 +868,15 @@
         <script>
         // ==================== CONFIGURAÇÕES ====================
         const VOLUME_PLAYER = 0.9;
-        const INTERVALO_VIDEO_MS = 30000;
         const QUANTIDADE_MUSICAS_AUDIO = 10;
         const INTERVALO_VINHETA_MUSICAS = 16;
-        const vinhetas = ["radiopm.mp3", "radiopm.mp3", "radiopm.mp3", "radiopm.mp3"];
+        const vinhetas = [];
         const NUMERO_WHATSAPP = "5512988461978";
         const LINK_DO_SITE = window.location.href;
 
-        // PLAYLIST OTIMIZADA (apenas músicas com src válido)
+        // PLAYLIST COM MÚSICAS DE TESTE
         const musicas = [
-          { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
+         { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 4, title: "Pout Pourri", artist: "Luiza Martins", src: "Luiza_Martins_Pout_Pourri_Na_Hora_do_Adeus_Fruto_.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -1261,10 +1280,16 @@
         const notificationTop = document.getElementById('notificationTop');
         const notificationMessage = document.getElementById('notificationMessage');
         
-        musicPlayerEl.volume = VOLUME_PLAYER;
+        if (musicPlayerEl) musicPlayerEl.volume = VOLUME_PLAYER;
         
         // Funções utilitárias
-        function shuffleArray(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+        function shuffleArray(arr) { 
+            for (let i = arr.length - 1; i > 0; i--) { 
+                const j = Math.floor(Math.random() * (i + 1)); 
+                [arr[i], arr[j]] = [arr[j], arr[i]]; 
+            } 
+            return arr; 
+        }
         
         function formatTime(sec) { 
             if (isNaN(sec) || !isFinite(sec) || sec === undefined) return "0:00"; 
@@ -1278,10 +1303,10 @@
         function startTimer() { 
             stopTimer(); 
             timerInterval = setInterval(() => { 
-                if (isPlaying && musicPlayerEl.duration && !musicPlayerEl.paused && musicPlayerEl.currentTime) { 
+                if (isPlaying && musicPlayerEl && musicPlayerEl.duration && !musicPlayerEl.paused && musicPlayerEl.currentTime) { 
                     const percent = (musicPlayerEl.currentTime / musicPlayerEl.duration) * 100; 
-                    progressFill.style.width = percent + '%'; 
-                    currentTimeEl.textContent = formatTime(musicPlayerEl.currentTime); 
+                    if (progressFill) progressFill.style.width = percent + '%'; 
+                    if (currentTimeEl) currentTimeEl.textContent = formatTime(musicPlayerEl.currentTime); 
                     if (isCarMode) updateCarOverlayProgress(); 
                 } 
             }, 200); 
@@ -1291,7 +1316,7 @@
             if (visualizerInterval) clearInterval(visualizerInterval); 
             visualizerInterval = setInterval(() => { 
                 const bars = document.querySelectorAll('.visualizer-bar'); 
-                if (isPlaying && musicPlayerEl.duration && !musicPlayerEl.paused && musicPlayerEl.currentTime) 
+                if (isPlaying && musicPlayerEl && musicPlayerEl.duration && !musicPlayerEl.paused && musicPlayerEl.currentTime) 
                     bars.forEach(bar => bar.style.height = (8 + Math.random() * 32) + 'px'); 
                 else 
                     bars.forEach(bar => bar.style.height = '4px'); 
@@ -1304,18 +1329,21 @@
             document.querySelectorAll('.visualizer-bar').forEach(bar => bar.style.height = '4px'); 
         }
         
-        function showLoading() { loadingSpinner.classList.add('show'); }
-        function hideLoading() { loadingSpinner.classList.remove('show'); }
+        function showLoading() { if (loadingSpinner) loadingSpinner.classList.add('show'); }
+        function hideLoading() { if (loadingSpinner) loadingSpinner.classList.remove('show'); }
         
         function showNotification(msg, duration = 3000) { 
             if (window.notificationTimeout) clearTimeout(window.notificationTimeout); 
-            notificationMessage.innerText = msg; 
-            notificationTop.classList.add('show'); 
-            window.notificationTimeout = setTimeout(() => notificationTop.classList.remove('show'), duration); 
+            if (notificationMessage) notificationMessage.innerText = msg; 
+            if (notificationTop) notificationTop.classList.add('show'); 
+            window.notificationTimeout = setTimeout(() => { 
+                if (notificationTop) notificationTop.classList.remove('show'); 
+            }, duration); 
         }
         
         function updateGenreBadge(genero) { 
             const badge = document.getElementById('genreBadge'); 
+            if (!badge) return;
             let icon = "fa-music"; 
             switch(genero) { 
                 case "SERTANEJO": icon = "fa-guitar"; break;
@@ -1349,14 +1377,16 @@
             currentIndex = index;
             const track = filteredPlaylist[currentIndex];
             if (!track) return;
-            trackArtist.textContent = `${track.title} - ${track.artist} [${track.genero}]`;
-            currentTimeEl.textContent = '0:00';
-            totalTimeEl.textContent = '0:00';
-            progressFill.style.width = '0%';
+            if (trackArtist) trackArtist.textContent = `${track.title} - ${track.artist} [${track.genero}]`;
+            if (currentTimeEl) currentTimeEl.textContent = '0:00';
+            if (totalTimeEl) totalTimeEl.textContent = '0:00';
+            if (progressFill) progressFill.style.width = '0%';
             if (!isAoVivo) updateGenreBadge(track.genero);
             if (isCarMode) { 
                 const carTrack = document.getElementById('carTrackText');
-                if (carTrack) carTrack.textContent = `${track.title} - ${track.artist} [${track.genero}]`;
+                const carTrack2 = document.getElementById('carTrackText2');
+                if (carTrack) carTrack.textContent = `${track.title} - ${track.artist}`;
+                if (carTrack2) carTrack2.textContent = `${track.title} - ${track.artist}`;
                 const carCurrent = document.getElementById('carCurrentOverlay');
                 const carTotal = document.getElementById('carTotalOverlay');
                 const carProgress = document.getElementById('carProgressFillOverlay');
@@ -1370,16 +1400,18 @@
             const track = filteredPlaylist[currentIndex]; 
             if (track) {
                 const carTrack = document.getElementById('carTrackText');
-                if (carTrack) carTrack.textContent = `${track.title} - ${track.artist} [${track.genero}]`;
+                const carTrack2 = document.getElementById('carTrackText2');
+                if (carTrack) carTrack.textContent = `${track.title} - ${track.artist}`;
+                if (carTrack2) carTrack2.textContent = `${track.title} - ${track.artist}`;
             }
-            if (musicPlayerEl.duration) {
+            if (musicPlayerEl && musicPlayerEl.duration) {
                 const carTotal = document.getElementById('carTotalOverlay');
                 if (carTotal) carTotal.textContent = formatTime(musicPlayerEl.duration);
             }
         }
         
         function updateCarOverlayProgress() { 
-            if (musicPlayerEl.duration && !musicPlayerEl.paused && musicPlayerEl.currentTime) { 
+            if (musicPlayerEl && musicPlayerEl.duration && !musicPlayerEl.paused && musicPlayerEl.currentTime) { 
                 const percent = (musicPlayerEl.currentTime / musicPlayerEl.duration) * 100; 
                 const carProgress = document.getElementById('carProgressFillOverlay');
                 const carCurrent = document.getElementById('carCurrentOverlay');
@@ -1390,9 +1422,11 @@
         
         function ativarModoAoVivo() {
             isAoVivo = true; aoVivoAcabou = false; trocaAutomaticaAtiva = false;
-            if (videoAdInterval) clearInterval(videoAdInterval);
-            document.getElementById('genreBadge').innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE';
-            document.getElementById('genreBadge').classList.add('live');
+            const badge = document.getElementById('genreBadge');
+            if (badge) {
+                badge.innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE';
+                badge.classList.add('live');
+            }
             let musicasAoVivo = musicas.filter(m => m.tipo === "ao vivo");
             musicasAoVivo = shuffleArray(musicasAoVivo);
             if (musicasAoVivo.length === 0) { 
@@ -1413,8 +1447,8 @@
         
         function desativarModoAoVivo() {
             isAoVivo = false; trocaAutomaticaAtiva = true;
-            if (videoAdInterval) clearInterval(videoAdInterval);
-            document.getElementById('genreBadge').classList.remove('live');
+            const badge = document.getElementById('genreBadge');
+            if (badge) badge.classList.remove('live');
             let musicasDoGenero = musicas.filter(m => m.genero === generoAtual);
             musicasDoGenero = shuffleArray(musicasDoGenero);
             if (musicasDoGenero.length === 0) musicasDoGenero = shuffleArray([...musicas]);
@@ -1443,25 +1477,38 @@
             if (isPlaying) setTimeout(() => playMusic(), 500);
         }
         
+        // ========== FUNÇÃO CORRIGIDA DOS GÊNEROS ==========
         function filterByGenre(genero) {
+            console.log('🎵 Filtrando por gênero:', genero);
+            
             if (isAoVivo) {
-                showNotification('⚠️ Desative o modo AO VIVO primeiro!', 2000);
+                showNotification('⚠️ Desative o modo AO VIVO primeiro! Clique em "Sair AO VIVO" no menu', 3000);
                 return;
             }
+            
             generoAtual = genero;
             let musicasDoGenero = musicas.filter(m => m.genero === genero);
-            if (musicasDoGenero.length === 0) musicasDoGenero = shuffleArray([...musicas]);
+            
+            if (musicasDoGenero.length === 0) {
+                showNotification(`⚠️ Nenhuma música de ${genero} encontrada.`, 2000);
+                return;
+            }
+            
             filteredPlaylist = shuffleArray(musicasDoGenero);
             currentIndex = 0;
             loadTrackUI(currentIndex);
             updateGenreBadge(genero);
-            if (isPlaying) playMusic();
-            showNotification(`🎵 Gênero alterado para ${genero}!`, 2000);
+            
+            if (isPlaying) {
+                playMusic();
+            }
+            
+            showNotification(`🎵 ${filteredPlaylist.length} músicas de ${genero}!`, 2000);
         }
         
-        function iniciarVideoAd() { /* Placeholder - implementar se necessário */ }
-        function pararVideoAd() { /* Placeholder */ }
-        function playAudioAd() { /* Placeholder */ }
+        function playAudioAd() { 
+            musicCounter = 0;
+        }
         
         function proximaMusicaLive() { 
             if (!isAoVivo) return null; 
@@ -1491,9 +1538,11 @@
                 isLoadingTrack = false; 
                 return false; 
             }
-            musicPlayerEl.pause();
-            musicPlayerEl.src = track.src;
-            musicPlayerEl.load();
+            if (musicPlayerEl) {
+                musicPlayerEl.pause();
+                musicPlayerEl.src = track.src;
+                musicPlayerEl.load();
+            }
             if (!isAoVivo) updateGenreBadge(track.genero);
             if (isCarMode) updateCarOverlayInfo();
             
@@ -1506,98 +1555,100 @@
                     resolve(false); 
                 }, 8000);
                 
-                musicPlayerEl.oncanplaythrough = async () => {
-                    clearTimeout(timeoutId); 
-                    hideLoading(); 
-                    isLoadingTrack = false;
-                    try {
-                        await musicPlayerEl.play();
-                        isPlaying = true;
-                        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                        if (carOverlayPlay) carOverlayPlay.innerHTML = '<i class="fas fa-pause"></i>';
-                        startTimer(); 
-                        iniciarVisualizer(); 
-                        updateStats(track);
-                        trackStartTime = Date.now();
-                        if (musicPlayerEl.duration) {
-                            totalTimeEl.textContent = formatTime(musicPlayerEl.duration);
-                        } else {
-                            musicPlayerEl.addEventListener('loadedmetadata', () => { 
-                                totalTimeEl.textContent = formatTime(musicPlayerEl.duration); 
-                                if (isCarMode) {
-                                    const carTotal = document.getElementById('carTotalOverlay');
-                                    if (carTotal) carTotal.textContent = formatTime(musicPlayerEl.duration);
-                                }
-                            }, { once: true });
+                if (musicPlayerEl) {
+                    musicPlayerEl.oncanplaythrough = async () => {
+                        clearTimeout(timeoutId); 
+                        hideLoading(); 
+                        isLoadingTrack = false;
+                        try {
+                            await musicPlayerEl.play();
+                            isPlaying = true;
+                            if (playBtn) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                            if (carOverlayPlay) carOverlayPlay.innerHTML = '<i class="fas fa-pause"></i>';
+                            startTimer(); 
+                            iniciarVisualizer(); 
+                            updateStats(track);
+                            trackStartTime = Date.now();
+                            if (musicPlayerEl.duration) {
+                                if (totalTimeEl) totalTimeEl.textContent = formatTime(musicPlayerEl.duration);
+                            } else {
+                                musicPlayerEl.addEventListener('loadedmetadata', () => { 
+                                    if (totalTimeEl) totalTimeEl.textContent = formatTime(musicPlayerEl.duration); 
+                                    if (isCarMode) {
+                                        const carTotal = document.getElementById('carTotalOverlay');
+                                        if (carTotal) carTotal.textContent = formatTime(musicPlayerEl.duration);
+                                    }
+                                }, { once: true });
+                            }
+                            if (splash) splash.classList.add('hidden'); 
+                            setTimeout(() => { if (splash) splash.style.display = 'none'; }, 500);
+                            if (tapToStart) tapToStart.style.display = 'none';
+                            resolve(true);
+                        } catch(e) { 
+                            clearTimeout(timeoutId); 
+                            hideLoading(); 
+                            isLoadingTrack = false; 
+                            isPlaying = false; 
+                            if (playBtn) playBtn.innerHTML = '<i class="fas fa-play"></i>'; 
+                            if (carOverlayPlay) carOverlayPlay.innerHTML = '<i class="fas fa-play"></i>'; 
+                            resolve(false); 
                         }
-                        splash.classList.add('hidden'); 
-                        setTimeout(() => splash.style.display = 'none', 500);
-                        tapToStart.style.display = 'none';
-                        resolve(true);
-                    } catch(e) { 
+                    };
+                    
+                    musicPlayerEl.onerror = () => { 
                         clearTimeout(timeoutId); 
                         hideLoading(); 
                         isLoadingTrack = false; 
-                        isPlaying = false; 
-                        playBtn.innerHTML = '<i class="fas fa-play"></i>'; 
-                        if (carOverlayPlay) carOverlayPlay.innerHTML = '<i class="fas fa-play"></i>'; 
-                        resolve(false); 
-                    }
-                };
-                
-                musicPlayerEl.onerror = () => { 
-                    clearTimeout(timeoutId); 
-                    hideLoading(); 
-                    isLoadingTrack = false; 
-                    showNotification(`⚠️ Erro ao carregar "${track.title}"`, 2000); 
-                    setTimeout(() => { 
-                        currentIndex = (currentIndex + 1) % filteredPlaylist.length; 
-                        loadTrackUI(currentIndex); 
-                        playMusic(); 
-                    }, 500); 
-                    resolve(false); 
-                };
-                
-                musicPlayerEl.onended = () => {
-                    if (trackStartTime) { 
-                        const durationSec = Math.floor((Date.now() - trackStartTime) / 1000); 
-                        if (durationSec > 0 && durationSec < 600) stats.totalSeconds += durationSec; 
-                    }
-                    stopTimer();
-                    if (isAoVivo && !aoVivoAcabou) { 
-                        const prox = proximaMusicaLive(); 
-                        if (prox) { 
-                            filteredPlaylist.push(prox); 
-                            currentIndex = filteredPlaylist.length - 1; 
+                        showNotification(`⚠️ Erro ao carregar "${track.title}"`, 2000); 
+                        setTimeout(() => { 
+                            currentIndex = (currentIndex + 1) % filteredPlaylist.length; 
                             loadTrackUI(currentIndex); 
-                            if (isCarMode) updateCarOverlayInfo(); 
+                            playMusic(); 
+                        }, 500); 
+                        resolve(false); 
+                    };
+                    
+                    musicPlayerEl.onended = () => {
+                        if (trackStartTime) { 
+                            const durationSec = Math.floor((Date.now() - trackStartTime) / 1000); 
+                            if (durationSec > 0 && durationSec < 600) stats.totalSeconds += durationSec; 
+                        }
+                        stopTimer();
+                        if (isAoVivo && !aoVivoAcabou) { 
+                            const prox = proximaMusicaLive(); 
+                            if (prox) { 
+                                filteredPlaylist.push(prox); 
+                                currentIndex = filteredPlaylist.length - 1; 
+                                loadTrackUI(currentIndex); 
+                                if (isCarMode) updateCarOverlayInfo(); 
+                                setTimeout(() => playMusic(), 100); 
+                                return; 
+                            } 
+                            aoVivoAcabou = true; 
+                            showNotification('🎵 Músicas AO VIVO terminaram! Ativando modo NORMAL...', 4000); 
+                            desativarModoAoVivo(); 
+                            setTimeout(() => playMusic(), 200); 
+                            return; 
+                        } else if (!isAoVivo && trocaAutomaticaAtiva) { 
+                            mudarGeneroAutomaticamente(); 
                             setTimeout(() => playMusic(), 100); 
                             return; 
-                        } 
-                        aoVivoAcabou = true; 
-                        showNotification('🎵 Músicas AO VIVO terminaram! Ativando modo NORMAL...', 4000); 
-                        desativarModoAoVivo(); 
-                        setTimeout(() => playMusic(), 200); 
-                        return; 
-                    } else if (!isAoVivo && trocaAutomaticaAtiva) { 
-                        mudarGeneroAutomaticamente(); 
-                        setTimeout(() => playMusic(), 100); 
-                        return; 
-                    }
-                    let nextIndex = currentIndex + 1; 
-                    if (nextIndex >= filteredPlaylist.length) nextIndex = 0; 
-                    currentIndex = nextIndex; 
-                    loadTrackUI(currentIndex); 
-                    if (isCarMode) updateCarOverlayInfo(); 
-                    setTimeout(() => playMusic(), 100);
-                };
+                        }
+                        let nextIndex = currentIndex + 1; 
+                        if (nextIndex >= filteredPlaylist.length) nextIndex = 0; 
+                        currentIndex = nextIndex; 
+                        loadTrackUI(currentIndex); 
+                        if (isCarMode) updateCarOverlayInfo(); 
+                        setTimeout(() => playMusic(), 100);
+                    };
+                }
             });
         }
         
         function pauseMusic() { 
-            musicPlayerEl.pause(); 
+            if (musicPlayerEl) musicPlayerEl.pause(); 
             isPlaying = false; 
-            playBtn.innerHTML = '<i class="fas fa-play"></i>'; 
+            if (playBtn) playBtn.innerHTML = '<i class="fas fa-play"></i>'; 
             if (carOverlayPlay) carOverlayPlay.innerHTML = '<i class="fas fa-play"></i>'; 
             stopTimer(); 
             pararVisualizer(); 
@@ -1653,7 +1704,7 @@
             if (isPlaying) await playMusic(); 
         }
         
-        // Funções IA simplificadas
+        // Funções IA
         function loadPreferences() { 
             const saved = localStorage.getItem('radio_patico_ai_preferences'); 
             if (saved) try { Object.assign(userPreferences, JSON.parse(saved)); } catch(e){} 
@@ -1672,7 +1723,9 @@
                 savePreferences(); 
                 showNotification(`👍 Você curtiu "${track.title}"!`, 2500); 
                 updateAIModal(); 
-            } 
+            } else {
+                showNotification(`❤️ Você já curtiu "${track.title}"`, 1500);
+            }
         }
         
         function dislikeCurrentSong() { 
@@ -1685,25 +1738,39 @@
                 showNotification(`👎 Você não curtiu "${track.title}".`, 2500); 
                 setTimeout(() => nextTrack(), 500); 
                 updateAIModal(); 
-            } 
+            } else {
+                showNotification(`👎 Você já marcou "${track.title}" como não curtida`, 1500);
+            }
         }
         
         function updateAIModal() { 
             const likedCount = document.getElementById('aiLikedCount');
             const dislikedCount = document.getElementById('aiDislikedCount');
+            const topGenre = document.getElementById('aiTopGenre');
             if (likedCount) likedCount.textContent = userPreferences.likedSongs.length;
             if (dislikedCount) dislikedCount.textContent = userPreferences.dislikedSongs.length;
+            
+            let favGenre = "Nenhum", maxCount = 0;
+            for (const [genre, count] of Object.entries(userPreferences.genrePreference)) {
+                if (count > maxCount) { maxCount = count; favGenre = genre; }
+            }
+            if (topGenre) topGenre.textContent = favGenre;
+            
             const topSongsDiv = document.getElementById('aiTopSongs');
             if (topSongsDiv) {
                 const likedSongsList = userPreferences.likedSongs.map(id => musicas.find(m => m.id === id)).filter(s => s); 
                 const top5 = likedSongsList.slice(0, 5); 
                 topSongsDiv.innerHTML = ''; 
-                top5.forEach(song => { 
-                    const div = document.createElement('div'); 
-                    div.className = 'favorite-song-item'; 
-                    div.innerHTML = `<span>🎵 ${song.title} - ${song.artist}</span><button onclick="window.removeLike(${song.id})">Remover</button>`; 
-                    topSongsDiv.appendChild(div); 
-                });
+                if (top5.length === 0) {
+                    topSongsDiv.innerHTML = '<p style="opacity: 0.7;">Nenhuma música curtida ainda</p>';
+                } else {
+                    top5.forEach(song => { 
+                        const div = document.createElement('div'); 
+                        div.style.cssText = 'background: rgba(255,255,255,0.1); padding: 8px; margin: 5px 0; border-radius: 10px;'; 
+                        div.innerHTML = `<span>🎵 ${song.title} - ${song.artist}</span><br><button onclick="window.removeLike(${song.id})" style="margin-top: 5px; background: #ef4444; border: none; padding: 4px 8px; border-radius: 5px; color: white; cursor: pointer;">Remover</button>`; 
+                        topSongsDiv.appendChild(div); 
+                    });
+                }
             }
         }
         
@@ -1724,16 +1791,24 @@
             loadTrackUI(currentIndex); 
             if (isCarMode) updateCarOverlayInfo(); 
             if (isPlaying) playMusic(); 
-            showNotification(`🧠 IA gerou playlist personalizada!`, 3000); 
+            showNotification(`🧠 Playlist com todas as músicas!`, 3000); 
         }
         
         function updateStats(track) { 
             stats.totalPlayed++; 
-            stats.genreCount[track.genero] = (stats.genreCount[track.genero] || 0) + 1; 
+            if (stats.genreCount[track.genero]) {
+                stats.genreCount[track.genero]++;
+            } else {
+                stats.genreCount[track.genero] = 1;
+            }
             stats.currentStreak++; 
             localStorage.setItem('radio_patico_stats', JSON.stringify(stats));
             musicCounter++; 
             contadorMusicasVinheta++; 
+            if (musicCounter >= QUANTIDADE_MUSICAS_AUDIO && isAoVivo) { 
+                musicCounter = 0; 
+                playAudioAd(); 
+            }
         }
         
         function showStatsModal() { 
@@ -1765,7 +1840,7 @@
         let audioContext = null, sourceNode = null, gainNodes = { bass: null, mid: null, treble: null }, eqInitialized = false;
         
         function initEqualizer() { 
-            if (eqInitialized || !musicPlayerEl.src) return; 
+            if (eqInitialized || !musicPlayerEl || !musicPlayerEl.src) return; 
             try { 
                 audioContext = new (window.AudioContext || window.webkitAudioContext)(); 
                 if (audioContext.state === 'suspended') document.addEventListener('click', () => audioContext.resume(), { once: true }); 
@@ -1801,40 +1876,18 @@
             if (trebleVal) trebleVal.textContent = document.getElementById('eqTreble').value;
         }
         
-        function tocarVinheta() { 
-            if (!isAoVivo || tocandoVinheta || vinhetas.length === 0) return false; 
-            const wasPlaying = isPlaying; 
-            if (wasPlaying) { 
-                musicPlayerEl.pause(); 
-                isPlaying = false; 
-                playBtn.innerHTML = '<i class="fas fa-play"></i>'; 
-                if (carOverlayPlay) carOverlayPlay.innerHTML = '<i class="fas fa-play"></i>'; 
-                stopTimer(); 
-                pararVisualizer(); 
-            } 
-            tocandoVinheta = true; 
-            const audio = new Audio(vinhetas[Math.floor(Math.random() * vinhetas.length)]); 
-            audio.volume = VOLUME_PLAYER; 
-            audio.play().catch(e => console.log); 
-            audio.onended = () => { 
-                tocandoVinheta = false; 
-                if (wasPlaying) playMusic(); 
-            }; 
-            return true; 
-        }
-        
         // Modo Carro
         function toggleCarMode() {
             if (!isCarMode) {
                 isCarMode = true;
-                document.querySelector('.app').classList.add('car-mode-active');
-                document.body.classList.add('car-mode-active');
+                if (document.querySelector('.app')) document.querySelector('.app').classList.add('car-mode-active');
+                if (document.body) document.body.classList.add('car-mode-active');
                 const carModeBtn = document.getElementById('carModeMenuBtn');
                 if (carModeBtn) carModeBtn.style.background = "linear-gradient(135deg, #e63946, #ff6b6b)";
                 if (!document.getElementById('carIndicator')) {
                     const indicator = document.createElement('div');
                     indicator.id = 'carIndicator';
-                    indicator.style.cssText = 'position: fixed; top: 10px; left: 10px; background: #e63946; padding: 5px 10px; border-radius: 10px; z-index: 300; display: flex; gap: 5px;';
+                    indicator.style.cssText = 'position: fixed; top: 10px; left: 10px; background: #e63946; padding: 5px 10px; border-radius: 10px; z-index: 300; display: flex; gap: 5px; font-size: 12px;';
                     indicator.innerHTML = '<i class="fas fa-car"></i><span>MODO CARRO</span>';
                     document.body.appendChild(indicator);
                 } else {
@@ -1843,28 +1896,27 @@
                 }
                 const carModeVideo = document.querySelector('.car-mode-video');
                 if (carModeVideo) carModeVideo.style.display = 'block';
-                carVideo.play().catch(e => console.log);
+                if (carVideo) carVideo.play().catch(e => console.log);
                 updateCarOverlayInfo();
                 showNotification('🚗 MODO CARRO ATIVADO! Toque na tela para controles', 3000);
                 document.addEventListener('touchstart', showCarControls);
                 document.addEventListener('click', showCarControls);
-                if (videoAdInterval) clearInterval(videoAdInterval);
                 if (exitCarBtn) exitCarBtn.style.display = 'block';
                 const liveBalloon = document.getElementById('liveInfoBalloon');
                 if (liveBalloon) liveBalloon.style.display = 'none';
-                mainVideo.pause();
+                if (mainVideo) mainVideo.pause();
             } else {
                 isCarMode = false;
-                document.querySelector('.app').classList.remove('car-mode-active');
-                document.body.classList.remove('car-mode-active');
+                if (document.querySelector('.app')) document.querySelector('.app').classList.remove('car-mode-active');
+                if (document.body) document.body.classList.remove('car-mode-active');
                 const carModeBtn = document.getElementById('carModeMenuBtn');
                 if (carModeBtn) carModeBtn.style.background = "";
                 const carIndicator = document.getElementById('carIndicator');
                 if (carIndicator) carIndicator.style.display = 'none';
                 const carModeVideo = document.querySelector('.car-mode-video');
                 if (carModeVideo) carModeVideo.style.display = 'none';
-                carVideo.pause();
-                carVideo.currentTime = 0;
+                if (carVideo) carVideo.pause();
+                if (carVideo) carVideo.currentTime = 0;
                 const overlay = document.getElementById('carOverlayControls');
                 if (overlay) { overlay.classList.remove('visible'); overlay.style.opacity = '0'; overlay.style.pointerEvents = 'none'; }
                 const trackOverlay = document.getElementById('carTrackOverlay');
@@ -1874,13 +1926,12 @@
                 showNotification('🚗 Modo Carro desativado.', 2000);
                 document.removeEventListener('touchstart', showCarControls);
                 document.removeEventListener('click', showCarControls);
-                if (isAoVivo) videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
                 if (exitCarBtn) exitCarBtn.style.display = 'none';
                 if (isAoVivo) {
                     const balloon = document.getElementById('liveInfoBalloon');
                     if (balloon) balloon.style.display = 'block';
                 }
-                mainVideo.play().catch(e => console.log);
+                if (mainVideo) mainVideo.play().catch(e => console.log);
             }
         }
         
@@ -1904,30 +1955,36 @@
         function toggleTvMode() {
             if (!isTvMode) {
                 isTvMode = true;
-                document.querySelector('.app').classList.add('tv-mode-active');
-                const tvOverlay = document.getElementById('tvPixOverlay');
-                if (tvOverlay) tvOverlay.classList.add('show');
+                if (document.querySelector('.app')) document.querySelector('.app').classList.add('tv-mode-active');
+                if (tvPixOverlay) tvPixOverlay.classList.add('show');
                 if (exitTvBtn) exitTvBtn.style.display = 'block';
                 showNotification('📺 MODO TV ATIVADO! Apoie com PIX.', 3000);
-                mainVideo.src = "modop.mp4"; 
-                mainVideo.load(); 
-                mainVideo.play().catch(e => console.log);
-                carVideo.src = "modop.mp4"; 
-                carVideo.load(); 
-                carVideo.play().catch(e => console.log);
+                if (mainVideo) {
+                    mainVideo.src = "https://www.w3schools.com/html/mov_bbb.mp4"; 
+                    mainVideo.load(); 
+                    mainVideo.play().catch(e => console.log);
+                }
+                if (carVideo) {
+                    carVideo.src = "https://www.w3schools.com/html/mov_bbb.mp4"; 
+                    carVideo.load(); 
+                    carVideo.play().catch(e => console.log);
+                }
             } else {
                 isTvMode = false;
-                document.querySelector('.app').classList.remove('tv-mode-active');
-                const tvOverlay = document.getElementById('tvPixOverlay');
-                if (tvOverlay) tvOverlay.classList.remove('show');
+                if (document.querySelector('.app')) document.querySelector('.app').classList.remove('tv-mode-active');
+                if (tvPixOverlay) tvPixOverlay.classList.remove('show');
                 if (exitTvBtn) exitTvBtn.style.display = 'none';
                 showNotification('Modo TV desativado.', 2000);
-                mainVideo.src = "pai.mp4"; 
-                mainVideo.load(); 
-                mainVideo.play().catch(e => console.log);
-                carVideo.src = "pai.mp4"; 
-                carVideo.load(); 
-                carVideo.play().catch(e => console.log);
+                if (mainVideo) {
+                    mainVideo.src = "https://www.w3schools.com/html/mov_bbb.mp4"; 
+                    mainVideo.load(); 
+                    mainVideo.play().catch(e => console.log);
+                }
+                if (carVideo) {
+                    carVideo.src = "https://www.w3schools.com/html/mov_bbb.mp4"; 
+                    carVideo.load(); 
+                    carVideo.play().catch(e => console.log);
+                }
             }
         }
         
@@ -1969,26 +2026,31 @@
         async function ativarAudioBackground() { 
             try { 
                 const silentUrl = URL.createObjectURL(createSilentAudio()); 
-                backgroundAudio.src = silentUrl; 
-                backgroundAudio.loop = true; 
-                backgroundAudio.volume = 0.001; 
-                await backgroundAudio.play(); 
+                if (backgroundAudio) {
+                    backgroundAudio.src = silentUrl; 
+                    backgroundAudio.loop = true; 
+                    backgroundAudio.volume = 0.001; 
+                    await backgroundAudio.play(); 
+                }
                 isBackgroundActive = true; 
-                audioIndicator.innerHTML = '<i class="fas fa-brain"></i> IA Ativa'; 
-                audioIndicator.style.color = '#4ade80'; 
+                if (audioIndicator) {
+                    audioIndicator.innerHTML = '<i class="fas fa-brain"></i> IA Ativa'; 
+                    audioIndicator.style.color = '#4ade80';
+                }
                 if (backgroundInterval) clearInterval(backgroundInterval); 
                 backgroundInterval = setInterval(async () => { 
                     try { 
-                        if (backgroundAudio.paused && isBackgroundActive) await backgroundAudio.play(); 
-                        if (isPlaying && musicPlayerEl.paused && !musicPlayerEl.ended && musicPlayerEl.src) await musicPlayerEl.play(); 
-                        if (musicPlayerEl.ended && isPlaying) nextTrack(); 
+                        if (backgroundAudio && backgroundAudio.paused && isBackgroundActive) await backgroundAudio.play(); 
+                        if (musicPlayerEl && isPlaying && musicPlayerEl.paused && !musicPlayerEl.ended && musicPlayerEl.src) await musicPlayerEl.play(); 
+                        if (musicPlayerEl && musicPlayerEl.ended && isPlaying) nextTrack(); 
                     } catch(e) {} 
                 }, 1000); 
-                if (isAoVivo) videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS); 
                 return true; 
             } catch(e) { 
-                audioIndicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'; 
-                audioIndicator.style.color = '#ef4444'; 
+                if (audioIndicator) {
+                    audioIndicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'; 
+                    audioIndicator.style.color = '#ef4444';
+                }
                 return false; 
             } 
         }
@@ -2014,8 +2076,6 @@
             if (isCarMode) updateCarOverlayInfo();
             musicCounter = 0; 
             contadorMusicasVinheta = 0;
-            if (videoAdInterval) clearInterval(videoAdInterval);
-            videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
         }
         
         // Gestos de toque
@@ -2027,9 +2087,11 @@
                 e.preventDefault(); 
                 togglePlayPause(); 
                 const indicator = document.getElementById('swipeIndicator');
-                if (indicator) indicator.textContent = '⏯️ ' + (isPlaying ? 'Pausado' : 'Play');
-                if (indicator) indicator.style.opacity = '1';
-                setTimeout(() => { if (indicator) indicator.style.opacity = '0'; }, 1000);
+                if (indicator) {
+                    indicator.textContent = '⏯️ ' + (isPlaying ? 'Pausado' : 'Play');
+                    indicator.style.opacity = '1';
+                    setTimeout(() => { if (indicator) indicator.style.opacity = '0'; }, 1000);
+                }
             }
             lastTap = now;
         });
@@ -2040,18 +2102,49 @@
                 if (diff > 0) { 
                     prevTrack(); 
                     const indicator = document.getElementById('swipeIndicator');
-                    if (indicator) indicator.textContent = '⏮️ Música anterior';
-                    if (indicator) indicator.style.opacity = '1';
-                    setTimeout(() => { if (indicator) indicator.style.opacity = '0'; }, 1000);
+                    if (indicator) {
+                        indicator.textContent = '⏮️ Música anterior';
+                        indicator.style.opacity = '1';
+                        setTimeout(() => { if (indicator) indicator.style.opacity = '0'; }, 1000);
+                    }
                 } else { 
                     nextTrack(); 
                     const indicator = document.getElementById('swipeIndicator');
-                    if (indicator) indicator.textContent = '⏭️ Próxima música';
-                    if (indicator) indicator.style.opacity = '1';
-                    setTimeout(() => { if (indicator) indicator.style.opacity = '0'; }, 1000);
+                    if (indicator) {
+                        indicator.textContent = '⏭️ Próxima música';
+                        indicator.style.opacity = '1';
+                        setTimeout(() => { if (indicator) indicator.style.opacity = '0'; }, 1000);
+                    }
                 } 
             }
         });
+        
+        // ========== INICIALIZAÇÃO DOS BOTÕES DE GÊNERO CORRIGIDA ==========
+        function initGenreButtons() {
+            const genreCards = document.querySelectorAll('.genre-card');
+            console.log('🎵 Inicializando botões de gênero. Encontrados:', genreCards.length);
+            
+            genreCards.forEach(card => {
+                // Remove listener antigo clonando
+                const newCard = card.cloneNode(true);
+                if (card.parentNode) {
+                    card.parentNode.replaceChild(newCard, card);
+                }
+                
+                newCard.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const genero = newCard.getAttribute('data-genero');
+                    console.log('🎵 Clique no gênero:', genero);
+                    filterByGenre(genero);
+                    
+                    // Fecha o modal
+                    if (genresModal) {
+                        genresModal.classList.remove('open');
+                    }
+                });
+            });
+        }
         
         // Controles do menu
         const menuButton = document.getElementById('menuButton');
@@ -2060,6 +2153,9 @@
         function closeMenu() { if (menuPopup) menuPopup.classList.remove('open'); }
         if (menuButton) menuButton.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
         document.addEventListener('click', (e) => { if (menuButton && !menuButton.contains(e.target) && menuPopup && !menuPopup.contains(e.target)) closeMenu(); });
+        
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+        if (closeMenuBtn) closeMenuBtn.addEventListener('click', closeMenu);
         
         const carModeMenuBtn = document.getElementById('carModeMenuBtn');
         const carModeMenuBtn2 = document.getElementById('carModeMenuBtn2');
@@ -2075,13 +2171,6 @@
         
         const fullscreenBtn = document.getElementById('fullscreenMenuBtn');
         if (fullscreenBtn) fullscreenBtn.addEventListener('click', () => { document.documentElement.requestFullscreen(); closeMenu(); });
-        
-        const shareBtn = document.getElementById('shareMenuBtn');
-        if (shareBtn) shareBtn.addEventListener('click', () => { 
-            if (navigator.share) navigator.share({ title: 'Rádio Patico IA', text: '🎵 Ouça músicas com IA que aprende seu gosto!', url: LINK_DO_SITE }).catch(e => {}); 
-            else { navigator.clipboard.writeText(LINK_DO_SITE); showNotification('🔗 Link copiado!', 3000); } 
-            closeMenu(); 
-        });
         
         const statsBtn = document.getElementById('statsMenuBtn');
         if (statsBtn) statsBtn.addEventListener('click', () => { showStatsModal(); closeMenu(); });
@@ -2121,14 +2210,6 @@
         
         if (genreButton) genreButton.addEventListener('click', () => { if (genresModal) genresModal.classList.add('open'); });
         
-        document.querySelectorAll('.genre-card').forEach(card => { 
-            card.addEventListener('click', () => { 
-                const genero = card.dataset.genero; 
-                filterByGenre(genero); 
-                if (genresModal) genresModal.classList.remove('open'); 
-            }); 
-        });
-        
         // Botões principais
         if (playBtn) playBtn.addEventListener('click', () => { 
             if (!isBackgroundActive) showNotification('⚠️ Toque na tela para ATIVAR A RÁDIO!', 3000); 
@@ -2158,10 +2239,10 @@
         if (carOverlayNext) carOverlayNext.addEventListener('click', (e) => { e.stopPropagation(); nextTrack(); showCarControls(); });
         
         const carProgress = document.getElementById('carProgressBarOverlay');
-        if (carProgress) carProgress.addEventListener('click', (e) => { e.stopPropagation(); const rect = e.currentTarget.getBoundingClientRect(); const percent = (e.clientX - rect.left) / rect.width; if (musicPlayerEl.duration) musicPlayerEl.currentTime = percent * musicPlayerEl.duration; showCarControls(); });
+        if (carProgress) carProgress.addEventListener('click', (e) => { e.stopPropagation(); const rect = e.currentTarget.getBoundingClientRect(); const percent = (e.clientX - rect.left) / rect.width; if (musicPlayerEl && musicPlayerEl.duration) musicPlayerEl.currentTime = percent * musicPlayerEl.duration; showCarControls(); });
         
         const progressBar = document.getElementById('progressBar');
-        if (progressBar) progressBar.addEventListener('click', (e) => { const rect = e.currentTarget.getBoundingClientRect(); const percent = (e.clientX - rect.left) / rect.width; if (musicPlayerEl.duration) musicPlayerEl.currentTime = percent * musicPlayerEl.duration; });
+        if (progressBar) progressBar.addEventListener('click', (e) => { const rect = e.currentTarget.getBoundingClientRect(); const percent = (e.clientX - rect.left) / rect.width; if (musicPlayerEl && musicPlayerEl.duration) musicPlayerEl.currentTime = percent * musicPlayerEl.duration; });
         
         // Controle de fade dos controles inferiores
         const bottomControls = document.getElementById('bottomControls');
@@ -2179,20 +2260,6 @@
         document.addEventListener('click', resetHideTimer); 
         showBottomControls();
         
-        // Troca de vídeos de fundo
-        const videosList = [{ src: "pai.mp4" }, { src: "patico21.mp4" }, { src: "patico21.mp4" }];
-        let currentVideoIndex = 0;
-        function updateVideoAndButton(index) { 
-            const video = videosList[index]; 
-            if (mainVideo && video) { 
-                mainVideo.pause(); 
-                mainVideo.src = video.src; 
-                mainVideo.load(); 
-                mainVideo.play().catch(e => {}); 
-            } 
-        }
-        setInterval(() => { currentVideoIndex = (currentVideoIndex + 1) % videosList.length; updateVideoAndButton(currentVideoIndex); }, 20000);
-        
         // Evento de ativação
         if (tapToStart) tapToStart.addEventListener('click', async (e) => { 
             e.stopPropagation(); 
@@ -2200,7 +2267,7 @@
             const ok = await ativarAudioBackground(); 
             if (ok) { 
                 await playMusic(); 
-                tapToStart.style.display = 'none'; 
+                if (tapToStart) tapToStart.style.display = 'none'; 
                 try { await document.documentElement.requestFullscreen(); } catch(err) {} 
                 showNotification('✅ Áudio ativado! Rádio em MODO AO VIVO!', 3000); 
                 const balloon = document.getElementById('liveInfoBalloon');
@@ -2243,14 +2310,14 @@
         const sendFeedback = document.getElementById('sendFeedback');
         if (sendFeedback) sendFeedback.addEventListener('click', () => { 
             if (currentRating === 0) { 
-                showNotification('⭐ Selecione uma nota', 2000); 
+                showNotification('⭐ Selecione uma nota (1 a 5 estrelas)', 2000); 
                 return; 
             } 
             let msg = `🎵 *Rádio Patico IA*\n⭐ Nota: ${'★'.repeat(currentRating)}${'☆'.repeat(5 - currentRating)}\n`; 
             const feedbackText = document.getElementById('feedbackText');
             if (feedbackText && feedbackText.value.trim()) msg += `💬 ${feedbackText.value.trim()}\n`; 
             window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank'); 
-            showNotification('✅ WhatsApp aberto!', 2000); 
+            showNotification('✅ WhatsApp aberto! Envie sua avaliação', 2000); 
             const modal = document.getElementById('feedbackModal');
             if (modal) modal.classList.remove('open'); 
             if (feedbackText) feedbackText.value = ''; 
@@ -2272,8 +2339,13 @@
         // Carregamento inicial
         loadPreferences();
         iniciarComMusicaAleatoria();
-        tapToStart.style.display = 'block';
+        if (tapToStart) tapToStart.style.display = 'block';
         iniciarVisualizer();
+        
+        // Inicializa os botões de gênero após o carregamento da página
+        setTimeout(() => {
+            initGenreButtons();
+        }, 500);
         </script>
 </body>
 </html>
