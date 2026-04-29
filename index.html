@@ -51,15 +51,28 @@
         .play-btn { background: #e63946; width: 58px; height: 58px; font-size: 1.6rem; border: none; }
         
         .genre-button {
-            position: fixed; bottom: 80px; right: 20px; width: 70px; height: 70px;
-            background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 20px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 26; border: 1px solid rgba(255,255,255,0.15);
-            animation: float 3s infinite;
+            position: fixed; bottom: 80px; right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50px;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            z-index: 26;
+            border: none;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
         }
-        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-        .genre-button i { font-size: 1.5rem; color: #e63946; }
-        .genre-button span { font-size: 0.7rem; color: #ff8c00; margin-top: 4px; }
+        .genre-button:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6); }
+        .genre-button:active { transform: scale(0.98); }
+        .genre-button i { font-size: 1.2rem; }
+        .genre-button span { font-size: 0.9rem; }
         
         .genre-badge {
             position: fixed; top: 12px; left: 12px; background: rgba(0,0,0,0.7);
@@ -92,7 +105,7 @@
         .genres-modal { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 30px 30px 0 0; padding: 20px; display: none; z-index: 5000; text-align: center; max-height: 80vh; overflow-y: auto; }
         .genres-modal.open { display: block; }
         .genres-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
-        .genre-card { background: linear-gradient(135deg, #ff0844, #ffb199); padding: 12px; border-radius: 14px; color: white; font-weight: bold; cursor: pointer; transition: 0.1s; text-align: center; }
+        .genre-card { padding: 12px; border-radius: 14px; color: white; font-weight: bold; cursor: pointer; transition: 0.1s; text-align: center; }
         .genre-card:active { transform: scale(0.96); }
         .close-modal { background: #e63946; border: none; padding: 10px; border-radius: 20px; color: white; width: 100%; cursor: pointer; }
         .stats-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 30px; padding: 25px; display: none; z-index: 5001; width: 320px; text-align: center; color: white; border: 2px solid #e63946; }
@@ -134,7 +147,7 @@
     <div class="visualizer" id="visualizer"><div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div></div>
     <div class="loading-spinner" id="loadingSpinner"><i class="fas fa-circle-notch fa-spin"></i> Carregando música...</div>
     
-    <button class="genre-button" id="genreBtn"><i class="fas fa-music"></i><span>GEN</span></button>
+    <button class="genre-button" id="genreBtn"><i class="fas fa-music"></i><span>OUTROS GÊNEROS</span><i class="fas fa-chevron-down"></i></button>
     <button class="exit-tv" id="exitTvBtn"><i class="fas fa-tv"></i> SAIR MODO TV</button>
     <div class="tv-pix" id="tvPix">
         <h3><i class="fas fa-qrcode"></i> APOIE A RÁDIO</h3>
@@ -164,10 +177,9 @@
 
     <script>
         // =====================================================
-        // 🎵 PLAYLIST COMPLETA SEPARADA POR GÊNERO (442 MÚSICAS)
+        // 🎵 PLAYLIST COMPLETA SEPARADA POR GÊNERO
         // =====================================================
-        
-        // 🟢 GÊNERO: SERTANEJO (IDs 1-13)
+  // 🟢 GÊNERO: SERTANEJO (IDs 1-13)
         const MUSICAS_SERTANEJO = [
             { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO" },
             { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO" },
@@ -529,16 +541,39 @@
             { id: 441, title: "Esquece e Vem", artist: "Nico Rezende", src: "Esquece_e_Esquece_e_vem_Nico_5.m4a", genero: "MPB" },
             { id: 442, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "MPB" }
         ];
+        
 
-        // ==================== VARIADAS = TODAS AS MÚSICAS JUNTAS ====================
+        // 🟢 NOVO GÊNERO: TOP LIST (músicas de outros gêneros - VOCÊ PODE EDITAR DEPOIS)
+        const MUSICAS_TOP_LIST = [
+            // Exemplo 1 - música Sertanejo
+            { id: 9991, title: "TOP HIT - Corpo Nu", artist: "Panda (Destaque)", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "TOP LIST" },
+            // Exemplo 2 - música Pop
+            { id: 9992, title: "TOP HIT - Billie Jean", artist: "Michael Jackson (Destaque)", src: "Michael_Jackson_Billie_Jean_muzzik.m4a", genero: "TOP LIST" }
+            // ⭐ ADICIONE MAIS MÚSICAS AQUI DEPOIS! ⭐
+        ];
+
+        // 🟢 VARIADAS = TODAS AS MÚSICAS JUNTAS
         const MUSICAS_VARIADAS = [
             ...MUSICAS_SERTANEJO,
             ...MUSICAS_FORRO,
             ...MUSICAS_SAMBA,
             ...MUSICAS_POP,
             ...MUSICAS_BREGA,
-            ...MUSICAS_MPB
+            ...MUSICAS_MPB,
+            ...MUSICAS_TOP_LIST
         ];
+
+        // ==================== CORES DOS CARDS POR GÊNERO ====================
+        const CORES_GENEROS = {
+            "VARIADAS": "linear-gradient(135deg, #667eea, #764ba2)",
+            "TOP LIST": "linear-gradient(135deg, #f093fb, #f5576c)",
+            "SERTANEJO": "linear-gradient(135deg, #fa709a, #fee140)",
+            "FORRÓ": "linear-gradient(135deg, #a8edea, #fed6e3)",
+            "SAMBA": "linear-gradient(135deg, #ff9a9e, #fecfef)",
+            "POP": "linear-gradient(135deg, #ffecd2, #fcb69f)",
+            "BREGA": "linear-gradient(135deg, #b224ef, #7579ff)",
+            "MPB": "linear-gradient(135deg, #43e97b, #38f9d7)"
+        };
 
         // ==================== CONFIGURAÇÕES ====================
         let backgroundActive = false;
@@ -552,8 +587,8 @@
         let isEnding = false;
         let totalMusicasOuvidas = 0;
         let isTvMode = false;
+        let currentGenre = "VARIADAS";
         
-        const VINHETA_URL = "vinheta.mp3";
         const INTERVALO_VINHETA_MUSICAS = 8;
         let contadorVinheta = 0;
         let tocandoVinheta = false;
@@ -579,19 +614,17 @@
         
         musicPlayer.volume = 0.9;
         
-        // ==================== FUNÇÃO PARA TROCAR VÍDEO POR GÊNERO ====================
+        // ==================== FUNÇÃO PARA TROCAR VÍDEO ====================
         function trocarVideoPorGenero(genero) {
             if (isTvMode) return;
-            
-            let videoSrc = "patico1685.mp4"; // padrão
-            
-            if (genero === "VARIADAS") videoSrc = "variadas.mp4";
-            else if (genero === "SERTANEJO") videoSrc = "sertanejo.mp4";
+            let videoSrc = "patico1685.mp4";
+            if (genero === "SERTANEJO") videoSrc = "sertanejo.mp4";
             else if (genero === "FORRÓ") videoSrc = "forro.mp4";
             else if (genero === "SAMBA") videoSrc = "samba.mp4";
             else if (genero === "POP") videoSrc = "pop.mp4";
             else if (genero === "BREGA") videoSrc = "brega.mp4";
             else if (genero === "MPB") videoSrc = "mpb.mp4";
+            else videoSrc = "patico1685.mp4";
             
             bgVideo.pause();
             bgVideo.src = videoSrc;
@@ -599,60 +632,59 @@
             bgVideo.play().catch(e => console.log("Erro vídeo:", e));
         }
         
-        // ==================== FUNÇÃO PARA TROCAR PLAYLIST POR GÊNERO ====================
+        // ==================== FUNÇÃO PARA TROCAR PLAYLIST ====================
         function setPlaylistByGenre(genero) {
             if (genero === "VARIADAS") {
-                filteredPlaylist = shuffleArray([...MUSICAS_VARIADAS]);
+                filteredPlaylist = [...MUSICAS_VARIADAS];
                 genreBadgeSpan.innerHTML = "🎵 VARIADAS";
                 trocarVideoPorGenero("VARIADAS");
-                showNotification(`🎵 Modo VARIADAS ativado! (${filteredPlaylist.length} músicas de todos os gêneros)`);
+            } else if (genero === "TOP LIST") {
+                filteredPlaylist = [...MUSICAS_TOP_LIST];
+                genreBadgeSpan.innerHTML = "🏆 TOP LIST";
+                trocarVideoPorGenero("VARIADAS");
             } else if (genero === "SERTANEJO") {
-                filteredPlaylist = shuffleArray([...MUSICAS_SERTANEJO]);
+                filteredPlaylist = [...MUSICAS_SERTANEJO];
                 genreBadgeSpan.innerHTML = "🎵 SERTANEJO";
                 trocarVideoPorGenero("SERTANEJO");
-                showNotification(`🎵 Modo SERTANEJO ativado! (${filteredPlaylist.length} músicas)`);
             } else if (genero === "FORRÓ") {
-                filteredPlaylist = shuffleArray([...MUSICAS_FORRO]);
+                filteredPlaylist = [...MUSICAS_FORRO];
                 genreBadgeSpan.innerHTML = "🎵 FORRÓ";
                 trocarVideoPorGenero("FORRÓ");
-                showNotification(`🎵 Modo FORRÓ ativado! (${filteredPlaylist.length} músicas)`);
             } else if (genero === "SAMBA") {
-                filteredPlaylist = shuffleArray([...MUSICAS_SAMBA]);
+                filteredPlaylist = [...MUSICAS_SAMBA];
                 genreBadgeSpan.innerHTML = "🎵 SAMBA";
                 trocarVideoPorGenero("SAMBA");
-                showNotification(`🎵 Modo SAMBA ativado! (${filteredPlaylist.length} músicas)`);
             } else if (genero === "POP") {
-                filteredPlaylist = shuffleArray([...MUSICAS_POP]);
+                filteredPlaylist = [...MUSICAS_POP];
                 genreBadgeSpan.innerHTML = "🎵 POP";
                 trocarVideoPorGenero("POP");
-                showNotification(`🎵 Modo POP ativado! (${filteredPlaylist.length} músicas)`);
             } else if (genero === "BREGA") {
-                filteredPlaylist = shuffleArray([...MUSICAS_BREGA]);
+                filteredPlaylist = [...MUSICAS_BREGA];
                 genreBadgeSpan.innerHTML = "🎵 BREGA";
                 trocarVideoPorGenero("BREGA");
-                showNotification(`🎵 Modo BREGA ativado! (${filteredPlaylist.length} músicas)`);
             } else if (genero === "MPB") {
-                filteredPlaylist = shuffleArray([...MUSICAS_MPB]);
+                filteredPlaylist = [...MUSICAS_MPB];
                 genreBadgeSpan.innerHTML = "🎵 MPB";
                 trocarVideoPorGenero("MPB");
-                showNotification(`🎵 Modo MPB ativado! (${filteredPlaylist.length} músicas)`);
+            }
+            
+            // Embaralhar a playlist
+            for (let i = filteredPlaylist.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [filteredPlaylist[i], filteredPlaylist[j]] = [filteredPlaylist[j], filteredPlaylist[i]];
             }
             
             currentIndex = 0;
             loadTrackUI(currentIndex);
+            
+            let msg = `🎵 Modo ${genero} ativado! (${filteredPlaylist.length} músicas)`;
+            if (genero === "TOP LIST") msg = `🏆 TOP LIST ativado! (${filteredPlaylist.length} hits - edite no código)`;
+            showNotification(msg);
+            
             if (isPlaying) playMusic();
         }
         
         // ==================== FUNÇÕES AUXILIARES ====================
-        function shuffleArray(arr) { 
-            const newArr = [...arr]; 
-            for (let i = newArr.length - 1; i > 0; i--) { 
-                const j = Math.floor(Math.random() * (i + 1)); 
-                [newArr[i], newArr[j]] = [newArr[j], newArr[i]]; 
-            } 
-            return newArr; 
-        }
-        
         function formatTime(sec) { 
             if (isNaN(sec) || !isFinite(sec)) return "0:00"; 
             const m = Math.floor(sec / 60); 
@@ -725,6 +757,37 @@
             localStorage.setItem('radioPaticoStats', totalMusicasOuvidas); 
         }
         
+        // ==================== VINHETA CORRIGIDA (NÃO TRAVA) ====================
+        function tocarVinheta() {
+            if (tocandoVinheta) return;
+            tocandoVinheta = true;
+            
+            const vinhetaAudio = new Audio("vinheta.mp3");
+            vinhetaAudio.volume = 0.5;
+            
+            vinhetaAudio.play().catch((erro) => {
+                console.log("Vinheta não encontrada ou erro ao tocar:", erro);
+                tocandoVinheta = false;
+            });
+            
+            vinhetaAudio.onended = () => {
+                tocandoVinheta = false;
+            };
+            
+            vinhetaAudio.onerror = () => {
+                console.log("Erro ao carregar vinheta");
+                tocandoVinheta = false;
+            };
+            
+            // Timeout de segurança para não travar
+            setTimeout(() => {
+                if (tocandoVinheta) {
+                    tocandoVinheta = false;
+                    vinhetaAudio.pause();
+                }
+            }, 5000);
+        }
+        
         // ==================== FUNÇÃO PRINCIPAL PLAY ====================
         async function playMusic() {
             if (!backgroundActive) { 
@@ -753,15 +816,11 @@
                 musicPlayer.src = track.src;
                 musicPlayer.load();
                 
-                await new Promise((resolve) => { 
-                    const timeout = setTimeout(resolve, 5000); 
-                    musicPlayer.addEventListener('canplay', () => { 
-                        clearTimeout(timeout); 
-                        resolve(); 
-                    }, { once: true }); 
-                });
-                
-                await musicPlayer.play();
+                // timeout para não travar
+                const playPromise = musicPlayer.play();
+                if (playPromise !== undefined) {
+                    await playPromise;
+                }
                 
                 isPlaying = true;
                 playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -773,29 +832,27 @@
                 totalMusicasOuvidas++;
                 updateStats();
                 
+                // Vinheta a cada X músicas
                 contadorVinheta++;
                 if (contadorVinheta >= INTERVALO_VINHETA_MUSICAS && !tocandoVinheta) {
                     contadorVinheta = 0;
-                    const vinhetaAudio = new Audio(VINHETA_URL);
-                    vinhetaAudio.volume = 0.7;
-                    vinhetaAudio.play().catch(() => {});
-                    vinhetaAudio.onended = () => {};
+                    tocarVinheta();
                 }
                 
-                // LOOP INFINITO: quando a música termina, toca a próxima automaticamente
+                // LOOP INFINITO - quando terminar, toca próxima
                 musicPlayer.onended = () => {
                     if (!isEnding && !tocandoVinheta) {
                         isEnding = true;
                         setTimeout(() => {
                             isEnding = false;
                             nextTrack();
-                        }, 500);
+                        }, 300);
                     }
                 };
                 
                 musicPlayer.onerror = () => {
                     console.error("Erro no áudio:", track.src);
-                    showNotification(`⚠️ Erro em "${track.title}", pulando...`, 2000);
+                    showNotification(`⚠️ Erro em "${track.title}", pulando...`, 1500);
                     nextTrack();
                 };
                 
@@ -817,8 +874,8 @@
                 isLoadingTrack = false;
                 isPlaying = false;
                 playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                showNotification(`⚠️ Erro ao carregar música`, 2000);
-                setTimeout(() => nextTrack(), 1000);
+                showNotification(`⚠️ Erro ao carregar música, pulando...`, 1500);
+                setTimeout(() => nextTrack(), 500);
                 return false;
             }
         }
@@ -845,20 +902,19 @@
             if (tocandoVinheta || isEnding || isLoadingTrack) return;
             if (!filteredPlaylist.length) { 
                 setPlaylistByGenre("VARIADAS");
-                if (isPlaying) await playMusic(); 
                 return; 
             }
             
-            let nextIndex;
             if (shuffleMode) {
-                do { 
-                    nextIndex = Math.floor(Math.random() * filteredPlaylist.length); 
-                } while (nextIndex === currentIndex && filteredPlaylist.length > 1);
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random() * filteredPlaylist.length);
+                } while (newIndex === currentIndex && filteredPlaylist.length > 1);
+                currentIndex = newIndex;
             } else {
-                nextIndex = (currentIndex + 1) % filteredPlaylist.length;
+                currentIndex = (currentIndex + 1) % filteredPlaylist.length;
             }
             
-            currentIndex = nextIndex;
             loadTrackUI(currentIndex);
             if (isPlaying) await playMusic();
         }
@@ -867,21 +923,20 @@
             if (tocandoVinheta || isEnding || isLoadingTrack) return;
             if (!filteredPlaylist.length) { 
                 setPlaylistByGenre("VARIADAS");
-                if (isPlaying) await playMusic(); 
                 return; 
             }
             
-            let prevIndex;
             if (shuffleMode) {
-                do { 
-                    prevIndex = Math.floor(Math.random() * filteredPlaylist.length); 
-                } while (prevIndex === currentIndex && filteredPlaylist.length > 1);
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random() * filteredPlaylist.length);
+                } while (newIndex === currentIndex && filteredPlaylist.length > 1);
+                currentIndex = newIndex;
             } else {
-                prevIndex = currentIndex - 1;
-                if (prevIndex < 0) prevIndex = filteredPlaylist.length - 1;
+                currentIndex = currentIndex - 1;
+                if (currentIndex < 0) currentIndex = filteredPlaylist.length - 1;
             }
             
-            currentIndex = prevIndex;
             loadTrackUI(currentIndex);
             if (isPlaying) await playMusic();
         }
@@ -923,14 +978,17 @@
             } 
         }
         
-        // ==================== MODAL DE GÊNEROS ====================
+        // ==================== MODAL DE GÊNEROS COM CORES ====================
         function buildGenreModal() {
-            const generosLista = ["VARIADAS", "SERTANEJO", "FORRÓ", "SAMBA", "POP", "BREGA", "MPB"];
+            const generosLista = ["VARIADAS", "TOP LIST", "SERTANEJO", "FORRÓ", "SAMBA", "POP", "BREGA", "MPB"];
             modal.innerHTML = `<h3 style="color:#e63946;"><i class="fas fa-music"></i> ESCOLHA SEU ESTILO</h3><div class="genres-grid" id="genresGrid"></div><button class="close-modal" id="closeModal"><i class="fas fa-times"></i> FECHAR</button>`;
             const grid = modal.querySelector('#genresGrid');
+            
             generosLista.forEach(g => { 
                 const card = document.createElement('div'); 
                 card.className = 'genre-card'; 
+                card.style.background = CORES_GENEROS[g] || "linear-gradient(135deg, #ff0844, #ffb199)";
+                
                 let icon = "fa-music"; 
                 if (g === "SERTANEJO") icon = "fa-guitar";
                 if (g === "FORRÓ") icon = "fa-drum";
@@ -939,8 +997,11 @@
                 if (g === "BREGA") icon = "fa-heart";
                 if (g === "MPB") icon = "fa-guitar";
                 if (g === "VARIADAS") icon = "fa-random";
+                if (g === "TOP LIST") icon = "fa-trophy";
+                
                 card.innerHTML = `<i class="fas ${icon}"></i><br>${g}`; 
                 card.onclick = () => { 
+                    currentGenre = g;
                     setPlaylistByGenre(g); 
                     modal.classList.remove('open'); 
                 }; 
@@ -956,7 +1017,7 @@
             nextBtn.onclick = nextTrack;
             shuffleBtn.onclick = () => { shuffleMode = !shuffleMode; showNotification(shuffleMode ? '🔀 Aleatório ON' : '➡️ Sequencial OFF'); };
             likeBtn.onclick = () => showNotification('👍 Obrigado pelo feedback!');
-            dislikeBtn.onclick = () => { showNotification('👎 Pulando música...'); setTimeout(() => nextTrack(), 500); };
+            dislikeBtn.onclick = () => { showNotification('👎 Pulando música...'); setTimeout(() => nextTrack(), 300); };
             
             document.getElementById('progressArea').onclick = (e) => { 
                 if (!musicPlayer.duration || !isFinite(musicPlayer.duration)) return; 
@@ -987,7 +1048,6 @@
             if (now - lastTap < 300) { 
                 e.preventDefault(); 
                 togglePlayPause(); 
-                showNotification(isPlaying ? '⏸️ Pausado' : '▶️ Play'); 
             } 
             lastTap = now;
             controlsDiv.classList.remove('hide'); 
@@ -996,6 +1056,7 @@
         });
         
         document.addEventListener('touchend', (e) => { 
+            if (isTvMode) return;
             const diff = e.changedTouches[0].screenX - touchStartX; 
             if (Math.abs(diff) > 50) { 
                 if (diff > 0) { 
@@ -1009,8 +1070,6 @@
         });
         
         // ==================== ATIVAÇÃO INICIAL ====================
-        let currentGenre = "VARIADAS";
-        
         document.getElementById('tap-to-start').onclick = async () => {
             const ok = await ativarAudioBackground();
             if (ok) { 
@@ -1018,7 +1077,6 @@
                 splash.style.transition = 'opacity 0.5s'; 
                 setTimeout(() => { splash.style.display = 'none'; }, 500); 
                 document.getElementById('tap-to-start').style.display = 'none'; 
-                // INICIA EM VARIADAS (TODOS OS GÊNEROS)
                 setPlaylistByGenre("VARIADAS");
                 await playMusic(); 
                 try { await document.documentElement.requestFullscreen(); } catch(e) {} 
@@ -1034,11 +1092,9 @@
         initEventListeners();
         buildGenreModal();
         startVisualizer();
-        
-        // INICIALIZA PLAYLIST EM VARIADAS (TODOS OS GÊNEROS JUNTOS)
         setPlaylistByGenre("VARIADAS");
         
-        console.log("✅ Rádio Patico IA iniciada - Modo VARIADAS com " + MUSICAS_VARIADAS.length + " músicas em loop infinito!");
+        console.log("✅ Rádio Patico IA iniciada - Loop infinito garantido! | TOP LIST com 2 músicas exemplo");
     </script>
 </body>
 </html>
