@@ -6,15 +6,11 @@
     <title>Rádio Patico IA – Programação Automática</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* (mesmo CSS das mensagens anteriores, mantido por brevidade) */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
         body { background: #000; overflow: hidden; height: 100vh; width: 100%; position: fixed; }
         .bg-video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; pointer-events: none; }
-        .controls {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
-            padding: 12px 20px; z-index: 20;
-            transition: transform 0.3s ease;
-        }
+        .controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); padding: 12px 20px; z-index: 20; transition: transform 0.3s ease; }
         .controls.hide { transform: translateY(100%); }
         .track-info { text-align: center; color: white; font-size: 0.85rem; margin-bottom: 6px; letter-spacing: 0.5px; }
         .progress-area { cursor: pointer; margin-bottom: 6px; }
@@ -22,133 +18,47 @@
         .progress-fill { width: 0%; height: 100%; background: #e63946; border-radius: 4px; transition: width 0.1s linear; }
         .progress-time { display: flex; justify-content: space-between; color: #ccc; font-size: 0.7rem; margin-bottom: 4px; }
         .control-buttons { display: flex; justify-content: center; gap: 20px; }
-        .control-btn {
-            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2);
-            width: 48px; height: 48px; border-radius: 50%; color: white;
-            font-size: 1.2rem; cursor: pointer; transition: 0.1s;
-        }
+        .control-btn { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); width: 48px; height: 48px; border-radius: 50%; color: white; font-size: 1.2rem; cursor: pointer; transition: 0.1s; }
         .control-btn:active { transform: scale(0.95); background: #e63946; color: #000; }
         .play-btn { background: #e63946; width: 58px; height: 58px; font-size: 1.6rem; border: none; }
-        .genre-button {
-            position: fixed; bottom: 80px; right: 20px; width: 70px; height: 70px;
-            background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 20px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 26; border: 1px solid rgba(255,255,255,0.15);
-            animation: float 3s infinite;
-        }
+        .genre-button { position: fixed; bottom: 80px; right: 20px; width: 70px; height: 70px; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 26; border: 1px solid rgba(255,255,255,0.15); animation: float 3s infinite; }
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
         .genre-button i { font-size: 1.5rem; color: #e63946; }
         .genre-button span { font-size: 0.7rem; color: #ff8c00; margin-top: 4px; }
-        .genre-badge {
-            position: fixed; top: 12px; left: 12px; background: rgba(0,0,0,0.7);
-            padding: 4px 12px; border-radius: 20px; color: white; font-size: 0.7rem;
-            z-index: 31; border-left: 3px solid #e63946; font-weight: bold;
-        }
+        .genre-badge { position: fixed; top: 12px; left: 12px; background: rgba(0,0,0,0.7); padding: 4px 12px; border-radius: 20px; color: white; font-size: 0.7rem; z-index: 31; border-left: 3px solid #e63946; font-weight: bold; }
         .genre-badge.live { border-left-color: #ff0000; background: rgba(255,0,0,0.7); animation: pulseRed 1s infinite; }
         @keyframes pulseRed { 0%,100% { opacity: 0.9; } 50% { opacity: 1; } }
-        .audio-indicator {
-            position: fixed; top: 12px; right: 70px; background: rgba(0,0,0,0.6);
-            padding: 4px 10px; border-radius: 20px; font-size: 0.6rem; z-index: 31;
-        }
-        .menu-button {
-            position: fixed; top: 12px; right: 12px; width: 44px; height: 44px;
-            background: rgba(0,0,0,0.6); border-radius: 50%; display: flex;
-            align-items: center; justify-content: center; color: white; cursor: pointer; z-index: 31;
-        }
-        .menu-popup {
-            position: fixed; top: 65px; right: 12px; background: rgba(0,0,0,0.9);
-            border-radius: 16px; padding: 10px; display: none; flex-direction: column;
-            gap: 8px; z-index: 32;
-        }
+        .audio-indicator { position: fixed; top: 12px; right: 70px; background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 20px; font-size: 0.6rem; z-index: 31; }
+        .menu-button { position: fixed; top: 12px; right: 12px; width: 44px; height: 44px; background: rgba(0,0,0,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; z-index: 31; }
+        .menu-popup { position: fixed; top: 65px; right: 12px; background: rgba(0,0,0,0.9); border-radius: 16px; padding: 10px; display: none; flex-direction: column; gap: 8px; z-index: 32; }
         .menu-popup.open { display: flex; }
-        .menu-popup button {
-            background: rgba(255,255,255,0.1); border: none; color: white;
-            padding: 8px 16px; border-radius: 30px; cursor: pointer; text-align: left;
-            font-size: 0.9rem;
-        }
-        .tv-pix {
-            position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.85);
-            border-radius: 24px; padding: 15px; display: none; color: white;
-            text-align: center; z-index: 1000; border-left: 5px solid #00d4ff;
-        }
+        .menu-popup button { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 16px; border-radius: 30px; cursor: pointer; text-align: left; font-size: 0.9rem; }
+        .tv-pix { position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.85); border-radius: 24px; padding: 15px; display: none; color: white; text-align: center; z-index: 1000; border-left: 5px solid #00d4ff; }
         .tv-pix.show { display: block; }
         .pix-key { background: #222; padding: 8px; border-radius: 12px; cursor: pointer; font-weight: bold; margin: 8px 0; }
-        .exit-tv {
-            position: fixed; top: 20px; left: 20px; background: rgba(0,0,0,0.85);
-            border: 2px solid #00d4ff; padding: 8px 16px; border-radius: 50px;
-            display: none; cursor: pointer; color: white; z-index: 102;
-        }
+        .exit-tv { position: fixed; top: 20px; left: 20px; background: rgba(0,0,0,0.85); border: 2px solid #00d4ff; padding: 8px 16px; border-radius: 50px; display: none; cursor: pointer; color: white; z-index: 102; }
         .tv-mode-active .controls, .tv-mode-active .feedback-buttons, .tv-mode-active .genre-button { transform: scale(1.2); transform-origin: bottom right; }
-        .feedback-buttons {
-            position: fixed; bottom: 140px; left: 20px; display: flex; gap: 12px; z-index: 27;
-        }
-        .feedback-btn {
-            width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center;
-            justify-content: center; font-size: 1.2rem; cursor: pointer;
-        }
+        .feedback-buttons { position: fixed; bottom: 140px; left: 20px; display: flex; gap: 12px; z-index: 27; }
+        .feedback-btn { width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; }
         .like { color: #4ade80; }
         .dislike { color: #ef4444; }
-        #tap-to-start {
-            position: fixed; bottom: 20%; left: 50%; transform: translateX(-50%);
-            background: linear-gradient(135deg, #ff8c00, #ff6600); color: white;
-            padding: 14px 28px; border-radius: 60px; font-weight: bold; cursor: pointer;
-            z-index: 10000; border: none; animation: btnPulse 1.5s infinite;
-            white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
+        #tap-to-start { position: fixed; bottom: 20%; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #ff8c00, #ff6600); color: white; padding: 14px 28px; border-radius: 60px; font-weight: bold; cursor: pointer; z-index: 10000; border: none; animation: btnPulse 1.5s infinite; white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         @keyframes btnPulse { 0% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.03); } }
-        .live-balloon {
-            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
-            border-radius: 80px; padding: 8px 20px; color: white;
-            z-index: 1000; display: none; white-space: nowrap; cursor: pointer;
-            border-left: 3px solid #ff0000;
-        }
-        .visualizer {
-            position: fixed; top: 70px; right: 20px; display: flex; gap: 4px;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
-            padding: 8px 12px; border-radius: 30px; z-index: 31;
-        }
+        .live-balloon { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); border-radius: 80px; padding: 8px 20px; color: white; z-index: 1000; display: none; white-space: nowrap; cursor: pointer; border-left: 3px solid #ff0000; }
+        .visualizer { position: fixed; top: 70px; right: 20px; display: flex; gap: 4px; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 8px 12px; border-radius: 30px; z-index: 31; }
         .visualizer-bar { width: 4px; height: 20px; background: #e63946; border-radius: 2px; transition: height 0.05s; }
-        .loading-spinner {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9); padding: 15px 25px; border-radius: 50px;
-            display: none; gap: 12px; color: white; z-index: 10001;
-        }
+        .loading-spinner { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); padding: 15px 25px; border-radius: 50px; display: none; gap: 12px; color: white; z-index: 10001; }
         .loading-spinner.show { display: flex; align-items: center; }
-        .video-ad {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 300px; max-width: 85vw; border-radius: 16px; overflow: hidden;
-            display: none; border: 2px solid #e63946; z-index: 1000; cursor: pointer;
-        }
+        .video-ad { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 300px; max-width: 85vw; border-radius: 16px; overflow: hidden; display: none; border: 2px solid #e63946; z-index: 1000; cursor: pointer; }
         .video-ad video { width: 100%; display: block; }
-        .swipe-indicator {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.7); color: white; padding: 10px 20px;
-            border-radius: 30px; opacity: 0; transition: 0.2s; pointer-events: none; z-index: 10002;
-        }
-        .genres-modal {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 30px 30px 0 0;
-            padding: 20px; display: none; z-index: 5000; text-align: center;
-        }
+        .swipe-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 30px; opacity: 0; transition: 0.2s; pointer-events: none; z-index: 10002; }
+        .genres-modal { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 30px 30px 0 0; padding: 20px; display: none; z-index: 5000; text-align: center; }
         .genres-modal.open { display: block; }
-        .genres-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0;
-        }
-        .genre-card {
-            background: linear-gradient(135deg, #ff0844, #ffb199); padding: 12px;
-            border-radius: 14px; color: white; font-weight: bold; cursor: pointer;
-            transition: 0.1s; text-align: center;
-        }
+        .genres-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+        .genre-card { background: linear-gradient(135deg, #ff0844, #ffb199); padding: 12px; border-radius: 14px; color: white; font-weight: bold; cursor: pointer; transition: 0.1s; text-align: center; }
         .genre-card:active { transform: scale(0.96); }
         .close-modal { background: #e63946; border: none; padding: 10px; border-radius: 20px; color: white; width: 100%; cursor: pointer; }
-        .stats-modal {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 30px;
-            padding: 25px; display: none; z-index: 5001; width: 320px; text-align: center; color: white;
-            border: 2px solid #e63946;
-        }
+        .stats-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 30px; padding: 25px; display: none; z-index: 5001; width: 320px; text-align: center; color: white; border: 2px solid #e63946; }
         .stats-modal button { background: #e63946; border: none; padding: 8px 16px; border-radius: 20px; color: white; margin-top: 15px; cursor: pointer; }
     </style>
 </head>
@@ -210,12 +120,10 @@
     <audio id="musicPlayer" preload="auto" crossorigin="anonymous"></audio>
 
     <script>
-        // ==================== PLAYLIST COMPLETA (442 MÚSICAS) ====================
-        // (mesma playlist das mensagens anteriores – omitida aqui por brevidade, mas você deve colar a sua)
-        // Use o array musicas com 442 objetos. Para testar, mantemos algumas linhas de exemplo.
-        // ATENÇÃO: substitua este array pelo seu real.
+        // ==================== PLAYLIST COMPLETA (SUBSTITUA PELA SUA) ====================
+        // Para testar, use alguns exemplos. Você deve colocar seu array de 442 músicas.
         const musicas = [
-                { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
+                   { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 4, title: "Pout Pourri", artist: "Luiza Martins", src: "Luiza_Martins_Pout_Pourri_Na_Hora_do_Adeus_Fruto_.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -558,11 +466,17 @@
     { id: 440, title: "Espumas ao Vento", artist: "Fagner", src: "Espumas_ao_Espumas_ao_Vento.m4a", genero: "MPB", tipo: "ao vivo" },
     { id: 441, title: "Esquece e Vem", artist: "Nico Rezende", src: "Esquece_e_Esquece_e_vem_Nico_5.m4a", genero: "MPB", tipo: "ao vivo" },
     { id: 442, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "MPB", tipo: "ao vivo" }
-            // ... adicione todas as suas músicas aqui ...
-            // Para não repetir 442 linhas, mantenha seu array original.
+            // ... insira aqui suas 442 músicas
         ];
 
-        // ==================== VÍDEOS POR GÊNERO ====================
+        // ==================== CONFIGURAÇÕES ====================
+        const VINHETA_URL = "vinheta.mp3";          // arquivo da vinheta
+        const INTERVALO_VINHETA_MUSICAS = 8;        // a cada 8 músicas toca vinheta
+        let contadorVinheta = 0;
+        let tocandoVinheta = false;
+
+        // Vídeos
+        const VIDEO_PADRAO = "patico1685.mp4";       // vídeo padrão para VARIADAS, TODOS e AO VIVO
         const VIDEO_POR_GENERO = {
             "SERTANEJO": "sertanejo.mp4",
             "FORRÓ": "forro.mp4",
@@ -575,7 +489,7 @@
         let rotacaoIndex = 0;
         let rotacaoInterval = null;
 
-        // ==================== PROGRAMAS ====================
+        // Programas
         const programas = [
             { nome: "MANHA", nomeExibicao: "☀️ Manhã Patico", video: "diapatico.mp4", dias: [1,2,3,4,5], inicio: 6, fim: 12,
               percentuais: { "FORRÓ": 20, "SAMBA": 30, "SERTANEJO": 50 } },
@@ -588,10 +502,10 @@
         ];
         let programaAtual = null;
         let isManualGenre = false;
-        let isAoVivo = false;          // ALTERADO: começa como false (será definido depois pela programação)
+        let isAoVivo = false;          // começa false; depois verifica programa
         let generoSelecionadoManual = null;
 
-        // ==================== VARIÁVEIS GLOBAIS ====================
+        // Variáveis do player
         let currentIndex = 0, isPlaying = false, shuffleMode = false;
         let filteredPlaylist = [];
         let timerInterval = null, visInterval = null;
@@ -602,13 +516,11 @@
         let adVideoPlaying = false;
         let totalMusicasOuvidas = 0;
 
-        // Preferências do usuário (localStorage)
+        // Preferências do usuário
         let userPref = { liked: [], disliked: [] };
         function loadUserPref() {
             const saved = localStorage.getItem('radio_patico_prefs');
-            if (saved) {
-                try { userPref = JSON.parse(saved); } catch(e) {}
-            }
+            if (saved) try { userPref = JSON.parse(saved); } catch(e) {}
         }
         function saveUserPref() { localStorage.setItem('radio_patico_prefs', JSON.stringify(userPref)); }
         loadUserPref();
@@ -694,7 +606,7 @@
         }
         function stopVisualizer() { if (visInterval) clearInterval(visInterval); visInterval = null; }
 
-        // ==================== VÍDEO DINÂMICO ====================
+        // ==================== VÍDEO DINÂMICO (com vídeo padrão para VARIADAS/TODOS/LIVE) ====================
         function trocarVideo(src) {
             if (!src || isTvMode) return;
             if (bgVideo.src !== src) {
@@ -704,6 +616,18 @@
                 bgVideo.play().catch(e => console.log("Erro vídeo:", e));
             }
         }
+        function trocarVideoPorModo() {
+            if (isAoVivo || (isManualGenre && (generoSelecionadoManual === "VARIADAS" || generoSelecionadoManual === "TODOS"))) {
+                trocarVideo(VIDEO_PADRAO);
+            } else if (programaAtual) {
+                let prog = programas.find(p => p.nome === programaAtual);
+                if (prog) trocarVideo(prog.video);
+            } else if (isManualGenre && generoSelecionadoManual && VIDEO_POR_GENERO[generoSelecionadoManual]) {
+                trocarVideo(VIDEO_POR_GENERO[generoSelecionadoManual]);
+            } else {
+                trocarVideo(VIDEOS_ROTACAO[rotacaoIndex]);
+            }
+        }
 
         function iniciarRotacaoVideos() {
             if (rotacaoInterval) clearInterval(rotacaoInterval);
@@ -711,8 +635,32 @@
                 if (!isTvMode && !isAoVivo && !isManualGenre && programaAtual === null) {
                     rotacaoIndex = (rotacaoIndex + 1) % VIDEOS_ROTACAO.length;
                     trocarVideo(VIDEOS_ROTACAO[rotacaoIndex]);
+                } else {
+                    // Mantém o vídeo correto conforme o modo atual
+                    trocarVideoPorModo();
                 }
             }, 20000);
+        }
+
+        // ==================== VINHETA ====================
+        function tocarVinheta() {
+            if (tocandoVinheta) return;
+            const wasPlaying = isPlaying;
+            if (wasPlaying) {
+                musicPlayer.pause();
+                isPlaying = false;
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                stopTimer();
+                stopVisualizer();
+            }
+            tocandoVinheta = true;
+            const vinhetaAudio = new Audio(VINHETA_URL);
+            vinhetaAudio.volume = 0.8;
+            vinhetaAudio.play().catch(e => console.log("Erro vinheta:", e));
+            vinhetaAudio.onended = () => {
+                tocandoVinheta = false;
+                if (wasPlaying) playMusic();
+            };
         }
 
         // ==================== PROGRAMAS ====================
@@ -731,7 +679,7 @@
             for (let [gen, perc] of Object.entries(percentuais)) {
                 let songs = musicas.filter(m => m.genero === gen && m.tipo !== "ao vivo");
                 if (songs.length === 0) continue;
-                let qtd = Math.max(3, Math.floor((perc / 100) * 20));
+                let qtd = Math.max(3, Math.floor((perc / 100) * 25));
                 let selecionadas = shuffleArray([...songs]).slice(0, qtd);
                 lista.push(...selecionadas);
             }
@@ -745,7 +693,6 @@
             if (prog) {
                 if (programaAtual !== prog.nome) {
                     programaAtual = prog.nome;
-                    trocarVideo(prog.video);
                     filteredPlaylist = gerarPlaylistPorPercentuais(prog.percentuais);
                     if (filteredPlaylist.length === 0) filteredPlaylist = shuffleArray(musicas.filter(m => m.tipo !== "ao vivo"));
                     currentIndex = 0;
@@ -754,17 +701,17 @@
                     showNotification(`📻 ${prog.nomeExibicao} ativado!`);
                     genreBadgeSpan.innerHTML = prog.nomeExibicao;
                     genreBadgeSpan.classList.remove('live');
+                    trocarVideoPorModo();
                 }
             } else {
                 if (programaAtual !== null) {
                     programaAtual = null;
-                    // Se não há programa, ativa o modo AO VIVO automaticamente
                     ativarModoAoVivo();
                 }
             }
         }
 
-        // ==================== MODO AO VIVO ====================
+        // ==================== MODO AO VIVO (usa vídeo padrão) ====================
         function ativarModoAoVivo() {
             isAoVivo = true;
             isManualGenre = false;
@@ -780,6 +727,7 @@
             showNotification('🔴 MODO AO VIVO ativado!');
             if (videoAdInterval) clearInterval(videoAdInterval);
             videoAdInterval = setInterval(() => iniciarVideoAd(), 30000);
+            trocarVideo(VIDEO_PADRAO);   // vídeo padrão
             const balloon = document.getElementById('liveBalloon');
             balloon.style.display = 'block';
             setTimeout(() => balloon.style.display = 'none', 4000);
@@ -791,10 +739,8 @@
             if (videoAdInterval) clearInterval(videoAdInterval);
             document.getElementById('videoAd').style.display = 'none';
             genreBadgeSpan.classList.remove('live');
-            // Força a verificação da programação
             aplicarProgramacao();
             if (!programaAtual && !isManualGenre) {
-                // Fallback: gênero padrão (SERTANEJO)
                 let def = musicas.filter(m => m.genero === "SERTANEJO" && m.tipo !== "ao vivo");
                 if (def.length === 0) def = musicas;
                 filteredPlaylist = shuffleArray(def);
@@ -802,6 +748,7 @@
                 loadTrackUI(currentIndex);
                 if (isPlaying) playMusic();
             }
+            trocarVideoPorModo();
         }
 
         // ==================== PLAYER ====================
@@ -821,6 +768,7 @@
         async function playMusic() {
             if (!backgroundActive) { showNotification('⚠️ Clique em "ATIVAR RÁDIO" primeiro!'); return false; }
             if (filteredPlaylist.length === 0) return false;
+            if (tocandoVinheta) return false;
             let track = filteredPlaylist[currentIndex];
             if (!track || !track.src) return false;
             showLoading();
@@ -837,6 +785,12 @@
                 trackStartTime = Date.now();
                 totalMusicasOuvidas++;
                 document.getElementById('statTotalPlayed').innerText = `${totalMusicasOuvidas} músicas ouvidas`;
+                // Contador para vinheta
+                contadorVinheta++;
+                if (contadorVinheta >= INTERVALO_VINHETA_MUSICAS && !tocandoVinheta) {
+                    contadorVinheta = 0;
+                    tocarVinheta();
+                }
                 musicPlayer.onended = () => {
                     nextTrack();
                 };
@@ -898,17 +852,21 @@
 
         // ==================== GÊNERO MANUAL ====================
         function filterByGenre(genero) {
-            // Força saída do modo ao vivo e da programação
             if (isAoVivo) desativarModoAoVivo();
             isManualGenre = true;
             programaAtual = null;
+            generoSelecionadoManual = genero;
             let novaPlaylist = musicas.filter(m => m.genero === genero && m.tipo !== "ao vivo");
             if (novaPlaylist.length === 0) novaPlaylist = musicas;
             filteredPlaylist = shuffleArray(novaPlaylist);
             currentIndex = 0;
             loadTrackUI(currentIndex);
-            if (isPlaying) playMusic();
-            if (VIDEO_POR_GENERO[genero]) trocarVideo(VIDEO_POR_GENERO[genero]);
+            if (isPlaying) playMusic();  // toca automaticamente
+            if (VIDEO_POR_GENERO[genero]) {
+                trocarVideo(VIDEO_POR_GENERO[genero]);
+            } else {
+                trocarVideo(VIDEO_PADRAO); // para VARIADAS, TODOS
+            }
             showNotification(`🎵 Gênero ${genero} selecionado manualmente!`);
         }
 
@@ -968,21 +926,11 @@
                 tvDiv.classList.remove('show');
                 exitBtn.style.display = 'none';
                 showNotification('Modo TV desativado.');
-                // restaura vídeo anterior
-                if (programaAtual) {
-                    let prog = programas.find(p => p.nome === programaAtual);
-                    if (prog) trocarVideo(prog.video);
-                } else if (isManualGenre && filteredPlaylist[0] && VIDEO_POR_GENERO[filteredPlaylist[0].genero]) {
-                    trocarVideo(VIDEO_POR_GENERO[filteredPlaylist[0].genero]);
-                } else if (!isAoVivo && !programaAtual) {
-                    trocarVideo(VIDEOS_ROTACAO[rotacaoIndex]);
-                } else {
-                    trocarVideo("pai.mp4");
-                }
+                trocarVideoPorModo();  // restaura vídeo correto
             }
         }
 
-        // ==================== ATIVAÇÃO DE ÁUDIO E INICIALIZAÇÃO (BOTÃO LARANJA) ====================
+        // ==================== ATIVAÇÃO DE ÁUDIO E TELA CHEIA ====================
         async function ativarAudioBackground() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1001,13 +949,11 @@
         function iniciarProgramacaoOuAoVivo() {
             const programa = getProgramaAtivo();
             if (programa) {
-                // Se há programa ativo, entra no modo programação (desliga ao vivo)
                 if (isAoVivo) desativarModoAoVivo();
-                aplicarProgramacao(); // isso vai ativar o programa
+                aplicarProgramacao();
             } else {
-                // Fora dos horários, entra em modo ao vivo
                 if (!isAoVivo) ativarModoAoVivo();
-                else aplicarProgramacao(); // por segurança
+                else aplicarProgramacao();
             }
         }
 
@@ -1035,9 +981,7 @@
                 card.setAttribute('data-gen', g);
                 card.onclick = () => {
                     if (g === 'LIVE') {
-                        // Voltar ao modo ao vivo (ou programação se houver)
                         if (getProgramaAtivo()) {
-                            // Se tem programa, sai do manual e entra na programação
                             if (isManualGenre) isManualGenre = false;
                             if (isAoVivo) desativarModoAoVivo();
                             else aplicarProgramacao();
@@ -1046,14 +990,15 @@
                         }
                     } else if (g === 'VARIADAS' || g === 'TODOS') {
                         if (isAoVivo) desativarModoAoVivo();
-                        isManualGenre = false;
+                        isManualGenre = true;
+                        generoSelecionadoManual = g;
                         programaAtual = null;
                         filteredPlaylist = shuffleArray(musicas.filter(m => m.tipo !== "ao vivo"));
                         currentIndex = 0;
                         loadTrackUI(currentIndex);
                         if (isPlaying) playMusic();
                         showNotification(`🎵 ${g} ativado!`);
-                        trocarVideo(VIDEOS_ROTACAO[0]);
+                        trocarVideo(VIDEO_PADRAO);
                     } else {
                         filterByGenre(g);
                     }
@@ -1064,16 +1009,17 @@
             document.getElementById('closeModal').onclick = () => modal.classList.remove('open');
         }
 
-        // ==================== INICIALIZAÇÃO DOS EVENTOS ====================
+        // ==================== EVENTOS ====================
         document.getElementById('tap-to-start').onclick = async () => {
             const ok = await ativarAudioBackground();
             if (ok) {
                 document.getElementById('tap-to-start').style.display = 'none';
-                // Após ativar o áudio, inicia a rádio com o modo correto (programação ou ao vivo)
                 iniciarProgramacaoOuAoVivo();
                 await playMusic();
                 setInterval(() => aplicarProgramacao(), 60000);
                 iniciarRotacaoVideos();
+                // Solicita tela cheia
+                try { await document.documentElement.requestFullscreen(); } catch(e) { console.log("Fullscreen não suportado"); }
             } else {
                 showNotification('❌ Falha ao ativar áudio. Toque novamente.');
             }
@@ -1116,7 +1062,7 @@
         document.getElementById('genreBtn').onclick = () => modal.classList.add('open');
         buildModal();
 
-        // ==================== GESTOS TOUCH ====================
+        // Gestos touch
         let touchStartX = 0, lastTap = 0;
         document.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
@@ -1133,20 +1079,21 @@
             }
         });
 
-        // ==================== ESCONDER CONTROLES INFERIORES ====================
+        // Esconder controles inferiores
         let hideTimer;
         function showControlsBar() { controlsDiv.classList.remove('hide'); clearTimeout(hideTimer); hideTimer = setTimeout(() => controlsDiv.classList.add('hide'), 3000); }
         document.addEventListener('touchstart', showControlsBar);
         document.addEventListener('click', showControlsBar);
         showControlsBar();
 
-        // Inicializa visualizador e carrega uma playlist temporária (só para a interface não ficar vazia)
+        // Inicialização visual
         startVisualizer();
         filteredPlaylist = musicas.filter(m => m.tipo === "ao vivo");
         if (filteredPlaylist.length === 0) filteredPlaylist = musicas;
         loadTrackUI(0);
+        trocarVideo(VIDEO_PADRAO);  // vídeo padrão inicial
 
-        console.log("✅ Rádio Patico IA pronta – iniciará com programação ativa se houver horário.");
+        console.log("✅ Rádio Patico IA ajustada – iniciará com programação ativa, vídeo padrão para VARIADAS/TODOS/LIVE, vinhetas a cada 8 músicas.");
     </script>
 </body>
 </html>
