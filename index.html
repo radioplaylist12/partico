@@ -606,10 +606,9 @@
         }
         function stopVisualizer() { if (visInterval) clearInterval(visInterval); visInterval = null; }
 
-        // ==================== VÍDEO (força recarga) ====================
+        // ==================== VÍDEO (com prioridade para VARIADAS/TODOS) ====================
         function trocarVideo(src) {
             if (!src || isTvMode) return;
-            // Força recarga mesmo com mesmo src (evita cache)
             bgVideo.pause();
             bgVideo.src = src;
             bgVideo.load();
@@ -618,7 +617,12 @@
         }
 
         function trocarVideoPorModo() {
-            if (isAoVivo || (isManualGenre && (generoSelecionadoManual === "VARIADAS" || generoSelecionadoManual === "TODOS"))) {
+            // PRIORIDADE MÁXIMA: se o gênero manual for VARIADAS ou TODOS, usa vídeo padrão
+            if (isManualGenre && (generoSelecionadoManual === "VARIADAS" || generoSelecionadoManual === "TODOS")) {
+                trocarVideo(VIDEO_PADRAO);
+                return;
+            }
+            if (isAoVivo) {
                 trocarVideo(VIDEO_PADRAO);
             } else if (programaAtual) {
                 let prog = programas.find(p => p.nome === programaAtual);
@@ -634,10 +638,12 @@
         function iniciarRotacaoVideos() {
             if (rotacaoInterval) clearInterval(rotacaoInterval);
             rotacaoInterval = setInterval(() => {
-                if (!isTvMode && !isAoVivo && !isManualGenre && programaAtual === null) {
+                // Não roda rotação se estiver em VARIADAS/TODOS
+                if (!isTvMode && !isAoVivo && !(isManualGenre && (generoSelecionadoManual === "VARIADAS" || generoSelecionadoManual === "TODOS")) && programaAtual === null) {
                     rotacaoIndex = (rotacaoIndex + 1) % VIDEOS_ROTACAO.length;
                     trocarVideo(VIDEOS_ROTACAO[rotacaoIndex]);
                 } else {
+                    // Mantém o vídeo correto conforme o modo atual
                     trocarVideoPorModo();
                 }
             }, 20000);
@@ -859,7 +865,6 @@
             if (isPlaying) {
                 playMusic();
             } else {
-                // Se não estiver tocando, inicia a reprodução
                 playMusic();
             }
             if (VIDEO_POR_GENERO[genero]) {
@@ -996,9 +1001,10 @@
                         filteredPlaylist = shuffleArray(musicas.filter(m => m.tipo !== "ao vivo"));
                         currentIndex = 0;
                         loadTrackUI(currentIndex);
-                        if (isPlaying) playMusic(); // auto-play
+                        if (isPlaying) playMusic();
+                        else playMusic(); // auto-play garantido
                         showNotification(`🎵 ${g} ativado!`);
-                        trocarVideo(VIDEO_PADRAO);
+                        trocarVideo(VIDEO_PADRAO); // força vídeo padrão
                     } else {
                         filterByGenre(g);
                     }
