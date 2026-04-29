@@ -530,8 +530,7 @@
             { id: 442, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "MPB" }
         ];
 
-        // 🟢 GÊNERO: VARIADAS (IDs 200-203) - INCLUI TODAS AS MÚSICAS DE TODOS OS GÊNEROS
-        // O modo VARIADAS pega músicas de TODOS os gêneros (SERTANEJO, FORRÓ, SAMBA, POP, BREGA, MPB)
+        // ==================== VARIADAS = TODAS AS MÚSICAS JUNTAS ====================
         const MUSICAS_VARIADAS = [
             ...MUSICAS_SERTANEJO,
             ...MUSICAS_FORRO,
@@ -541,50 +540,12 @@
             ...MUSICAS_MPB
         ];
 
-        // ==================== PLAYLIST PRINCIPAL (INICIA EM VARIADAS) ====================
-        let filteredPlaylist = [];
-        let currentGenre = "VARIADAS";
-        
-        function setPlaylistByGenre(genero) {
-            if (genero === "VARIADAS") {
-                filteredPlaylist = shuffleArray([...MUSICAS_VARIADAS]);
-                currentGenre = "VARIADAS";
-                genreBadgeSpan.innerHTML = "🎵 VARIADAS";
-            } else if (genero === "SERTANEJO") {
-                filteredPlaylist = shuffleArray([...MUSICAS_SERTANEJO]);
-                currentGenre = "SERTANEJO";
-                genreBadgeSpan.innerHTML = "🎵 SERTANEJO";
-            } else if (genero === "FORRÓ") {
-                filteredPlaylist = shuffleArray([...MUSICAS_FORRO]);
-                currentGenre = "FORRÓ";
-                genreBadgeSpan.innerHTML = "🎵 FORRÓ";
-            } else if (genero === "SAMBA") {
-                filteredPlaylist = shuffleArray([...MUSICAS_SAMBA]);
-                currentGenre = "SAMBA";
-                genreBadgeSpan.innerHTML = "🎵 SAMBA";
-            } else if (genero === "POP") {
-                filteredPlaylist = shuffleArray([...MUSICAS_POP]);
-                currentGenre = "POP";
-                genreBadgeSpan.innerHTML = "🎵 POP";
-            } else if (genero === "BREGA") {
-                filteredPlaylist = shuffleArray([...MUSICAS_BREGA]);
-                currentGenre = "BREGA";
-                genreBadgeSpan.innerHTML = "🎵 BREGA";
-            } else if (genero === "MPB") {
-                filteredPlaylist = shuffleArray([...MUSICAS_MPB]);
-                currentGenre = "MPB";
-                genreBadgeSpan.innerHTML = "🎵 MPB";
-            }
-            currentIndex = 0;
-            loadTrackUI(currentIndex);
-            if (isPlaying) playMusic();
-        }
-
         // ==================== CONFIGURAÇÕES ====================
         let backgroundActive = false;
         let isPlaying = false;
         let currentIndex = 0;
         let shuffleMode = false;
+        let filteredPlaylist = [];
         let timerInterval = null;
         let visInterval = null;
         let isLoadingTrack = false;
@@ -617,6 +578,70 @@
         const splash = document.getElementById('splash');
         
         musicPlayer.volume = 0.9;
+        
+        // ==================== FUNÇÃO PARA TROCAR VÍDEO POR GÊNERO ====================
+        function trocarVideoPorGenero(genero) {
+            if (isTvMode) return;
+            
+            let videoSrc = "patico1685.mp4"; // padrão
+            
+            if (genero === "VARIADAS") videoSrc = "patico1685.mp4";
+            else if (genero === "SERTANEJO") videoSrc = "sertanejo.mp4";
+            else if (genero === "FORRÓ") videoSrc = "forro.mp4";
+            else if (genero === "SAMBA") videoSrc = "samba.mp4";
+            else if (genero === "POP") videoSrc = "pop.mp4";
+            else if (genero === "BREGA") videoSrc = "brega.mp4";
+            else if (genero === "MPB") videoSrc = "mpb.mp4";
+            
+            bgVideo.pause();
+            bgVideo.src = videoSrc;
+            bgVideo.load();
+            bgVideo.play().catch(e => console.log("Erro vídeo:", e));
+        }
+        
+        // ==================== FUNÇÃO PARA TROCAR PLAYLIST POR GÊNERO ====================
+        function setPlaylistByGenre(genero) {
+            if (genero === "VARIADAS") {
+                filteredPlaylist = shuffleArray([...MUSICAS_VARIADAS]);
+                genreBadgeSpan.innerHTML = "🎵 VARIADAS";
+                trocarVideoPorGenero("VARIADAS");
+                showNotification(`🎵 Modo VARIADAS ativado! (${filteredPlaylist.length} músicas de todos os gêneros)`);
+            } else if (genero === "SERTANEJO") {
+                filteredPlaylist = shuffleArray([...MUSICAS_SERTANEJO]);
+                genreBadgeSpan.innerHTML = "🎵 SERTANEJO";
+                trocarVideoPorGenero("SERTANEJO");
+                showNotification(`🎵 Modo SERTANEJO ativado! (${filteredPlaylist.length} músicas)`);
+            } else if (genero === "FORRÓ") {
+                filteredPlaylist = shuffleArray([...MUSICAS_FORRO]);
+                genreBadgeSpan.innerHTML = "🎵 FORRÓ";
+                trocarVideoPorGenero("FORRÓ");
+                showNotification(`🎵 Modo FORRÓ ativado! (${filteredPlaylist.length} músicas)`);
+            } else if (genero === "SAMBA") {
+                filteredPlaylist = shuffleArray([...MUSICAS_SAMBA]);
+                genreBadgeSpan.innerHTML = "🎵 SAMBA";
+                trocarVideoPorGenero("SAMBA");
+                showNotification(`🎵 Modo SAMBA ativado! (${filteredPlaylist.length} músicas)`);
+            } else if (genero === "POP") {
+                filteredPlaylist = shuffleArray([...MUSICAS_POP]);
+                genreBadgeSpan.innerHTML = "🎵 POP";
+                trocarVideoPorGenero("POP");
+                showNotification(`🎵 Modo POP ativado! (${filteredPlaylist.length} músicas)`);
+            } else if (genero === "BREGA") {
+                filteredPlaylist = shuffleArray([...MUSICAS_BREGA]);
+                genreBadgeSpan.innerHTML = "🎵 BREGA";
+                trocarVideoPorGenero("BREGA");
+                showNotification(`🎵 Modo BREGA ativado! (${filteredPlaylist.length} músicas)`);
+            } else if (genero === "MPB") {
+                filteredPlaylist = shuffleArray([...MUSICAS_MPB]);
+                genreBadgeSpan.innerHTML = "🎵 MPB";
+                trocarVideoPorGenero("MPB");
+                showNotification(`🎵 Modo MPB ativado! (${filteredPlaylist.length} músicas)`);
+            }
+            
+            currentIndex = 0;
+            loadTrackUI(currentIndex);
+            if (isPlaying) playMusic();
+        }
         
         // ==================== FUNÇÕES AUXILIARES ====================
         function shuffleArray(arr) { 
@@ -757,6 +782,7 @@
                     vinhetaAudio.onended = () => {};
                 }
                 
+                // LOOP INFINITO: quando a música termina, toca a próxima automaticamente
                 musicPlayer.onended = () => {
                     if (!isEnding && !tocandoVinheta) {
                         isEnding = true;
@@ -893,8 +919,7 @@
                 tvDiv.classList.remove('show'); 
                 exitBtn.style.display = 'none'; 
                 showNotification('Modo TV desativado.'); 
-                bgVideo.src = "patico1685.mp4"; 
-                bgVideo.load(); 
+                trocarVideoPorGenero(currentGenre); 
             } 
         }
         
@@ -918,8 +943,6 @@
                 card.onclick = () => { 
                     setPlaylistByGenre(g); 
                     modal.classList.remove('open'); 
-                    showNotification(`🎵 Modo ${g} ativado!`);
-                    if (isPlaying) playMusic();
                 }; 
                 grid.appendChild(card); 
             });
@@ -986,6 +1009,8 @@
         });
         
         // ==================== ATIVAÇÃO INICIAL ====================
+        let currentGenre = "VARIADAS";
+        
         document.getElementById('tap-to-start').onclick = async () => {
             const ok = await ativarAudioBackground();
             if (ok) { 
@@ -1013,10 +1038,7 @@
         // INICIALIZA PLAYLIST EM VARIADAS (TODOS OS GÊNEROS JUNTOS)
         setPlaylistByGenre("VARIADAS");
         
-        bgVideo.src = "patico1685.mp4";
-        bgVideo.load();
-        
-        console.log("✅ Rádio Patico IA iniciada - Modo VARIADAS (todos os gêneros) ativo com " + MUSICAS_VARIADAS.length + " músicas!");
+        console.log("✅ Rádio Patico IA iniciada - Modo VARIADAS com " + MUSICAS_VARIADAS.length + " músicas em loop infinito!");
     </script>
 </body>
 </html>
