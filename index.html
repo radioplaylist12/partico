@@ -87,8 +87,6 @@
         .visualizer-bar { width: 4px; height: 20px; background: #e63946; border-radius: 2px; transition: height 0.05s; }
         .loading-spinner { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); padding: 15px 25px; border-radius: 50px; display: none; gap: 12px; color: white; z-index: 10001; }
         .loading-spinner.show { display: flex; align-items: center; }
-        .video-ad { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 300px; max-width: 85vw; border-radius: 16px; overflow: hidden; display: none; border: 2px solid #e63946; z-index: 1000; cursor: pointer; }
-        .video-ad video { width: 100%; display: block; }
         .swipe-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 30px; opacity: 0; transition: 0.2s; pointer-events: none; z-index: 10002; }
         
         .genres-modal { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 30px 30px 0 0; padding: 20px; display: none; z-index: 5000; text-align: center; max-height: 80vh; overflow-y: auto; }
@@ -127,7 +125,7 @@
         </div>
     </div>
     
-    <div class="genre-badge" id="genreBadge">🎵 RÁDIO</div>
+    <div class="genre-badge" id="genreBadge">🎵 VARIADAS</div>
     <div class="audio-indicator" id="audioIndicator"><i class="fas fa-circle"></i> Aguardando</div>
     <div class="feedback-buttons">
         <button class="feedback-btn like" id="likeBtn"><i class="fas fa-thumbs-up"></i></button>
@@ -143,7 +141,6 @@
         <div class="pix-key" id="pixKey">12988461978</div>
         <small>Clique para copiar a chave PIX</small>
     </div>
-    <div class="video-ad" id="videoAd"><video id="adVideo" loop muted playsinline><source src="tea.mp4" type="video/mp4"></video></div>
     
     <div class="menu-button" id="menuBtn"><i class="fas fa-ellipsis-v"></i></div>
     <div class="menu-popup" id="menuPopup">
@@ -167,11 +164,11 @@
 
     <script>
         // =====================================================
-        // PLAYLIST COMPLETA - 442 MÚSICAS
+        // 🎵 PLAYLIST COMPLETA SEPARADA POR GÊNERO (442 MÚSICAS)
         // =====================================================
         
-        const musicas = [
-            // SERTANEJO (IDs 1-13)
+        // 🟢 GÊNERO: SERTANEJO (IDs 1-13)
+        const MUSICAS_SERTANEJO = [
             { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO" },
             { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO" },
             { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO" },
@@ -184,9 +181,11 @@
             { id: 10, title: "Desbloqueado", artist: "Diego & Victor Hugo", src: "Diego _ Victor Hugo - Desbloqueado .mp3", genero: "SERTANEJO" },
             { id: 11, title: "Que Era Eu", artist: "Lauana Prado", src: "LAUANA_PRADO_QUE_ERA_EU_UM_DIA_DE_DOMINGO.m4a", genero: "SERTANEJO" },
             { id: 12, title: "Assino com X", artist: "VH e Alexandre", src: "VH_e_Alexandre_Assino_com_X.m4a", genero: "SERTANEJO" },
-            { id: 13, title: "La Barca", artist: "Murilo Huff", src: "Murilo_Huff_La_Barca_Fruto_Especial_muzzik.m4a", genero: "SERTANEJO" },
-            
-            // FORRÓ (IDs 14-47, 62)
+            { id: 13, title: "La Barca", artist: "Murilo Huff", src: "Murilo_Huff_La_Barca_Fruto_Especial_muzzik.m4a", genero: "SERTANEJO" }
+        ];
+
+        // 🟢 GÊNERO: FORRÓ (IDs 14-47, 62)
+        const MUSICAS_FORRO = [
             { id: 14, title: "Ficar por Ficar", artist: "Zé Vaqueiro", src: "Zé-Vaqueiro-Ficar-por-Ficar.m4a", genero: "FORRÓ" },
             { id: 15, title: "Coração Partido", artist: "Luan Estilizado", src: "16 - Coracao Partido - Luan Estilizado.mp3", genero: "FORRÓ" },
             { id: 16, title: "Avião", artist: "Patrick Costa", src: "Patrick_Costa_Henrique_e_Juliano_Xand_Avi_o_Diga_Pra_Mim_Fiquei_Sabendo_FarraDoPatrick_muzzik (1).m4a", genero: "FORRÓ" },
@@ -221,9 +220,11 @@
             { id: 45, title: "Seu-Matruz", artist: "Seu-Matruz-França", src: "Seu-Matruz-França.m4a", genero: "FORRÓ" },
             { id: 46, title: "Pout-Pourri Sirano & Sirino", artist: "Mono-walter", src: "Mono-walter (1).m4a", genero: "FORRÓ" },
             { id: 47, title: "Lembranças de um beijo", artist: "Cham", src: "Lembran_a_de_um_Beijo_Chambinho_Do_Acordeon_Waldonys_muzzik.m4a", genero: "FORRÓ" },
-            { id: 62, title: "Dona da Minha Cabeça", artist: "Geraldo Azevedo", src: "Geraldo_Azevedo_Dona_da_Minha_Cabe_a_muzzik (1).m4a", genero: "FORRÓ" },
-            
-            // SAMBA (IDs 48-55)
+            { id: 62, title: "Dona da Minha Cabeça", artist: "Geraldo Azevedo", src: "Geraldo_Azevedo_Dona_da_Minha_Cabe_a_muzzik (1).m4a", genero: "FORRÓ" }
+        ];
+
+        // 🟢 GÊNERO: SAMBA (IDs 48-55)
+        const MUSICAS_SAMBA = [
             { id: 48, title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa 10 - Lance Livre _ NA VIBE DO K10(MP3_160K).mp3", genero: "SAMBA" },
             { id: 49, title: "Foi Bom Mas Foi Ontem", artist: "Grupo Menos é Mais", src: "Grupo Menos é Mais e João Gomes - Foi Bom_ Mas Foi Ontem .mp3", genero: "SAMBA" },
             { id: 50, title: "Pagode do Kiko", artist: "Kiko no Pagode", src: "KIiko no Pagode.m4a", genero: "SAMBA" },
@@ -231,18 +232,22 @@
             { id: 52, title: "Sorriso Maroto", artist: "Sorriso Maroto", src: "soriso maroto.mp3", genero: "SAMBA" },
             { id: 53, title: "Momentos", artist: "Xande de Pilares", src: "Xande_de_Pilares_Momentos_N_o_Foi_Toa.m4a", genero: "SAMBA" },
             { id: 54, title: "Tendência", artist: "Jorge Aragão", src: "Jorge Aragão-endnncia.m4a", genero: "SAMBA" },
-            { id: 55, title: "Amei Te Ver", artist: "Tiago Iorc", src: "TIAGO_IORC_MENOS_MAIS_Amei_Te_Ver.m4a", genero: "SAMBA" },
-            
-            // POP (IDs 56-61, 63, 242-435)
+            { id: 55, title: "Amei Te Ver", artist: "Tiago Iorc", src: "TIAGO_IORC_MENOS_MAIS_Amei_Te_Ver.m4a", genero: "SAMBA" }
+        ];
+
+        // 🟢 GÊNERO: POP (IDs 56-61, 63)
+        const MUSICAS_POP = [
             { id: 56, title: "Haven't Met You Yet", artist: "Michael Bublé", src: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", genero: "POP" },
             { id: 57, title: "Billie Jean", artist: "Michael Jackson", src: "Michael_Jackson_Billie_Jean_muzzik.m4a", genero: "POP" },
             { id: 58, title: "Thank You", artist: "Dido", src: "Dido_Thank_You.m4a", genero: "POP" },
             { id: 59, title: "More Than A Woman", artist: "Bee Gees", src: "Bee_Gees_More_Than_A_Woman.m4a", genero: "POP" },
             { id: 60, title: "Another Day In Paradise", artist: "Ivan Barreto", src: "Ivan_Barreto_Another_Day_In_Paradise_.m4a", genero: "POP" },
             { id: 61, title: "Sorri Sou Rei", artist: "Natiruts", src: "Natiruts_Sorri_Sou_Rei_.m4a", genero: "POP" },
-            { id: 63, title: "Easy", artist: "Commodores", src: "Commodores_Easy_6.m4a", genero: "POP" },
-            
-            // BREGA (IDs 64, 204-241)
+            { id: 63, title: "Easy", artist: "Commodores", src: "Commodores_Easy_6.m4a", genero: "POP" }
+        ];
+
+        // 🟢 GÊNERO: BREGA (IDs 64, 204-241)
+        const MUSICAS_BREGA = [
             { id: 64, title: "Tarde Demais", artist: "À Vontade", src: "_Vontade_TARDE_DEMAIS_.m4a", genero: "BREGA" },
             { id: 204, title: "Entre Espumas", artist: "Roberto Miller", src: "Entre_Espumas_Entre_Espumas_muzzik.m4a", genero: "BREGA" },
             { id: 205, title: "Mande um Telegrama", artist: "Odair José", src: "Mande_Nem_Mande_Nem_Que_Seja_um_Telegrama_muzzik.m4a", genero: "BREGA" },
@@ -280,9 +285,11 @@
             { id: 238, title: "Eu Sou Seu Fã", artist: "Desconhecido", src: "Eu_Sou_Eu_Sou_Seu_F__muzzik.m4a", genero: "BREGA" },
             { id: 239, title: "Meu Velho", artist: "Altemar Dutra", src: "MEU VELHO   ALTEMAR DUTRA(MP3_160K)", genero: "BREGA" },
             { id: 240, title: "Foi Deus", artist: "Altemar Dutra", src: "Altemar Dutra - Foi Deus Quem Fez Você (Pseudo Vídeo)(MP3_160K)", genero: "BREGA" },
-            { id: 241, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "BREGA" },
-            
-            // MPB (IDs 100-136, 243-442)
+            { id: 241, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "BREGA" }
+        ];
+
+        // 🟢 GÊNERO: MPB (IDs 100-136, 242-442)
+        const MUSICAS_MPB = [
             { id: 100, title: "Palpite", artist: "Vanessa Rangel", src: "Palpite_Palpite_muzzik.m4a", genero: "MPB" },
             { id: 101, title: "Sinais de Fogo", artist: "Preta Gil", src: "Preta_gil_sinais_de_fogo_muzzik.m4a", genero: "MPB" },
             { id: 102, title: "Francesa", artist: "Kiko Zabianch", src: "AFrancesa_Francesa_muzzik.m4a", genero: "MPB" },
@@ -520,21 +527,64 @@
             { id: 439, title: "Epitáfio", artist: "Titãs", src: "Epit_fio_Epit_fio_muzzik.m4a", genero: "MPB" },
             { id: 440, title: "Espumas ao Vento", artist: "Fagner", src: "Espumas_ao_Espumas_ao_Vento.m4a", genero: "MPB" },
             { id: 441, title: "Esquece e Vem", artist: "Nico Rezende", src: "Esquece_e_Esquece_e_vem_Nico_5.m4a", genero: "MPB" },
-            { id: 442, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "MPB" },
-            
-            // VARIADAS (IDs 200-203)
-            { id: 200, title: "Sultans of Swing", artist: "Dire Straits", src: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", genero: "VARIADAS" },
-            { id: 201, title: "Torn", artist: "Natalie Imbruglia", src: "Natalie_Imbruglia_Torn_muzzik.m4a", genero: "VARIADAS" },
-            { id: 202, title: "Instrumental", artist: "Orquestra", src: "instrumental.mp3", genero: "VARIADAS" },
-            { id: 203, title: "Internacional", artist: "Top Hits", src: "internacional.mp3", genero: "VARIADAS" }
+            { id: 442, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "MPB" }
         ];
+
+        // 🟢 GÊNERO: VARIADAS (IDs 200-203) - INCLUI TODAS AS MÚSICAS DE TODOS OS GÊNEROS
+        // O modo VARIADAS pega músicas de TODOS os gêneros (SERTANEJO, FORRÓ, SAMBA, POP, BREGA, MPB)
+        const MUSICAS_VARIADAS = [
+            ...MUSICAS_SERTANEJO,
+            ...MUSICAS_FORRO,
+            ...MUSICAS_SAMBA,
+            ...MUSICAS_POP,
+            ...MUSICAS_BREGA,
+            ...MUSICAS_MPB
+        ];
+
+        // ==================== PLAYLIST PRINCIPAL (INICIA EM VARIADAS) ====================
+        let filteredPlaylist = [];
+        let currentGenre = "VARIADAS";
+        
+        function setPlaylistByGenre(genero) {
+            if (genero === "VARIADAS") {
+                filteredPlaylist = shuffleArray([...MUSICAS_VARIADAS]);
+                currentGenre = "VARIADAS";
+                genreBadgeSpan.innerHTML = "🎵 VARIADAS";
+            } else if (genero === "SERTANEJO") {
+                filteredPlaylist = shuffleArray([...MUSICAS_SERTANEJO]);
+                currentGenre = "SERTANEJO";
+                genreBadgeSpan.innerHTML = "🎵 SERTANEJO";
+            } else if (genero === "FORRÓ") {
+                filteredPlaylist = shuffleArray([...MUSICAS_FORRO]);
+                currentGenre = "FORRÓ";
+                genreBadgeSpan.innerHTML = "🎵 FORRÓ";
+            } else if (genero === "SAMBA") {
+                filteredPlaylist = shuffleArray([...MUSICAS_SAMBA]);
+                currentGenre = "SAMBA";
+                genreBadgeSpan.innerHTML = "🎵 SAMBA";
+            } else if (genero === "POP") {
+                filteredPlaylist = shuffleArray([...MUSICAS_POP]);
+                currentGenre = "POP";
+                genreBadgeSpan.innerHTML = "🎵 POP";
+            } else if (genero === "BREGA") {
+                filteredPlaylist = shuffleArray([...MUSICAS_BREGA]);
+                currentGenre = "BREGA";
+                genreBadgeSpan.innerHTML = "🎵 BREGA";
+            } else if (genero === "MPB") {
+                filteredPlaylist = shuffleArray([...MUSICAS_MPB]);
+                currentGenre = "MPB";
+                genreBadgeSpan.innerHTML = "🎵 MPB";
+            }
+            currentIndex = 0;
+            loadTrackUI(currentIndex);
+            if (isPlaying) playMusic();
+        }
 
         // ==================== CONFIGURAÇÕES ====================
         let backgroundActive = false;
         let isPlaying = false;
         let currentIndex = 0;
         let shuffleMode = false;
-        let filteredPlaylist = [];
         let timerInterval = null;
         let visInterval = null;
         let isLoadingTrack = false;
@@ -642,7 +692,6 @@
                 currentTimeSpan.textContent = '0:00'; 
                 totalTimeSpan.textContent = '0:00'; 
                 progressFill.style.width = '0%'; 
-                genreBadgeSpan.innerHTML = track.genero; 
             } 
         }
         
@@ -660,9 +709,7 @@
             if (tocandoVinheta || isEnding || isLoadingTrack) return false;
             
             if (!filteredPlaylist || filteredPlaylist.length === 0) { 
-                filteredPlaylist = shuffleArray([...musicas]); 
-                currentIndex = 0; 
-                loadTrackUI(currentIndex); 
+                setPlaylistByGenre("VARIADAS");
             }
             
             isLoadingTrack = true;
@@ -771,9 +818,7 @@
         async function nextTrack() {
             if (tocandoVinheta || isEnding || isLoadingTrack) return;
             if (!filteredPlaylist.length) { 
-                filteredPlaylist = shuffleArray([...musicas]); 
-                currentIndex = 0; 
-                loadTrackUI(currentIndex); 
+                setPlaylistByGenre("VARIADAS");
                 if (isPlaying) await playMusic(); 
                 return; 
             }
@@ -795,9 +840,7 @@
         async function prevTrack() {
             if (tocandoVinheta || isEnding || isLoadingTrack) return;
             if (!filteredPlaylist.length) { 
-                filteredPlaylist = shuffleArray([...musicas]); 
-                currentIndex = 0; 
-                loadTrackUI(currentIndex); 
+                setPlaylistByGenre("VARIADAS");
                 if (isPlaying) await playMusic(); 
                 return; 
             }
@@ -815,16 +858,6 @@
             currentIndex = prevIndex;
             loadTrackUI(currentIndex);
             if (isPlaying) await playMusic();
-        }
-        
-        function filterByGenre(genero) {
-            let musicasGenero = musicas.filter(m => m.genero === genero);
-            if (musicasGenero.length === 0) musicasGenero = [...musicas];
-            filteredPlaylist = shuffleArray(musicasGenero);
-            currentIndex = 0;
-            loadTrackUI(currentIndex);
-            playMusic();
-            showNotification(`🎵 Gênero ${genero} selecionado!`);
         }
         
         // ==================== ATIVAÇÃO DE ÁUDIO ====================
@@ -867,7 +900,7 @@
         
         // ==================== MODAL DE GÊNEROS ====================
         function buildGenreModal() {
-            const generosLista = ["SERTANEJO", "FORRÓ", "SAMBA", "POP", "BREGA", "MPB", "VARIADAS"];
+            const generosLista = ["VARIADAS", "SERTANEJO", "FORRÓ", "SAMBA", "POP", "BREGA", "MPB"];
             modal.innerHTML = `<h3 style="color:#e63946;"><i class="fas fa-music"></i> ESCOLHA SEU ESTILO</h3><div class="genres-grid" id="genresGrid"></div><button class="close-modal" id="closeModal"><i class="fas fa-times"></i> FECHAR</button>`;
             const grid = modal.querySelector('#genresGrid');
             generosLista.forEach(g => { 
@@ -880,10 +913,13 @@
                 if (g === "POP") icon = "fa-microphone-alt";
                 if (g === "BREGA") icon = "fa-heart";
                 if (g === "MPB") icon = "fa-guitar";
+                if (g === "VARIADAS") icon = "fa-random";
                 card.innerHTML = `<i class="fas ${icon}"></i><br>${g}`; 
                 card.onclick = () => { 
-                    filterByGenre(g); 
+                    setPlaylistByGenre(g); 
                     modal.classList.remove('open'); 
+                    showNotification(`🎵 Modo ${g} ativado!`);
+                    if (isPlaying) playMusic();
                 }; 
                 grid.appendChild(card); 
             });
@@ -915,7 +951,7 @@
             document.getElementById('shareBtn').onclick = () => { if (navigator.share) navigator.share({ title: 'Rádio Patico IA', text: '🎵 A rádio que aprende seu gosto!', url: window.location.href }); else showNotification('🔗 Copie o link da página'); };
             document.getElementById('statsBtn').onclick = () => { document.getElementById('statsModal').style.display = 'block'; updateStats(); document.getElementById('menuPopup').classList.remove('open'); };
             document.getElementById('closeStatsBtn').onclick = () => document.getElementById('statsModal').style.display = 'none';
-            document.getElementById('manualBtn').onclick = () => showNotification('📘 Dicas: Toque duplo = Play/Pausa | Deslize = trocar música');
+            document.getElementById('manualBtn').onclick = () => showNotification('📘 Dicas: Toque duplo = Play/Pausa | Deslize = trocar música | GEN = escolher estilo');
             document.getElementById('feedbackBtn').onclick = () => window.open('https://wa.me/5512988461978', '_blank');
             document.getElementById('genreBtn').onclick = () => modal.classList.add('open');
         }
@@ -957,8 +993,8 @@
                 splash.style.transition = 'opacity 0.5s'; 
                 setTimeout(() => { splash.style.display = 'none'; }, 500); 
                 document.getElementById('tap-to-start').style.display = 'none'; 
-                filteredPlaylist = shuffleArray([...musicas]); 
-                loadTrackUI(0); 
+                // INICIA EM VARIADAS (TODOS OS GÊNEROS)
+                setPlaylistByGenre("VARIADAS");
                 await playMusic(); 
                 try { await document.documentElement.requestFullscreen(); } catch(e) {} 
             } else { 
@@ -973,12 +1009,14 @@
         initEventListeners();
         buildGenreModal();
         startVisualizer();
-        filteredPlaylist = shuffleArray([...musicas]);
-        loadTrackUI(0);
+        
+        // INICIALIZA PLAYLIST EM VARIADAS (TODOS OS GÊNEROS JUNTOS)
+        setPlaylistByGenre("VARIADAS");
+        
         bgVideo.src = "patico1685.mp4";
         bgVideo.load();
         
-        console.log("✅ Rádio Patico IA iniciada com sucesso - 442 músicas carregadas!");
+        console.log("✅ Rádio Patico IA iniciada - Modo VARIADAS (todos os gêneros) ativo com " + MUSICAS_VARIADAS.length + " músicas!");
     </script>
 </body>
 </html>
