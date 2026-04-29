@@ -6,13 +6,13 @@
     <title>Rádio Patico IA – Programação Automática</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* (mesmo CSS das mensagens anteriores, mantido por brevidade) */
+        /* (mesmo CSS das mensagens anteriores - mantido por brevidade) */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
         body { background: #000; overflow: hidden; height: 100vh; width: 100%; position: fixed; }
         .bg-video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; pointer-events: none; }
         .controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); padding: 12px 20px; z-index: 20; transition: transform 0.3s ease; }
         .controls.hide { transform: translateY(100%); }
-        .track-info { text-align: center; color: white; font-size: 0.85rem; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .track-info { text-align: center; color: white; font-size: 0.85rem; margin-bottom: 6px; }
         .progress-area { cursor: pointer; margin-bottom: 6px; }
         .progress-bar { height: 4px; background: rgba(255,255,255,0.3); border-radius: 4px; }
         .progress-fill { width: 0%; height: 100%; background: #e63946; border-radius: 4px; transition: width 0.1s linear; }
@@ -42,7 +42,7 @@
         .feedback-btn { width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; }
         .like { color: #4ade80; }
         .dislike { color: #ef4444; }
-        #tap-to-start { position: fixed; bottom: 20%; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #ff8c00, #ff6600); color: white; padding: 14px 28px; border-radius: 60px; font-weight: bold; cursor: pointer; z-index: 10000; border: none; animation: btnPulse 1.5s infinite; white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        #tap-to-start { position: fixed; bottom: 20%; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #ff8c00, #ff6600); color: white; padding: 14px 28px; border-radius: 60px; font-weight: bold; cursor: pointer; z-index: 10000; border: none; animation: btnPulse 1.5s infinite; white-space: nowrap; }
         @keyframes btnPulse { 0% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.03); } }
         .live-balloon { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); border-radius: 80px; padding: 8px 20px; color: white; z-index: 1000; display: none; white-space: nowrap; cursor: pointer; border-left: 3px solid #ff0000; }
         .visualizer { position: fixed; top: 70px; right: 20px; display: flex; gap: 4px; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 8px 12px; border-radius: 30px; z-index: 31; }
@@ -121,9 +121,9 @@
 
     <script>
         // ==================== PLAYLIST COMPLETA (SUBSTITUA PELA SUA) ====================
-        // Para testar, use alguns exemplos. Você deve colocar seu array de 442 músicas.
+        // EXEMPLO COM ALGUMAS MÚSICAS – VOCÊ DEVE COLAR SUA PLAYLIST REAL AQUI
         const musicas = [
-                   { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
+        { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 4, title: "Pout Pourri", artist: "Luiza Martins", src: "Luiza_Martins_Pout_Pourri_Na_Hora_do_Adeus_Fruto_.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -466,17 +466,17 @@
     { id: 440, title: "Espumas ao Vento", artist: "Fagner", src: "Espumas_ao_Espumas_ao_Vento.m4a", genero: "MPB", tipo: "ao vivo" },
     { id: 441, title: "Esquece e Vem", artist: "Nico Rezende", src: "Esquece_e_Esquece_e_vem_Nico_5.m4a", genero: "MPB", tipo: "ao vivo" },
     { id: 442, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "MPB", tipo: "ao vivo" }
-            // ... insira aqui suas 442 músicas
+            
         ];
 
         // ==================== CONFIGURAÇÕES ====================
-        const VINHETA_URL = "vinheta.mp3";          // arquivo da vinheta
-        const INTERVALO_VINHETA_MUSICAS = 8;        // a cada 8 músicas toca vinheta
+        const VINHETA_URL = "vinheta.mp3";               // arquivo da vinheta (opcional)
+        const INTERVALO_VINHETA_MUSICAS = 8;             // a cada 8 músicas
         let contadorVinheta = 0;
         let tocandoVinheta = false;
 
         // Vídeos
-        const VIDEO_PADRAO = "patico1685.mp4";       // vídeo padrão para VARIADAS, TODOS e AO VIVO
+        const VIDEO_PADRAO = "patico1685.mp4";            // vídeo padrão (VARIADAS, TODOS, AO VIVO)
         const VIDEO_POR_GENERO = {
             "SERTANEJO": "sertanejo.mp4",
             "FORRÓ": "forro.mp4",
@@ -484,10 +484,10 @@
             "POP": "pop.mp4",
             "BREGA": "brega.mp4",
             "MPB": "mpb.mp4",
-            "VARIADAS":"patico1685.mp4",
-            "TODOS":"patico1685.mp4",
+            "VARIADAS": VIDEO_PADRAO,
+            "TODOS": VIDEO_PADRAO
         };
-        const VIDEOS_ROTACAO = Object.values(VIDEO_POR_GENERO);
+        const VIDEOS_ROTACAO = Object.values(VIDEO_POR_GENERO).filter(v => v !== VIDEO_PADRAO); // remove duplicatas
         let rotacaoIndex = 0;
         let rotacaoInterval = null;
 
@@ -556,7 +556,7 @@
             return arr;
         }
         function formatTime(sec) {
-            if (isNaN(sec) || !isFinite(sec)) return "0:00";
+            if (isNaN(sec)) return "0:00";
             let m = Math.floor(sec / 60);
             let s = Math.floor(sec % 60);
             return `${m}:${s < 10 ? '0' : ''}${s}`;
@@ -608,16 +608,17 @@
         }
         function stopVisualizer() { if (visInterval) clearInterval(visInterval); visInterval = null; }
 
-        // ==================== VÍDEO DINÂMICO (com vídeo padrão para VARIADAS/TODOS/LIVE) ====================
+        // ==================== VÍDEO DINÂMICO (com recarga forçada) ====================
         function trocarVideo(src) {
             if (!src || isTvMode) return;
-            if (bgVideo.src !== src) {
-                bgVideo.pause();
-                bgVideo.src = src;
-                bgVideo.load();
-                bgVideo.play().catch(e => console.log("Erro vídeo:", e));
-            }
+            // Força a recarga mesmo que o src seja o mesmo (resolve problemas de cache)
+            bgVideo.pause();
+            bgVideo.src = src;
+            bgVideo.load();
+            bgVideo.play().catch(e => console.log("Erro vídeo:", e));
+            console.log("🎬 Vídeo trocado para:", src);
         }
+
         function trocarVideoPorModo() {
             if (isAoVivo || (isManualGenre && (generoSelecionadoManual === "VARIADAS" || generoSelecionadoManual === "TODOS"))) {
                 trocarVideo(VIDEO_PADRAO);
@@ -638,7 +639,6 @@
                     rotacaoIndex = (rotacaoIndex + 1) % VIDEOS_ROTACAO.length;
                     trocarVideo(VIDEOS_ROTACAO[rotacaoIndex]);
                 } else {
-                    // Mantém o vídeo correto conforme o modo atual
                     trocarVideoPorModo();
                 }
             }, 20000);
@@ -713,7 +713,7 @@
             }
         }
 
-        // ==================== MODO AO VIVO (usa vídeo padrão) ====================
+        // ==================== MODO AO VIVO ====================
         function ativarModoAoVivo() {
             isAoVivo = true;
             isManualGenre = false;
@@ -729,7 +729,7 @@
             showNotification('🔴 MODO AO VIVO ativado!');
             if (videoAdInterval) clearInterval(videoAdInterval);
             videoAdInterval = setInterval(() => iniciarVideoAd(), 30000);
-            trocarVideo(VIDEO_PADRAO);   // vídeo padrão
+            trocarVideo(VIDEO_PADRAO);
             const balloon = document.getElementById('liveBalloon');
             balloon.style.display = 'block';
             setTimeout(() => balloon.style.display = 'none', 4000);
@@ -787,15 +787,12 @@
                 trackStartTime = Date.now();
                 totalMusicasOuvidas++;
                 document.getElementById('statTotalPlayed').innerText = `${totalMusicasOuvidas} músicas ouvidas`;
-                // Contador para vinheta
                 contadorVinheta++;
                 if (contadorVinheta >= INTERVALO_VINHETA_MUSICAS && !tocandoVinheta) {
                     contadorVinheta = 0;
                     tocarVinheta();
                 }
-                musicPlayer.onended = () => {
-                    nextTrack();
-                };
+                musicPlayer.onended = () => { nextTrack(); };
                 if (musicPlayer.duration) totalTimeSpan.textContent = formatTime(musicPlayer.duration);
                 else musicPlayer.addEventListener('loadedmetadata', () => totalTimeSpan.textContent = formatTime(musicPlayer.duration), { once: true });
                 return true;
@@ -823,9 +820,7 @@
             let next;
             if (shuffleMode) {
                 let newIndex;
-                do {
-                    newIndex = Math.floor(Math.random() * filteredPlaylist.length);
-                } while (newIndex === currentIndex && filteredPlaylist.length > 1);
+                do { newIndex = Math.floor(Math.random() * filteredPlaylist.length); } while (newIndex === currentIndex && filteredPlaylist.length > 1);
                 next = newIndex;
             } else {
                 next = (currentIndex + 1) % filteredPlaylist.length;
@@ -839,9 +834,7 @@
             let prev;
             if (shuffleMode) {
                 let newIndex;
-                do {
-                    newIndex = Math.floor(Math.random() * filteredPlaylist.length);
-                } while (newIndex === currentIndex && filteredPlaylist.length > 1);
+                do { newIndex = Math.floor(Math.random() * filteredPlaylist.length); } while (newIndex === currentIndex && filteredPlaylist.length > 1);
                 prev = newIndex;
             } else {
                 prev = currentIndex - 1;
@@ -863,11 +856,11 @@
             filteredPlaylist = shuffleArray(novaPlaylist);
             currentIndex = 0;
             loadTrackUI(currentIndex);
-            if (isPlaying) playMusic();  // toca automaticamente
+            if (isPlaying) playMusic();
             if (VIDEO_POR_GENERO[genero]) {
                 trocarVideo(VIDEO_POR_GENERO[genero]);
             } else {
-                trocarVideo(VIDEO_PADRAO); // para VARIADAS, TODOS
+                trocarVideo(VIDEO_PADRAO);
             }
             showNotification(`🎵 Gênero ${genero} selecionado manualmente!`);
         }
@@ -880,8 +873,8 @@
                 userPref.liked.push(track.id);
                 userPref.disliked = userPref.disliked.filter(id => id !== track.id);
                 saveUserPref();
-                showNotification(`👍 Você curtiu "${track.title}"! A IA vai tocar mais assim.`);
-            } else showNotification(`❤️ Você já curtiu "${track.title}" antes.`);
+                showNotification(`👍 Você curtiu "${track.title}"!`);
+            } else showNotification(`❤️ Você já curtiu "${track.title}"`);
         }
         function dislikeSong() {
             let track = filteredPlaylist[currentIndex];
@@ -890,9 +883,9 @@
                 userPref.disliked.push(track.id);
                 userPref.liked = userPref.liked.filter(id => id !== track.id);
                 saveUserPref();
-                showNotification(`👎 Você não curtiu "${track.title}". Pulando...`);
+                showNotification(`👎 Não curtiu "${track.title}". Pulando...`);
                 setTimeout(() => nextTrack(), 500);
-            } else showNotification(`👎 Você já marcou "${track.title}" como não curtida.`);
+            } else showNotification(`👎 Você já marcou "${track.title}"`);
         }
 
         // ==================== ANÚNCIO EM VÍDEO ====================
@@ -928,7 +921,7 @@
                 tvDiv.classList.remove('show');
                 exitBtn.style.display = 'none';
                 showNotification('Modo TV desativado.');
-                trocarVideoPorModo();  // restaura vídeo correto
+                trocarVideoPorModo();
             }
         }
 
@@ -1000,7 +993,7 @@
                         loadTrackUI(currentIndex);
                         if (isPlaying) playMusic();
                         showNotification(`🎵 ${g} ativado!`);
-                        trocarVideo(VIDEO_PADRAO);
+                        trocarVideo(VIDEO_PADRAO); // força o vídeo padrão
                     } else {
                         filterByGenre(g);
                     }
@@ -1020,7 +1013,6 @@
                 await playMusic();
                 setInterval(() => aplicarProgramacao(), 60000);
                 iniciarRotacaoVideos();
-                // Solicita tela cheia
                 try { await document.documentElement.requestFullscreen(); } catch(e) { console.log("Fullscreen não suportado"); }
             } else {
                 showNotification('❌ Falha ao ativar áudio. Toque novamente.');
@@ -1056,7 +1048,6 @@
         document.getElementById('closeStatsBtn').onclick = () => document.getElementById('statsModal').style.display = 'none';
         document.getElementById('manualBtn').onclick = () => {
             showNotification('📘 MANUAL: Toque duplo = Play/Pausa | Deslize para trocar música | Botão GEN = gêneros | Modo TV = PIX');
-            document.getElementById('menuPopup').classList.remove('open');
         };
         document.getElementById('feedbackBtn').onclick = () => {
             window.open(`https://wa.me/5512988461978?text=Olá%2C%20tenho%20um%20feedback%20sobre%20a%20Rádio%20Patico%20IA!`, '_blank');
@@ -1093,9 +1084,9 @@
         filteredPlaylist = musicas.filter(m => m.tipo === "ao vivo");
         if (filteredPlaylist.length === 0) filteredPlaylist = musicas;
         loadTrackUI(0);
-        trocarVideo(VIDEO_PADRAO);  // vídeo padrão inicial
+        trocarVideo(VIDEO_PADRAO); // vídeo padrão inicial
 
-        console.log("✅ Rádio Patico IA ajustada – iniciará com programação ativa, vídeo padrão para VARIADAS/TODOS/LIVE, vinhetas a cada 8 músicas.");
+        console.log("✅ Rádio Patico IA pronta. Vídeo padrão para VARIADAS/TODOS: patico1685.mp4");
     </script>
 </body>
 </html>
