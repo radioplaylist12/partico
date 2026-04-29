@@ -6,7 +6,6 @@
     <title>Rádio Patico IA – Programação Automática</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* (mesmo CSS das mensagens anteriores - mantido por brevidade) */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
         body { background: #000; overflow: hidden; height: 100vh; width: 100%; position: fixed; }
         .bg-video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; pointer-events: none; }
@@ -120,10 +119,10 @@
     <audio id="musicPlayer" preload="auto" crossorigin="anonymous"></audio>
 
     <script>
-        // ==================== PLAYLIST COMPLETA (SUBSTITUA PELA SUA) ====================
-        // EXEMPLO COM ALGUMAS MÚSICAS – VOCÊ DEVE COLAR SUA PLAYLIST REAL AQUI
+        // ==================== PLAYLIST COMPLETA ====================
+        // (SUBSTITUA ESTE ARRAY PELA SUA PLAYLIST REAL DE 442 MÚSICAS)
         const musicas = [
-        { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
+                    { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 4, title: "Pout Pourri", artist: "Luiza Martins", src: "Luiza_Martins_Pout_Pourri_Na_Hora_do_Adeus_Fruto_.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -466,17 +465,16 @@
     { id: 440, title: "Espumas ao Vento", artist: "Fagner", src: "Espumas_ao_Espumas_ao_Vento.m4a", genero: "MPB", tipo: "ao vivo" },
     { id: 441, title: "Esquece e Vem", artist: "Nico Rezende", src: "Esquece_e_Esquece_e_vem_Nico_5.m4a", genero: "MPB", tipo: "ao vivo" },
     { id: 442, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "MPB", tipo: "ao vivo" }
-            
+            // ADICIONE AQUI AS DEMAIS 442 MÚSICAS
         ];
 
         // ==================== CONFIGURAÇÕES ====================
-        const VINHETA_URL = "vinheta.mp3";               // arquivo da vinheta (opcional)
-        const INTERVALO_VINHETA_MUSICAS = 8;             // a cada 8 músicas
+        const VINHETA_URL = "vinheta.mp3";
+        const INTERVALO_VINHETA_MUSICAS = 8;
         let contadorVinheta = 0;
         let tocandoVinheta = false;
 
-        // Vídeos
-        const VIDEO_PADRAO = "patico1685.mp4";            // vídeo padrão (VARIADAS, TODOS, AO VIVO)
+        const VIDEO_PADRAO = "patico1685.mp4";
         const VIDEO_POR_GENERO = {
             "SERTANEJO": "sertanejo.mp4",
             "FORRÓ": "forro.mp4",
@@ -484,10 +482,10 @@
             "POP": "pop.mp4",
             "BREGA": "brega.mp4",
             "MPB": "mpb.mp4",
-            "VARIADAS": "patico1685.mp4",
-            "TODOS": "patico1685.mp4"
+            "VARIADAS": VIDEO_PADRAO,
+            "TODOS": VIDEO_PADRAO
         };
-        const VIDEOS_ROTACAO = Object.values(VIDEO_POR_GENERO).filter(v => v !== VIDEO_PADRAO); // remove duplicatas
+        const VIDEOS_ROTACAO = Object.values(VIDEO_POR_GENERO).filter(v => v !== VIDEO_PADRAO);
         let rotacaoIndex = 0;
         let rotacaoInterval = null;
 
@@ -504,10 +502,10 @@
         ];
         let programaAtual = null;
         let isManualGenre = false;
-        let isAoVivo = false;          // começa false; depois verifica programa
+        let isAoVivo = false;
         let generoSelecionadoManual = null;
 
-        // Variáveis do player
+        // Player vars
         let currentIndex = 0, isPlaying = false, shuffleMode = false;
         let filteredPlaylist = [];
         let timerInterval = null, visInterval = null;
@@ -518,7 +516,7 @@
         let adVideoPlaying = false;
         let totalMusicasOuvidas = 0;
 
-        // Preferências do usuário
+        // IA preferências
         let userPref = { liked: [], disliked: [] };
         function loadUserPref() {
             const saved = localStorage.getItem('radio_patico_prefs');
@@ -547,7 +545,7 @@
 
         musicPlayer.volume = 0.9;
 
-        // ==================== FUNÇÕES AUXILIARES ====================
+        // ==================== AUXILIARES ====================
         function shuffleArray(arr) {
             for (let i = arr.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -608,10 +606,10 @@
         }
         function stopVisualizer() { if (visInterval) clearInterval(visInterval); visInterval = null; }
 
-        // ==================== VÍDEO DINÂMICO (com recarga forçada) ====================
+        // ==================== VÍDEO (força recarga) ====================
         function trocarVideo(src) {
             if (!src || isTvMode) return;
-            // Força a recarga mesmo que o src seja o mesmo (resolve problemas de cache)
+            // Força recarga mesmo com mesmo src (evita cache)
             bgVideo.pause();
             bgVideo.src = src;
             bgVideo.load();
@@ -628,7 +626,8 @@
             } else if (isManualGenre && generoSelecionadoManual && VIDEO_POR_GENERO[generoSelecionadoManual]) {
                 trocarVideo(VIDEO_POR_GENERO[generoSelecionadoManual]);
             } else {
-                trocarVideo(VIDEOS_ROTACAO[rotacaoIndex]);
+                if (VIDEOS_ROTACAO.length) trocarVideo(VIDEOS_ROTACAO[rotacaoIndex]);
+                else trocarVideo(VIDEO_PADRAO);
             }
         }
 
@@ -665,7 +664,7 @@
             };
         }
 
-        // ==================== PROGRAMAS ====================
+        // ==================== PROGRAMAÇÃO ====================
         function getProgramaAtivo() {
             const agora = new Date();
             const dia = agora.getDay();
@@ -845,7 +844,7 @@
             if (isPlaying) await playMusic();
         }
 
-        // ==================== GÊNERO MANUAL ====================
+        // ==================== GÊNERO MANUAL (com auto-play garantido) ====================
         function filterByGenre(genero) {
             if (isAoVivo) desativarModoAoVivo();
             isManualGenre = true;
@@ -856,7 +855,13 @@
             filteredPlaylist = shuffleArray(novaPlaylist);
             currentIndex = 0;
             loadTrackUI(currentIndex);
-            if (isPlaying) playMusic();
+            // Força a tocar automaticamente
+            if (isPlaying) {
+                playMusic();
+            } else {
+                // Se não estiver tocando, inicia a reprodução
+                playMusic();
+            }
             if (VIDEO_POR_GENERO[genero]) {
                 trocarVideo(VIDEO_POR_GENERO[genero]);
             } else {
@@ -991,9 +996,9 @@
                         filteredPlaylist = shuffleArray(musicas.filter(m => m.tipo !== "ao vivo"));
                         currentIndex = 0;
                         loadTrackUI(currentIndex);
-                        if (isPlaying) playMusic();
+                        if (isPlaying) playMusic(); // auto-play
                         showNotification(`🎵 ${g} ativado!`);
-                        trocarVideo(VIDEO_PADRAO); // força o vídeo padrão
+                        trocarVideo(VIDEO_PADRAO);
                     } else {
                         filterByGenre(g);
                     }
@@ -1084,9 +1089,9 @@
         filteredPlaylist = musicas.filter(m => m.tipo === "ao vivo");
         if (filteredPlaylist.length === 0) filteredPlaylist = musicas;
         loadTrackUI(0);
-        trocarVideo(VIDEO_PADRAO); // vídeo padrão inicial
+        trocarVideo(VIDEO_PADRAO);
 
-        console.log("✅ Rádio Patico IA pronta. Vídeo padrão para VARIADAS/TODOS: patico1685.mp4");
+        console.log("✅ Rádio Patico IA – pronta. Vídeo padrão para VARIADAS/TODOS: patico1685.mp4");
     </script>
 </body>
 </html>
