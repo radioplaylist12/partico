@@ -119,8 +119,8 @@
     <audio id="musicPlayer" preload="auto" crossorigin="anonymous"></audio>
 
     <script>
-        // ==================== PLAYLIST COMPLETA ====================
-        // (SUBSTITUA ESTE ARRAY PELA SUA PLAYLIST REAL DE 442 MÚSICAS)
+        // ==================== PLAYLIST ====================
+        // SUBSTITUA ESTE ARRAY PELA SUA PLAYLIST REAL (442 MÚSICAS)
         const musicas = [
                     { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
     { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -465,16 +465,11 @@
     { id: 440, title: "Espumas ao Vento", artist: "Fagner", src: "Espumas_ao_Espumas_ao_Vento.m4a", genero: "MPB", tipo: "ao vivo" },
     { id: 441, title: "Esquece e Vem", artist: "Nico Rezende", src: "Esquece_e_Esquece_e_vem_Nico_5.m4a", genero: "MPB", tipo: "ao vivo" },
     { id: 442, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "MPB", tipo: "ao vivo" }
-            // ADICIONE AQUI AS DEMAIS 442 MÚSICAS
+            // ADICIONE TODAS AS 442 MÚSICAS AQUI
         ];
 
-        // ==================== CONFIGURAÇÕES ====================
-        const VINHETA_URL = "vinheta.mp3";
-        const INTERVALO_VINHETA_MUSICAS = 8;
-        let contadorVinheta = 0;
-        let tocandoVinheta = false;
-
-        const VIDEO_PADRAO = "patico1685.mp4";
+        // ==================== VÍDEOS ====================
+        const VIDEO_AO_VIVO = "patico1685.mp4";      // vídeo usado no modo AO VIVO
         const VIDEO_POR_GENERO = {
             "SERTANEJO": "sertanejo.mp4",
             "FORRÓ": "forro.mp4",
@@ -482,14 +477,19 @@
             "POP": "pop.mp4",
             "BREGA": "brega.mp4",
             "MPB": "mpb.mp4",
-            "VARIADAS": VIDEO_PADRAO,
-            "TODOS": VIDEO_PADRAO
+            "VARIADAS": "variadas.mp4",
+            "TODOS": "todos.mp4"
         };
-        const VIDEOS_ROTACAO = Object.values(VIDEO_POR_GENERO).filter(v => v !== VIDEO_PADRAO);
+        // Lista de vídeos para rotação (todos os de gênero, excluindo os fixos VARIADAS/TODOS e o AO VIVO)
+        const VIDEOS_ROTACAO = Object.values(VIDEO_POR_GENERO).filter(v => 
+            v !== VIDEO_POR_GENERO["VARIADAS"] && 
+            v !== VIDEO_POR_GENERO["TODOS"] && 
+            v !== VIDEO_AO_VIVO
+        );
         let rotacaoIndex = 0;
         let rotacaoInterval = null;
 
-        // Programas
+        // ==================== PROGRAMAS ====================
         const programas = [
             { nome: "MANHA", nomeExibicao: "☀️ Manhã Patico", video: "diapatico.mp4", dias: [1,2,3,4,5], inicio: 6, fim: 12,
               percentuais: { "FORRÓ": 20, "SAMBA": 30, "SERTANEJO": 50 } },
@@ -502,10 +502,15 @@
         ];
         let programaAtual = null;
         let isManualGenre = false;
-        let isAoVivo = false;
+        let isAoVivo = true;            // começa em modo AO VIVO
         let generoSelecionadoManual = null;
 
-        // Player vars
+        // ==================== CONFIGURAÇÕES GERAIS ====================
+        const VINHETA_URL = "vinheta.mp3";
+        const INTERVALO_VINHETA_MUSICAS = 8;
+        let contadorVinheta = 0;
+        let tocandoVinheta = false;
+
         let currentIndex = 0, isPlaying = false, shuffleMode = false;
         let filteredPlaylist = [];
         let timerInterval = null, visInterval = null;
@@ -516,7 +521,7 @@
         let adVideoPlaying = false;
         let totalMusicasOuvidas = 0;
 
-        // IA preferências
+        // IA (curtir/descurtir)
         let userPref = { liked: [], disliked: [] };
         function loadUserPref() {
             const saved = localStorage.getItem('radio_patico_prefs');
@@ -545,7 +550,7 @@
 
         musicPlayer.volume = 0.9;
 
-        // ==================== AUXILIARES ====================
+        // ==================== FUNÇÕES AUXILIARES ====================
         function shuffleArray(arr) {
             for (let i = arr.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -606,7 +611,7 @@
         }
         function stopVisualizer() { if (visInterval) clearInterval(visInterval); visInterval = null; }
 
-        // ==================== VÍDEO (com prioridade para VARIADAS/TODOS) ====================
+        // ==================== VÍDEO ====================
         function trocarVideo(src) {
             if (!src || isTvMode) return;
             bgVideo.pause();
@@ -617,34 +622,28 @@
         }
 
         function trocarVideoPorModo() {
-            // PRIORIDADE MÁXIMA: se o gênero manual for VARIADAS ou TODOS, usa vídeo padrão
-            if (isManualGenre && (generoSelecionadoManual === "VARIADAS" || generoSelecionadoManual === "TODOS")) {
-                trocarVideo(VIDEO_PADRAO);
-                return;
-            }
             if (isAoVivo) {
-                trocarVideo(VIDEO_PADRAO);
+                trocarVideo(VIDEO_AO_VIVO);
+            } else if (isManualGenre && generoSelecionadoManual && VIDEO_POR_GENERO[generoSelecionadoManual]) {
+                trocarVideo(VIDEO_POR_GENERO[generoSelecionadoManual]);
             } else if (programaAtual) {
                 let prog = programas.find(p => p.nome === programaAtual);
                 if (prog) trocarVideo(prog.video);
-            } else if (isManualGenre && generoSelecionadoManual && VIDEO_POR_GENERO[generoSelecionadoManual]) {
-                trocarVideo(VIDEO_POR_GENERO[generoSelecionadoManual]);
             } else {
                 if (VIDEOS_ROTACAO.length) trocarVideo(VIDEOS_ROTACAO[rotacaoIndex]);
-                else trocarVideo(VIDEO_PADRAO);
+                else trocarVideo(VIDEO_AO_VIVO);
             }
         }
 
         function iniciarRotacaoVideos() {
             if (rotacaoInterval) clearInterval(rotacaoInterval);
             rotacaoInterval = setInterval(() => {
-                // Não roda rotação se estiver em VARIADAS/TODOS
-                if (!isTvMode && !isAoVivo && !(isManualGenre && (generoSelecionadoManual === "VARIADAS" || generoSelecionadoManual === "TODOS")) && programaAtual === null) {
+                // Só roda rotação se NÃO estiver em AO VIVO, NÃO tiver gênero manual, NÃO tiver programa ativo e NÃO estiver em TV
+                if (!isTvMode && !isAoVivo && !isManualGenre && programaAtual === null) {
                     rotacaoIndex = (rotacaoIndex + 1) % VIDEOS_ROTACAO.length;
                     trocarVideo(VIDEOS_ROTACAO[rotacaoIndex]);
                 } else {
-                    // Mantém o vídeo correto conforme o modo atual
-                    trocarVideoPorModo();
+                    trocarVideoPorModo(); // garante que o vídeo correto seja mantido
                 }
             }, 20000);
         }
@@ -713,7 +712,7 @@
             } else {
                 if (programaAtual !== null) {
                     programaAtual = null;
-                    ativarModoAoVivo();
+                    ativarModoAoVivo(); // sem programa, volta ao ao vivo
                 }
             }
         }
@@ -723,6 +722,7 @@
             isAoVivo = true;
             isManualGenre = false;
             programaAtual = null;
+            generoSelecionadoManual = null;
             genreBadgeSpan.innerHTML = '🔴 LIVE';
             genreBadgeSpan.classList.add('live');
             let aoVivoMusicas = musicas.filter(m => m.tipo === "ao vivo");
@@ -734,7 +734,7 @@
             showNotification('🔴 MODO AO VIVO ativado!');
             if (videoAdInterval) clearInterval(videoAdInterval);
             videoAdInterval = setInterval(() => iniciarVideoAd(), 30000);
-            trocarVideo(VIDEO_PADRAO);
+            trocarVideo(VIDEO_AO_VIVO);
             const balloon = document.getElementById('liveBalloon');
             balloon.style.display = 'block';
             setTimeout(() => balloon.style.display = 'none', 4000);
@@ -850,7 +850,7 @@
             if (isPlaying) await playMusic();
         }
 
-        // ==================== GÊNERO MANUAL (com auto-play garantido) ====================
+        // ==================== GÊNERO MANUAL ====================
         function filterByGenre(genero) {
             if (isAoVivo) desativarModoAoVivo();
             isManualGenre = true;
@@ -861,16 +861,12 @@
             filteredPlaylist = shuffleArray(novaPlaylist);
             currentIndex = 0;
             loadTrackUI(currentIndex);
-            // Força a tocar automaticamente
-            if (isPlaying) {
-                playMusic();
-            } else {
-                playMusic();
-            }
+            // Força play
+            if (isPlaying) playMusic(); else playMusic();
             if (VIDEO_POR_GENERO[genero]) {
                 trocarVideo(VIDEO_POR_GENERO[genero]);
             } else {
-                trocarVideo(VIDEO_PADRAO);
+                trocarVideo(VIDEO_AO_VIVO);
             }
             showNotification(`🎵 Gênero ${genero} selecionado manualmente!`);
         }
@@ -986,13 +982,8 @@
                 card.setAttribute('data-gen', g);
                 card.onclick = () => {
                     if (g === 'LIVE') {
-                        if (getProgramaAtivo()) {
-                            if (isManualGenre) isManualGenre = false;
-                            if (isAoVivo) desativarModoAoVivo();
-                            else aplicarProgramacao();
-                        } else {
-                            ativarModoAoVivo();
-                        }
+                        // Voltar ao modo ao vivo (sai de seleção manual e programa)
+                        ativarModoAoVivo();
                     } else if (g === 'VARIADAS' || g === 'TODOS') {
                         if (isAoVivo) desativarModoAoVivo();
                         isManualGenre = true;
@@ -1001,10 +992,9 @@
                         filteredPlaylist = shuffleArray(musicas.filter(m => m.tipo !== "ao vivo"));
                         currentIndex = 0;
                         loadTrackUI(currentIndex);
-                        if (isPlaying) playMusic();
-                        else playMusic(); // auto-play garantido
+                        if (isPlaying) playMusic(); else playMusic();
                         showNotification(`🎵 ${g} ativado!`);
-                        trocarVideo(VIDEO_PADRAO); // força vídeo padrão
+                        trocarVideo(VIDEO_POR_GENERO[g]); // usa vídeo específico (variadas.mp4 ou todos.mp4)
                     } else {
                         filterByGenre(g);
                     }
@@ -1092,12 +1082,13 @@
 
         // Inicialização visual
         startVisualizer();
+        // Carrega playlist inicial ao vivo (só para exibir texto)
         filteredPlaylist = musicas.filter(m => m.tipo === "ao vivo");
         if (filteredPlaylist.length === 0) filteredPlaylist = musicas;
         loadTrackUI(0);
-        trocarVideo(VIDEO_PADRAO);
+        trocarVideo(VIDEO_AO_VIVO);
 
-        console.log("✅ Rádio Patico IA – pronta. Vídeo padrão para VARIADAS/TODOS: patico1685.mp4");
+        console.log("✅ Rádio Patico IA finalizada – vídeos: variadas.mp4 e todos.mp4 agora são exclusivos.");
     </script>
 </body>
 </html>
