@@ -57,12 +57,10 @@
         .genres-modal { bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: transform 0.3s; padding: 20px 15px 25px; border-radius: 25px 25px 0 0; }
         .genres-modal.open { transform: translateY(0); display: block; }
         .genres-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        /* Cores personalizadas para cada gênero (bem visíveis) */
         .genre-card { border-radius: 14px; padding: 12px 8px; text-align: center; cursor: pointer; transition: transform 0.1s; background: linear-gradient(135deg, #ff0844, #ffb199); }
         .genre-card:active { transform: scale(0.96); }
         .genre-card i { font-size: 1.6rem; display: block; margin-bottom: 6px; color: white; text-shadow: 1px 1px 0 rgba(0,0,0,0.3); }
         .genre-card span { font-size: 0.7rem; font-weight: 700; color: white; text-shadow: 1px 1px 0 rgba(0,0,0,0.3); }
-        /* Cores individuais */
         .genre-card[data-genero="SERTANEJO"] { background: linear-gradient(135deg, #d4a373, #b5835a); }
         .genre-card[data-genero="FORRÓ"] { background: linear-gradient(135deg, #f4a261, #e76f51); }
         .genre-card[data-genero="SAMBA"] { background: linear-gradient(135deg, #2a9d8f, #264653); }
@@ -127,8 +125,6 @@
         .audio-ad-container.show { display: flex; }
         @keyframes slideUp { from { transform: translateX(-50%) translateY(20px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
         .swipe-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; z-index: 10002; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-        
-        /* Botão flutuante arrastável (sem texto) */
         .genre-button {
             position: fixed;
             bottom: 100px;
@@ -147,60 +143,18 @@
             transition: all 0.2s ease;
             backdrop-filter: blur(12px);
             animation: cyberPulse 2s infinite alternate;
-            touch-action: none; /* melhor para arrastar */
+            touch-action: none;
         }
-        .genre-button:active {
-            cursor: grabbing;
-            transform: scale(0.95);
-            background: radial-gradient(circle at 30% 10%, #e63946, #a01030);
-            box-shadow: 0 0 30px #ff00aa;
-            border-color: #ff00aa;
-        }
-        .genre-button i {
-            font-size: 2.2rem;
-            color: #00ffff;
-            filter: drop-shadow(0 0 8px cyan);
-            pointer-events: none;
-        }
+        .genre-button:active { cursor: grabbing; transform: scale(0.95); background: radial-gradient(circle at 30% 10%, #e63946, #a01030); box-shadow: 0 0 30px #ff00aa; border-color: #ff00aa; }
+        .genre-button i { font-size: 2.2rem; color: #00ffff; filter: drop-shadow(0 0 8px cyan); pointer-events: none; }
         .genre-button:active i { color: #fff; }
-        /* remove textos */
         .genre-button .gen-text, .genre-button .eros-text { display: none; }
-
         @keyframes cyberPulse {
             0% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.4), 0 0 5px rgba(0, 255, 255, 0.2); border-color: rgba(0, 255, 255, 0.5); }
             100% { box-shadow: 0 0 25px rgba(0, 255, 255, 0.8), 0 0 15px rgba(0, 255, 255, 0.4); border-color: #00ffff; }
         }
-
-        /* Área invisível para controle de volume */
-        .volume-area {
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 160px;
-            height: 200px;
-            background: transparent;
-            z-index: 1001;
-            pointer-events: auto;
-            touch-action: none;
-        }
-        .volume-toast {
-            position: fixed;
-            bottom: 15%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
-            padding: 6px 12px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            color: white;
-            z-index: 1002;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            white-space: nowrap;
-        }
+        .volume-area { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 160px; height: 200px; background: transparent; z-index: 1001; pointer-events: auto; touch-action: none; }
+        .volume-toast { position: fixed; bottom: 15%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 30px; font-size: 0.8rem; color: white; z-index: 1002; pointer-events: none; opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -260,15 +214,13 @@
     <audio id="adAudio" preload="auto" crossorigin="anonymous" style="display: none;"></audio>
     <div class="feedback-modal" id="feedbackModal"><h3>Sua opinião</h3><div class="rating" id="ratingStars"><i class="far fa-star star" data-rating="1"></i><i class="far fa-star star" data-rating="2"></i><i class="far fa-star star" data-rating="3"></i><i class="far fa-star star" data-rating="4"></i><i class="far fa-star star" data-rating="5"></i></div><textarea id="feedbackText" placeholder="Escreva sua sugestão..."></textarea><div class="modal-buttons"><button class="modal-btn cancel" id="cancelFeedback">Cancelar</button><button class="modal-btn send" id="sendFeedback"><i class="fab fa-whatsapp"></i> Enviar</button></div></div>
     <div class="swipe-indicator" id="swipeIndicator">👉 Deslize para próxima música</div>
-    
-    <!-- Área invisível para volume -->
     <div class="volume-area" id="volumeArea"></div>
     <div class="volume-toast" id="volumeToast">🔊 Volume: 50%</div>
 
     <script>
-        // ==================== PLAYLIST ORGANIZADA POR GÊNERO (agrupada) ====================
+        // ==================== PLAYLIST (COLE A SUA PLAYLIST COMPLETA AQUI) ====================
         const musicas = [
-            // SERTANEJO
+           // SERTANEJO
             { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
             { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
             { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -639,7 +591,8 @@
             { id: 429, title: "Thank You", artist: "Dido", src: "Dido_Thank_You_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
             { id: 431, title: "Everytime You Go Away", artist: "Dino Fonseca", src: "Dino_Fonseca_Everytime_You_Go_Away_Back_To_The_s_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
             { id: 434, title: "Hotel California", artist: "Eagles", src: "Eagles_Hotel_California_12.m4a", genero: "POP", tipo: "ao vivo" },
-            { id: 435, title: "Sailing", artist: "Emmerson Nogueira", src: "Emmerson_Nogueira_Sailing_13.m4a", genero: "POP", tipo: "ao vivo" }
+            { id: 435, title: "Sailing", artist: "Emmerson Nogueira", src: "Emmerson_Nogueira_Sailing_13.m4a", genero: "POP", tipo: "ao vivo" }  
+            
         ];
 
         // ==================== CONFIGURAÇÕES ====================
@@ -665,7 +618,6 @@
         let adVideoPlaying = false;
         let skipLock = false;
 
-        // ==================== Mapeamento de vídeos por gênero com fallback ====================
         const videoPorGenero = {
             "SERTANEJO": "sertanejo.mp4",
             "FORRÓ": "forro.mp4",
@@ -695,7 +647,6 @@
             });
         }
 
-        // ==================== FUNÇÕES AUXILIARES ====================
         function shuffleArray(arr) {
             for (let i = arr.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -704,7 +655,6 @@
             return arr;
         }
 
-        // Fila de notificações
         let notificationQueue = [];
         let notificationActive = false;
         function showNotification(msg, duration = 3000) {
@@ -734,7 +684,6 @@
             return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
-        // ==================== PREFERÊNCIAS DO USUÁRIO (IA) ====================
         let userPreferences = { likedSongs: [], dislikedSongs: [], songPlays: {}, songComplete: {}, genrePreference: {}, lastPlayed: null };
         function loadPreferences() {
             const saved = localStorage.getItem('radio_patico_ai_preferences');
@@ -817,7 +766,6 @@
             } else { showNotification(`👎 Você já marcou "${track.title}"`, 1500); }
         }
 
-        // ==================== ESTATÍSTICAS ====================
         let stats = { totalPlayed: 0, totalSeconds: 0, genreCount: { SERTANEJO: 0, FORRÓ: 0, SAMBA: 0, POP: 0, BREGA: 0, MPB: 0, VARIADAS: 0 }, currentStreak: 0 };
         function loadStats() {
             const saved = localStorage.getItem('radio_patico_stats');
@@ -855,7 +803,6 @@
             document.getElementById('statsModal').classList.add('open');
         }
 
-        // ==================== VINHETA E ANÚNCIOS ====================
         function tocarVinheta() {
             if (!isAoVivo || tocandoVinheta || vinhetas.length === 0) return false;
             const wasPlaying = isPlaying;
@@ -876,7 +823,6 @@
             };
             return true;
         }
-
         function iniciarVideoAd() {
             if (!isAoVivo || adVideoPlaying) return;
             adVideoPlaying = true;
@@ -924,7 +870,6 @@
             if (wasPlaying) playMusic();
         }
 
-        // ==================== PLAYER PRINCIPAL ====================
         let currentIndex = 0, isPlaying = false, shuffleMode = false;
         let filteredPlaylist = [];
         let timerInterval = null;
@@ -1184,7 +1129,6 @@
                 showNotification(`🎵 Mudando para ${novo}!`, 3000);
             }
         }
-
         function toggleShuffle() {
             if (isAoVivo) { showNotification(`⚠️ Modo AO VIVO ativo - aleatório não disponível!`, 2000); return; }
             shuffleMode = !shuffleMode;
@@ -1202,7 +1146,6 @@
                 showNotification(`➡️ Modo sequencial`, 2000);
             }
         }
-
         function ativarModoAoVivo() {
             isAoVivo = true; aoVivoAcabou = false; trocaAutomaticaAtiva = false;
             if (videoAdInterval) clearInterval(videoAdInterval);
@@ -1284,7 +1227,6 @@
             };
         }
 
-        // ==================== MODO TV ====================
         function toggleTvMode() {
             const appEl = document.querySelector('.app');
             const tvOverlay = document.getElementById('tvPixOverlay');
@@ -1309,7 +1251,6 @@
             }
         }
 
-        // ==================== PIX ====================
         document.getElementById('pixKey')?.addEventListener('click', () => {
             navigator.clipboard.writeText("12988461978");
             showNotification('✅ Chave PIX copiada: 12988461978', 3000);
@@ -1319,7 +1260,7 @@
             showNotification('✅ Chave PIX copiada', 2000);
         });
 
-        // ==================== CONTROLE DE VOLUME (ARRATAR VERTICAL NO CENTRO) ====================
+        // ==================== CONTROLE DE VOLUME ====================
         const volumeArea = document.getElementById('volumeArea');
         const volumeToast = document.getElementById('volumeToast');
         let volumeStartY = 0;
@@ -1347,41 +1288,59 @@
             setTimeout(() => { volumeToast.style.opacity = '0'; }, 500);
         });
 
-        // ==================== BOTÃO FLUTUANTE ARRASTÁVEL ====================
+        // ==================== BOTÃO FLUTUANTE (ARRÁSTAVEL + CLICÁVEL, FUNCIONA NO CELULAR) ====================
         const floatBtn = document.getElementById('genreButton');
-        let offsetX, offsetY, startX, startY;
-        let isDragging = false;
+        let btnDragging = false;
+        let btnStartX, btnStartY;
+        let btnStartLeft, btnStartTop;
+        let hasMoved = false;
+
         floatBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
+            e.stopPropagation();
+            btnDragging = true;
+            hasMoved = false;
             const rect = floatBtn.getBoundingClientRect();
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-            offsetX = startX - rect.left;
-            offsetY = startY - rect.top;
-            isDragging = true;
+            btnStartX = e.touches[0].clientX;
+            btnStartY = e.touches[0].clientY;
+            btnStartLeft = rect.left;
+            btnStartTop = rect.top;
             floatBtn.style.transition = 'none';
         });
+
         document.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-            let left = e.touches[0].clientX - offsetX;
-            let top = e.touches[0].clientY - offsetY;
-            left = Math.min(window.innerWidth - floatBtn.offsetWidth, Math.max(0, left));
-            top = Math.min(window.innerHeight - floatBtn.offsetHeight - 10, Math.max(0, top));
-            floatBtn.style.left = left + 'px';
-            floatBtn.style.top = top + 'px';
-            floatBtn.style.right = 'auto';
-            floatBtn.style.bottom = 'auto';
+            if (!btnDragging) return;
+            const deltaX = Math.abs(e.touches[0].clientX - btnStartX);
+            const deltaY = Math.abs(e.touches[0].clientY - btnStartY);
+            if (deltaX > 8 || deltaY > 8) {
+                hasMoved = true;
+                e.preventDefault();
+                let newLeft = btnStartLeft + (e.touches[0].clientX - btnStartX);
+                let newTop = btnStartTop + (e.touches[0].clientY - btnStartY);
+                newLeft = Math.min(window.innerWidth - floatBtn.offsetWidth, Math.max(0, newLeft));
+                newTop = Math.min(window.innerHeight - floatBtn.offsetHeight - 10, Math.max(0, newTop));
+                floatBtn.style.left = newLeft + 'px';
+                floatBtn.style.top = newTop + 'px';
+                floatBtn.style.right = 'auto';
+                floatBtn.style.bottom = 'auto';
+            }
         });
+
         document.addEventListener('touchend', (e) => {
-            if (!isDragging) return;
-            isDragging = false;
+            if (!btnDragging) return;
+            btnDragging = false;
             floatBtn.style.transition = '';
-            // salvar posição
-            localStorage.setItem('floatBtnLeft', floatBtn.style.left);
-            localStorage.setItem('floatBtnTop', floatBtn.style.top);
+            if (!hasMoved) {
+                // Clique detectado (sem arrasto) - abre o modal de gêneros
+                openGenresModal();
+            } else {
+                // Salvando posição
+                localStorage.setItem('floatBtnLeft', floatBtn.style.left);
+                localStorage.setItem('floatBtnTop', floatBtn.style.top);
+            }
+            hasMoved = false;
         });
-        // restaurar posição
+
+        // Restaurar posição
         const savedLeft = localStorage.getItem('floatBtnLeft');
         const savedTop = localStorage.getItem('floatBtnTop');
         if (savedLeft && savedTop) {
@@ -1391,7 +1350,16 @@
             floatBtn.style.bottom = 'auto';
         }
 
-        // ==================== ÁUDIO DE FUNDO (AUTOPLAY) & TELA CHEIA ====================
+        // Para compatibilidade com mouse (PC)
+        floatBtn.addEventListener('click', (e) => {
+            // Só age se não foi um arrasto (no PC não tem touchmove, então sempre clica)
+            if (!hasMoved) {
+                openGenresModal();
+            }
+            hasMoved = false;
+        });
+
+        // ==================== ÁUDIO DE FUNDO ====================
         function createSilentAudio() {
             const sampleRate = 44100, duration = 5, numSamples = sampleRate * duration;
             const buffer = new ArrayBuffer(44 + numSamples * 2);
@@ -1507,10 +1475,9 @@
         document.getElementById('closeManualBtn').addEventListener('click', () => { document.getElementById('manualModal').classList.remove('open'); });
         document.getElementById('closeGenresBtn').addEventListener('click', () => { document.getElementById('genresModal').classList.remove('open'); });
         
-        // ==================== GÊNEROS ====================
         function openGenresModal() { document.getElementById('genresModal').classList.add('open'); }
         function closeGenresModal() { document.getElementById('genresModal').classList.remove('open'); }
-        genreButton.addEventListener('click', openGenresModal);
+        
         document.querySelectorAll('.genre-card').forEach(card => {
             card.addEventListener('click', () => {
                 const generoSelecionado = card.getAttribute('data-genero');
@@ -1570,7 +1537,6 @@
         });
         document.getElementById('exitTvBtn').addEventListener('click', (e) => { e.stopPropagation(); if (isTvMode) toggleTvMode(); });
         
-        // ==================== FEEDBACK ESTRELAS ====================
         let currentRating = 0;
         document.querySelectorAll('#ratingStars .star').forEach(star => {
             star.addEventListener('click', () => {
@@ -1599,7 +1565,6 @@
             document.querySelectorAll('#ratingStars .star').forEach(s => { s.classList.remove('fas', 'active'); s.classList.add('far'); });
         });
 
-        // ==================== CONTROLE DE ESCONDER CONTROLES INFERIORES ====================
         const bottomControlsPanel = document.getElementById('bottomControls');
         let hideTimeout;
         function showControlsPanel() { bottomControlsPanel.classList.remove('hide'); clearTimeout(hideTimeout); hideTimeout = setTimeout(() => bottomControlsPanel.classList.add('hide'), 3000); }
@@ -1611,7 +1576,6 @@
         document.addEventListener('click', resetHideTimer);
         showControlsPanel();
 
-        // ==================== INICIALIZAÇÃO E AUTOPLAY ====================
         tapToStart.addEventListener('click', async (e) => {
             e.stopPropagation();
             showNotification('🔊 Ativando áudio...', 2000);
