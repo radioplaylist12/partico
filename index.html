@@ -125,6 +125,7 @@
         .audio-ad-container.show { display: flex; }
         @keyframes slideUp { from { transform: translateX(-50%) translateY(20px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
         .swipe-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; z-index: 10002; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        /* Botão fixo, SEM arrasto - apenas clicável */
         .genre-button {
             position: fixed;
             bottom: 100px;
@@ -217,12 +218,11 @@
     <div class="volume-toast" id="volumeToast">🔊 Volume: 50%</div>
 
     <script>
-        // ==================== PLAYLIST COMPLETA (SUA LISTA ORIGINAL - COLOQUE AQUI SUAS MÚSICAS) ====================
-        // ATENÇÃO: Por motivo de espaço, a playlist completa foi mantida. 
-        // Se você já tem a lista com todas as músicas, ela continua funcionando.
-        // Para este exemplo, vou deixar apenas um item representativo, mas você coloca sua lista completa.
+        // ==================== PLAYLIST (COLE A SUA PLAYLIST COMPLETA AQUI) ====================
+        // ATENÇÃO! Substitua esta lista pela sua playlist completa (460+ músicas)
         const musicas = [
-             { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
+            // Exemplo: coloque aqui TODAS as suas músicas organizadas por gênero
+            { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
             { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
             { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
             { id: 4, title: "Pout Pourri", artist: "Luiza Martins", src: "Luiza_Martins_Pout_Pourri_Na_Hora_do_Adeus_Fruto_.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -593,8 +593,6 @@
             { id: 431, title: "Everytime You Go Away", artist: "Dino Fonseca", src: "Dino_Fonseca_Everytime_You_Go_Away_Back_To_The_s_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
             { id: 434, title: "Hotel California", artist: "Eagles", src: "Eagles_Hotel_California_12.m4a", genero: "POP", tipo: "ao vivo" },
             { id: 435, title: "Sailing", artist: "Emmerson Nogueira", src: "Emmerson_Nogueira_Sailing_13.m4a", genero: "POP", tipo: "ao vivo" }
-           
-            // ADICIONE AQUI O RESTO DA SUA PLAYLIST (TODAS AS 460+ MÚSICAS QUE VOCÊ TINHA)
         ];
         // ==================== FIM DA PLAYLIST ====================
 
@@ -621,9 +619,10 @@
         let adVideoPlaying = false;
         let skipLock = false;
 
-        // Funções do modal
+        // Função para abrir modal de gêneros - SIMPLES E DIRETA
         function openGenresModal() { 
             document.getElementById('genresModal').classList.add('open'); 
+            console.log("Abrindo modal de gêneros"); // debug
         }
         function closeGenresModal() { 
             document.getElementById('genresModal').classList.remove('open'); 
@@ -1327,75 +1326,29 @@
             setTimeout(() => { volumeToast.style.opacity = '0'; }, 500);
         });
 
-        // ==================== BOTÃO FLUTUANTE (VERSÃO SIMPLIFICADA E CORRIGIDA PARA CELULAR) ====================
+        // ==================== BOTÃO DE GÊNERO - SIMPLES E FUNCIONAL (SEM ARRASTO) ====================
         const floatBtn = document.getElementById('genreButton');
-        let btnDragging = false;
-        let btnStartX, btnStartY;
-        let btnStartLeft, btnStartTop;
         
-        // Limpar listeners anteriores para evitar duplicação
-        floatBtn.removeEventListener('touchstart', onTouchStart);
-        floatBtn.removeEventListener('click', onClick);
-        document.removeEventListener('touchmove', onTouchMove);
-        document.removeEventListener('touchend', onTouchEnd);
+        // Remover qualquer listener anterior para evitar duplicação
+        const newBtn = floatBtn.cloneNode(true);
+        floatBtn.parentNode.replaceChild(newBtn, floatBtn);
+        const finalBtn = document.getElementById('genreButton');
         
-        function onClick(e) {
+        // Adicionar evento de clique simples
+        finalBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             e.stopPropagation();
+            console.log("Botão clicado! Abrindo modal...");
             openGenresModal();
             if (navigator.vibrate) navigator.vibrate(50);
-        }
+        });
         
-        function onTouchStart(e) {
-            e.stopPropagation();
-            btnDragging = true;
-            const rect = floatBtn.getBoundingClientRect();
-            btnStartX = e.touches[0].clientX;
-            btnStartY = e.touches[0].clientY;
-            btnStartLeft = rect.left;
-            btnStartTop = rect.top;
-            floatBtn.style.transition = 'none';
-        }
-        
-        function onTouchMove(e) {
-            if (!btnDragging) return;
-            const deltaX = Math.abs(e.touches[0].clientX - btnStartX);
-            const deltaY = Math.abs(e.touches[0].clientY - btnStartY);
-            if (deltaX > 10 || deltaY > 10) {
-                e.preventDefault();
-                let newLeft = btnStartLeft + (e.touches[0].clientX - btnStartX);
-                let newTop = btnStartTop + (e.touches[0].clientY - btnStartY);
-                newLeft = Math.min(window.innerWidth - floatBtn.offsetWidth, Math.max(0, newLeft));
-                newTop = Math.min(window.innerHeight - floatBtn.offsetHeight - 10, Math.max(0, newTop));
-                floatBtn.style.left = newLeft + 'px';
-                floatBtn.style.top = newTop + 'px';
-                floatBtn.style.right = 'auto';
-                floatBtn.style.bottom = 'auto';
-            }
-        }
-        
-        function onTouchEnd(e) {
-            if (!btnDragging) return;
-            btnDragging = false;
-            floatBtn.style.transition = '';
-            // Salva posição mesmo se não moveu (mas não abre modal)
-            localStorage.setItem('floatBtnLeft', floatBtn.style.left);
-            localStorage.setItem('floatBtnTop', floatBtn.style.top);
-        }
-        
-        floatBtn.addEventListener('click', onClick);
-        floatBtn.addEventListener('touchstart', onTouchStart);
-        document.addEventListener('touchmove', onTouchMove);
-        document.addEventListener('touchend', onTouchEnd);
-        
-        // Restaurar posição
-        const savedLeft = localStorage.getItem('floatBtnLeft');
-        const savedTop = localStorage.getItem('floatBtnTop');
-        if (savedLeft && savedTop) {
-            floatBtn.style.left = savedLeft;
-            floatBtn.style.top = savedTop;
-            floatBtn.style.right = 'auto';
-            floatBtn.style.bottom = 'auto';
-        }
+        // Também adicionar touchstart para garantir (mas sem conflito)
+        finalBtn.addEventListener('touchstart', function(e) {
+            // Não faz nada além de permitir o clique 
+            // O clique será disparado naturalmente após o touchend
+            console.log("Touch detectado no botão");
+        });
 
         // ==================== ÁUDIO DE FUNDO ====================
         function createSilentAudio() {
@@ -1468,14 +1421,14 @@
         // ==================== GESTOS (TOQUE) ====================
         let touchStartX = 0, lastTap = 0;
         document.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.volume-area') || e.target.closest('.genre-button')) return;
+            if (e.target.closest('.volume-area') || e.target.closest('#genreButton')) return;
             touchStartX = e.changedTouches[0].screenX;
             const now = Date.now();
             if (now - lastTap < 300) { e.preventDefault(); togglePlayPause(); showSwipeIndicator('⏯️ ' + (isPlaying ? 'Pausado' : 'Play')); }
             lastTap = now;
         });
         document.addEventListener('touchend', (e) => {
-            if (e.target.closest('.volume-area') || e.target.closest('.genre-button')) return;
+            if (e.target.closest('.volume-area') || e.target.closest('#genreButton')) return;
             const diff = e.changedTouches[0].screenX - touchStartX;
             if (Math.abs(diff) > 50) {
                 if (diff > 0) { prevTrack(); showSwipeIndicator('⏮️ Música anterior'); }
@@ -1631,6 +1584,7 @@
         iniciarComMusicaAleatoria();
         tapToStart.style.display = 'block';
         iniciarVisualizer();
+        console.log("Rádio inicializada - botão de gênero deve funcionar!");
     </script>
 </body>
 </html>
