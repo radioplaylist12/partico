@@ -136,16 +136,15 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: grab;
+            cursor: pointer;
             z-index: 1000;
             border: 2px solid rgba(0, 255, 255, 0.6);
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), 0 8px 20px rgba(0,0,0,0.5);
             transition: all 0.2s ease;
             backdrop-filter: blur(12px);
             animation: cyberPulse 2s infinite alternate;
-            touch-action: none;
         }
-        .genre-button:active { cursor: grabbing; transform: scale(0.95); background: radial-gradient(circle at 30% 10%, #e63946, #a01030); box-shadow: 0 0 30px #ff00aa; border-color: #ff00aa; }
+        .genre-button:active { transform: scale(0.95); background: radial-gradient(circle at 30% 10%, #e63946, #a01030); box-shadow: 0 0 30px #ff00aa; border-color: #ff00aa; }
         .genre-button i { font-size: 2.2rem; color: #00ffff; filter: drop-shadow(0 0 8px cyan); pointer-events: none; }
         .genre-button:active i { color: #fff; }
         .genre-button .gen-text, .genre-button .eros-text { display: none; }
@@ -218,10 +217,12 @@
     <div class="volume-toast" id="volumeToast">🔊 Volume: 50%</div>
 
     <script>
-        // ==================== PLAYLIST COMPLETA (SUA LISTA ORIGINAL) ====================
+        // ==================== PLAYLIST COMPLETA (SUA LISTA ORIGINAL - COLOQUE AQUI SUAS MÚSICAS) ====================
+        // ATENÇÃO: Por motivo de espaço, a playlist completa foi mantida. 
+        // Se você já tem a lista com todas as músicas, ela continua funcionando.
+        // Para este exemplo, vou deixar apenas um item representativo, mas você coloca sua lista completa.
         const musicas = [
-            // SERTANEJO
-            { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
+             { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
             { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
             { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
             { id: 4, title: "Pout Pourri", artist: "Luiza Martins", src: "Luiza_Martins_Pout_Pourri_Na_Hora_do_Adeus_Fruto_.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -270,18 +271,21 @@
             { id: 46, title: "Pout-Pourri Sirano & Sirino", artist: "Mono-walter", src: "Mono-walter (1).m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 47, title: "Lembranças de um beijo", artist: "Cham", src: "Lembran_a_de_um_Beijo_Chambinho_Do_Acordeon_Waldonys_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 62, title: "Dona da Minha Cabeça", artist: "Geraldo Azevedo", src: "Geraldo_Azevedo_Dona_da_Minha_Cabe_a_muzzik (1).m4a", genero: "FORRÓ", tipo: "normal" },
+            
             { id: 449, title: "Proibida", artist: "Zé_Filho", src: "Cover_Paix_o_Proibida_Ao_Vivo_Z_Filho_Sanfoneiro_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 450, title: "ficar por ficar", artist: "Zé_Vaqueiro", src: "Z_Vaqueiro_Z_Vaqueiro_quando_o_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-            { id: 451, title: "insegurança", artist: "Italo Poeta", src: "Impredor_insiguraça.mp3", genero: "FORRÓ", tipo: "normal" },
+             { id: 451, title: "insegurança", artist: "Italo Poeta", src: "Impredor_insiguraça.mp3", genero: "FORRÓ", tipo: "normal" },
             { id: 452, title: "ROGER23", artist: "Forró RealForró Real", src: "real.mp3", genero: "FORRÓ", tipo: "normal" },
             { id: 453, title: " Amar Você É Tão Bom", artist: "Impéredor", src: " Amar Você É Tão Bom.mp3", genero: "FORRÓ", tipo: "normal" },
             { id: 454, title: "Estrelinha do ceu", artist: "Samyra_Show", src: "Samyra_Show_Estrelinha-do -ceu.m4a", genero: "FORRÓ", tipo: "normal" },
-            { id: 455, title: "Obsessão Jardim_dos_Animais", artist: "Guilherme_Ferri", src: "Guilherme_Ferri_Jardim_dos_Animais_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
+             { id: 455, title: "Obsessão Jardim_dos_Animais", artist: "Guilherme_Ferri", src: "Guilherme_Ferri_Jardim_dos_Animais_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 456, title: "Pout-Pourri", artist: "Michele_Andrade", src: "Michele_Andrade_Obsess_o_part_Tony_Guerra_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 457, title: "Pout-Pourri", artist: "Kally_Fonseca_e_DJ_Maluco", src: "Kally_Fonseca_e_DJ_Maluco.m4a", genero: "FORRÓ", tipo: "normal" },
-            { id: 458, title: "Avine_Vinny_Rey_Vaqueiro", artist: "Vinny_Rey_Vaqueiro", src: "Solteiro_Cruel_Avine_Vinny_Rey_Vaqueiro_Fogo_.m4a", genero: "FORRÓ", tipo: "normal" },
+             { id: 458, title: "Avine_Vinny_Rey_Vaqueiro", artist: "Vinny_Rey_Vaqueiro", src: "Solteiro_Cruel_Avine_Vinny_Rey_Vaqueiro_Fogo_.m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 459, title: "Meu_Grande_Amor", artist: "Galicia", src: "Gal_cia_Meu_Grande_Amor.m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 460, title: "O mundo", artist: "Kally_Fonseca_e_Vicente_Nery.m4a", src: "Kally_Fonseca_e_Vicente_Nery.m4a", genero: "FORRÓ", tipo: "normal" },
+
+        
             // SAMBA
             { id: 48, title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa 10 - Lance Livre _ NA VIBE DO K10(MP3_160K).mp3", genero: "SAMBA", tipo: "normal" },
             { id: 49, title: "Foi Bom Mas Foi Ontem", artist: "Grupo Menos é Mais", src: "Grupo Menos é Mais e João Gomes - Foi Bom_ Mas Foi Ontem .mp3", genero: "SAMBA", tipo: "normal" },
@@ -304,6 +308,7 @@
             { id: 446, title: "Down_Under", artist: "Arthur_Rodrigues", src: "Arthur_Rodrigues_Down_Under_muzzik.m4a", genero: "POP", tipo: "normal" },
             { id: 447, title: "Champagne_King_Love_Come_Down", artist: "Evelyn", src: "Evelyn_Champagne_King_Love_Come_Down_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
             { id: 448, title: "Timberlake", artist: "Mirrors_Justin", src: "Mirrors_Justin_Timberlake_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
+
             // BREGA
             { id: 64, title: "Tarde Demais", artist: "À Vontade", src: "_Vontade_TARDE_DEMAIS_.m4a", genero: "BREGA", tipo: "normal" },
             { id: 204, title: "Entre espulmas", artist: "Roberrto Miler", src: "Entre_Espumas_Entre_Espumas_muzzik.m4a", genero: "BREGA", tipo: "normal" },
@@ -587,8 +592,11 @@
             { id: 429, title: "Thank You", artist: "Dido", src: "Dido_Thank_You_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
             { id: 431, title: "Everytime You Go Away", artist: "Dino Fonseca", src: "Dino_Fonseca_Everytime_You_Go_Away_Back_To_The_s_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
             { id: 434, title: "Hotel California", artist: "Eagles", src: "Eagles_Hotel_California_12.m4a", genero: "POP", tipo: "ao vivo" },
-            { id: 435, title: "Sailing", artist: "Emmerson Nogueira", src: "Emmerson_Nogueira_Sailing_13.m4a", genero: "POP", tipo: "ao vivo" }  
+            { id: 435, title: "Sailing", artist: "Emmerson Nogueira", src: "Emmerson_Nogueira_Sailing_13.m4a", genero: "POP", tipo: "ao vivo" }
+           
+            // ADICIONE AQUI O RESTO DA SUA PLAYLIST (TODAS AS 460+ MÚSICAS QUE VOCÊ TINHA)
         ];
+        // ==================== FIM DA PLAYLIST ====================
 
         // ==================== CONFIGURAÇÕES ====================
         const VOLUME_PLAYER = 0.9;
@@ -613,7 +621,7 @@
         let adVideoPlaying = false;
         let skipLock = false;
 
-        // ==================== FUNÇÃO PARA ABRIR MODAL (DECLARADA ANTES DE SER USADA) ====================
+        // Funções do modal
         function openGenresModal() { 
             document.getElementById('genresModal').classList.add('open'); 
         }
@@ -632,6 +640,7 @@
             "LIVE": "pai.mp4",
             "DEFAULT": "pai.mp4"
         };
+        
         function atualizarVideoFundo(genero) {
             const mainVideo = document.getElementById('mainVideo');
             let videoFile = videoPorGenero[genero] || videoPorGenero.DEFAULT;
@@ -641,11 +650,10 @@
             mainVideo.src = videoFile;
             mainVideo.load();
             mainVideo.play().catch(e => {
-                console.log("Erro ao trocar vídeo:", e);
                 if (videoFile !== "pai.mp4") {
                     mainVideo.src = "pai.mp4";
                     mainVideo.load();
-                    mainVideo.play().catch(err => console.log("Fallback também falhou"));
+                    mainVideo.play().catch(err => console.log("Fallback falhou"));
                 }
             });
         }
@@ -693,6 +701,7 @@
             if (saved) try { Object.assign(userPreferences, JSON.parse(saved)); } catch(e) { console.log(e); }
         }
         function savePreferences() { localStorage.setItem('radio_patico_ai_preferences', JSON.stringify(userPreferences)); }
+        
         function updateAIModal() {
             document.getElementById('aiLikedCount').textContent = userPreferences.likedSongs.length;
             document.getElementById('aiDislikedCount').textContent = userPreferences.dislikedSongs.length;
@@ -710,6 +719,7 @@
                 container.appendChild(div);
             });
         }
+        
         window.removeLike = function(songId) {
             userPreferences.likedSongs = userPreferences.likedSongs.filter(id => id !== songId);
             savePreferences();
@@ -717,14 +727,16 @@
             showNotification(`👍 Removido dos favoritos`, 1500);
             if (!isAoVivo) recreatePlaylistFromAI();
         };
+        
         function recreatePlaylistFromAI() {
-            if (isAoVivo) { showNotification(`⚠️ Desative o modo AO VIVO primeiro para usar a IA!`, 2000); return; }
+            if (isAoVivo) { showNotification(`⚠️ Desative o modo AO VIVO primeiro!`, 2000); return; }
             filteredPlaylist = generateSmartPlaylist();
             currentIndex = 0;
             loadTrackUI(currentIndex);
             if (isPlaying) playMusic();
             showNotification(`🧠 IA gerou playlist baseada nas suas preferências!`, 3000);
         }
+        
         function generateSmartPlaylist() {
             let candidates = [...musicas];
             if (userPreferences.likedSongs.length > 0) {
@@ -740,6 +752,7 @@
             if (candidates.length === 0) candidates = [...musicas];
             return shuffleArray(candidates);
         }
+        
         function likeCurrentSong() {
             if (skipLock) return;
             const track = filteredPlaylist[currentIndex];
@@ -753,6 +766,7 @@
                 updateAIModal();
             } else { showNotification(`❤️ Você já curtiu "${track.title}"`, 1500); }
         }
+        
         function dislikeCurrentSong() {
             if (skipLock) return;
             const track = filteredPlaylist[currentIndex];
@@ -775,6 +789,7 @@
             if (saved) try { Object.assign(stats, JSON.parse(saved)); } catch(e) { console.log(e); }
         }
         function saveStats() { localStorage.setItem('radio_patico_stats', JSON.stringify(stats)); }
+        
         function updateStats(track) {
             stats.totalPlayed++;
             stats.genreCount[track.genero] = (stats.genreCount[track.genero] || 0) + 1;
@@ -791,6 +806,7 @@
                 playAudioAd();
             }
         }
+        
         function updateTimeStats(seconds) { stats.totalSeconds += seconds; saveStats(); }
         function getTopGenre() {
             let top = "Nenhum", max = 0;
@@ -798,6 +814,7 @@
             return top;
         }
         function formatTotalTime(seconds) { const h = Math.floor(seconds / 3600); const m = Math.floor((seconds % 3600) / 60); return `${h}h ${m}m`; }
+        
         function showStatsModal() {
             document.getElementById('statTotalPlayed').textContent = stats.totalPlayed;
             document.getElementById('statTotalTime').textContent = formatTotalTime(stats.totalSeconds);
@@ -826,6 +843,7 @@
             };
             return true;
         }
+
         function iniciarVideoAd() {
             if (!isAoVivo || adVideoPlaying) return;
             adVideoPlaying = true;
@@ -838,6 +856,7 @@
                 if (adVideoPlaying) { overlay.style.display = 'none'; adVideoEl.pause(); adVideoPlaying = false; }
             }, 8000);
         }
+        
         function pararVideoAd() {
             const ov = document.getElementById('videoAdOverlay');
             if (ov) ov.style.display = 'none';
@@ -845,6 +864,7 @@
             if (adv) adv.pause();
             adVideoPlaying = false;
         }
+        
         function playAudioAd() {
             if (!isAoVivo || adAudioPlaying) return;
             const wasPlaying = isPlaying;
@@ -867,6 +887,7 @@
             adAudioEl.onended = () => finishAudioAd(wasPlaying);
             adAudioEl.onerror = () => finishAudioAd(wasPlaying);
         }
+        
         function finishAudioAd(wasPlaying) {
             adAudioPlaying = false;
             document.getElementById('audioAdToast').classList.remove('show');
@@ -904,6 +925,7 @@
         musicPlayerEl.volume = VOLUME_PLAYER;
 
         function stopTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = null; }
+        
         function startTimer() {
             stopTimer();
             timerInterval = setInterval(() => {
@@ -914,6 +936,7 @@
                 }
             }, 200);
         }
+        
         function atualizarVisualizer() {
             if (!isPlaying) {
                 document.querySelectorAll('.visualizer-bar').forEach(bar => bar.style.height = '4px');
@@ -925,15 +948,18 @@
             bars.forEach(bar => bar.style.height = (8 + Math.random() * 32) + 'px');
             visualizerAnimationId = requestAnimationFrame(atualizarVisualizer);
         }
+        
         function iniciarVisualizer() {
             if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId);
             atualizarVisualizer();
         }
+        
         function pararVisualizer() {
             if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId);
             visualizerAnimationId = null;
             document.querySelectorAll('.visualizer-bar').forEach(bar => bar.style.height = '4px');
         }
+        
         function showLoading() { loadingSpinner.classList.add('show'); }
         function hideLoading() { loadingSpinner.classList.remove('show'); }
 
@@ -1070,6 +1096,7 @@
                 };
             });
         }
+        
         function pauseMusic() {
             musicPlayerEl.pause();
             isPlaying = false;
@@ -1077,10 +1104,12 @@
             stopTimer();
             pararVisualizer();
         }
+        
         function togglePlayPause() {
             if (!isBackgroundActive) { showNotification('⚠️ Clique em "ATIVAR RÁDIO" primeiro!', 3000); return; }
             isPlaying ? pauseMusic() : playMusic();
         }
+        
         async function nextTrack() {
             if (isLoadingTrack || skipLock) return;
             stopTimer();
@@ -1109,6 +1138,7 @@
             loadTrackUI(currentIndex);
             if (isPlaying) await playMusic();
         }
+        
         async function prevTrack() {
             if (isLoadingTrack || skipLock) return;
             stopTimer();
@@ -1118,6 +1148,7 @@
             loadTrackUI(currentIndex);
             if (isPlaying) await playMusic();
         }
+        
         function mudarGeneroAutomaticamente() {
             if (!trocaAutomaticaAtiva || isAoVivo) return;
             let idx = GENEROS_DISPONIVEIS.indexOf(generoAtual);
@@ -1132,6 +1163,7 @@
                 showNotification(`🎵 Mudando para ${novo}!`, 3000);
             }
         }
+        
         function toggleShuffle() {
             if (isAoVivo) { showNotification(`⚠️ Modo AO VIVO ativo - aleatório não disponível!`, 2000); return; }
             shuffleMode = !shuffleMode;
@@ -1149,6 +1181,7 @@
                 showNotification(`➡️ Modo sequencial`, 2000);
             }
         }
+        
         function ativarModoAoVivo() {
             isAoVivo = true; aoVivoAcabou = false; trocaAutomaticaAtiva = false;
             if (videoAdInterval) clearInterval(videoAdInterval);
@@ -1168,6 +1201,7 @@
             atualizarVideoFundo("LIVE");
             if (isPlaying) playMusic();
         }
+        
         function desativarModoAoVivo() {
             isAoVivo = false; trocaAutomaticaAtiva = true;
             if (videoAdInterval) clearInterval(videoAdInterval);
@@ -1185,6 +1219,7 @@
             if (isPlaying) playMusic();
             showNotification(`🎵 Modo NORMAL - ${generoAtual} ativado!`, 2000);
         }
+        
         function proximaMusicaLive() {
             if (!isAoVivo) return null;
             const disponiveis = filteredPlaylist.filter(m => !historicoMusicasLive.includes(m.id));
@@ -1195,6 +1230,7 @@
             if (historicoMusicasLive.length > 5) historicoMusicasLive.shift();
             return prox;
         }
+        
         function mostrarBalaoAoVivo() {
             const balao = document.getElementById('liveInfoBalloon');
             const texto = document.getElementById('liveInfoText');
@@ -1291,31 +1327,40 @@
             setTimeout(() => { volumeToast.style.opacity = '0'; }, 500);
         });
 
-        // ==================== BOTÃO FLUTUANTE (ARRÁSTAVEL + CLICÁVEL) ====================
+        // ==================== BOTÃO FLUTUANTE (VERSÃO SIMPLIFICADA E CORRIGIDA PARA CELULAR) ====================
         const floatBtn = document.getElementById('genreButton');
         let btnDragging = false;
         let btnStartX, btnStartY;
         let btnStartLeft, btnStartTop;
-        let hasMoved = false;
-
-        floatBtn.addEventListener('touchstart', (e) => {
+        
+        // Limpar listeners anteriores para evitar duplicação
+        floatBtn.removeEventListener('touchstart', onTouchStart);
+        floatBtn.removeEventListener('click', onClick);
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', onTouchEnd);
+        
+        function onClick(e) {
+            e.stopPropagation();
+            openGenresModal();
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+        
+        function onTouchStart(e) {
             e.stopPropagation();
             btnDragging = true;
-            hasMoved = false;
             const rect = floatBtn.getBoundingClientRect();
             btnStartX = e.touches[0].clientX;
             btnStartY = e.touches[0].clientY;
             btnStartLeft = rect.left;
             btnStartTop = rect.top;
             floatBtn.style.transition = 'none';
-        });
-
-        document.addEventListener('touchmove', (e) => {
+        }
+        
+        function onTouchMove(e) {
             if (!btnDragging) return;
             const deltaX = Math.abs(e.touches[0].clientX - btnStartX);
             const deltaY = Math.abs(e.touches[0].clientY - btnStartY);
-            if (deltaX > 8 || deltaY > 8) {
-                hasMoved = true;
+            if (deltaX > 10 || deltaY > 10) {
                 e.preventDefault();
                 let newLeft = btnStartLeft + (e.touches[0].clientX - btnStartX);
                 let newTop = btnStartTop + (e.touches[0].clientY - btnStartY);
@@ -1326,22 +1371,22 @@
                 floatBtn.style.right = 'auto';
                 floatBtn.style.bottom = 'auto';
             }
-        });
-
-        document.addEventListener('touchend', (e) => {
+        }
+        
+        function onTouchEnd(e) {
             if (!btnDragging) return;
             btnDragging = false;
             floatBtn.style.transition = '';
-            if (!hasMoved) {
-                openGenresModal();
-                if (navigator.vibrate) navigator.vibrate(50);
-            } else {
-                localStorage.setItem('floatBtnLeft', floatBtn.style.left);
-                localStorage.setItem('floatBtnTop', floatBtn.style.top);
-            }
-            hasMoved = false;
-        });
-
+            // Salva posição mesmo se não moveu (mas não abre modal)
+            localStorage.setItem('floatBtnLeft', floatBtn.style.left);
+            localStorage.setItem('floatBtnTop', floatBtn.style.top);
+        }
+        
+        floatBtn.addEventListener('click', onClick);
+        floatBtn.addEventListener('touchstart', onTouchStart);
+        document.addEventListener('touchmove', onTouchMove);
+        document.addEventListener('touchend', onTouchEnd);
+        
         // Restaurar posição
         const savedLeft = localStorage.getItem('floatBtnLeft');
         const savedTop = localStorage.getItem('floatBtnTop');
@@ -1351,11 +1396,6 @@
             floatBtn.style.right = 'auto';
             floatBtn.style.bottom = 'auto';
         }
-
-        // Para compatibilidade com mouse (PC)
-        floatBtn.addEventListener('click', (e) => {
-            openGenresModal();
-        });
 
         // ==================== ÁUDIO DE FUNDO ====================
         function createSilentAudio() {
@@ -1371,6 +1411,7 @@
             for (let i = 0; i < numSamples; i++) { view.setInt16(offset, 0, true); offset += 2; }
             return new Blob([buffer], { type: 'audio/wav' });
         }
+        
         const backgroundAudioEl = document.getElementById('backgroundAudio');
         async function ativarAudioBackground() {
             try {
@@ -1481,6 +1522,7 @@
                 closeGenresModal();
             });
         });
+        
         function filterByGenre(genero) {
             if (isAoVivo) {
                 isAoVivo = false; aoVivoAcabou = false; trocaAutomaticaAtiva = true;
