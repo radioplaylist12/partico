@@ -57,10 +57,21 @@
         .genres-modal { bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: transform 0.3s; padding: 20px 15px 25px; border-radius: 25px 25px 0 0; }
         .genres-modal.open { transform: translateY(0); display: block; }
         .genres-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .genre-card { border-radius: 14px; padding: 12px 8px; text-align: center; cursor: pointer; background: linear-gradient(135deg, #ff0844, #ffb199); transition: transform 0.1s; }
+        /* Cores personalizadas para cada gênero (bem visíveis) */
+        .genre-card { border-radius: 14px; padding: 12px 8px; text-align: center; cursor: pointer; transition: transform 0.1s; background: linear-gradient(135deg, #ff0844, #ffb199); }
         .genre-card:active { transform: scale(0.96); }
-        .genre-card i { font-size: 1.6rem; display: block; margin-bottom: 6px; color: white; }
-        .genre-card span { font-size: 0.7rem; font-weight: 700; color: white; }
+        .genre-card i { font-size: 1.6rem; display: block; margin-bottom: 6px; color: white; text-shadow: 1px 1px 0 rgba(0,0,0,0.3); }
+        .genre-card span { font-size: 0.7rem; font-weight: 700; color: white; text-shadow: 1px 1px 0 rgba(0,0,0,0.3); }
+        /* Cores individuais */
+        .genre-card[data-genero="SERTANEJO"] { background: linear-gradient(135deg, #d4a373, #b5835a); }
+        .genre-card[data-genero="FORRÓ"] { background: linear-gradient(135deg, #f4a261, #e76f51); }
+        .genre-card[data-genero="SAMBA"] { background: linear-gradient(135deg, #2a9d8f, #264653); }
+        .genre-card[data-genero="POP"] { background: linear-gradient(135deg, #0077b6, #023e8a); }
+        .genre-card[data-genero="BREGA"] { background: linear-gradient(135deg, #e76f51, #f4a261); }
+        .genre-card[data-genero="MPB"] { background: linear-gradient(135deg, #9c27b0, #6a1b9a); }
+        .genre-card[data-genero="VARIADAS"] { background: linear-gradient(135deg, #00b4d8, #0077b6); }
+        .genre-card[data-genero="TODOS"] { background: linear-gradient(135deg, #6c757d, #495057); }
+        .genre-card[data-genero="LIVE"] { background: linear-gradient(135deg, #e63946, #9b1d1d); }
         .manual-modal { top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); overflow-y: auto; padding: 20px; }
         .manual-modal.open { display: block; }
         .manual-container { max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 40px; padding: 25px; color: #fff; border: 1px solid rgba(230,57,70,0.3); }
@@ -116,36 +127,80 @@
         .audio-ad-container.show { display: flex; }
         @keyframes slideUp { from { transform: translateX(-50%) translateY(20px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
         .swipe-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; z-index: 10002; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-        /* Botão de gêneros futurista */
+        
+        /* Botão flutuante arrastável (sem texto) */
         .genre-button {
             position: fixed;
-            bottom: 20px;
+            bottom: 100px;
             right: 20px;
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             background: radial-gradient(circle at 30% 10%, #1a1a2e, #0a0a1a);
-            border-radius: 30px;
+            border-radius: 50%;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            z-index: 26;
+            cursor: grab;
+            z-index: 1000;
             border: 2px solid rgba(0, 255, 255, 0.6);
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), 0 8px 20px rgba(0,0,0,0.5);
             transition: all 0.2s ease;
             backdrop-filter: blur(12px);
             animation: cyberPulse 2s infinite alternate;
+            touch-action: none; /* melhor para arrastar */
         }
+        .genre-button:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+            background: radial-gradient(circle at 30% 10%, #e63946, #a01030);
+            box-shadow: 0 0 30px #ff00aa;
+            border-color: #ff00aa;
+        }
+        .genre-button i {
+            font-size: 2.2rem;
+            color: #00ffff;
+            filter: drop-shadow(0 0 8px cyan);
+            pointer-events: none;
+        }
+        .genre-button:active i { color: #fff; }
+        /* remove textos */
+        .genre-button .gen-text, .genre-button .eros-text { display: none; }
+
         @keyframes cyberPulse {
             0% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.4), 0 0 5px rgba(0, 255, 255, 0.2); border-color: rgba(0, 255, 255, 0.5); }
             100% { box-shadow: 0 0 25px rgba(0, 255, 255, 0.8), 0 0 15px rgba(0, 255, 255, 0.4); border-color: #00ffff; }
         }
-        .genre-button:active { transform: scale(0.94); background: radial-gradient(circle at 30% 10%, #e63946, #a01030); box-shadow: 0 0 30px #ff00aa; border-color: #ff00aa; }
-        .genre-button i { font-size: 1.8rem; color: #00ffff; margin-bottom: 4px; filter: drop-shadow(0 0 5px cyan); }
-        .genre-button:active i { color: #fff; }
-        .genre-button .gen-text { font-size: 0.7rem; font-weight: bold; color: #ff8c00; letter-spacing: 2px; text-shadow: 0 0 3px orange; }
-        .genre-button .eros-text { font-size: 0.65rem; font-weight: bold; color: #ff00aa; letter-spacing: 2px; margin-top: -2px; text-shadow: 0 0 3px magenta; }
+
+        /* Área invisível para controle de volume */
+        .volume-area {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 160px;
+            height: 200px;
+            background: transparent;
+            z-index: 1001;
+            pointer-events: auto;
+            touch-action: none;
+        }
+        .volume-toast {
+            position: fixed;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            color: white;
+            z-index: 1002;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
@@ -184,7 +239,7 @@
     <div class="visualizer" id="visualizer"><div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div></div>
     <div class="feedback-buttons"><button class="feedback-btn like" id="likeBtn"><i class="fas fa-thumbs-up"></i></button><button class="feedback-btn dislike" id="dislikeBtn"><i class="fas fa-thumbs-down"></i></button></div>
     <div class="loading-spinner" id="loadingSpinner"><i class="fas fa-circle-notch fa-spin"></i><span>Carregando música...</span></div>
-    <button class="genre-button" id="genreButton"><i class="fas fa-music"></i><span class="gen-text">GEN</span><span class="eros-text">EROS</span></button>
+    <button class="genre-button" id="genreButton"><i class="fas fa-music"></i></button>
     <button class="exit-tv-btn" id="exitTvBtn"><i class="fas fa-tv"></i> SAIR MODO TV</button>
     <div class="menu-button" id="menuButton"><i class="fas fa-ellipsis-v"></i></div>
     <div class="menu-popup" id="menuPopup">
@@ -198,13 +253,17 @@
     </div>
     <div class="ai-modal" id="aiModal"><h3><i class="fas fa-brain"></i> Inteligência Artificial</h3><div class="ai-stat"><span>🎯 Músicas que você curtiu:</span><span class="stat-value" id="aiLikedCount">0</span></div><div class="ai-stat"><span>👎 Músicas que não curtiu:</span><span class="stat-value" id="aiDislikedCount">0</span></div><div class="ai-stat"><span>⭐ Gênero favorito:</span><span class="stat-value" id="aiTopGenre">-</span></div><div class="ai-stat"><span>🎵 Top 5 preferidas:</span></div><div id="aiTopSongs"></div><button class="close-ai" id="closeAiBtn">Fechar</button></div>
     <div class="stats-modal" id="statsModal"><h3><i class="fas fa-chart-line"></i> Suas Estatísticas</h3><div class="stat-item"><span>🎵 Músicas ouvidas:</span><span class="stat-value" id="statTotalPlayed">0</span></div><div class="stat-item"><span>⏱️ Tempo total:</span><span class="stat-value" id="statTotalTime">0h 0m</span></div><div class="stat-item"><span>⭐ Gênero fav:</span><span class="stat-value" id="statTopGenre">-</span></div><div class="stat-item"><span>🔥 Sequência atual:</span><span class="stat-value" id="statStreak">0</span></div><button class="close-stats" id="closeStatsBtn">Fechar</button></div>
-    <div class="manual-modal" id="manualModal"><div class="manual-container"><h1>📘 Rádio Patico IA - MANUAL</h1><div class="subtitle">A Inteligência Artificial aprende suas músicas preferidas!</div><h2><i class="fas fa-brain"></i> 1. Como a IA aprende</h2><p>✅ <strong>Curtir uma música (👍)</strong> - A IA aprende que você gostou e toca mais músicas parecidas</p><p>❌ <strong>Não gostou (👎)</strong> - A IA evita tocar músicas parecidas e já pula para a próxima</p><div class="dica">💡 Quanto mais você avalia, mais inteligente fica a playlist!</div><h2><i class="fas fa-broadcast-tower"></i> 2. Modo AO VIVO</h2><p>🔴 <strong>Rádio inicia em MODO AO VIVO</strong> - tocando apenas músicas com <strong>tipo: "ao vivo"</strong></p><p>📺 <strong>Anúncios e vinhetas</strong> - Só tocam no modo AO VIVO!</p><p>🎵 Após terminar todas as músicas ao vivo, o modo normal é ativado automaticamente</p><div class="dica">💡 Para voltar ao modo AO VIVO, clique no botão GEN/EROS e escolha "🔴 VOLTAR AO VIVO"</div><h2><i class="fas fa-video"></i> 3. Anúncios Configuráveis</h2><p>📹 <strong>Anúncio em vídeo (tea.mp4)</strong> - aparece a cada <strong>30 segundos</strong> (apenas modo AO VIVO)</p><p>🎵 <strong>Anúncio em áudio (radiom.mp3)</strong> - a cada <strong>20 músicas</strong> (apenas modo AO VIVO)</p><h2><i class="fas fa-hand-peace"></i> 4. Gestos</h2><p>👉 <strong>Deslizar ESQUERDA/DIREITA</strong> = Próxima / anterior música</p><p>👆 <strong>Toque duplo</strong> = Pausa / Play</p><h2><i class="fas fa-music"></i> 5. Gêneros Disponíveis</h2><p>🎸 SERTANEJO | 🥁 FORRÓ | 🎵 SAMBA | 🎤 POP | ❤️ BREGA | 🎸 MPB | 🔀 VARIADAS</p><button class="close-manual-btn" id="closeManualBtn">✕ FECHAR MANUAL</button></div></div>
+    <div class="manual-modal" id="manualModal"><div class="manual-container"><h1>📘 Rádio Patico IA - MANUAL</h1><div class="subtitle">A Inteligência Artificial aprende suas músicas preferidas!</div><h2><i class="fas fa-brain"></i> 1. Como a IA aprende</h2><p>✅ <strong>Curtir uma música (👍)</strong> - A IA aprende que você gostou e toca mais músicas parecidas</p><p>❌ <strong>Não gostou (👎)</strong> - A IA evita tocar músicas parecidas e já pula para a próxima</p><div class="dica">💡 Quanto mais você avalia, mais inteligente fica a playlist!</div><h2><i class="fas fa-broadcast-tower"></i> 2. Modo AO VIVO</h2><p>🔴 <strong>Rádio inicia em MODO AO VIVO</strong> - tocando apenas músicas com <strong>tipo: "ao vivo"</strong></p><p>📺 <strong>Anúncios e vinhetas</strong> - Só tocam no modo AO VIVO!</p><p>🎵 Após terminar todas as músicas ao vivo, o modo normal é ativado automaticamente</p><div class="dica">💡 Para voltar ao modo AO VIVO, clique no botão GEN/EROS e escolha "🔴 VOLTAR AO VIVO"</div><h2><i class="fas fa-video"></i> 3. Anúncios Configuráveis</h2><p>📹 <strong>Anúncio em vídeo (tea.mp4)</strong> - aparece a cada <strong>30 segundos</strong> (apenas modo AO VIVO)</p><p>🎵 <strong>Anúncio em áudio (radiom.mp3)</strong> - a cada <strong>20 músicas</strong> (apenas modo AO VIVO)</p><h2><i class="fas fa-hand-peace"></i> 4. Gestos</h2><p>👉 <strong>Deslizar ESQUERDA/DIREITA</strong> = Próxima / anterior música</p><p>👆 <strong>Toque duplo</strong> = Pausa / Play</p><p>⬆️⬇️ <strong>Arrastar no centro da tela (área invisível)</strong> = Aumenta/diminui o volume</p><h2><i class="fas fa-music"></i> 5. Gêneros Disponíveis</h2><p>🎸 SERTANEJO | 🥁 FORRÓ | 🎵 SAMBA | 🎤 POP | ❤️ BREGA | 🎸 MPB | 🔀 VARIADAS</p><button class="close-manual-btn" id="closeManualBtn">✕ FECHAR MANUAL</button></div></div>
     <div class="genres-modal" id="genresModal"><h3><i class="fas fa-music"></i> ESCOLHA SEU ESTILO</h3><div class="genres-grid"><div class="genre-card" data-genero="SERTANEJO"><i class="fas fa-guitar"></i><span>SERTANEJO</span></div><div class="genre-card" data-genero="FORRÓ"><i class="fas fa-drum"></i><span>FORRÓ</span></div><div class="genre-card" data-genero="SAMBA"><i class="fas fa-music"></i><span>SAMBA</span></div><div class="genre-card" data-genero="POP"><i class="fas fa-microphone-alt"></i><span>POP</span></div><div class="genre-card" data-genero="BREGA"><i class="fas fa-heart"></i><span>BREGA</span></div><div class="genre-card" data-genero="MPB"><i class="fas fa-guitar"></i><span>MPB</span></div><div class="genre-card" data-genero="VARIADAS"><i class="fas fa-random"></i><span>VARIADAS</span></div><div class="genre-card" data-genero="TODOS"><i class="fas fa-list-ul"></i><span>TODOS</span></div><div class="genre-card" data-genero="LIVE" style="background: linear-gradient(135deg, #e63946, #ff0000);"><i class="fas fa-broadcast-tower"></i><span>🔴 VOLTAR AO VIVO</span></div></div><button class="close-genres" id="closeGenresBtn"><i class="fas fa-times-circle"></i> FECHAR</button></div>
     <audio id="musicPlayer" preload="auto" crossorigin="anonymous"></audio>
     <audio id="backgroundAudio" preload="auto" crossorigin="anonymous" style="display: none;"></audio>
     <audio id="adAudio" preload="auto" crossorigin="anonymous" style="display: none;"></audio>
     <div class="feedback-modal" id="feedbackModal"><h3>Sua opinião</h3><div class="rating" id="ratingStars"><i class="far fa-star star" data-rating="1"></i><i class="far fa-star star" data-rating="2"></i><i class="far fa-star star" data-rating="3"></i><i class="far fa-star star" data-rating="4"></i><i class="far fa-star star" data-rating="5"></i></div><textarea id="feedbackText" placeholder="Escreva sua sugestão..."></textarea><div class="modal-buttons"><button class="modal-btn cancel" id="cancelFeedback">Cancelar</button><button class="modal-btn send" id="sendFeedback"><i class="fab fa-whatsapp"></i> Enviar</button></div></div>
     <div class="swipe-indicator" id="swipeIndicator">👉 Deslize para próxima música</div>
+    
+    <!-- Área invisível para volume -->
+    <div class="volume-area" id="volumeArea"></div>
+    <div class="volume-toast" id="volumeToast">🔊 Volume: 50%</div>
 
     <script>
         // ==================== PLAYLIST ORGANIZADA POR GÊNERO (agrupada) ====================
@@ -604,7 +663,7 @@
         let adAudioPlaying = false;
         let videoAdInterval = null;
         let adVideoPlaying = false;
-        let skipLock = false; // lock para múltiplos dislikes
+        let skipLock = false;
 
         // ==================== Mapeamento de vídeos por gênero com fallback ====================
         const videoPorGenero = {
@@ -715,7 +774,6 @@
             showNotification(`🧠 IA gerou playlist baseada nas suas preferências!`, 3000);
         }
         function generateSmartPlaylist() {
-            // IA simples: priorizar músicas do gênero favorito, evitar as dislikadas
             let candidates = [...musicas];
             if (userPreferences.likedSongs.length > 0) {
                 const likedGenres = {};
@@ -1127,7 +1185,6 @@
             }
         }
 
-        // Função de shuffle real
         function toggleShuffle() {
             if (isAoVivo) { showNotification(`⚠️ Modo AO VIVO ativo - aleatório não disponível!`, 2000); return; }
             shuffleMode = !shuffleMode;
@@ -1137,7 +1194,6 @@
                 loadTrackUI(currentIndex);
                 showNotification(`🔀 Aleatório inteligente ATIVADO!`, 2000);
             } else {
-                // Restaurar ordem original por gênero (ou como veio)
                 let original = musicas.filter(m => m.genero === (generoAtual === "MIX" ? "VARIADAS" : generoAtual));
                 if (original.length === 0) original = [...musicas];
                 filteredPlaylist = original;
@@ -1263,6 +1319,78 @@
             showNotification('✅ Chave PIX copiada', 2000);
         });
 
+        // ==================== CONTROLE DE VOLUME (ARRATAR VERTICAL NO CENTRO) ====================
+        const volumeArea = document.getElementById('volumeArea');
+        const volumeToast = document.getElementById('volumeToast');
+        let volumeStartY = 0;
+        let volumeStartValue = VOLUME_PLAYER;
+        volumeArea.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            volumeStartY = e.touches[0].clientY;
+            volumeStartValue = musicPlayerEl.volume;
+        });
+        volumeArea.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const deltaY = volumeStartY - e.touches[0].clientY;
+            const newVol = Math.min(1, Math.max(0, volumeStartValue + deltaY / 200));
+            musicPlayerEl.volume = newVol;
+            const percent = Math.round(newVol * 100);
+            volumeToast.textContent = `🔊 Volume: ${percent}%`;
+            volumeToast.style.opacity = '1';
+            clearTimeout(window.volumeToastTimeout);
+            window.volumeToastTimeout = setTimeout(() => {
+                volumeToast.style.opacity = '0';
+            }, 1000);
+        });
+        volumeArea.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            setTimeout(() => { volumeToast.style.opacity = '0'; }, 500);
+        });
+
+        // ==================== BOTÃO FLUTUANTE ARRASTÁVEL ====================
+        const floatBtn = document.getElementById('genreButton');
+        let offsetX, offsetY, startX, startY;
+        let isDragging = false;
+        floatBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const rect = floatBtn.getBoundingClientRect();
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            offsetX = startX - rect.left;
+            offsetY = startY - rect.top;
+            isDragging = true;
+            floatBtn.style.transition = 'none';
+        });
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            let left = e.touches[0].clientX - offsetX;
+            let top = e.touches[0].clientY - offsetY;
+            left = Math.min(window.innerWidth - floatBtn.offsetWidth, Math.max(0, left));
+            top = Math.min(window.innerHeight - floatBtn.offsetHeight - 10, Math.max(0, top));
+            floatBtn.style.left = left + 'px';
+            floatBtn.style.top = top + 'px';
+            floatBtn.style.right = 'auto';
+            floatBtn.style.bottom = 'auto';
+        });
+        document.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            floatBtn.style.transition = '';
+            // salvar posição
+            localStorage.setItem('floatBtnLeft', floatBtn.style.left);
+            localStorage.setItem('floatBtnTop', floatBtn.style.top);
+        });
+        // restaurar posição
+        const savedLeft = localStorage.getItem('floatBtnLeft');
+        const savedTop = localStorage.getItem('floatBtnTop');
+        if (savedLeft && savedTop) {
+            floatBtn.style.left = savedLeft;
+            floatBtn.style.top = savedTop;
+            floatBtn.style.right = 'auto';
+            floatBtn.style.bottom = 'auto';
+        }
+
         // ==================== ÁUDIO DE FUNDO (AUTOPLAY) & TELA CHEIA ====================
         function createSilentAudio() {
             const sampleRate = 44100, duration = 5, numSamples = sampleRate * duration;
@@ -1303,7 +1431,6 @@
                         if (document.visibilityState === 'visible') await navigator.wakeLock.request('screen');
                     });
                 }
-                // Forçar tela cheia
                 try { await document.documentElement.requestFullscreen(); } catch(e) { console.log("Fullscreen não suportado"); }
                 return true;
             } catch(e) {
@@ -1334,12 +1461,14 @@
         // ==================== GESTOS (TOQUE) ====================
         let touchStartX = 0, lastTap = 0;
         document.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.volume-area') || e.target.closest('.genre-button')) return;
             touchStartX = e.changedTouches[0].screenX;
             const now = Date.now();
             if (now - lastTap < 300) { e.preventDefault(); togglePlayPause(); showSwipeIndicator('⏯️ ' + (isPlaying ? 'Pausado' : 'Play')); }
             lastTap = now;
         });
         document.addEventListener('touchend', (e) => {
+            if (e.target.closest('.volume-area') || e.target.closest('.genre-button')) return;
             const diff = e.changedTouches[0].screenX - touchStartX;
             if (Math.abs(diff) > 50) {
                 if (diff > 0) { prevTrack(); showSwipeIndicator('⏮️ Música anterior'); }
