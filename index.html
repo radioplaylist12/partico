@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Rádio Patico IA • Futurista</title>
+    
+    <!-- ==================== FAVICON ==================== -->
+    <link rel="icon" type="image/png" href="falcon.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="falcon.png">
+    <!-- ==================== FIM FAVICON ==================== -->
+    
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -63,6 +70,7 @@
         .genre-card span { font-size: 0.7rem; font-weight: 700; color: white; text-shadow: 1px 1px 0 rgba(0,0,0,0.3); }
         .genre-card[data-genero="SERTANEJO"] { background: linear-gradient(135deg, #d4a373, #b5835a); }
         .genre-card[data-genero="FORRÓ"] { background: linear-gradient(135deg, #f4a261, #e76f51); }
+        .genre-card[data-genero="FORRÓ ANTIGO"] { background: linear-gradient(135deg, #e9c46a, #f4a261); }
         .genre-card[data-genero="SAMBA"] { background: linear-gradient(135deg, #2a9d8f, #264653); }
         .genre-card[data-genero="POP"] { background: linear-gradient(135deg, #0077b6, #023e8a); }
         .genre-card[data-genero="BREGA"] { background: linear-gradient(135deg, #e76f51, #f4a261); }
@@ -70,6 +78,8 @@
         .genre-card[data-genero="VARIADAS"] { background: linear-gradient(135deg, #00b4d8, #0077b6); }
         .genre-card[data-genero="TODOS"] { background: linear-gradient(135deg, #6c757d, #495057); }
         .genre-card[data-genero="LIVE"] { background: linear-gradient(135deg, #e63946, #9b1d1d); }
+        .genre-card[data-genero="MODA TOP"] { background: linear-gradient(135deg, #ff006e, #8338ec); }
+        .genre-card[data-genero="AS++"] { background: linear-gradient(135deg, #3a86ff, #9c27b0); }
         .manual-modal { top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); overflow-y: auto; padding: 20px; }
         .manual-modal.open { display: block; }
         .manual-container { max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 40px; padding: 25px; color: #fff; border: 1px solid rgba(230,57,70,0.3); }
@@ -153,7 +163,7 @@
             0% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.4), 0 0 5px rgba(0, 255, 255, 0.2); border-color: rgba(0, 255, 255, 0.5); }
             100% { box-shadow: 0 0 25px rgba(0, 255, 255, 0.8), 0 0 15px rgba(0, 255, 255, 0.4); border-color: #00ffff; }
         }
-        .volume-area { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 160px; height: 200px; background: transparent; z-index: 1001; pointer-events: auto; touch-action: none; }
+        /* Botão de volume removido - área invisível removida */
         .volume-toast { position: fixed; bottom: 15%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 30px; font-size: 0.8rem; color: white; z-index: 1002; pointer-events: none; opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
     </style>
 </head>
@@ -207,21 +217,32 @@
     </div>
     <div class="ai-modal" id="aiModal"><h3><i class="fas fa-brain"></i> Inteligência Artificial</h3><div class="ai-stat"><span>🎯 Músicas que você curtiu:</span><span class="stat-value" id="aiLikedCount">0</span></div><div class="ai-stat"><span>👎 Músicas que não curtiu:</span><span class="stat-value" id="aiDislikedCount">0</span></div><div class="ai-stat"><span>⭐ Gênero favorito:</span><span class="stat-value" id="aiTopGenre">-</span></div><div class="ai-stat"><span>🎵 Top 5 preferidas:</span></div><div id="aiTopSongs"></div><button class="close-ai" id="closeAiBtn">Fechar</button></div>
     <div class="stats-modal" id="statsModal"><h3><i class="fas fa-chart-line"></i> Suas Estatísticas</h3><div class="stat-item"><span>🎵 Músicas ouvidas:</span><span class="stat-value" id="statTotalPlayed">0</span></div><div class="stat-item"><span>⏱️ Tempo total:</span><span class="stat-value" id="statTotalTime">0h 0m</span></div><div class="stat-item"><span>⭐ Gênero fav:</span><span class="stat-value" id="statTopGenre">-</span></div><div class="stat-item"><span>🔥 Sequência atual:</span><span class="stat-value" id="statStreak">0</span></div><button class="close-stats" id="closeStatsBtn">Fechar</button></div>
-    <div class="manual-modal" id="manualModal"><div class="manual-container"><h1>📘 Rádio Patico IA - MANUAL</h1><div class="subtitle">A Inteligência Artificial aprende suas músicas preferidas!</div><h2><i class="fas fa-brain"></i> 1. Como a IA aprende</h2><p>✅ <strong>Curtir uma música (👍)</strong> - A IA aprende que você gostou e toca mais músicas parecidas</p><p>❌ <strong>Não gostou (👎)</strong> - A IA evita tocar músicas parecidas e já pula para a próxima</p><div class="dica">💡 Quanto mais você avalia, mais inteligente fica a playlist!</div><h2><i class="fas fa-broadcast-tower"></i> 2. Modo AO VIVO</h2><p>🔴 <strong>Rádio inicia em MODO AO VIVO</strong> - tocando apenas músicas com <strong>tipo: "ao vivo"</strong></p><p>📺 <strong>Anúncios e vinhetas</strong> - Só tocam no modo AO VIVO!</p><p>🎵 Após terminar todas as músicas ao vivo, o modo normal é ativado automaticamente</p><div class="dica">💡 Para voltar ao modo AO VIVO, clique no botão GEN/EROS e escolha "🔴 VOLTAR AO VIVO"</div><h2><i class="fas fa-video"></i> 3. Anúncios Configuráveis</h2><p>📹 <strong>Anúncio em vídeo (tea.mp4)</strong> - aparece a cada <strong>30 segundos</strong> (apenas modo AO VIVO)</p><p>🎵 <strong>Anúncio em áudio (radiom.mp3)</strong> - a cada <strong>20 músicas</strong> (apenas modo AO VIVO)</p><h2><i class="fas fa-hand-peace"></i> 4. Gestos</h2><p>👉 <strong>Deslizar ESQUERDA/DIREITA</strong> = Próxima / anterior música</p><p>👆 <strong>Toque duplo</strong> = Pausa / Play</p><p>⬆️⬇️ <strong>Arrastar no centro da tela (área invisível)</strong> = Aumenta/diminui o volume</p><h2><i class="fas fa-music"></i> 5. Gêneros Disponíveis</h2><p>🎸 SERTANEJO | 🥁 FORRÓ | 🎵 SAMBA | 🎤 POP | ❤️ BREGA | 🎸 MPB | 🔀 VARIADAS</p><button class="close-manual-btn" id="closeManualBtn">✕ FECHAR MANUAL</button></div></div>
-    <div class="genres-modal" id="genresModal"><h3><i class="fas fa-music"></i> ESCOLHA SEU ESTILO</h3><div class="genres-grid"><div class="genre-card" data-genero="SERTANEJO"><i class="fas fa-guitar"></i><span>SERTANEJO</span></div><div class="genre-card" data-genero="FORRÓ"><i class="fas fa-drum"></i><span>FORRÓ</span></div><div class="genre-card" data-genero="SAMBA"><i class="fas fa-music"></i><span>SAMBA</span></div><div class="genre-card" data-genero="POP"><i class="fas fa-microphone-alt"></i><span>POP</span></div><div class="genre-card" data-genero="BREGA"><i class="fas fa-heart"></i><span>BREGA</span></div><div class="genre-card" data-genero="MPB"><i class="fas fa-guitar"></i><span>MPB</span></div><div class="genre-card" data-genero="VARIADAS"><i class="fas fa-random"></i><span>VARIADAS</span></div><div class="genre-card" data-genero="TODOS"><i class="fas fa-list-ul"></i><span>TODOS</span></div><div class="genre-card" data-genero="LIVE" style="background: linear-gradient(135deg, #e63946, #ff0000);"><i class="fas fa-broadcast-tower"></i><span>🔴 VOLTAR AO VIVO</span></div></div><button class="close-genres" id="closeGenresBtn"><i class="fas fa-times-circle"></i> FECHAR</button></div>
+    <div class="manual-modal" id="manualModal"><div class="manual-container"><h1>📘 Rádio Patico IA - MANUAL</h1><div class="subtitle">A Inteligência Artificial aprende suas músicas preferidas!</div><h2><i class="fas fa-brain"></i> 1. Como a IA aprende</h2><p>✅ <strong>Curtir uma música (👍)</strong> - A IA aprende que você gostou e toca mais músicas parecidas</p><p>❌ <strong>Não gostou (👎)</strong> - A IA evita tocar músicas parecidas e já pula para a próxima</p><div class="dica">💡 Quanto mais você avalia, mais inteligente fica a playlist!</div><h2><i class="fas fa-broadcast-tower"></i> 2. Modo AO VIVO</h2><p>🔴 <strong>Rádio inicia em MODO AO VIVO</strong> - tocando apenas músicas com <strong>tipo: "ao vivo"</strong></p><p>📺 <strong>Anúncios e vinhetas</strong> - Só tocam no modo AO VIVO!</p><p>🎵 Após terminar todas as músicas ao vivo, o modo normal é ativado automaticamente</p><div class="dica">💡 Para voltar ao modo AO VIVO, clique no botão GEN/EROS e escolha "🔴 VOLTAR AO VIVO"</div><h2><i class="fas fa-video"></i> 3. Anúncios Configuráveis</h2><p>📹 <strong>Anúncio em vídeo (tea.mp4)</strong> - aparece a cada <strong>30 segundos</strong> (apenas modo AO VIVO)</p><p>🎵 <strong>Anúncio em áudio (radiom.mp3)</strong> - a cada <strong>20 músicas</strong> (apenas modo AO VIVO)</p><h2><i class="fas fa-hand-peace"></i> 4. Gestos</h2><p>👉 <strong>Deslizar ESQUERDA/DIREITA</strong> = Próxima / anterior música</p><p>👆 <strong>Toque duplo</strong> = Pausa / Play</p><h2><i class="fas fa-music"></i> 5. Gêneros Disponíveis</h2><p>🎸 SERTANEJO | 🥁 FORRÓ | 🪕 FORRÓ ANTIGO | 🎵 SAMBA | 🎤 POP | ❤️ BREGA | 🎸 MPB | 🔀 VARIADAS | 🎸 MODA TOP | 🎤 AS++</p><button class="close-manual-btn" id="closeManualBtn">✕ FECHAR MANUAL</button></div></div>
+    <div class="genres-modal" id="genresModal"><h3><i class="fas fa-music"></i> ESCOLHA SEU ESTILO</h3><div class="genres-grid">
+        <div class="genre-card" data-genero="SERTANEJO"><i class="fas fa-guitar"></i><span>SERTANEJO</span></div>
+        <div class="genre-card" data-genero="FORRÓ"><i class="fas fa-drum"></i><span>FORRÓ</span></div>
+        <div class="genre-card" data-genero="FORRÓ ANTIGO"><i class="fas fa-accordion"></i><span>FORRÓ ANTIGO</span></div>
+        <div class="genre-card" data-genero="SAMBA"><i class="fas fa-music"></i><span>SAMBA</span></div>
+        <div class="genre-card" data-genero="POP"><i class="fas fa-microphone-alt"></i><span>POP</span></div>
+        <div class="genre-card" data-genero="BREGA"><i class="fas fa-heart"></i><span>BREGA</span></div>
+        <div class="genre-card" data-genero="MPB"><i class="fas fa-guitar"></i><span>MPB</span></div>
+        <div class="genre-card" data-genero="VARIADAS"><i class="fas fa-random"></i><span>VARIADAS</span></div>
+        <div class="genre-card" data-genero="MODA TOP"><i class="fas fa-star"></i><span>MODA TOP</span></div>
+        <div class="genre-card" data-genero="AS++"><i class="fas fa-crown"></i><span>AS++</span></div>
+        <div class="genre-card" data-genero="TODOS"><i class="fas fa-list-ul"></i><span>TODOS</span></div>
+        <div class="genre-card" data-genero="LIVE" style="background: linear-gradient(135deg, #e63946, #ff0000);"><i class="fas fa-broadcast-tower"></i><span>🔴 VOLTAR AO VIVO</span></div>
+    </div><button class="close-genres" id="closeGenresBtn"><i class="fas fa-times-circle"></i> FECHAR</button></div>
     <audio id="musicPlayer" preload="auto" crossorigin="anonymous"></audio>
     <audio id="backgroundAudio" preload="auto" crossorigin="anonymous" style="display: none;"></audio>
     <audio id="adAudio" preload="auto" crossorigin="anonymous" style="display: none;"></audio>
     <div class="feedback-modal" id="feedbackModal"><h3>Sua opinião</h3><div class="rating" id="ratingStars"><i class="far fa-star star" data-rating="1"></i><i class="far fa-star star" data-rating="2"></i><i class="far fa-star star" data-rating="3"></i><i class="far fa-star star" data-rating="4"></i><i class="far fa-star star" data-rating="5"></i></div><textarea id="feedbackText" placeholder="Escreva sua sugestão..."></textarea><div class="modal-buttons"><button class="modal-btn cancel" id="cancelFeedback">Cancelar</button><button class="modal-btn send" id="sendFeedback"><i class="fab fa-whatsapp"></i> Enviar</button></div></div>
     <div class="swipe-indicator" id="swipeIndicator">👉 Deslize para próxima música</div>
-    <div class="volume-area" id="volumeArea"></div>
     <div class="volume-toast" id="volumeToast">🔊 Volume: 50%</div>
 
     <script>
-        // ==================== PLAYLIST (COLE A SUA PLAYLIST COMPLETA AQUI) ====================
-        // ATENÇÃO! Substitua esta lista pela sua playlist completa (460+ músicas)
+        // ==================== PLAYLIST COMPLETA COM OS 3 NOVOS GÊNEROS ====================
         const musicas = [
-            // Exemplo: coloque aqui TODAS as suas músicas organizadas por gênero
+            // SERTANEJO (IDs 1-13, 462, 469)
             { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
             { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
             { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -238,8 +259,7 @@
             { id: 462, title: "At_Voc_Voltar", artist: "Marilha Mendoça", src: "Mar_lia_Mendon_a_At_Voc_Voltar_muzzik.m4a", genero: "SERTANEJO", tipo: "ao vivo" },
             { id: 469, title: "Outra_Vida", artist: "A_Vontade", src: "A_Vontade_Outra_Vida_muzzik.m4a", genero: "SERTANEJO", tipo: "ao vivo" },
             
-            
-            // FORRÓ
+            // FORRÓ (IDs 14-47, 62, 449-460)
             { id: 14, title: "Ficar por Ficar", artist: "Zé Vaqueiro", src: "Zé-Vaqueiro-Ficar-por-Ficar.m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 15, title: "Coração Partido", artist: "Luan Estilizado", src: "16 - Coracao Partido - Luan Estilizado.mp3", genero: "FORRÓ", tipo: "normal" },
             { id: 16, title: "Avião", artist: "Patrick Costa", src: "Patrick_Costa_Henrique_e_Juliano_Xand_Avi_o_Diga_Pra_Mim_Fiquei_Sabendo_FarraDoPatrick_muzzik (1).m4a", genero: "FORRÓ", tipo: "normal" },
@@ -275,22 +295,20 @@
             { id: 46, title: "Pout-Pourri Sirano & Sirino", artist: "Mono-walter", src: "Mono-walter (1).m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 47, title: "Lembranças de um beijo", artist: "Cham", src: "Lembran_a_de_um_Beijo_Chambinho_Do_Acordeon_Waldonys_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 62, title: "Dona da Minha Cabeça", artist: "Geraldo Azevedo", src: "Geraldo_Azevedo_Dona_da_Minha_Cabe_a_muzzik (1).m4a", genero: "FORRÓ", tipo: "normal" },
-            
             { id: 449, title: "Proibida", artist: "Zé_Filho", src: "Cover_Paix_o_Proibida_Ao_Vivo_Z_Filho_Sanfoneiro_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 450, title: "ficar por ficar", artist: "Zé_Vaqueiro", src: "Z_Vaqueiro_Z_Vaqueiro_quando_o_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-             { id: 451, title: "insegurança", artist: "Italo Poeta", src: "Impredor_insiguraça.mp3", genero: "FORRÓ", tipo: "normal" },
+            { id: 451, title: "insegurança", artist: "Italo Poeta", src: "Impredor_insiguraça.mp3", genero: "FORRÓ", tipo: "normal" },
             { id: 452, title: "ROGER23", artist: "Forró RealForró Real", src: "real.mp3", genero: "FORRÓ", tipo: "normal" },
             { id: 453, title: " Amar Você É Tão Bom", artist: "Impéredor", src: " Amar Você É Tão Bom.mp3", genero: "FORRÓ", tipo: "normal" },
             { id: 454, title: "Estrelinha do ceu", artist: "Samyra_Show", src: "Samyra_Show_Estrelinha-do -ceu.m4a", genero: "FORRÓ", tipo: "normal" },
-             { id: 455, title: "Obsessão Jardim_dos_Animais", artist: "Guilherme_Ferri", src: "Guilherme_Ferri_Jardim_dos_Animais_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
+            { id: 455, title: "Obsessão Jardim_dos_Animais", artist: "Guilherme_Ferri", src: "Guilherme_Ferri_Jardim_dos_Animais_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 456, title: "Pout-Pourri", artist: "Michele_Andrade", src: "Michele_Andrade_Obsess_o_part_Tony_Guerra_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 457, title: "Pout-Pourri", artist: "Kally_Fonseca_e_DJ_Maluco", src: "Kally_Fonseca_e_DJ_Maluco.m4a", genero: "FORRÓ", tipo: "normal" },
-             { id: 458, title: "Avine_Vinny_Rey_Vaqueiro", artist: "Vinny_Rey_Vaqueiro", src: "Solteiro_Cruel_Avine_Vinny_Rey_Vaqueiro_Fogo_.m4a", genero: "FORRÓ", tipo: "normal" },
+            { id: 458, title: "Avine_Vinny_Rey_Vaqueiro", artist: "Vinny_Rey_Vaqueiro", src: "Solteiro_Cruel_Avine_Vinny_Rey_Vaqueiro_Fogo_.m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 459, title: "Meu_Grande_Amor", artist: "Galicia", src: "Gal_cia_Meu_Grande_Amor.m4a", genero: "FORRÓ", tipo: "normal" },
             { id: 460, title: "O mundo", artist: "Kally_Fonseca_e_Vicente_Nery.m4a", src: "Kally_Fonseca_e_Vicente_Nery.m4a", genero: "FORRÓ", tipo: "normal" },
 
-        
-            // SAMBA
+            // SAMBA (IDs 48-55)
             { id: 48, title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa 10 - Lance Livre _ NA VIBE DO K10(MP3_160K).mp3", genero: "SAMBA", tipo: "normal" },
             { id: 49, title: "Foi Bom Mas Foi Ontem", artist: "Grupo Menos é Mais", src: "Grupo Menos é Mais e João Gomes - Foi Bom_ Mas Foi Ontem .mp3", genero: "SAMBA", tipo: "normal" },
             { id: 50, title: "Pagode do Kiko", artist: "Kiko no Pagode", src: "KIiko no Pagode.m4a", genero: "SAMBA", tipo: "normal" },
@@ -299,7 +317,8 @@
             { id: 53, title: "Momentos", artist: "Xande de Pilares", src: "Xande_de_Pilares_Momentos_N_o_Foi_Toa.m4a", genero: "SAMBA", tipo: "normal" },
             { id: 54, title: "Tendência", artist: "Jorge Aragão", src: "Jorge Aragão-endnncia.m4a", genero: "SAMBA", tipo: "normal" },
             { id: 55, title: "Amei Te Ver", artist: "Tiago Iorc", src: "TIAGO_IORC_MENOS_MAIS_Amei_Te_Ver.m4a", genero: "SAMBA", tipo: "normal" },
-            // POP
+
+            // POP (IDs 56-61, 443-448, 461)
             { id: 56, title: "Haven't Met You Yet", artist: "Michael Bublé", src: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", genero: "POP", tipo: "ao vivo" },
             { id: 57, title: "Billie Jean", artist: "Michael Jackson", src: "Michael_Jackson_Billie_Jean_muzzik.m4a", genero: "POP", tipo: "normal" },
             { id: 58, title: "Thank You", artist: "Dido", src: "Dido_Thank_You.m4a", genero: "POP", tipo: "normal" },
@@ -312,10 +331,9 @@
             { id: 446, title: "Down_Under", artist: "Arthur_Rodrigues", src: "Arthur_Rodrigues_Down_Under_muzzik.m4a", genero: "POP", tipo: "normal" },
             { id: 447, title: "Champagne_King_Love_Come_Down", artist: "Evelyn", src: "Evelyn_Champagne_King_Love_Come_Down_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
             { id: 448, title: "Timberlake", artist: "Mirrors_Justin", src: "Mirrors_Justin_Timberlake_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-             { id: 461, title: "You_ll_Never_Find", artist: "HSCC", src: "_You_ll_Never_Find__(LOU_RAWLS)_Cover_by_The_HSCC.mp3", genero: "POP", tipo: "ao vivo" },
+            { id: 461, title: "You_ll_Never_Find", artist: "HSCC", src: "_You_ll_Never_Find__(LOU_RAWLS)_Cover_by_The_HSCC.mp3", genero: "POP", tipo: "ao vivo" },
 
-
-            // BREGA
+            // BREGA (IDs 64, 204-240, 464-466)
             { id: 64, title: "Tarde Demais", artist: "À Vontade", src: "_Vontade_TARDE_DEMAIS_.m4a", genero: "BREGA", tipo: "normal" },
             { id: 204, title: "Entre espulmas", artist: "Roberrto Miler", src: "Entre_Espumas_Entre_Espumas_muzzik.m4a", genero: "BREGA", tipo: "normal" },
             { id: 205, title: "Mande um telegrama", artist: "Odair José", src: "Mande_Nem_Mande_Nem_Que_Seja_um_Telegrama_muzzik.m4a", genero: "BREGA", tipo: "normal" },
@@ -356,12 +374,8 @@
             { id: 464, title: "Aparencias_Belchior_muzzik.m4a", artist: "Belchior", src: "Aparencias_Belchior_muzzik.m4a", genero: "BREGA", tipo: "normal" },
             { id: 465, title: "Voc_n_o_me_ensinou_a_te_esquecer", artist: "Lostalgia", src: "Voc_n_o_me_ensinou_a_te_esquecer_Lostalgia_muzzik.m4a", genero: "BREGA", tipo: "normal" },
             { id: 466, title: "Pout_pourri REI", artist: "Emílio Santiago", src: "Pot_Pourri_Detalhes_Emo_es_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-            
-            
-            
-            
-            
-            // MPB
+
+            // MPB (IDs 100-136, 241-442, 468)
             { id: 100, title: "Palpite", artist: "Vanessa Rangel", src: "Palpite_Palpite_muzzik.m4a", genero: "MPB", tipo: "normal" },
             { id: 101, title: "Sinais de Fogo", artist: "Preta Gil", src: "Preta_gil_sinais_de_fogo_muzzik.m4a", genero: "MPB", tipo: "normal" },
             { id: 102, title: "Francesa", artist: "Kiko Zabianch", src: "AFrancesa_Francesa_muzzik.m4a", genero: "MPB", tipo: "normal" },
@@ -516,10 +530,9 @@
             { id: 440, title: "Espumas ao Vento", artist: "Fagner", src: "Espumas_ao_Espumas_ao_Vento.m4a", genero: "MPB", tipo: "ao vivo" },
             { id: 441, title: "Esquece e Vem", artist: "Nico Rezende", src: "Esquece_e_Esquece_e_vem_Nico_5.m4a", genero: "MPB", tipo: "ao vivo" },
             { id: 442, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "MPB", tipo: "ao vivo" },
-             { id: 468, title: "Noites com sol", artist: "Flavio_Venturini & Vanessa", src: "Flavio_Venturini_Flavio_Venturini_Feat_Vanessa_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        
-        
-            // VARIADAS
+            { id: 468, title: "Noites com sol", artist: "Flavio_Venturini & Vanessa", src: "Flavio_Venturini_Flavio_Venturini_Feat_Vanessa_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
+
+            // VARIADAS (IDs 63, 200-203, 242, 245-246, 248, 252, 256-257, 259-260, 264-266, 268, 272, 277-280, 283, 285, 291, 293-294, 297, 301, 305-306, 308-310, 316-319, 321-322, 326-327, 330, 336-343, 345, 347, 349, 351-354, 356-357, 360, 375, 377-378, 382-383, 391, 393-397, 400-402, 404-405, 407-408, 410-411, 420, 422, 425, 428-429, 431, 434-435)
             { id: 63, title: "Easy", artist: "Commodores", src: "Commodores_Easy_6.m4a", genero: "VARIADAS", tipo: "ao vivo" },
             { id: 200, title: "of_Swing_Backing_roger.", artist: "Swing_Backing", src: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", genero: "VARIADAS", tipo: "normal" },
             { id: 201, title: "NatalieImbruglia_Torn", artist: "Natalie", src: "Natalie_Imbruglia_Torn_muzzik.m4a", genero: "VARIADAS", tipo: "normal" },
@@ -609,7 +622,23 @@
             { id: 429, title: "Thank You", artist: "Dido", src: "Dido_Thank_You_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
             { id: 431, title: "Everytime You Go Away", artist: "Dino Fonseca", src: "Dino_Fonseca_Everytime_You_Go_Away_Back_To_The_s_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
             { id: 434, title: "Hotel California", artist: "Eagles", src: "Eagles_Hotel_California_12.m4a", genero: "POP", tipo: "ao vivo" },
-            { id: 435, title: "Sailing", artist: "Emmerson Nogueira", src: "Emmerson_Nogueira_Sailing_13.m4a", genero: "POP", tipo: "ao vivo" }
+            { id: 435, title: "Sailing", artist: "Emmerson Nogueira", src: "Emmerson_Nogueira_Sailing_13.m4a", genero: "POP", tipo: "ao vivo" },
+
+            // ==================== NOVOS GÊNEROS (MODA TOP, FORRÓ ANTIGO, AS++) ====================
+            // MODA TOP
+            { id: 500, title: "Exemplo Moda Top 1", artist: "Artista Sertanejo", src: "modatop1.m4a", genero: "MODA TOP", tipo: "normal" },
+            { id: 501, title: "Exemplo Moda Top 2", artist: "Outro Artista", src: "modatop2.mp3", genero: "MODA TOP", tipo: "normal" },
+            { id: 502, title: "Exemplo Moda Top Ao Vivo", artist: "Artista Ao Vivo", src: "modatop_ao_vivo.m4a", genero: "MODA TOP", tipo: "ao vivo" },
+
+            // FORRÓ ANTIGO
+            { id: 503, title: "Exemplo Forró Antigo 1", artist: "Sanfoneiro X", src: "forroantigo1.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
+            { id: 504, title: "Exemplo Forró Antigo 2", artist: "Trié", src: "forroantigo2.mp3", genero: "FORRÓ ANTIGO", tipo: "normal" },
+            { id: 505, title: "Exemplo Forró Antigo Ao Vivo", artist: "Banda Tradicional", src: "forroantigo_ao_vivo.m4a", genero: "FORRÓ ANTIGO", tipo: "ao vivo" },
+
+            // AS++
+            { id: 506, title: "Exemplo AS++ 1", artist: "Banda Internacional", src: "aspp1.m4a", genero: "AS++", tipo: "normal" },
+            { id: 507, title: "Exemplo AS++ 2", artist: "Artista Pop", src: "aspp2.mp3", genero: "AS++", tipo: "normal" },
+            { id: 508, title: "Exemplo AS++ Ao Vivo", artist: "Rock Star", src: "aspp_ao_vivo.m4a", genero: "AS++", tipo: "ao vivo" }
         ];
         // ==================== FIM DA PLAYLIST ====================
 
@@ -622,7 +651,8 @@
         const TEMPO_BALAO_LIVE = 1;
         const NUMERO_WHATSAPP = "5512988461978";
         const LINK_DO_SITE = window.location.href;
-        const GENEROS_DISPONIVEIS = ["SERTANEJO", "FORRÓ", "SAMBA", "POP", "BREGA", "MPB", "VARIADAS"];
+        // Gêneros atualizados com os novos
+        const GENEROS_DISPONIVEIS = ["SERTANEJO", "FORRÓ", "FORRÓ ANTIGO", "SAMBA", "POP", "BREGA", "MPB", "VARIADAS", "MODA TOP", "AS++"];
         let generoAtual = "SERTANEJO";
         let trocaAutomaticaAtiva = true;
         let isAoVivo = true;
@@ -636,23 +666,27 @@
         let adVideoPlaying = false;
         let skipLock = false;
 
-        // Função para abrir modal de gêneros - SIMPLES E DIRETA
+        // Funções do modal
         function openGenresModal() { 
             document.getElementById('genresModal').classList.add('open'); 
-            console.log("Abrindo modal de gêneros"); // debug
+            console.log("Abrindo modal de gêneros");
         }
         function closeGenresModal() { 
             document.getElementById('genresModal').classList.remove('open'); 
         }
 
+        // Vídeos por gênero (incluindo novos)
         const videoPorGenero = {
             "SERTANEJO": "sertanejo.mp4",
             "FORRÓ": "forro.mp4",
+            "FORRÓ ANTIGO": "forroantigo.mp4",
             "BREGA": "brega.mp4",
             "POP": "pop.mp4",
             "MPB": "mpb.mp4",
             "SAMBA": "samba.mp4",
             "VARIADAS": "variadas.mp4",
+            "MODA TOP": "modatop.mp4",
+            "AS++": "aspp.mp4",
             "LIVE": "pai.mp4",
             "DEFAULT": "pai.mp4"
         };
@@ -799,7 +833,7 @@
             } else { showNotification(`👎 Você já marcou "${track.title}"`, 1500); }
         }
 
-        let stats = { totalPlayed: 0, totalSeconds: 0, genreCount: { SERTANEJO: 0, FORRÓ: 0, SAMBA: 0, POP: 0, BREGA: 0, MPB: 0, VARIADAS: 0 }, currentStreak: 0 };
+        let stats = { totalPlayed: 0, totalSeconds: 0, genreCount: { SERTANEJO: 0, FORRÓ: 0, FORRÓ ANTIGO: 0, SAMBA: 0, POP: 0, BREGA: 0, MPB: 0, VARIADAS: 0, "MODA TOP": 0, "AS++": 0 }, currentStreak: 0 };
         function loadStats() {
             const saved = localStorage.getItem('radio_patico_stats');
             if (saved) try { Object.assign(stats, JSON.parse(saved)); } catch(e) { console.log(e); }
@@ -930,9 +964,8 @@
         const totalTimeEl = document.getElementById('totalTime');
         const trackArtist = document.getElementById('trackArtist');
         const splash = document.getElementById('splash');
-        const tapToStart = document.getElementById('tap-to-start');
+        const tapToStartEl = document.getElementById('tap-to-start');
         const genreButton = document.getElementById('genreButton');
-        const genresModal = document.getElementById('genresModal');
         const loadingSpinner = document.getElementById('loadingSpinner');
         const audioIndicator = document.getElementById('audioIndicator');
         const likeBtn = document.getElementById('likeBtn');
@@ -985,11 +1018,14 @@
             switch(genero) {
                 case "SERTANEJO": icon = "fa-guitar"; break;
                 case "FORRÓ": icon = "fa-drum"; break;
+                case "FORRÓ ANTIGO": icon = "fa-accordion"; break;
                 case "SAMBA": icon = "fa-music"; break;
                 case "POP": icon = "fa-microphone-alt"; break;
                 case "BREGA": icon = "fa-heart"; break;
                 case "MPB": icon = "fa-guitar"; break;
                 case "VARIADAS": icon = "fa-random"; break;
+                case "MODA TOP": icon = "fa-star"; break;
+                case "AS++": icon = "fa-crown"; break;
                 default: icon = "fa-headphones";
             }
             badge.innerHTML = `<i class="fas ${icon}"></i> ${genero === "MIX" ? "TODOS" : genero}`;
@@ -1058,7 +1094,7 @@
                         }, { once: true });
                         splash.classList.add('hidden');
                         setTimeout(() => splash.style.display = 'none', 500);
-                        tapToStart.style.display = 'none';
+                        tapToStartEl.style.display = 'none';
                         resolve(true);
                     } catch(e) {
                         clearTimeout(timeoutId);
@@ -1315,143 +1351,37 @@
             showNotification('✅ Chave PIX copiada', 2000);
         });
 
-        // ==================== CONTROLE DE VOLUME ====================
-        const volumeArea = document.getElementById('volumeArea');
-        const volumeToast = document.getElementById('volumeToast');
-        let volumeStartY = 0;
-        let volumeStartValue = VOLUME_PLAYER;
-        volumeArea.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            volumeStartY = e.touches[0].clientY;
-            volumeStartValue = musicPlayerEl.volume;
-        });
-        volumeArea.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const deltaY = volumeStartY - e.touches[0].clientY;
-            const newVol = Math.min(1, Math.max(0, volumeStartValue + deltaY / 200));
-            musicPlayerEl.volume = newVol;
-            const percent = Math.round(newVol * 100);
-            volumeToast.textContent = `🔊 Volume: ${percent}%`;
-            volumeToast.style.opacity = '1';
-            clearTimeout(window.volumeToastTimeout);
-            window.volumeToastTimeout = setTimeout(() => {
-                volumeToast.style.opacity = '0';
-            }, 1000);
-        });
-        volumeArea.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            setTimeout(() => { volumeToast.style.opacity = '0'; }, 500);
-        });
-
-        // ==================== BOTÃO DE GÊNERO - SIMPLES E FUNCIONAL (SEM ARRASTO) ====================
-        const floatBtn = document.getElementById('genreButton');
-        
-        // Remover qualquer listener anterior para evitar duplicação
-        const newBtn = floatBtn.cloneNode(true);
-        floatBtn.parentNode.replaceChild(newBtn, floatBtn);
-        const finalBtn = document.getElementById('genreButton');
-        
-        // Adicionar evento de clique simples
-        finalBtn.addEventListener('click', function(e) {
+        // ==================== BOTÃO DE GÊNERO ====================
+        const finalGenreBtn = document.getElementById('genreButton');
+        finalGenreBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log("Botão clicado! Abrindo modal...");
             openGenresModal();
             if (navigator.vibrate) navigator.vibrate(50);
         });
-        
-        // Também adicionar touchstart para garantir (mas sem conflito)
-        finalBtn.addEventListener('touchstart', function(e) {
-            // Não faz nada além de permitir o clique 
-            // O clique será disparado naturalmente após o touchend
-            console.log("Touch detectado no botão");
-        });
 
-        // ==================== ÁUDIO DE FUNDO ====================
-        function createSilentAudio() {
-            const sampleRate = 44100, duration = 5, numSamples = sampleRate * duration;
-            const buffer = new ArrayBuffer(44 + numSamples * 2);
-            const view = new DataView(buffer);
-            const writeString = (view, offset, str) => { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); };
-            writeString(view, 0, 'RIFF'); view.setUint32(4, 36 + numSamples * 2, true); writeString(view, 8, 'WAVE');
-            writeString(view, 12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
-            view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
-            view.setUint16(32, 2, true); view.setUint16(34, 16, true); writeString(view, 36, 'data');
-            view.setUint32(40, numSamples * 2, true); let offset = 44;
-            for (let i = 0; i < numSamples; i++) { view.setInt16(offset, 0, true); offset += 2; }
-            return new Blob([buffer], { type: 'audio/wav' });
-        }
-        
-        const backgroundAudioEl = document.getElementById('backgroundAudio');
-        async function ativarAudioBackground() {
-            try {
-                const silentUrl = URL.createObjectURL(createSilentAudio());
-                backgroundAudioEl.src = silentUrl;
-                backgroundAudioEl.loop = true;
-                backgroundAudioEl.volume = 0.001;
-                await backgroundAudioEl.play();
-                isBackgroundActive = true;
-                audioIndicator.innerHTML = '<i class="fas fa-brain"></i> IA Ativa';
-                audioIndicator.style.color = '#4ade80';
-                if (backgroundInterval) clearInterval(backgroundInterval);
-                backgroundInterval = setInterval(async () => {
-                    try {
-                        if (backgroundAudioEl.paused && isBackgroundActive) await backgroundAudioEl.play();
-                        if (isPlaying && musicPlayerEl.paused && !musicPlayerEl.ended) await musicPlayerEl.play();
-                        if (musicPlayerEl.ended && isPlaying) nextTrack();
-                    } catch(e) {}
-                }, 1000);
-                if (isAoVivo) videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
-                if ('wakeLock' in navigator) {
-                    await navigator.wakeLock.request('screen');
-                    document.addEventListener('visibilitychange', async () => {
-                        if (document.visibilityState === 'visible') await navigator.wakeLock.request('screen');
-                    });
-                }
-                try { await document.documentElement.requestFullscreen(); } catch(e) { console.log("Fullscreen não suportado"); }
-                return true;
-            } catch(e) {
-                audioIndicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro';
-                audioIndicator.style.color = '#ef4444';
-                return false;
-            }
-        }
-
-        function iniciarComMusicaAleatoria() {
-            isAoVivo = true; aoVivoAcabou = false; trocaAutomaticaAtiva = false;
-            let musicasAoVivo = musicas.filter(m => m.tipo === "ao vivo");
-            musicasAoVivo = shuffleArray(musicasAoVivo);
-            if (musicasAoVivo.length === 0) { musicasAoVivo = shuffleArray([...musicas]); showNotification('🔴 Rádio iniciando em MODO AO VIVO!', 3000); }
-            else showNotification(`🔴 Rádio iniciando em MODO AO VIVO! ${musicasAoVivo.length} músicas exclusivas!`, 3000);
-            filteredPlaylist = musicasAoVivo;
-            currentIndex = 0;
-            historicoMusicasLive = [];
-            document.getElementById('genreBadge').innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE';
-            document.getElementById('genreBadge').classList.add('live');
-            loadTrackUI(currentIndex);
-            musicCounter = 0; contadorMusicasVinheta = 0;
-            if (videoAdInterval) clearInterval(videoAdInterval);
-            videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
-            atualizarVideoFundo("LIVE");
-        }
-
-        // ==================== GESTOS (TOQUE) ====================
+        // ==================== GESTOS ====================
         let touchStartX = 0, lastTap = 0;
         document.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.volume-area') || e.target.closest('#genreButton')) return;
+            if (e.target.closest('#genreButton')) return;
             touchStartX = e.changedTouches[0].screenX;
             const now = Date.now();
-            if (now - lastTap < 300) { e.preventDefault(); togglePlayPause(); showSwipeIndicator('⏯️ ' + (isPlaying ? 'Pausado' : 'Play')); }
+            if (now - lastTap < 300) { 
+                e.preventDefault(); 
+                togglePlayPause(); 
+                showSwipeIndicator('⏯️ ' + (isPlaying ? 'Pausado' : 'Play')); 
+            }
             lastTap = now;
         });
         document.addEventListener('touchend', (e) => {
-            if (e.target.closest('.volume-area') || e.target.closest('#genreButton')) return;
+            if (e.target.closest('#genreButton')) return;
             const diff = e.changedTouches[0].screenX - touchStartX;
             if (Math.abs(diff) > 50) {
                 if (diff > 0) { prevTrack(); showSwipeIndicator('⏮️ Música anterior'); }
                 else { nextTrack(); showSwipeIndicator('⏭️ Próxima música'); }
             }
         });
+        
         function showSwipeIndicator(text) {
             const el = document.getElementById('swipeIndicator');
             el.textContent = text;
@@ -1583,25 +1513,93 @@
         document.addEventListener('click', resetHideTimer);
         showControlsPanel();
 
-        tapToStart.addEventListener('click', async (e) => {
+        tapToStartEl.addEventListener('click', async (e) => {
             e.stopPropagation();
             showNotification('🔊 Ativando áudio...', 2000);
             const ok = await ativarAudioBackground();
             if (ok) {
                 await playMusic();
-                tapToStart.style.display = 'none';
+                tapToStartEl.style.display = 'none';
                 try { await document.documentElement.requestFullscreen(); } catch(err) {}
                 showNotification('✅ Áudio ativado! Rádio em MODO AO VIVO!', 3000);
                 if (isAoVivo) mostrarBalaoAoVivo();
             } else { showNotification('❌ Falha ao ativar áudio.', 3000); }
         });
         
+        // Função de áudio de fundo
+        function createSilentAudio() {
+            const sampleRate = 44100, duration = 5, numSamples = sampleRate * duration;
+            const buffer = new ArrayBuffer(44 + numSamples * 2);
+            const view = new DataView(buffer);
+            const writeString = (view, offset, str) => { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); };
+            writeString(view, 0, 'RIFF'); view.setUint32(4, 36 + numSamples * 2, true); writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true); view.setUint16(34, 16, true); writeString(view, 36, 'data');
+            view.setUint32(40, numSamples * 2, true); let offset = 44;
+            for (let i = 0; i < numSamples; i++) { view.setInt16(offset, 0, true); offset += 2; }
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+        
+        const backgroundAudioEl = document.getElementById('backgroundAudio');
+        async function ativarAudioBackground() {
+            try {
+                const silentUrl = URL.createObjectURL(createSilentAudio());
+                backgroundAudioEl.src = silentUrl;
+                backgroundAudioEl.loop = true;
+                backgroundAudioEl.volume = 0.001;
+                await backgroundAudioEl.play();
+                isBackgroundActive = true;
+                audioIndicator.innerHTML = '<i class="fas fa-brain"></i> IA Ativa';
+                audioIndicator.style.color = '#4ade80';
+                if (backgroundInterval) clearInterval(backgroundInterval);
+                backgroundInterval = setInterval(async () => {
+                    try {
+                        if (backgroundAudioEl.paused && isBackgroundActive) await backgroundAudioEl.play();
+                        if (isPlaying && musicPlayerEl.paused && !musicPlayerEl.ended) await musicPlayerEl.play();
+                        if (musicPlayerEl.ended && isPlaying) nextTrack();
+                    } catch(e) {}
+                }, 1000);
+                if (isAoVivo) videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
+                if ('wakeLock' in navigator) {
+                    await navigator.wakeLock.request('screen');
+                    document.addEventListener('visibilitychange', async () => {
+                        if (document.visibilityState === 'visible') await navigator.wakeLock.request('screen');
+                    });
+                }
+                try { await document.documentElement.requestFullscreen(); } catch(e) { console.log("Fullscreen não suportado"); }
+                return true;
+            } catch(e) {
+                audioIndicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro';
+                audioIndicator.style.color = '#ef4444';
+                return false;
+            }
+        }
+
+        function iniciarComMusicaAleatoria() {
+            isAoVivo = true; aoVivoAcabou = false; trocaAutomaticaAtiva = false;
+            let musicasAoVivo = musicas.filter(m => m.tipo === "ao vivo");
+            musicasAoVivo = shuffleArray(musicasAoVivo);
+            if (musicasAoVivo.length === 0) { musicasAoVivo = shuffleArray([...musicas]); showNotification('🔴 Rádio iniciando em MODO AO VIVO!', 3000); }
+            else showNotification(`🔴 Rádio iniciando em MODO AO VIVO! ${musicasAoVivo.length} músicas exclusivas!`, 3000);
+            filteredPlaylist = musicasAoVivo;
+            currentIndex = 0;
+            historicoMusicasLive = [];
+            document.getElementById('genreBadge').innerHTML = '<i class="fas fa-broadcast-tower"></i> 🔴 LIVE';
+            document.getElementById('genreBadge').classList.add('live');
+            loadTrackUI(currentIndex);
+            musicCounter = 0; contadorMusicasVinheta = 0;
+            if (videoAdInterval) clearInterval(videoAdInterval);
+            videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
+            atualizarVideoFundo("LIVE");
+        }
+
         loadPreferences();
         loadStats();
         iniciarComMusicaAleatoria();
-        tapToStart.style.display = 'block';
+        tapToStartEl.style.display = 'block';
         iniciarVisualizer();
-        console.log("Rádio inicializada - botão de gênero deve funcionar!");
+        console.log("Rádio inicializada - Novos gêneros: MODA TOP, FORRÓ ANTIGO, AS++");
     </script>
 </body>
 </html>
