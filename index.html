@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rádio Patico IA • Com Busca</title>
+    <title>Rádio Patico IA</title>
     <link rel="icon" type="image/png" href="falcon.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="falcon.png">
@@ -48,12 +48,6 @@
         .tv-mode-active .control-btn { width:52px; height:52px; font-size:1.2rem; }
         .tv-mode-active .play-btn { width:60px; height:60px; font-size:1.4rem; }
 
-        .tv-pix-overlay { position:fixed; bottom:20px; left:20px; background:rgba(0,0,0,0.85); backdrop-filter:blur(12px); border-radius:18px; padding:10px 14px; z-index:1000; border-left:4px solid #00d4ff; pointer-events:auto; display:none; color:var(--text); text-align:center; max-width:200px; font-size:0.75rem; }
-        .tv-pix-overlay.show { display:block; animation:fadeInPix .3s; }
-        @keyframes fadeInPix { from { opacity:0; transform:translateX(-20px); } to { opacity:1; transform:translateX(0); } }
-        .tv-pix-overlay img { width:90px; margin:6px auto; display:block; background:var(--text); padding:4px; border-radius:10px; cursor:pointer; }
-        .tv-pix-overlay .pix-key { font-size:.7rem; word-break:break-all; background:#222; padding:6px; border-radius:10px; margin-top:8px; cursor:pointer; }
-
         .exit-tv-btn { position:fixed; top:20px; left:20px; background:var(--bg-glass); backdrop-filter:blur(10px); color:var(--text); border:2px solid #00d4ff; padding:10px 16px; border-radius:50px; font-size:.8rem; font-weight:bold; cursor:pointer; z-index:102; display:none; }
         .tv-mode-active .exit-tv-btn { display:block; }
 
@@ -73,9 +67,9 @@
         .menu-popup button { background:rgba(255,255,255,0.1); border:none; color:var(--text); padding:8px 16px; border-radius:30px; font-size:.8rem; display:flex; align-items:center; gap:8px; cursor:pointer; }
         .menu-popup button:active { background:var(--accent); color:#000; }
 
-        .ai-modal,.stats-modal,.genres-modal,.manual-modal,.feedback-modal,.search-modal { position:fixed; background:linear-gradient(135deg,#1a1a2e,#16213e); border-radius:30px; z-index:5000; display:none; }
+        .ai-modal,.stats-modal,.genres-modal,.manual-modal,.feedback-modal { position:fixed; background:linear-gradient(135deg,#1a1a2e,#16213e); border-radius:30px; z-index:5000; display:none; }
         .ai-modal,.stats-modal { top:50%; left:50%; transform:translate(-50%,-50%); padding:25px; width:350px; max-width:90vw; border:2px solid var(--accent); }
-        .ai-modal.open,.stats-modal.open,.search-modal.open { display:block; }
+        .ai-modal.open,.stats-modal.open { display:block; }
         .ai-modal h3,.stats-modal h3 { color:var(--accent); text-align:center; margin-bottom:20px; }
         .ai-stat,.stat-item { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.1); color:var(--text); }
         .favorite-song-item { background:rgba(230,57,70,0.2); padding:10px; margin:5px 0; border-radius:10px; display:flex; justify-content:space-between; align-items:center; }
@@ -111,8 +105,12 @@
 
         .bottom-controls { position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(12px); border-top:var(--border-subtle); padding:8px 16px; z-index:20; pointer-events:auto; transition:transform .3s ease,opacity .3s ease; }
         .bottom-controls.hide { transform:translateY(100%); opacity:0; pointer-events:none; }
-        .track-info { text-align:center; margin-bottom:4px; }
-        .track-info p { font-size:.8rem; font-weight:500; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .track-info { text-align:center; margin-bottom:2px; overflow:hidden; }
+        .marquee-wrap { width:100%; overflow:hidden; white-space:nowrap; }
+        .marquee-text { display:inline-block; animation:marquee 12s linear infinite; color:var(--text); font-size:.8rem; font-weight:500; }
+        @keyframes marquee { 0% { transform:translateX(100%); } 100% { transform:translateX(-100%); } }
+        .next-track { text-align:center; margin-bottom:4px; }
+        .next-track span { font-size:.6rem; color:#aaa; }
         .progress-area { margin-bottom:4px; }
         .progress-time { display:flex; justify-content:space-between; font-size:.65rem; color:#ccc; margin-bottom:2px; }
         .progress-bar { height:3px; background:rgba(255,255,255,0.3); cursor:pointer; border-radius:3px; }
@@ -122,7 +120,7 @@
         .control-btn:active { transform:scale(0.9); background:var(--accent); color:#000; }
         .play-btn { font-size:1.3rem; width:var(--play-btn-size); height:var(--play-btn-size); background:var(--accent); color:#000; border:none; box-shadow:0 0 12px var(--accent-glow); }
 
-        .feedback-buttons { position:fixed; bottom:90px; left:16px; display:flex; gap:10px; z-index:27; }
+        .feedback-buttons { position:fixed; bottom:120px; left:16px; display:flex; gap:10px; z-index:27; }
         .feedback-btn { width:40px; height:40px; border-radius:50%; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); border:var(--border-subtle); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; }
         .feedback-btn.like { color:#4ade80; }
         .feedback-btn.dislike { color:#ef4444; }
@@ -167,7 +165,7 @@
 
         .swipe-indicator { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.7); color:var(--text); padding:8px 16px; border-radius:30px; font-size:.7rem; z-index:10002; opacity:0; transition:opacity .3s; pointer-events:none; }
 
-        .genre-button { position:fixed; bottom:90px; right:16px; width:40px; height:40px; background:radial-gradient(circle at 30% 10%,#1a1a2e,#0a0a1a); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:1000; border:2px solid rgba(0,255,255,0.6); box-shadow:0 0 15px rgba(0,255,255,0.3),0 6px 15px rgba(0,0,0,0.5); transition:all .2s ease; backdrop-filter:blur(12px); animation:cyberPulse 2s infinite alternate; }
+        .genre-button { position:fixed; bottom:120px; right:16px; width:40px; height:40px; background:radial-gradient(circle at 30% 10%,#1a1a2e,#0a0a1a); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:1000; border:2px solid rgba(0,255,255,0.6); box-shadow:0 0 15px rgba(0,255,255,0.3),0 6px 15px rgba(0,0,0,0.5); transition:all .2s ease; backdrop-filter:blur(12px); animation:cyberPulse 2s infinite alternate; }
         .genre-button:active { transform:scale(0.95); background:radial-gradient(circle at 30% 10%,var(--accent),#a01030); box-shadow:0 0 25px #ff00aa; border-color:#ff00aa; }
         .genre-button i { font-size:1.4rem; color:#0ff; filter:drop-shadow(0 0 6px cyan); pointer-events:none; }
         @keyframes cyberPulse { 0% { box-shadow:0 0 8px rgba(0,255,255,0.4),0 0 4px rgba(0,255,255,0.2); border-color:rgba(0,255,255,0.5); } 100% { box-shadow:0 0 20px rgba(0,255,255,0.8),0 0 12px rgba(0,255,255,0.4); border-color:#0ff; } }
@@ -176,7 +174,6 @@
 
         .volume-slider-overlay { position:fixed; right:0; top:20%; bottom:20%; width:30px; z-index:999; background:transparent; }
 
-        /* Estilos do buscador */
         .search-container {
             position:fixed; top:60px; left:10px; right:10px; background:rgba(0,0,0,0.95); backdrop-filter:blur(16px);
             border-radius:16px; padding:12px; z-index:5000; display:none; border:1px solid var(--accent);
@@ -197,12 +194,16 @@
 <div id="tap-to-start"><i class="fas fa-play-circle"></i> 🎵 ATIVAR RÁDIO</div>
 <div class="app">
     <div class="fullscreen-video-container"><video id="mainVideo" autoplay loop muted playsinline><source src="pai.mp4" type="video/mp4"></video></div>
-    <div class="tv-pix-overlay" id="tvPixOverlay"><h3><i class="fas fa-qrcode"></i> APOIE</h3><img id="pixQrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=00020126360014br.gov.bcb.pix0114+551298846197852040000530398654040.095802BR5925Radio%20Patico%20IA6009SAO%20PAULO61080540900062290525radio.patico@email.com6304E2F3" alt="QR Code PIX"><div class="pix-key" id="pixKey">12988461978</div><small>Clique para copiar</small></div>
     <div class="live-info-balloon" id="liveInfoBalloon" style="display:none"><div class="balloon-content"><i class="fas fa-circle"></i><span id="liveInfoText">AO VIVO</span><i class="fas fa-microphone-alt"></i></div><div class="balloon-timer"><div class="timer-bar" id="balloonTimerBar"></div></div></div>
     <div id="notificationTop" class="notification-top"><div class="message" id="notificationMessage"></div></div>
     <div class="video-ad-overlay" id="videoAdOverlay"><video id="adVideo" autoplay muted playsinline loop><source src="tea.mp4" type="video/mp4"></video></div>
     <div class="audio-ad-container" id="audioAdToast"><i class="fas fa-volume-up"></i><span id="audioAdText">🎧 Anúncio</span></div>
-    <div class="controls-overlay"><div class="bottom-controls" id="bottomControls"><div class="track-info"><p id="trackArtist">🎵 Clique em ATIVAR RÁDIO</p></div><div class="progress-area"><div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div><div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div></div><div class="control-buttons"><button class="control-btn" id="prevBtn"><i class="fas fa-step-backward"></i></button><button class="control-btn play-btn" id="playPauseBtn"><i class="fas fa-play"></i></button><button class="control-btn" id="shuffleBtn"><i class="fas fa-random"></i></button><button class="control-btn" id="nextBtn"><i class="fas fa-step-forward"></i></button></div></div></div>
+    <div class="controls-overlay"><div class="bottom-controls" id="bottomControls">
+        <div class="track-info"><div class="marquee-wrap"><span class="marquee-text" id="trackMarquee">🎵 Clique em ATIVAR RÁDIO</span></div></div>
+        <div class="next-track"><span id="nextTrackInfo">Próxima: --</span></div>
+        <div class="progress-area"><div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div><div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div></div>
+        <div class="control-buttons"><button class="control-btn" id="prevBtn"><i class="fas fa-step-backward"></i></button><button class="control-btn play-btn" id="playPauseBtn"><i class="fas fa-play"></i></button><button class="control-btn" id="shuffleBtn"><i class="fas fa-random"></i></button><button class="control-btn" id="nextBtn"><i class="fas fa-step-forward"></i></button></div>
+    </div></div>
 </div>
 <div class="genre-badge" id="genreBadge"><i class="fas fa-broadcast-tower"></i> 🔴 LIVE</div>
 <div class="audio-indicator" id="audioIndicator"><i class="fas fa-circle"></i> Aguardando</div>
@@ -224,7 +225,7 @@
 </div>
 <div class="ai-modal" id="aiModal"><h3><i class="fas fa-brain"></i> Inteligência Artificial</h3><div class="ai-stat"><span>🎯 Músicas que você curtiu:</span><span class="stat-value" id="aiLikedCount">0</span></div><div class="ai-stat"><span>👎 Músicas que não curtiu:</span><span class="stat-value" id="aiDislikedCount">0</span></div><div class="ai-stat"><span>⭐ Gênero favorito:</span><span class="stat-value" id="aiTopGenre">-</span></div><div class="ai-stat"><span>🎵 Top 5 preferidas:</span></div><div id="aiTopSongs"></div><button class="close-ai" id="closeAiBtn">Fechar</button></div>
 <div class="stats-modal" id="statsModal"><h3><i class="fas fa-chart-line"></i> Suas Estatísticas</h3><div class="stat-item"><span>🎵 Músicas ouvidas:</span><span class="stat-value" id="statTotalPlayed">0</span></div><div class="stat-item"><span>⏱️ Tempo total:</span><span class="stat-value" id="statTotalTime">0h 0m</span></div><div class="stat-item"><span>⭐ Gênero fav:</span><span class="stat-value" id="statTopGenre">-</span></div><div class="stat-item"><span>🔥 Sequência atual:</span><span class="stat-value" id="statStreak">0</span></div><button class="close-stats" id="closeStatsBtn">Fechar</button></div>
-<div class="manual-modal" id="manualModal"><div class="manual-container"><h1>📘 Rádio Patico IA - MANUAL</h1><div class="subtitle">A Inteligência Artificial aprende suas músicas preferidas!</div><h2><i class="fas fa-brain"></i> 1. Como a IA aprende</h2><p>✅ Curtir uma música (👍) - A IA aprende que você gostou e toca mais músicas parecidas</p><p>❌ Não gostou (👎) - A IA evita tocar músicas parecidas e já pula para a próxima</p><div class="dica">💡 Quanto mais você avalia, mais inteligente fica a playlist!</div><h2><i class="fas fa-broadcast-tower"></i> 2. Modo AO VIVO</h2><p>🔴 Rádio inicia em MODO AO VIVO - tocando apenas músicas com tipo: "ao vivo"</p><h2><i class="fas fa-hand-peace"></i> 3. Gestos</h2><p>👉 Deslizar ESQUERDA/DIREITA = Próxima / anterior música</p><p>👆 Toque duplo = Pausa / Play</p><h2><i class="fas fa-search"></i> 4. Buscar música</h2><p>🔍 Use o menu (⋯) e "Buscar música" para encontrar qualquer faixa da playlist</p><h2><i class="fas fa-music"></i> 5. Gêneros Disponíveis</h2><p>🎸 SERTANEJO | 🥁 FORRÓ | 🪕 FORRÓ ANTIGO | 🎵 SAMBA | 🎤 POP | ❤️ BREGA | 🎸 MPB | 🔀 VARIADAS | 🎸 MODA TOP | 🎤 AS++</p><button class="close-manual-btn" id="closeManualBtn">✕ FECHAR MANUAL</button></div></div>
+<div class="manual-modal" id="manualModal"><div class="manual-container"><h1>📘 Rádio Patico IA - MANUAL</h1><p>✅ IA aprende com likes | 🔴 Modo AO VIVO | 🔍 Busca por música</p><button class="close-manual-btn" id="closeManualBtn">✕ FECHAR MANUAL</button></div></div>
 <div class="genres-modal" id="genresModal"><h3><i class="fas fa-music"></i> ESCOLHA SEU ESTILO</h3><div class="genres-grid">
     <div class="genre-card" data-genero="SERTANEJO"><i class="fas fa-guitar"></i><span>SERTANEJO</span></div>
     <div class="genre-card" data-genero="FORRÓ"><i class="fas fa-drum"></i><span>FORRÓ</span></div>
@@ -241,7 +242,7 @@
 </div><button class="close-genres" id="closeGenresBtn"><i class="fas fa-times-circle"></i> FECHAR</button></div>
 <div class="search-container" id="searchContainer">
     <button class="search-close" id="closeSearchBtn"><i class="fas fa-times"></i></button>
-    <input type="text" class="search-input" id="searchInput" placeholder="Digite nome da música ou artista..." autocomplete="off">
+    <input type="search" class="search-input" id="searchInput" placeholder="Buscar música ou artista..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other">
     <div class="search-results" id="searchResults"></div>
 </div>
 <audio id="musicPlayer" preload="auto" crossorigin></audio>
@@ -253,7 +254,6 @@
 <div class="volume-slider-overlay" id="volumeSliderZone"></div>
 
 <script>
-    // ==================== CONFIGURAÇÕES ====================
     const CONFIG = {
         PIX_KEY: '12988461978',
         WHATSAPP_NUMBER: '5512988461978',
@@ -276,14 +276,10 @@
             'AS++': 'aspp.mp4',
             LIVE: 'pai.mp4',
             DEFAULT: 'pai.mp4'
-        },
-        PIX_DISPLAY_INTERVAL: 120000, // 2 minutos
-        PIX_DISPLAY_DURATION: 20000  // 20 segundos
+        }
     };
 
-    // ==================== PLAYLIST COMPLETA (já corrigida por você – mantida aqui) ====================
     const PLAYLIST = [
-        // SERTANEJO
         { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
         { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
         { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -299,13 +295,10 @@
         { id: 13, title: "La Barca", artist: "Murilo Huff", src: "Murilo_Huff_La_Barca_Fruto_Especial_muzzik.m4a", genero: "SERTANEJO", tipo: "ao vivo" },
         { id: 462, title: "At_Voc_Voltar", artist: "Marilha Mendoça", src: "Mar_lia_Mendon_a_At_Voc_Voltar_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
         { id: 469, title: "Outra_Vida", artist: "A_Vontade", src: "A_Vontade_Outra_Vida_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-         { id: 511, title: "Amor_I_Love_You", artist: "SDF", src: "VH_e_Alexandre_Amor_I_Love_You_part_Hugo_e_Guilherme_Ouve_A__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-         { id: 512, title: "Pout-pourri", artist: "Rafael_Quadros", src: "Rafael_Quadros_e_Panda_Sou_Eu_Cheiro_De_Shampoo_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-         { id: 513, title: "Pout-pourr", artist: "vjg", src: "VH_e_Alexandre_Estrada_do_Amor_part_Rafa_e_J_nior_Ouve_A__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-         { id: 514, title: "Pout-pourri", artist: "Rick_e_Rangel", src: "Rick_e_Rangel_Nem_mais_uma_d_vida_Quando_voc_some_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-        
-        
-        // FORRÓ
+        { id: 511, title: "Amor_I_Love_You", artist: "SDF", src: "VH_e_Alexandre_Amor_I_Love_You_part_Hugo_e_Guilherme_Ouve_A__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
+        { id: 512, title: "Pout-pourri", artist: "Rafael_Quadros", src: "Rafael_Quadros_e_Panda_Sou_Eu_Cheiro_De_Shampoo_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
+        { id: 513, title: "Pout-pourr", artist: "vjg", src: "VH_e_Alexandre_Estrada_do_Amor_part_Rafa_e_J_nior_Ouve_A__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
+        { id: 514, title: "Pout-pourri", artist: "Rick_e_Rangel", src: "Rick_e_Rangel_Nem_mais_uma_d_vida_Quando_voc_some_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
         { id: 14, title: "Ficar por Ficar", artist: "Zé Vaqueiro", src: "Zé-Vaqueiro-Ficar-por-Ficar.m4a", genero: "FORRÓ", tipo: "normal" },
         { id: 15, title: "Coração Partido", artist: "Luan Estilizado", src: "16 - Coracao Partido - Luan Estilizado.mp3", genero: "FORRÓ", tipo: "normal" },
         { id: 16, title: "Avião", artist: "Patrick Costa", src: "Patrick_Costa_Henrique_e_Juliano_Xand_Avi_o_Diga_Pra_Mim_Fiquei_Sabendo_FarraDoPatrick_muzzik (1).m4a", genero: "FORRÓ", tipo: "normal" },
@@ -353,14 +346,10 @@
         { id: 458, title: "Avine_Vinny_Rey_Vaqueiro", artist: "Vinny_Rey_Vaqueiro", src: "Solteiro_Cruel_Avine_Vinny_Rey_Vaqueiro_Fogo_.m4a", genero: "FORRÓ", tipo: "normal" },
         { id: 459, title: "Meu_Grande_Amor", artist: "Galicia", src: "Gal_cia_Meu_Grande_Amor.m4a", genero: "FORRÓ", tipo: "normal" },
         { id: 460, title: "O mundo", artist: "Kally_Fonseca_e_Vicente_Nery", src: "Kally_Fonseca_e_Vicente_Nery.m4a", genero: "FORRÓ", tipo: "normal" },
-         { id: 521, title: "GHF", artist: "FORRO_MEDIN", src: "FORR_MED_IN_FORR_MED_IN_A_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-         { id: 525, title: "Pequeno_Cel", artist: "Marquinhos_Maraial", src: "Marquinhos_Maraial_e_Xand_Pequeno_Celular_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-          { id: 526, title: "Erro_Bom", artist: "Samyra_Show", src: "Peruanno_Samyra_Show_Erro_Bom_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-         { id: 524, title: "Vontade_de_Prestar", artist: "Nattan", src: "Nattan_Vontade_de_Prestar_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        
-        
-        
-        // SAMBA
+        { id: 521, title: "GHF", artist: "FORRO_MEDIN", src: "FORR_MED_IN_FORR_MED_IN_A_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
+        { id: 525, title: "Pequeno_Cel", artist: "Marquinhos_Maraial", src: "Marquinhos_Maraial_e_Xand_Pequeno_Celular_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
+        { id: 526, title: "Erro_Bom", artist: "Samyra_Show", src: "Peruanno_Samyra_Show_Erro_Bom_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
+        { id: 524, title: "Vontade_de_Prestar", artist: "Nattan", src: "Nattan_Vontade_de_Prestar_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
         { id: 48, title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa 10 - Lance Livre _ NA VIBE DO K10(MP3_160K).mp3", genero: "SAMBA", tipo: "normal" },
         { id: 49, title: "Foi Bom Mas Foi Ontem", artist: "Grupo Menos é Mais", src: "Grupo Menos é Mais e João Gomes - Foi Bom_ Mas Foi Ontem .mp3", genero: "SAMBA", tipo: "normal" },
         { id: 50, title: "Pagode do Kiko", artist: "Kiko no Pagode", src: "KIiko no Pagode.m4a", genero: "SAMBA", tipo: "normal" },
@@ -369,11 +358,10 @@
         { id: 53, title: "Momentos", artist: "Xande de Pilares", src: "Xande_de_Pilares_Momentos_N_o_Foi_Toa.m4a", genero: "SAMBA", tipo: "normal" },
         { id: 54, title: "Tendência", artist: "Jorge Aragão", src: "Jorge Aragão-endnncia.m4a", genero: "SAMBA", tipo: "normal" },
         { id: 55, title: "Amei Te Ver", artist: "Tiago Iorc", src: "TIAGO_IORC_MENOS_MAIS_Amei_Te_Ver.m4a", genero: "SAMBA", tipo: "normal" },
-         { id: 527, title: "Nem_Pagando", artist: "Henrique_Casttro", src: "Henrique_Casttro_Grupo_Menos_Mais_Nem_Pagando_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-         { id: 528, title: "E_C_T", artist: "Xande_de_Pilares", src: "Xande_de_Pilares_E_C_T_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-         { id: 529, title: "Champanhe", artist: "Grupo_Menos_Mais", src: "Grupo_Menos_Mais_Champanhe_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-         { id: 519, title: "Ferrugem_Apagar_muzzik.m4a", artist: "Ferrugem", src: "Ferrugem_Apagar_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        // POP
+        { id: 527, title: "Nem_Pagando", artist: "Henrique_Casttro", src: "Henrique_Casttro_Grupo_Menos_Mais_Nem_Pagando_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
+        { id: 528, title: "E_C_T", artist: "Xande_de_Pilares", src: "Xande_de_Pilares_E_C_T_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
+        { id: 529, title: "Champanhe", artist: "Grupo_Menos_Mais", src: "Grupo_Menos_Mais_Champanhe_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
+        { id: 519, title: "Ferrugem_Apagar_muzzik.m4a", artist: "Ferrugem", src: "Ferrugem_Apagar_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
         { id: 56, title: "Haven't Met You Yet", artist: "Michael Bublé", src: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", genero: "POP", tipo: "ao vivo" },
         { id: 57, title: "Billie Jean", artist: "Michael Jackson", src: "Michael_Jackson_Billie_Jean_muzzik.m4a", genero: "POP", tipo: "normal" },
         { id: 58, title: "Thank You", artist: "Dido", src: "Dido_Thank_You.m4a", genero: "POP", tipo: "normal" },
@@ -387,8 +375,7 @@
         { id: 447, title: "Champagne_King_Love_Come_Down", artist: "Evelyn", src: "Evelyn_Champagne_King_Love_Come_Down_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
         { id: 448, title: "Timberlake", artist: "Mirrors_Justin", src: "Mirrors_Justin_Timberlake_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
         { id: 461, title: "You_ll_Never_Find", artist: "HSCC", src: "_You_ll_Never_Find__(LOU_RAWLS)_Cover_by_The_HSCC.mp3", genero: "POP", tipo: "normal" },
-                { id: 520, title: "Lost_In_Your_Eyes", artist: "Dino_Fonseca", src: "Lost_In_Your_Eyes_Dino_Fonseca_O_Melhor_do_Rock_e_Flashback_muzzik.m4a", genero: "POP", tipo: "normal" },
-        // BREGA
+        { id: 520, title: "Lost_In_Your_Eyes", artist: "Dino_Fonseca", src: "Lost_In_Your_Eyes_Dino_Fonseca_O_Melhor_do_Rock_e_Flashback_muzzik.m4a", genero: "POP", tipo: "normal" },
         { id: 64, title: "Tarde Demais", artist: "À Vontade", src: "_Vontade_TARDE_DEMAIS_.m4a", genero: "BREGA", tipo: "normal" },
         { id: 204, title: "Entre espulmas", artist: "Roberrto Miler", src: "Entre_Espumas_Entre_Espumas_muzzik.m4a", genero: "BREGA", tipo: "normal" },
         { id: 205, title: "Mande um telegrama", artist: "Odair José", src: "Mande_Nem_Mande_Nem_Que_Seja_um_Telegrama_muzzik.m4a", genero: "BREGA", tipo: "normal" },
@@ -429,7 +416,6 @@
         { id: 464, title: "Aparencias_Belchior_muzzik.m4a", artist: "Belchior", src: "Aparencias_Belchior_muzzik.m4a", genero: "BREGA", tipo: "normal" },
         { id: 465, title: "Voc_n_o_me_ensinou_a_te_esquecer", artist: "Lostalgia", src: "Voc_n_o_me_ensinou_a_te_esquecer_Lostalgia_muzzik.m4a", genero: "BREGA", tipo: "normal" },
         { id: 466, title: "Pout_pourri REI", artist: "Emílio Santiago", src: "Pot_Pourri_Detalhes_Emo_es_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-         // MPB
         { id: 100, title: "Palpite", artist: "Vanessa Rangel", src: "Palpite_Palpite_muzzik.m4a", genero: "MPB", tipo: "normal" },
         { id: 101, title: "Sinais de Fogo", artist: "Preta Gil", src: "Preta_gil_sinais_de_fogo_muzzik.m4a", genero: "MPB", tipo: "normal" },
         { id: 102, title: "Francesa", artist: "Kiko Zabianch", src: "AFrancesa_Francesa_muzzik.m4a", genero: "MPB", tipo: "normal" },
@@ -585,47 +571,39 @@
         { id: 441, title: "Esquece e Vem", artist: "Nico Rezende", src: "Esquece_e_Esquece_e_vem_Nico_5.m4a", genero: "MPB", tipo: "ao vivo" },
         { id: 442, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "MPB", tipo: "ao vivo" },
         { id: 468, title: "Noites com sol", artist: "Flavio_Venturini & Vanessa", src: "Flavio_Venturini_Flavio_Venturini_Feat_Vanessa_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        // VARIADAS
         { id: 63, title: "Easy", artist: "Commodores", src: "Commodores_Easy_6.m4a", genero: "VARIADAS", tipo: "ao vivo" },
         { id: 200, title: "of_Swing_Backing_roger.", artist: "Swing_Backing", src: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", genero: "VARIADAS", tipo: "normal" },
         { id: 201, title: "NatalieImbruglia_Torn", artist: "Natalie", src: "Natalie_Imbruglia_Torn_muzzik.m4a", genero: "VARIADAS", tipo: "normal" },
         { id: 202, title: "Instrumental", artist: "Orquestra", src: "instrumental.mp3", genero: "VARIADAS", tipo: "normal" },
         { id: 203, title: "Internacional", artist: "Top Hits", src: "internacional.mp3", genero: "VARIADAS", tipo: "normal" },
-        // MODA TOP
         { id: 500, title: "A_coisa_A_coisa_t_feia", artist: "Tião Carreiro & Pardinho", src: "A_coisa_A_coisa_t_feia_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
         { id: 501, title: "Darlan_Souza_Reis_O_Individado", artist: "O_Individado", src: "Darlan_Souza_Reis_O_Individado_muzzik.m4a", genero: "MODA TOP", tipo: "ao vivo" },
         { id: 502, title: "Meu_recanto_Meu_recanto", artist: "editando123", src: "Meu_recanto_Meu_recanto_Meu_Para_so_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
         { id: 503, title: "Pescador", artist: "Cacique e Pagé", src: "Pescador_e_Pescador_e_Catireiro_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
         { id: 504, title: "_Boiadeiro_Errante", artist: "Liu & Léo", src: "Liu_e_Liu_e_L_u_Boiadeiro_Errante_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        // FORRÓ ANTIGO
         { id: 505, title: "Luiz_Gonzaga_Nem_Se_Despediu_De_Mim", artist: "Luiz Gonzaga", src: "Luiz_Gonzaga_Nem_Se_Despediu_De_Mim_muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
         { id: 506, title: "Sonho_Real_Sonho_Real", artist: "Sonho Real", src: "Sonho_Real_Sonho_Real_muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
         { id: 507, title: "João tatu", artist: "Brasas do forro", src: "Jo_o_Tatu_Jo_o_Tatu_Live__muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
         { id: 530, title: "Ra_zes_do_Nordeste", artist: "Mastruz", src: "Ra_zes_do_Nordeste_Mastruz_com_Leite_Audiovisual_Vem_Dan_ar_Forr__muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-          { id: 531, title: "PETROLINA_JUAZEIRO", artist: "TR", src: "PETROLINA_JUAZEIRO_TR_S_NORDESTINOS_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        
-        // AS++
+        { id: 531, title: "PETROLINA_JUAZEIRO", artist: "TR", src: "PETROLINA_JUAZEIRO_TR_S_NORDESTINOS_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
         { id: 508, title: "AS++ 1", artist: "Banda D", src: "aspp1.m4a", genero: "AS++", tipo: "normal" },
         { id: 509, title: "AS++ 2", artist: "Artista E", src: "aspp2.mp3", genero: "AS++", tipo: "normal" },
         { id: 510, title: "AS++ Ao Vivo", artist: "Rock Star F", src: "aspp_ao_vivo.m4a", genero: "AS++", tipo: "ao vivo" }
     ];
 
-    // ==================== MÓDULOS DA APLICAÇÃO ====================
     const App = (() => {
-        // ============== ESTADO CENTRAL ==============
         const state = {
             isPlaying: false, isAoVivo: true, trocaAutomaticaAtiva: false, aoVivoAcabou: false,
             generoAtual: 'SERTANEJO', currentIndex: 0, filteredPlaylist: [], historicoMusicasLive: [],
             tocandoVinheta: false, contadorMusicasVinheta: 0, musicCounter: 0, adAudioPlaying: false,
             adVideoPlaying: false, skipLock: false, isLoadingTrack: false, isTvMode: false,
             isBackgroundActive: false, shuffleMode: false, videoAdInterval: null, visualizerAnimationId: null,
-            timerInterval: null, pixIntervalId: null, pixShowTimeoutId: null, trackStartTime: 0,
+            timerInterval: null, trackStartTime: 0,
             notificationQueue: [], notificationActive: false,
             userPreferences: { likedSongs:[], dislikedSongs:[], songPlays:{}, songComplete:{}, genrePreference:{}, lastPlayed:null },
             stats: { totalPlayed:0, totalSeconds:0, genreCount:{SERTANEJO:0,FORRÓ:0,'FORRÓ ANTIGO':0,SAMBA:0,POP:0,BREGA:0,MPB:0,VARIADAS:0,'MODA TOP':0,'AS++':0}, currentStreak:0 }
         };
 
-        // ============== GERENCIADOR DE TIMERS ==============
         const TimerManager = {
             timers: new Set(),
             setTimeout(fn, delay) { const id = window.setTimeout(() => { this.timers.delete(id); fn(); }, delay); this.timers.add(id); return id; },
@@ -635,7 +613,6 @@
             clearAll() { this.timers.forEach(id => { window.clearTimeout(id); window.clearInterval(id); }); this.timers.clear(); }
         };
 
-        // ============== DOM REFERENCES ==============
         const dom = {
             musicPlayer: document.getElementById('musicPlayer'),
             backgroundAudio: document.getElementById('backgroundAudio'),
@@ -647,7 +624,8 @@
             progressFill: document.getElementById('progressFill'),
             currentTimeEl: document.getElementById('currentTime'),
             totalTimeEl: document.getElementById('totalTime'),
-            trackArtist: document.getElementById('trackArtist'),
+            trackMarquee: document.getElementById('trackMarquee'),
+            nextTrackInfo: document.getElementById('nextTrackInfo'),
             splash: document.getElementById('splash'),
             tapToStart: document.getElementById('tap-to-start'),
             loadingSpinner: document.getElementById('loadingSpinner'),
@@ -670,9 +648,6 @@
             exitTvBtn: document.getElementById('exitTvBtn'),
             menuButton: document.getElementById('menuButton'),
             menuPopup: document.getElementById('menuPopup'),
-            tvPixOverlay: document.getElementById('tvPixOverlay'),
-            pixKey: document.getElementById('pixKey'),
-            pixQrCode: document.getElementById('pixQrCode'),
             mainVideo: document.getElementById('mainVideo'),
             feedbackModal: document.getElementById('feedbackModal'),
             aiModal: document.getElementById('aiModal'),
@@ -687,7 +662,6 @@
             closeSearchBtn: document.getElementById('closeSearchBtn'),
         };
 
-        // ============== UI MANAGER ==============
         const UIManager = {
             showNotification(msg, duration = 3000) {
                 state.notificationQueue.push({ msg, duration });
@@ -700,17 +674,18 @@
                 dom.notificationMessage.textContent = msg;
                 dom.notificationTop.classList.add('show');
                 TimerManager.clearTimeout('notifTimeout');
-                TimerManager.setTimeout(() => {
-                    dom.notificationTop.classList.remove('show');
-                    this.processQueue();
-                }, duration);
+                TimerManager.setTimeout(() => { dom.notificationTop.classList.remove('show'); this.processQueue(); }, duration);
             },
             updateTrackInfo(track) {
                 if (!track) return;
-                dom.trackArtist.textContent = `${track.title} - ${track.artist} [${track.genero}]`;
+                dom.trackMarquee.textContent = `${track.title} - ${track.artist} [${track.genero}]`;
                 dom.currentTimeEl.textContent = '0:00';
                 dom.totalTimeEl.textContent = '0:00';
                 dom.progressFill.style.width = '0%';
+                let nextIdx = state.currentIndex + 1;
+                if (nextIdx >= state.filteredPlaylist.length) nextIdx = 0;
+                const nextTrack = state.filteredPlaylist[nextIdx];
+                dom.nextTrackInfo.textContent = nextTrack ? `Próxima: ${nextTrack.title} - ${nextTrack.artist}` : 'Próxima: --';
             },
             showLoading() { dom.loadingSpinner.classList.add('show'); },
             hideLoading() { dom.loadingSpinner.classList.remove('show'); },
@@ -738,7 +713,6 @@
             showVolumeToast(vol) { dom.volumeToast.textContent = `🔊 Volume: ${Math.round(vol*100)}%`; dom.volumeToast.style.opacity = '1'; TimerManager.setTimeout(() => dom.volumeToast.style.opacity = '0', 1500); }
         };
 
-        // ============== STORAGE MANAGER ==============
         const StorageManager = {
             loadPrefs() { const saved = localStorage.getItem('radio_patico_ai_preferences'); if (saved) try { Object.assign(state.userPreferences, JSON.parse(saved)); } catch(e) {} },
             savePrefs() { localStorage.setItem('radio_patico_ai_preferences', JSON.stringify(state.userPreferences)); },
@@ -746,7 +720,6 @@
             saveStats() { localStorage.setItem('radio_patico_stats', JSON.stringify(state.stats)); }
         };
 
-        // ============== PLAYLIST MANAGER ==============
         const PlaylistManager = {
             shuffleArray(arr) { for (let i=arr.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; },
             generateSmartPlaylist() {
@@ -800,22 +773,16 @@
             }
         };
 
-        // ============== ATUALIZADOR DE VÍDEO ==============
         const AtualizadorVideo = {
             fallbackCount: 0,
             atualizar(genero) { if(state.isAoVivo){this.switchVideo('pai.mp4');return;} const vf=CONFIG.VIDEO_POR_GENERO[genero]||CONFIG.VIDEO_POR_GENERO.DEFAULT; this.switchVideo(vf); },
             switchVideo(videoFile) {
                 if (dom.mainVideo.src.endsWith(videoFile) && this.fallbackCount===0) return;
                 dom.mainVideo.pause(); dom.mainVideo.src=videoFile; dom.mainVideo.load();
-                dom.mainVideo.play().catch(err=>{
-                    this.fallbackCount++;
-                    if(this.fallbackCount<=3 && videoFile!=='pai.mp4'){ this.switchVideo('pai.mp4'); }
-                    else { dom.mainVideo.style.display='none'; }
-                });
+                dom.mainVideo.play().catch(err=>{ this.fallbackCount++; if(this.fallbackCount<=3 && videoFile!=='pai.mp4'){ this.switchVideo('pai.mp4'); } else { dom.mainVideo.style.display='none'; } });
             }
         };
 
-        // ============== AD MANAGER ==============
         const AdManager = {
             playVinheta() {
                 if(!state.isAoVivo||state.tocandoVinheta||CONFIG.VINHETAS.length===0) return false;
@@ -847,7 +814,6 @@
             finishAudioAd(wasPlaying) { state.adAudioPlaying=false; dom.audioAdToast.classList.remove('show'); if(wasPlaying) PlayerEngine.play(); }
         };
 
-        // ============== SEARCH MANAGER ==============
         const SearchManager = {
             show() { dom.searchContainer.classList.add('open'); dom.searchInput.focus(); },
             hide() { dom.searchContainer.classList.remove('open'); dom.searchInput.value=''; dom.searchResults.innerHTML=''; },
@@ -870,7 +836,6 @@
             }
         };
 
-        // ============== PLAYER ENGINE ==============
         const PlayerEngine = {
             async play() {
                 if(!state.isBackgroundActive){ UIManager.showNotification('⚠️ Clique em "ATIVAR RÁDIO" primeiro!',3000); return false; }
@@ -897,8 +862,7 @@
                             dom.totalTimeEl.textContent=this.formatTime(dom.musicPlayer.duration);
                             dom.splash.classList.add('hidden');
                             TimerManager.setTimeout(()=>dom.splash.style.display='none',500);
-                            dom.tapToStart.style.display='none';
-                            resolve(true);
+                            dom.tapToStart.style.display='none'; resolve(true);
                         }catch(e){
                             TimerManager.clearTimeout(timeoutId); UIManager.hideLoading(); state.isLoadingTrack=false;
                             state.isPlaying=false; UIManager.setPlayState(false); resolve(false);
@@ -916,7 +880,7 @@
                         if(state.isAoVivo&&!state.aoVivoAcabou){
                             const prox=PlaylistManager.proximaMusicaLive();
                             if(prox){ state.filteredPlaylist.push(prox); state.currentIndex=state.filteredPlaylist.length-1; UIManager.updateTrackInfo(state.filteredPlaylist[state.currentIndex]); TimerManager.setTimeout(()=>this.play(),100); return; }
-                            state.aoVivoAcabou=true; UIManager.showNotification('🎵 Músicas AO VIVO terminaram! Ativando modo NORMAL...',4000);
+                            state.aoVivoAcabou=true; UIManager.showNotification('🎵 AO VIVO terminou! Modo normal ativado.',4000);
                             desativarModoAoVivo(); TimerManager.setTimeout(()=>this.play(),200); return;
                         } else if(!state.isAoVivo&&state.trocaAutomaticaAtiva){ mudarGeneroAutomaticamente(); TimerManager.setTimeout(()=>this.play(),100); return; }
                         let nextIndex=state.currentIndex+1; if(nextIndex>=state.filteredPlaylist.length) nextIndex=0;
@@ -933,7 +897,7 @@
                 if(state.isAoVivo&&!state.aoVivoAcabou){
                     const prox=PlaylistManager.proximaMusicaLive();
                     if(prox){ state.filteredPlaylist.push(prox); state.currentIndex=state.filteredPlaylist.length-1; UIManager.updateTrackInfo(state.filteredPlaylist[state.currentIndex]); if(state.isPlaying) await this.play(); return; }
-                    state.aoVivoAcabou=true; UIManager.showNotification('🎵 Músicas AO VIVO terminaram! Ativando modo NORMAL...',4000);
+                    state.aoVivoAcabou=true; UIManager.showNotification('🎵 AO VIVO terminou! Modo normal ativado.',4000);
                     desativarModoAoVivo(); TimerManager.setTimeout(()=>this.play(),200); return;
                 } else if(!state.isAoVivo&&state.trocaAutomaticaAtiva){ mudarGeneroAutomaticamente(); TimerManager.setTimeout(()=>this.play(),100); return; }
                 let nextIndex=state.currentIndex+1; if(nextIndex>=state.filteredPlaylist.length) nextIndex=0;
@@ -963,21 +927,20 @@
                     state.userPreferences.likedSongs.push(track.id);
                     state.userPreferences.dislikedSongs=state.userPreferences.dislikedSongs.filter(id=>id!==track.id);
                     state.userPreferences.genrePreference[track.genero]=(state.userPreferences.genrePreference[track.genero]||0)+1;
-                    StorageManager.savePrefs(); UIManager.showNotification(`👍 Você curtiu "${track.title}"!`,2500); atualizarAIModal();
-                }else{ UIManager.showNotification(`❤️ Você já curtiu "${track.title}"`,1500); }
+                    StorageManager.savePrefs(); UIManager.showNotification(`👍 Curtiu "${track.title}"!`,2500); atualizarAIModal();
+                }else{ UIManager.showNotification(`❤️ Já curtiu "${track.title}"`,1500); }
             },
             dislikeCurrent() {
                 if(state.skipLock) return; const track=state.filteredPlaylist[state.currentIndex]; if(!track) return;
                 if(!state.userPreferences.dislikedSongs.includes(track.id)){
                     state.userPreferences.dislikedSongs.push(track.id);
                     state.userPreferences.likedSongs=state.userPreferences.likedSongs.filter(id=>id!==track.id);
-                    StorageManager.savePrefs(); UIManager.showNotification(`👎 Você não curtiu "${track.title}".`,2000); atualizarAIModal();
+                    StorageManager.savePrefs(); UIManager.showNotification(`👎 Não curtiu "${track.title}".`,2000); atualizarAIModal();
                     state.skipLock=true; TimerManager.setTimeout(()=>{state.skipLock=false;},1000); this.next();
-                }else{ UIManager.showNotification(`👎 Você já marcou "${track.title}"`,1500); }
+                }else{ UIManager.showNotification(`👎 Já marcou "${track.title}"`,1500); }
             }
         };
 
-        // ============== FUNÇÕES GLOBAIS ==============
         function mudarGeneroAutomaticamente() {
             if(!state.trocaAutomaticaAtiva||state.isAoVivo) return;
             const generos=["SERTANEJO","FORRÓ","FORRÓ ANTIGO","SAMBA","POP","BREGA","MPB","VARIADAS","MODA TOP","AS++"];
@@ -1023,12 +986,12 @@
         function toggleTvMode() {
             const appEl=document.querySelector('.app');
             if(!state.isTvMode){
-                state.isTvMode=true; appEl.classList.add('tv-mode-active'); dom.tvPixOverlay.classList.add('show');
-                dom.exitTvBtn.style.display='block'; UIManager.showNotification('📺 MODO TV ATIVADO! Apoie com PIX.',3000);
+                state.isTvMode=true; appEl.classList.add('tv-mode-active'); dom.exitTvBtn.style.display='block';
+                UIManager.showNotification('📺 MODO TV ATIVADO!',3000);
                 dom.mainVideo.src="modop.mp4"; dom.mainVideo.load(); dom.mainVideo.play().catch(()=>{});
             } else {
-                state.isTvMode=false; appEl.classList.remove('tv-mode-active'); dom.tvPixOverlay.classList.remove('show');
-                dom.exitTvBtn.style.display='none'; UIManager.showNotification('Modo TV desativado.',2000);
+                state.isTvMode=false; appEl.classList.remove('tv-mode-active'); dom.exitTvBtn.style.display='none';
+                UIManager.showNotification('Modo TV desativado.',2000);
                 AtualizadorVideo.atualizar(state.isAoVivo?'LIVE':state.generoAtual);
             }
         }
@@ -1041,17 +1004,7 @@
             document.getElementById('aiTopGenre').textContent=topGenre;
             const likedSongsList=state.userPreferences.likedSongs.map(id=>PLAYLIST.find(m=>m.id===id)).filter(s=>s);
             const top5=likedSongsList.slice(0,5); const container=document.getElementById('aiTopSongs'); container.innerHTML='';
-            top5.forEach(song=>{
-                const div=document.createElement('div'); div.className='favorite-song-item';
-                div.innerHTML=`<span>🎵 ${song.title} - ${song.artist}</span><button>Remover</button>`;
-                div.querySelector('button').onclick=()=>{
-                    state.userPreferences.likedSongs=state.userPreferences.likedSongs.filter(id=>id!==song.id);
-                    StorageManager.savePrefs(); atualizarAIModal();
-                    UIManager.showNotification(`👍 Removido dos favoritos`,1500);
-                    if(!state.isAoVivo){ state.filteredPlaylist=PlaylistManager.generateSmartPlaylist(); state.currentIndex=0; UIManager.updateTrackInfo(state.filteredPlaylist[0]); if(state.isPlaying) PlayerEngine.play(); }
-                };
-                container.appendChild(div);
-            });
+            top5.forEach(song=>{ const div=document.createElement('div'); div.className='favorite-song-item'; div.innerHTML=`<span>🎵 ${song.title} - ${song.artist}</span><button>Remover</button>`; div.querySelector('button').onclick=()=>{ state.userPreferences.likedSongs=state.userPreferences.likedSongs.filter(id=>id!==song.id); StorageManager.savePrefs(); atualizarAIModal(); UIManager.showNotification(`👍 Removido dos favoritos`,1500); if(!state.isAoVivo){ state.filteredPlaylist=PlaylistManager.generateSmartPlaylist(); state.currentIndex=0; UIManager.updateTrackInfo(state.filteredPlaylist[0]); if(state.isPlaying) PlayerEngine.play(); } }; container.appendChild(div); });
         }
 
         function showStatsModal() {
@@ -1064,29 +1017,13 @@
             dom.statsModal.classList.add('open');
         }
 
-        // ============== PIX PERIÓDICO ==============
-        function startPeriodicPix() {
-            if(state.pixIntervalId) TimerManager.clearInterval(state.pixIntervalId);
-            state.pixIntervalId=TimerManager.setInterval(()=>{
-                if(!state.isTvMode){ dom.tvPixOverlay.classList.add('show'); if(state.pixShowTimeoutId) TimerManager.clearTimeout(state.pixShowTimeoutId); state.pixShowTimeoutId=TimerManager.setTimeout(()=>dom.tvPixOverlay.classList.remove('show'),CONFIG.PIX_DISPLAY_DURATION); }
-            },CONFIG.PIX_DISPLAY_INTERVAL);
-        }
-
-        function stopPeriodicPix() {
-            if(state.pixIntervalId){ TimerManager.clearInterval(state.pixIntervalId); state.pixIntervalId=null; }
-            if(state.pixShowTimeoutId){ TimerManager.clearTimeout(state.pixShowTimeoutId); state.pixShowTimeoutId=null; }
-            dom.tvPixOverlay.classList.remove('show');
-        }
-
-        // ============== INICIALIZAÇÃO ==============
         function init() {
-            StorageManager.loadPrefs(); StorageManager.loadStats();
-            dom.musicPlayer.volume=CONFIG.VOLUME_PLAYER;
-            inciarComModoAoVivo(); dom.tapToStart.style.display='block'; UIManager.startVisualizer();
-            startPeriodicPix(); console.log("Rádio inicializada");
+            StorageManager.loadPrefs(); StorageManager.loadStats(); dom.musicPlayer.volume=CONFIG.VOLUME_PLAYER;
+            inciarComModoAoVivo(); dom.tapToStart.style.display='block'; UIManager.startVisualizer(); console.log("Rádio inicializada");
             const volumeZone=document.getElementById('volumeSliderZone'); let volumeTouchStartY=0;
             volumeZone.addEventListener('touchstart',e=>{ volumeTouchStartY=e.touches[0].clientY; e.preventDefault(); });
             volumeZone.addEventListener('touchmove',e=>{ const delta=(volumeTouchStartY-e.touches[0].clientY)/window.innerHeight; let newVol=Math.min(1,Math.max(0,dom.musicPlayer.volume+delta*0.1)); dom.musicPlayer.volume=newVol; UIManager.showVolumeToast(newVol); volumeTouchStartY=e.touches[0].clientY; });
+            setupEventListeners();
         }
 
         function inciarComModoAoVivo() {
@@ -1100,98 +1037,61 @@
             AtualizadorVideo.atualizar('LIVE');
         }
 
-        // ============== EVENT LISTENERS ==============
-        dom.playBtn.addEventListener('click',()=>{ if(!state.isBackgroundActive) UIManager.showNotification('⚠️ Clique em "ATIVAR RÁDIO" primeiro!',3000); else PlayerEngine.togglePlayPause(); });
-        dom.prevBtn.addEventListener('click',()=>PlayerEngine.prev()); dom.nextBtn.addEventListener('click',()=>PlayerEngine.next());
-        dom.shuffleBtn.addEventListener('click',()=>{
-            if(state.isAoVivo){ UIManager.showNotification('⚠️ Modo AO VIVO ativo - aleatório não disponível!',2000); return; }
-            state.shuffleMode=!state.shuffleMode;
-            if(state.shuffleMode){ state.filteredPlaylist=PlaylistManager.shuffleArray(state.filteredPlaylist); UIManager.showNotification('🔀 Aleatório inteligente ATIVADO!',2000); }
-            else { state.filteredPlaylist=PLAYLIST.filter(m=>m.genero===(state.generoAtual==='MIX'?'VARIADAS':state.generoAtual)); UIManager.showNotification('➡️ Modo sequencial',2000); }
-            state.currentIndex=0; UIManager.updateTrackInfo(state.filteredPlaylist[0]);
-        });
-        dom.likeBtn.addEventListener('click',()=>PlayerEngine.likeCurrent());
-        dom.dislikeBtn.addEventListener('click',()=>PlayerEngine.dislikeCurrent());
-        document.getElementById('progressBar').addEventListener('click',e=>{ const rect=e.currentTarget.getBoundingClientRect(); const percent=(e.clientX-rect.left)/rect.width; if(dom.musicPlayer.duration) dom.musicPlayer.currentTime=percent*dom.musicPlayer.duration; });
-        dom.exitTvBtn.addEventListener('click',e=>{ e.stopPropagation(); toggleTvMode(); });
-        dom.genreButton.addEventListener('click',e=>{ e.preventDefault(); e.stopPropagation(); dom.genresModal.classList.add('open'); });
-        document.querySelectorAll('.genre-card').forEach(card=>{ card.addEventListener('click',()=>{ const genero=card.getAttribute('data-genero'); if(genero==='LIVE') ativarModoAoVivo(); else PlaylistManager.filterByGenre(genero); dom.genresModal.classList.remove('open'); }); });
-        document.getElementById('closeGenresBtn').addEventListener('click',()=>dom.genresModal.classList.remove('open'));
-        dom.menuButton.addEventListener('click',e=>{ e.stopPropagation(); dom.menuPopup.classList.toggle('open'); });
-        document.addEventListener('click',e=>{ if(!dom.menuButton.contains(e.target)&&!dom.menuPopup.contains(e.target)) dom.menuPopup.classList.remove('open'); });
-        document.getElementById('tvModeMenuBtn').addEventListener('click',()=>{ toggleTvMode(); dom.menuPopup.classList.remove('open'); });
-        document.getElementById('fullscreenMenuBtn').addEventListener('click',()=>{ document.documentElement.requestFullscreen(); dom.menuPopup.classList.remove('open'); });
-        document.getElementById('shareMenuBtn').addEventListener('click',()=>{ if(navigator.share) navigator.share({title:'Rádio Patico IA',text:'🎵 Ouça músicas com IA que aprende seu gosto!',url:window.location.href}).catch(()=>{}); else { navigator.clipboard.writeText(window.location.href); UIManager.showNotification('🔗 Link copiado!',3000); } dom.menuPopup.classList.remove('open'); });
-        document.getElementById('statsMenuBtn').addEventListener('click',()=>{ showStatsModal(); dom.menuPopup.classList.remove('open'); });
-        document.getElementById('aiMenuBtn').addEventListener('click',()=>{ atualizarAIModal(); dom.aiModal.classList.add('open'); dom.menuPopup.classList.remove('open'); });
-        document.getElementById('feedbackMenuBtn').addEventListener('click',()=>{ dom.feedbackModal.classList.toggle('open'); dom.menuPopup.classList.remove('open'); });
-        document.getElementById('manualMenuBtn').addEventListener('click',()=>{ dom.manualModal.classList.add('open'); dom.menuPopup.classList.remove('open'); });
-        document.getElementById('closeStatsBtn').addEventListener('click',()=>dom.statsModal.classList.remove('open'));
-        document.getElementById('closeAiBtn').addEventListener('click',()=>dom.aiModal.classList.remove('open'));
-        document.getElementById('closeManualBtn').addEventListener('click',()=>dom.manualModal.classList.remove('open'));
-        document.getElementById('searchMenuBtn').addEventListener('click',()=>{ SearchManager.show(); dom.menuPopup.classList.remove('open'); });
-        dom.closeSearchBtn.addEventListener('click',()=>SearchManager.hide());
-        dom.searchInput.addEventListener('input',(e)=>SearchManager.performSearch(e.target.value));
-        document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ SearchManager.hide(); } if(e.key==='Enter' && document.activeElement===dom.searchInput){ const first=document.querySelector('.search-item'); if(first) first.click(); } });
+        function setupEventListeners() {
+            dom.playBtn.addEventListener('click',()=>{ if(!state.isBackgroundActive) UIManager.showNotification('⚠️ Clique em "ATIVAR RÁDIO" primeiro!',3000); else PlayerEngine.togglePlayPause(); });
+            dom.prevBtn.addEventListener('click',()=>PlayerEngine.prev()); dom.nextBtn.addEventListener('click',()=>PlayerEngine.next());
+            dom.shuffleBtn.addEventListener('click',()=>{ if(state.isAoVivo){ UIManager.showNotification('⚠️ Modo AO VIVO ativo - aleatório não disponível!',2000); return; } state.shuffleMode=!state.shuffleMode; if(state.shuffleMode){ state.filteredPlaylist=PlaylistManager.shuffleArray(state.filteredPlaylist); UIManager.showNotification('🔀 Aleatório ATIVADO!',2000); } else { state.filteredPlaylist=PLAYLIST.filter(m=>m.genero===(state.generoAtual==='MIX'?'VARIADAS':state.generoAtual)); UIManager.showNotification('➡️ Modo sequencial',2000); } state.currentIndex=0; UIManager.updateTrackInfo(state.filteredPlaylist[0]); });
+            dom.likeBtn.addEventListener('click',()=>PlayerEngine.likeCurrent());
+            dom.dislikeBtn.addEventListener('click',()=>PlayerEngine.dislikeCurrent());
+            document.getElementById('progressBar').addEventListener('click',e=>{ const rect=e.currentTarget.getBoundingClientRect(); const percent=(e.clientX-rect.left)/rect.width; if(dom.musicPlayer.duration) dom.musicPlayer.currentTime=percent*dom.musicPlayer.duration; });
+            dom.exitTvBtn.addEventListener('click',e=>{ e.stopPropagation(); toggleTvMode(); });
+            dom.genreButton.addEventListener('click',e=>{ e.preventDefault(); e.stopPropagation(); dom.genresModal.classList.add('open'); });
+            document.querySelectorAll('.genre-card').forEach(card=>{ card.addEventListener('click',()=>{ const genero=card.getAttribute('data-genero'); if(genero==='LIVE') ativarModoAoVivo(); else PlaylistManager.filterByGenre(genero); dom.genresModal.classList.remove('open'); }); });
+            document.getElementById('closeGenresBtn').addEventListener('click',()=>dom.genresModal.classList.remove('open'));
+            dom.menuButton.addEventListener('click',e=>{ e.stopPropagation(); dom.menuPopup.classList.toggle('open'); });
+            document.addEventListener('click',e=>{ if(!dom.menuButton.contains(e.target)&&!dom.menuPopup.contains(e.target)) dom.menuPopup.classList.remove('open'); });
+            document.getElementById('tvModeMenuBtn').addEventListener('click',()=>{ toggleTvMode(); dom.menuPopup.classList.remove('open'); });
+            document.getElementById('fullscreenMenuBtn').addEventListener('click',()=>{ document.documentElement.requestFullscreen(); dom.menuPopup.classList.remove('open'); });
+            document.getElementById('shareMenuBtn').addEventListener('click',()=>{ if(navigator.share) navigator.share({title:'Rádio Patico IA',text:'🎵 Ouça músicas com IA!',url:window.location.href}).catch(()=>{}); else { navigator.clipboard.writeText(window.location.href); UIManager.showNotification('🔗 Link copiado!',3000); } dom.menuPopup.classList.remove('open'); });
+            document.getElementById('statsMenuBtn').addEventListener('click',()=>{ showStatsModal(); dom.menuPopup.classList.remove('open'); });
+            document.getElementById('aiMenuBtn').addEventListener('click',()=>{ atualizarAIModal(); dom.aiModal.classList.add('open'); dom.menuPopup.classList.remove('open'); });
+            document.getElementById('feedbackMenuBtn').addEventListener('click',()=>{ dom.feedbackModal.classList.toggle('open'); dom.menuPopup.classList.remove('open'); });
+            document.getElementById('manualMenuBtn').addEventListener('click',()=>{ dom.manualModal.classList.add('open'); dom.menuPopup.classList.remove('open'); });
+            document.getElementById('closeStatsBtn').addEventListener('click',()=>dom.statsModal.classList.remove('open'));
+            document.getElementById('closeAiBtn').addEventListener('click',()=>dom.aiModal.classList.remove('open'));
+            document.getElementById('closeManualBtn').addEventListener('click',()=>dom.manualModal.classList.remove('open'));
+            document.getElementById('searchMenuBtn').addEventListener('click',()=>{ SearchManager.show(); dom.menuPopup.classList.remove('open'); });
+            dom.closeSearchBtn.addEventListener('click',()=>SearchManager.hide());
+            dom.searchInput.addEventListener('input',(e)=>SearchManager.performSearch(e.target.value));
+            document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ SearchManager.hide(); } if(e.key==='Enter' && document.activeElement===dom.searchInput){ const first=document.querySelector('.search-item'); if(first) first.click(); } });
 
-        let currentRating=0;
-        document.querySelectorAll('#ratingStars .star').forEach(star=>{ star.addEventListener('click',()=>{ currentRating=parseInt(star.dataset.rating); document.querySelectorAll('#ratingStars .star').forEach((s,i)=>{ if(i<currentRating){ s.classList.add('fas','active'); s.classList.remove('far'); } else { s.classList.remove('fas','active'); s.classList.add('far'); } }); }); });
-        document.getElementById('cancelFeedback').addEventListener('click',()=>{ dom.feedbackModal.classList.remove('open'); document.getElementById('feedbackText').value=''; currentRating=0; document.querySelectorAll('#ratingStars .star').forEach(s=>{ s.classList.remove('fas','active'); s.classList.add('far'); }); });
-        document.getElementById('sendFeedback').addEventListener('click',()=>{
-            if(currentRating===0){ UIManager.showNotification('⭐ Selecione uma nota',2000); return; }
-            let msg=`🎵 *Rádio Patico IA*\n⭐ Nota: ${'★'.repeat(currentRating)}${'☆'.repeat(5-currentRating)}\n`;
-            const text=document.getElementById('feedbackText').value.trim(); if(text) msg+=`💬 ${text}\n`;
-            window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`,'_blank');
-            UIManager.showNotification('✅ WhatsApp aberto!',2000); dom.feedbackModal.classList.remove('open'); document.getElementById('feedbackText').value=''; currentRating=0;
-            document.querySelectorAll('#ratingStars .star').forEach(s=>{ s.classList.remove('fas','active'); s.classList.add('far'); });
-        });
+            let currentRating=0;
+            document.querySelectorAll('#ratingStars .star').forEach(star=>{ star.addEventListener('click',()=>{ currentRating=parseInt(star.dataset.rating); document.querySelectorAll('#ratingStars .star').forEach((s,i)=>{ if(i<currentRating){ s.classList.add('fas','active'); s.classList.remove('far'); } else { s.classList.remove('fas','active'); s.classList.add('far'); } }); }); });
+            document.getElementById('cancelFeedback').addEventListener('click',()=>{ dom.feedbackModal.classList.remove('open'); document.getElementById('feedbackText').value=''; currentRating=0; document.querySelectorAll('#ratingStars .star').forEach(s=>{ s.classList.remove('fas','active'); s.classList.add('far'); }); });
+            document.getElementById('sendFeedback').addEventListener('click',()=>{ if(currentRating===0){ UIManager.showNotification('⭐ Selecione uma nota',2000); return; } let msg=`🎵 *Rádio Patico IA*\n⭐ Nota: ${'★'.repeat(currentRating)}${'☆'.repeat(5-currentRating)}\n`; const text=document.getElementById('feedbackText').value.trim(); if(text) msg+=`💬 ${text}\n`; window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`,'_blank'); UIManager.showNotification('✅ WhatsApp aberto!',2000); dom.feedbackModal.classList.remove('open'); document.getElementById('feedbackText').value=''; currentRating=0; document.querySelectorAll('#ratingStars .star').forEach(s=>{ s.classList.remove('fas','active'); s.classList.add('far'); }); });
 
-        dom.pixKey.addEventListener('click',()=>{ navigator.clipboard.writeText(CONFIG.PIX_KEY); UIManager.showNotification('✅ Chave PIX copiada!',3000); });
-        dom.pixQrCode.addEventListener('click',()=>{ navigator.clipboard.writeText(CONFIG.PIX_KEY); UIManager.showNotification('✅ Chave PIX copiada',2000); });
+            let hideControlsTimer;
+            function showControlsPanel(){ dom.bottomControls.classList.remove('hide'); TimerManager.clearTimeout(hideControlsTimer); hideControlsTimer=TimerManager.setTimeout(()=>dom.bottomControls.classList.add('hide'),3000); }
+            document.addEventListener('touchstart',showControlsPanel); document.addEventListener('click',showControlsPanel); showControlsPanel();
 
-        let hideControlsTimer;
-        function showControlsPanel(){ dom.bottomControls.classList.remove('hide'); TimerManager.clearTimeout(hideControlsTimer); hideControlsTimer=TimerManager.setTimeout(()=>dom.bottomControls.classList.add('hide'),3000); }
-        document.addEventListener('touchstart',showControlsPanel); document.addEventListener('click',showControlsPanel); showControlsPanel();
+            let touchStartX=0,lastTap=0;
+            document.addEventListener('touchstart',e=>{ if(e.target.closest('#genreButton')||e.target.closest('#volumeSliderZone')) return; touchStartX=e.changedTouches[0].screenX; const now=Date.now(); if(now-lastTap<300){ e.preventDefault(); PlayerEngine.togglePlayPause(); UIManager.showSwipeIndicator('⏯️ '+(state.isPlaying?'Pausado':'Play')); } lastTap=now; });
+            document.addEventListener('touchend',e=>{ if(e.target.closest('#genreButton')||e.target.closest('#volumeSliderZone')) return; const diff=e.changedTouches[0].screenX-touchStartX; if(Math.abs(diff)>50){ if(diff>0){ PlayerEngine.prev(); UIManager.showSwipeIndicator('⏮️ Anterior'); } else { PlayerEngine.next(); UIManager.showSwipeIndicator('⏭️ Próxima'); } } });
 
-        let touchStartX=0,lastTap=0;
-        document.addEventListener('touchstart',e=>{
-            if(e.target.closest('#genreButton')||e.target.closest('#volumeSliderZone')) return;
-            touchStartX=e.changedTouches[0].screenX; const now=Date.now();
-            if(now-lastTap<300){ e.preventDefault(); PlayerEngine.togglePlayPause(); UIManager.showSwipeIndicator('⏯️ '+(state.isPlaying?'Pausado':'Play')); }
-            lastTap=now;
-        });
-        document.addEventListener('touchend',e=>{
-            if(e.target.closest('#genreButton')||e.target.closest('#volumeSliderZone')) return;
-            const diff=e.changedTouches[0].screenX-touchStartX;
-            if(Math.abs(diff)>50){ if(diff>0){ PlayerEngine.prev(); UIManager.showSwipeIndicator('⏮️ Música anterior'); } else { PlayerEngine.next(); UIManager.showSwipeIndicator('⏭️ Próxima música'); } }
-        });
+            dom.tapToStart.addEventListener('click',async e=>{ e.stopPropagation(); UIManager.showNotification('🔊 Ativando áudio...',2000); const ok=await ativarAudioBackground(); if(ok){ await PlayerEngine.play(); dom.tapToStart.style.display='none'; try{ await document.documentElement.requestFullscreen(); }catch(err){} UIManager.showNotification('✅ Rádio ao vivo!',3000); if(state.isAoVivo) mostrarBalaoAoVivo(); } else { UIManager.showNotification('❌ Falha ao ativar áudio.',3000); } });
 
-        dom.tapToStart.addEventListener('click',async e=>{
-            e.stopPropagation(); UIManager.showNotification('🔊 Ativando áudio...',2000);
-            const ok=await ativarAudioBackground();
-            if(ok){ await PlayerEngine.play(); dom.tapToStart.style.display='none'; try{ await document.documentElement.requestFullscreen(); }catch(err){} UIManager.showNotification('✅ Áudio ativado! Rádio em MODO AO VIVO!',3000); if(state.isAoVivo) mostrarBalaoAoVivo(); }
-            else { UIManager.showNotification('❌ Falha ao ativar áudio.',3000); }
-        });
+            document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'){ UIManager.stopVisualizer(); } else { if(state.isPlaying) UIManager.startVisualizer(); } });
+        }
 
         async function ativarAudioBackground(){
-            try{
-                const silentUrl=URL.createObjectURL(createSilentAudio()); dom.backgroundAudio.src=silentUrl; dom.backgroundAudio.loop=true; dom.backgroundAudio.volume=0.001;
-                await dom.backgroundAudio.play(); state.isBackgroundActive=true; dom.audioIndicator.innerHTML='<i class="fas fa-brain"></i> IA Ativa'; dom.audioIndicator.style.color='#4ade80';
-                TimerManager.setInterval(async()=>{ try{ if(dom.backgroundAudio.paused&&state.isBackgroundActive) await dom.backgroundAudio.play(); if(state.isPlaying&&dom.musicPlayer.paused&&!dom.musicPlayer.ended) await dom.musicPlayer.play(); if(dom.musicPlayer.ended&&state.isPlaying) PlayerEngine.next(); }catch(e){} },1000);
-                if('wakeLock' in navigator){ try{ await navigator.wakeLock.request('screen'); document.addEventListener('visibilitychange',async()=>{ if(document.visibilityState==='visible') await navigator.wakeLock.request('screen'); }); }catch(e){} }
-                return true;
-            }catch(e){ dom.audioIndicator.innerHTML='<i class="fas fa-exclamation-triangle"></i> Erro'; dom.audioIndicator.style.color='#ef4444'; return false; }
+            try{ const silentUrl=URL.createObjectURL(createSilentAudio()); dom.backgroundAudio.src=silentUrl; dom.backgroundAudio.loop=true; dom.backgroundAudio.volume=0.001; await dom.backgroundAudio.play(); state.isBackgroundActive=true; dom.audioIndicator.innerHTML='<i class="fas fa-brain"></i> IA Ativa'; dom.audioIndicator.style.color='#4ade80'; TimerManager.setInterval(async()=>{ try{ if(dom.backgroundAudio.paused&&state.isBackgroundActive) await dom.backgroundAudio.play(); if(state.isPlaying&&dom.musicPlayer.paused&&!dom.musicPlayer.ended) await dom.musicPlayer.play(); if(dom.musicPlayer.ended&&state.isPlaying) PlayerEngine.next(); }catch(e){} },1000); if('wakeLock' in navigator){ try{ await navigator.wakeLock.request('screen'); document.addEventListener('visibilitychange',async()=>{ if(document.visibilityState==='visible') await navigator.wakeLock.request('screen'); }); }catch(e){} } return true; }catch(e){ dom.audioIndicator.innerHTML='<i class="fas fa-exclamation-triangle"></i> Erro'; dom.audioIndicator.style.color='#ef4444'; return false; }
         }
 
-        function createSilentAudio(){
-            const sampleRate=44100,duration=5,numSamples=sampleRate*duration; const buffer=new ArrayBuffer(44+numSamples*2); const view=new DataView(buffer);
-            const writeString=(v,o,s)=>{ for(let i=0;i<s.length;i++) v.setUint8(o+i,s.charCodeAt(i)); };
-            writeString(view,0,'RIFF'); view.setUint32(4,36+numSamples*2,true); writeString(view,8,'WAVE'); writeString(view,12,'fmt '); view.setUint32(16,16,true); view.setUint16(20,1,true); view.setUint16(22,1,true); view.setUint32(24,sampleRate,true); view.setUint32(28,sampleRate*2,true); view.setUint16(32,2,true); view.setUint16(34,16,true); writeString(view,36,'data'); view.setUint32(40,numSamples*2,true); return new Blob([buffer],{type:'audio/wav'});
-        }
-
-        document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'){ UIManager.stopVisualizer(); } else { if(state.isPlaying) UIManager.startVisualizer(); } });
+        function createSilentAudio(){ const sampleRate=44100,duration=5,numSamples=sampleRate*duration; const buffer=new ArrayBuffer(44+numSamples*2); const view=new DataView(buffer); const writeString=(v,o,s)=>{ for(let i=0;i<s.length;i++) v.setUint8(o+i,s.charCodeAt(i)); }; writeString(view,0,'RIFF'); view.setUint32(4,36+numSamples*2,true); writeString(view,8,'WAVE'); writeString(view,12,'fmt '); view.setUint32(16,16,true); view.setUint16(20,1,true); view.setUint16(22,1,true); view.setUint32(24,sampleRate,true); view.setUint32(28,sampleRate*2,true); view.setUint16(32,2,true); view.setUint16(34,16,true); writeString(view,36,'data'); view.setUint32(40,numSamples*2,true); return new Blob([buffer],{type:'audio/wav'}); }
 
         init();
         return { state };
     })();
 </script>
+</body>
+</html>
