@@ -60,6 +60,8 @@
         .live-info-balloon .balloon-content { display:flex; align-items:center; gap:10px; color:var(--text); font-size:.8rem; font-weight:500; }
         .live-info-balloon .balloon-content i:first-child { color:#ff5e7e; animation:livePulse 1.2s infinite; }
         @keyframes livePulse { 0%,100% { opacity:.7; transform:scale(1); } 50% { opacity:1; transform:scale(1.1); } }
+        .balloon-timer { margin-top:4px; height:2px; background:rgba(255,255,255,0.3); border-radius:2px; overflow:hidden; }
+        .timer-bar { width:100%; height:100%; background:var(--accent); transition:width linear; }
 
         .menu-button { position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); color:var(--text); border:var(--border-subtle); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; cursor:pointer; z-index:31; pointer-events:auto; }
         .menu-popup { position:absolute; top:60px; right:12px; background:rgba(0,0,0,0.9); backdrop-filter:blur(10px); border-radius:20px; padding:10px; z-index:32; display:none; flex-direction:column; gap:6px; border:var(--border-subtle); pointer-events:auto; }
@@ -813,6 +815,7 @@ const App = (() => {
 
     // UI Manager
     const UIManager = {
+        updateVinyl() {}, // método dummy para evitar erro caso chamado
         showNotification(msg, duration = 3000) {
             state.notificationQueue.push({ msg, duration });
             if (!state.notificationActive) this.processQueue();
@@ -870,6 +873,38 @@ const App = (() => {
         saveStats() { localStorage.setItem('radio_patico_stats', JSON.stringify(state.stats)); }
     };
 
+    // Anúncios (definido antes de PlaylistManager para evitar erro de inicialização)
+    const AdManager = {
+        playVinheta() {
+            if(!state.isAoVivo||state.tocandoVinheta||CONFIG.VINHETAS.length===0) return false;
+            const wasPlaying=state.isPlaying; if(wasPlaying) PlayerEngine.pause();
+            state.tocandoVinheta=true;
+            const audioVinheta=new Audio(CONFIG.VINHETAS[Math.floor(Math.random()*CONFIG.VINHETAS.length)]);
+            audioVinheta.volume=CONFIG.VOLUME_PLAYER;
+            audioVinheta.play().catch(e=>console.log("Erro na vinheta:",e));
+            audioVinheta.onended=()=>{ state.tocandoVinheta=false; if(wasPlaying) PlayerEngine.play(); };
+            return true;
+        },
+        startVideoAd() {
+            if(!state.isAoVivo||state.adVideoPlaying) return;
+            state.adVideoPlaying=true; dom.videoAdOverlay.style.display='block'; dom.adVideo.currentTime=0;
+            dom.adVideo.play().catch(()=>{ dom.videoAdOverlay.style.display='none'; state.adVideoPlaying=false; });
+            TimerManager.setTimeout(()=>{ if(state.adVideoPlaying){ dom.videoAdOverlay.style.display='none'; dom.adVideo.pause(); state.adVideoPlaying=false; } },8000);
+        },
+        stopVideoAd() { dom.videoAdOverlay.style.display='none'; dom.adVideo.pause(); state.adVideoPlaying=false; },
+        playAudioAd() {
+            if(!state.isAoVivo||state.adAudioPlaying) return;
+            const wasPlaying=state.isPlaying; if(wasPlaying) PlayerEngine.pause();
+            state.adAudioPlaying=true; dom.adAudio.src="radiom.mp3"; dom.adAudio.volume=0.9; dom.adAudio.load();
+            dom.audioAdText.innerHTML='<i class="fas fa-volume-up"></i> 🎧 Obrigado por ouvir Rádio Patico!';
+            dom.audioAdToast.classList.add('show');
+            dom.adAudio.play().catch(()=>this.finishAudioAd(wasPlaying));
+            dom.adAudio.onended=()=>this.finishAudioAd(wasPlaying);
+            dom.adAudio.onerror=()=>this.finishAudioAd(wasPlaying);
+        },
+        finishAudioAd(wasPlaying) { state.adAudioPlaying=false; dom.audioAdToast.classList.remove('show'); if(wasPlaying) PlayerEngine.play(); }
+    };
+
     // Gerenciador de Playlist e IA
     const PlaylistManager = {
         shuffleArray(arr) { for (let i=arr.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; },
@@ -925,7 +960,6 @@ const App = (() => {
             }
 
             state.filteredPlaylist = novaPlaylist;
-            // Índice aleatório para iniciar com música diferente
             state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
             UIManager.updateTrackInfo(state.filteredPlaylist[state.currentIndex]);
             AtualizadorVideo.atualizar(state.generoAtual === "MIX" ? "VARIADAS" : state.generoAtual);
@@ -941,38 +975,6 @@ const App = (() => {
             if (state.historicoMusicasLive.length>5) state.historicoMusicasLive.shift();
             return prox;
         }
-    };
-
-    // Anúncios (simplificado, mantendo sua lógica)
-    const AdManager = {
-        playVinheta() {
-            if(!state.isAoVivo||state.tocandoVinheta||CONFIG.VINHETAS.length===0) return false;
-            const wasPlaying=state.isPlaying; if(wasPlaying) PlayerEngine.pause();
-            state.tocandoVinheta=true;
-            const audioVinheta=new Audio(CONFIG.VINHETAS[Math.floor(Math.random()*CONFIG.VINHETAS.length)]);
-            audioVinheta.volume=CONFIG.VOLUME_PLAYER;
-            audioVinheta.play().catch(e=>console.log("Erro na vinheta:",e));
-            audioVinheta.onended=()=>{ state.tocandoVinheta=false; if(wasPlaying) PlayerEngine.play(); };
-            return true;
-        },
-        startVideoAd() {
-            if(!state.isAoVivo||state.adVideoPlaying) return;
-            state.adVideoPlaying=true; dom.videoAdOverlay.style.display='block'; dom.adVideo.currentTime=0;
-            dom.adVideo.play().catch(()=>{ dom.videoAdOverlay.style.display='none'; state.adVideoPlaying=false; });
-            TimerManager.setTimeout(()=>{ if(state.adVideoPlaying){ dom.videoAdOverlay.style.display='none'; dom.adVideo.pause(); state.adVideoPlaying=false; } },8000);
-        },
-        stopVideoAd() { dom.videoAdOverlay.style.display='none'; dom.adVideo.pause(); state.adVideoPlaying=false; },
-        playAudioAd() {
-            if(!state.isAoVivo||state.adAudioPlaying) return;
-            const wasPlaying=state.isPlaying; if(wasPlaying) PlayerEngine.pause();
-            state.adAudioPlaying=true; dom.adAudio.src="radiom.mp3"; dom.adAudio.volume=0.9; dom.adAudio.load();
-            dom.audioAdText.innerHTML='<i class="fas fa-volume-up"></i> 🎧 Obrigado por ouvir Rádio Patico!';
-            dom.audioAdToast.classList.add('show');
-            dom.adAudio.play().catch(()=>this.finishAudioAd(wasPlaying));
-            dom.adAudio.onended=()=>this.finishAudioAd(wasPlaying);
-            dom.adAudio.onerror=()=>this.finishAudioAd(wasPlaying);
-        },
-        finishAudioAd(wasPlaying) { state.adAudioPlaying=false; dom.audioAdToast.classList.remove('show'); if(wasPlaying) PlayerEngine.play(); }
     };
 
     // Busca
@@ -1040,7 +1042,7 @@ const App = (() => {
                 dom.musicPlayer.onended=()=>{
                     if(state.trackStartTime){ const durationSec=Math.floor((Date.now()-state.trackStartTime)/1000); if(durationSec>0&&durationSec<600) state.stats.totalSeconds+=durationSec; }
                     PlayerEngine.stopTimer();
-                    UIManager.updateVinyl(false, state.isAoVivo);
+                    // REMOVIDA A LINHA QUE CHAMAVA UIManager.updateVinyl
 
                     // Tratamento do modo AO VIVO - INFINITO
                     if(state.isAoVivo && !state.aoVivoAcabou){
@@ -1138,6 +1140,19 @@ const App = (() => {
     };
 
     // Funções auxiliares
+    let balaoTimeoutId = null;
+    function mostrarBalaoAoVivo() {
+        const msgs=["DOMINGÃO DO BREGA","BORA BEBER UMA?","EITA SAUDADES","RÁDIO PATICO"];
+        dom.liveInfoText.textContent=msgs[Math.floor(Math.random()*msgs.length)];
+        dom.liveInfoBalloon.style.display='block'; dom.balloonTimerBar.style.width='100%'; void dom.balloonTimerBar.offsetWidth;
+        dom.balloonTimerBar.style.transition=`width ${CONFIG.TEMPO_BALAO_LIVE}s linear`; dom.balloonTimerBar.style.width='0%';
+        if(balaoTimeoutId) TimerManager.clearTimeout(balaoTimeoutId);
+        balaoTimeoutId = TimerManager.setTimeout(()=>{ 
+            dom.liveInfoBalloon.classList.add('fade-out'); 
+            TimerManager.setTimeout(()=>dom.liveInfoBalloon.style.display='none',250);
+        }, CONFIG.TEMPO_BALAO_LIVE*1000);
+    }
+
     function mudarGeneroAutomaticamente() {
         if(!state.trocaAutomaticaAtiva||state.isAoVivo) return;
         const generos=["SERTANEJO","FORRÓ","FORRÓ ANTIGO","SAMBA","POP","BREGA","MPB","VARIADAS","MODA TOP","AS++"];
@@ -1169,15 +1184,6 @@ const App = (() => {
         UIManager.updateTrackInfo(state.filteredPlaylist[0]); state.musicCounter=0; state.contadorMusicasVinheta=0;
         mostrarBalaoAoVivo(); AtualizadorVideo.atualizar('LIVE');
         if(state.isPlaying) PlayerEngine.play();
-    }
-
-    function mostrarBalaoAoVivo() {
-        const msgs=["DOMINGÃO DO BREGA","BORA BEBER UMA?","EITA SAUDADES","RÁDIO PATICO"];
-        dom.liveInfoText.textContent=msgs[Math.floor(Math.random()*msgs.length)];
-        dom.liveInfoBalloon.style.display='block'; dom.balloonTimerBar.style.width='100%'; void dom.balloonTimerBar.offsetWidth;
-        dom.balloonTimerBar.style.transition=`width ${CONFIG.TEMPO_BALAO_LIVE}s linear`; dom.balloonTimerBar.style.width='0%';
-        TimerManager.clearTimeout('balaoTimeout');
-        TimerManager.setTimeout(()=>{ dom.liveInfoBalloon.classList.add('fade-out'); TimerManager.setTimeout(()=>dom.liveInfoBalloon.style.display='none',250); },CONFIG.TEMPO_BALAO_LIVE*1000);
     }
 
     function toggleTvMode() {
@@ -1336,8 +1342,6 @@ const App = (() => {
                 if (state.isPlaying && dom.musicPlayer.paused && !dom.musicPlayer.ended) {
                     dom.musicPlayer.play().catch(()=>{});
                 }
-            } else {
-                // Opcional: pausar vídeo para economia? Melhor não.
             }
         });
     }
@@ -1356,3 +1360,5 @@ const App = (() => {
     return { state };
 })();
 </script>
+</body>
+</html>
