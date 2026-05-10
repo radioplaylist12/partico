@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -203,6 +204,37 @@
 
         @keyframes cyberPulse { 0% { box-shadow:0 0 8px rgba(0,255,255,0.4); border-color:rgba(0,255,255,0.5); } 100% { box-shadow:0 0 20px rgba(0,255,255,0.8); border-color:#0ff; } }
         @keyframes pulseRed { 0%,100% { transform:scale(1); } 50% { transform:scale(1.05); } }
+
+        /* ===== CORREÇÕES PEDIDAS ===== */
+        /* 1. GARANTIR LETREIRO BRANCO NO MODO TV */
+        .tv-mode-active .genre-marquee {
+            transform: scale(1.1);
+            transform-origin: bottom;
+            z-index: 100;
+            background: rgba(0,0,0,0.9);
+        }
+        .genre-marquee-content,
+        .genre-marquee-content span {
+            color: white !important;
+            text-shadow: 0 0 5px #e63946;
+        }
+        
+        /* 2. GARANTIR TEXTOS BRANCOS EM CARDS E MODAIS */
+        .genre-card span,
+        .genre-card i,
+        .ai-stat, .stat-item,
+        .feedback-modal, .feedback-modal *,
+        .pix-modal, .pix-modal *,
+        .modal p, .modal h3, .modal span, .modal div,
+        .ai-modal, .stats-modal, .genres-modal,
+        .manual-modal, .manual-modal * {
+            color: white !important;
+        }
+        
+        /* 3. REMOVER SAUDAÇÃO DESNECESSÁRIA DO SPLASH */
+        .splash-content p:last-of-type {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -231,7 +263,7 @@
     </div>
 </div>
 
-<!-- TOAST DO PIX ABAIXO DOS BOTÕES LIKE -->
+<!-- TOAST DO PIX ABAIXO DOS BOTÕES LIKE (ÚNICO BOTÃO PIX) -->
 <div id="pixToastBelow" class="pix-toast-below">
     <i class="fas fa-hand-holding-heart"></i>
     <span>Apoie com Pix: <strong>12988461978</strong></span>
@@ -856,50 +888,24 @@
 
         function shuffleArray(arr) { for (let i=arr.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
 
-        // Atualiza o letreiro com mensagens personalizadas
         function updateMarquee(genero) {
             const generoDisplay = genero === 'MIX' ? 'TODOS OS GÊNEROS' : genero;
             const likedCount = state.userPreferences.likedSongs.length;
             let mensagemPersonalizada = "";
             switch (genero) {
-                case 'SERTANEJO':
-                    mensagemPersonalizada = "🎸 MODO SERTANEJO – VOCÊ ESTÁ OUVINDO O MELHOR DO SERTANEJO!";
-                    break;
-                case 'FORRÓ':
-                    mensagemPersonalizada = "🥁 MODO FORRÓ – VOCÊ ESTÁ OUVINDO O MELHOR DO FORRÓ!";
-                    break;
-                case 'FORRÓ ANTIGO':
-                    mensagemPersonalizada = "🪗 MODO FORRÓ ANTIGO – PÉ DE SERRA RAÍZ!";
-                    break;
-                case 'SAMBA':
-                    mensagemPersonalizada = "🎶 MODO SAMBA – VOCÊ ESTÁ OUVINDO SAMBA!";
-                    break;
-                case 'POP':
-                    mensagemPersonalizada = "🎤 MODO POP – VOCÊ ESTÁ OUVINDO POP INTERNACIONAL!";
-                    break;
-                case 'BREGA':
-                    mensagemPersonalizada = "💔 MODO BREGA – VOCÊ ESTÁ OUVINDO BREGA ROMÂNTICO!";
-                    break;
-                case 'MPB':
-                    mensagemPersonalizada = "🎸 MODO MPB – VOCÊ ESTÁ OUVINDO MPB!";
-                    break;
-                case 'VARIADAS':
-                    mensagemPersonalizada = "🎲 MODO VARIADAS – VOCÊ ESTÁ OUVINDO VARIADAS!";
-                    break;
-                case 'MODA TOP':
-                    mensagemPersonalizada = "⭐ MODO MODA TOP – SERTANEJO DE RAIZ!";
-                    break;
-                case 'AS++':
-                    mensagemPersonalizada = "👑 MODO AS++ – AS MAIS TOCADAS!";
-                    break;
-                case 'MIX':
-                    mensagemPersonalizada = "🌀 TODOS OS GÊNEROS – VOCÊ ESTÁ OUVINDO TUDO!";
-                    break;
-                case 'LIVE':
-                    mensagemPersonalizada = "🔴 AO VIVO – RÁDIO PATICO MENDES!";
-                    break;
-                default:
-                    mensagemPersonalizada = `🎵 ${generoDisplay} – ESTILO GARANTIDO!`;
+                case 'SERTANEJO': mensagemPersonalizada = "🎸 MODO SERTANEJO – VOCÊ ESTÁ OUVINDO O MELHOR DO SERTANEJO!"; break;
+                case 'FORRÓ': mensagemPersonalizada = "🥁 MODO FORRÓ – VOCÊ ESTÁ OUVINDO O MELHOR DO FORRÓ!"; break;
+                case 'FORRÓ ANTIGO': mensagemPersonalizada = "🪗 MODO FORRÓ ANTIGO – PÉ DE SERRA RAÍZ!"; break;
+                case 'SAMBA': mensagemPersonalizada = "🎶 MODO SAMBA – VOCÊ ESTÁ OUVINDO SAMBA!"; break;
+                case 'POP': mensagemPersonalizada = "🎤 MODO POP – VOCÊ ESTÁ OUVINDO POP INTERNACIONAL!"; break;
+                case 'BREGA': mensagemPersonalizada = "💔 MODO BREGA – VOCÊ ESTÁ OUVINDO BREGA ROMÂNTICO!"; break;
+                case 'MPB': mensagemPersonalizada = "🎸 MODO MPB – VOCÊ ESTÁ OUVINDO MPB!"; break;
+                case 'VARIADAS': mensagemPersonalizada = "🎲 MODO VARIADAS – VOCÊ ESTÁ OUVINDO VARIADAS!"; break;
+                case 'MODA TOP': mensagemPersonalizada = "⭐ MODO MODA TOP – SERTANEJO DE RAIZ!"; break;
+                case 'AS++': mensagemPersonalizada = "👑 MODO AS++ – AS MAIS TOCADAS!"; break;
+                case 'MIX': mensagemPersonalizada = "🌀 TODOS OS GÊNEROS – VOCÊ ESTÁ OUVINDO TUDO!"; break;
+                case 'LIVE': mensagemPersonalizada = "🔴 AO VIVO – RÁDIO PATICO MENDES!"; break;
+                default: mensagemPersonalizada = `🎵 ${generoDisplay} – ESTILO GARANTIDO!`;
             }
             const messages = [
                 `🎵 RÁDIO PATICO IA | ${mensagemPersonalizada} | 👍 ${likedCount} curtidas`,
