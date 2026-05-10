@@ -19,18 +19,6 @@
             --accent: #e63946;
             --accent-glow: rgba(230,57,70,0.4);
             --text: #fff;
-            --grad-sertanejo: linear-gradient(135deg, #d4a373, #b5835a);
-            --grad-forro: linear-gradient(135deg, #f4a261, #e76f51);
-            --grad-forro-antigo: linear-gradient(135deg, #e9c46a, #f4a261);
-            --grad-samba: linear-gradient(135deg, #2a9d8f, #264653);
-            --grad-pop: linear-gradient(135deg, #0077b6, #023e8a);
-            --grad-brega: linear-gradient(135deg, #e76f51, #f4a261);
-            --grad-mpb: linear-gradient(135deg, #9c27b0, #6a1b9a);
-            --grad-variadas: linear-gradient(135deg, #00b4d8, #0077b6);
-            --grad-todos: linear-gradient(135deg, #6c757d, #495057);
-            --grad-live: linear-gradient(135deg, #e63946, #9b1d1d);
-            --grad-moda-top: linear-gradient(135deg, #ff006e, #8338ec);
-            --grad-as-plus: linear-gradient(135deg, #3a86ff, #9c27b0);
             --border-subtle: 1px solid rgba(255,255,255,0.2);
             --btn-size: 48px;
             --play-btn-size: 52px;
@@ -39,8 +27,16 @@
         body { min-height:100vh; background:var(--bg-primary); overflow:hidden; position:fixed; width:100%; height:100%; }
         .app { width:100%; height:100vh; background:var(--bg-primary); position:relative; overflow:hidden; }
         
-        /* VÍDEO REMOVIDO - FUNDO PRETO */
-        .fullscreen-video-container { display: none !important; }
+        /* FUNDO PRETO SEM VÍDEO */
+        .static-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+            z-index: 1;
+        }
         
         .controls-overlay { position:absolute; top:0; left:0; width:100%; height:100%; z-index:10; display:flex; flex-direction:column; justify-content:space-between; pointer-events:none; }
 
@@ -97,7 +93,7 @@
         .control-btn:active { transform:scale(0.95); background:var(--accent); }
         .play-btn { font-size:1.3rem; width:var(--play-btn-size); height:var(--play-btn-size); background:var(--accent); color:#000; border:none; box-shadow:0 0 12px var(--accent-glow); }
 
-        /* LETREIRO INFINITO - RESTAURADO */
+        /* LETREIRO INFINITO */
         .genre-marquee {
             position: fixed;
             bottom: 170px;
@@ -353,7 +349,9 @@
 <div id="splash"><div class="splash-content"><i class="fas fa-play-circle"></i><h1>Rádio Patico IA</h1><p>🎵 Um novo jeito de ouvir músicas</p></div></div>
 <div id="tap-to-start"><i class="fas fa-play-circle"></i> 🎵 ATIVAR RÁDIO</div>
 <div class="app">
-    <div class="fullscreen-video-container"><video id="mainVideo" autoplay loop muted playsinline><source src="pai101.mp4" type="video/mp4"></video></div>
+    <!-- FUNDO PRETO SEM VÍDEO -->
+    <div class="static-bg"></div>
+    
     <div class="live-info-balloon" id="liveInfoBalloon" style="display:none"><div class="balloon-content"><i class="fas fa-circle"></i><span id="liveInfoText">AO VIVO</span><i class="fas fa-microphone-alt"></i></div><div class="balloon-timer"><div class="timer-bar" id="balloonTimerBar"></div></div></div>
     <div id="notificationTop" class="notification-top"><div class="message" id="notificationMessage"></div></div>
     <div class="controls-overlay"><div class="bottom-controls" id="bottomControls">
@@ -430,24 +428,10 @@
         VOLUME_PLAYER: 0.9,
         INTERVALO_VINHETA_MUSICAS: 10,
         VINHETAS: ['radiopm.mp3', 'Paticom.mp3', 'Paticom.mp3', 'zzvc.mp3'],
-        TEMPO_BALAO_LIVE: 5,
-        VIDEO_POR_GENERO: {
-            SERTANEJO: 'sertanejo181.mp4',
-            FORRÓ: 'forro181.mp4',
-            'FORRÓ ANTIGO': 'forroant181.mp4',
-            BREGA: 'brga181.mp4',
-            POP: 'pop181.mp4',
-            MPB: 'mpb181.mp4',
-            SAMBA: 'samba181.mp4',
-            VARIADAS: 'variadas.mp4',
-            'MODA TOP': 'modatop181.mp4',
-            'AS++': 'pai101.mp4',
-            LIVE: 'pai101.mp4',
-            DEFAULT: 'pai101.mp4'
-        }
+        TEMPO_BALAO_LIVE: 5
     };
 
-    // PLAYLIST (coloque sua playlist completa aqui)
+    // PLAYLIST (coloque sua playlist completa aqui - os vídeos não são mais usados)
     const PLAYLIST = [
        // ==================== SERTANEJO ====================
         { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -990,7 +974,6 @@
             exitTvBtn: document.getElementById('exitTvBtn'),
             menuButton: document.getElementById('menuButton'),
             menuPopup: document.getElementById('menuPopup'),
-            mainVideo: document.getElementById('mainVideo'),
             feedbackModal: document.getElementById('feedbackModal'),
             aiModal: document.getElementById('aiModal'),
             statsModal: document.getElementById('statsModal'),
@@ -1040,15 +1023,6 @@
             showToast();
             window.pixToastInterval = TimerManager.setInterval(showToast, 60000);
         }
-
-        // Atualizador de vídeo (agora só para manter compatibilidade - vídeo removido)
-        const AtualizadorVideo = {
-            currentVideoSrc: '',
-            atualizar(genero) {
-                // Vídeo removido - não faz nada
-                return;
-            }
-        };
 
         const UIManager = {
             showNotification(msg, duration = 3000) {
@@ -1667,7 +1641,7 @@
             setupEventListeners();
             startPixToastCycle();
             updateMarquee('LIVE');
-            console.log("✅ Rádio Patico IA - Pronto!");
+            console.log("✅ Rádio Patico IA - Pronto! Vídeo removido.");
         }
 
         init();
