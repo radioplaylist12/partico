@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ===== ESTILOS GLOBAIS - MANTIDOS ORIGINAIS ===== */
+        /* ===== ESTILOS GLOBAIS - TUDO ORIGINAL ===== */
         :root {
             --bg-primary: #000;
             --bg-glass: rgba(0,0,0,0.7);
@@ -19,6 +19,18 @@
             --accent: #e63946;
             --accent-glow: rgba(230,57,70,0.4);
             --text: #fff;
+            --grad-sertanejo: linear-gradient(135deg, #d4a373, #b5835a);
+            --grad-forro: linear-gradient(135deg, #f4a261, #e76f51);
+            --grad-forro-antigo: linear-gradient(135deg, #e9c46a, #f4a261);
+            --grad-samba: linear-gradient(135deg, #2a9d8f, #264653);
+            --grad-pop: linear-gradient(135deg, #0077b6, #023e8a);
+            --grad-brega: linear-gradient(135deg, #e76f51, #f4a261);
+            --grad-mpb: linear-gradient(135deg, #9c27b0, #6a1b9a);
+            --grad-variadas: linear-gradient(135deg, #00b4d8, #0077b6);
+            --grad-todos: linear-gradient(135deg, #6c757d, #495057);
+            --grad-live: linear-gradient(135deg, #e63946, #9b1d1d);
+            --grad-moda-top: linear-gradient(135deg, #ff006e, #8338ec);
+            --grad-as-plus: linear-gradient(135deg, #3a86ff, #9c27b0);
             --border-subtle: 1px solid rgba(255,255,255,0.2);
             --btn-size: 48px;
             --play-btn-size: 52px;
@@ -26,18 +38,8 @@
         * { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
         body { min-height:100vh; background:var(--bg-primary); overflow:hidden; position:fixed; width:100%; height:100%; }
         .app { width:100%; height:100vh; background:var(--bg-primary); position:relative; overflow:hidden; }
-        
-        /* FUNDO PRETO SEM VÍDEO */
-        .static-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
-            z-index: 1;
-        }
-        
+        .fullscreen-video-container { position:absolute; top:0; left:0; width:100%; height:100%; background:var(--bg-primary); z-index:1; }
+        .fullscreen-video-container video { width:100%; height:100%; object-fit:cover; }
         .controls-overlay { position:absolute; top:0; left:0; width:100%; height:100%; z-index:10; display:flex; flex-direction:column; justify-content:space-between; pointer-events:none; }
 
         .tv-mode-active .bottom-controls,
@@ -126,7 +128,6 @@
             100% { transform: translateX(-50%); }
         }
 
-        /* TOAST DO PIX */
         .pix-toast-below {
             position: fixed;
             bottom: 50px;
@@ -149,30 +150,11 @@
             font-size: 0.8rem;
             cursor: pointer;
         }
-        .pix-toast-below.show {
-            opacity: 1;
-        }
-        .pix-toast-below:active {
-            transform: translateX(-50%) scale(0.97);
-        }
-        .pix-toast-below i {
-            font-size: 1.1rem;
-            color: #ffd700;
-        }
-        .pix-toast-below button {
-            background: #25D366;
-            border: none;
-            padding: 4px 12px;
-            border-radius: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.7rem;
-            transition: transform 0.1s, background 0.2s;
-        }
-        .pix-toast-below button:active {
-            transform: scale(0.95);
-            background: #1a8c4a;
-        }
+        .pix-toast-below.show { opacity: 1; }
+        .pix-toast-below:active { transform: translateX(-50%) scale(0.97); }
+        .pix-toast-below i { font-size: 1.1rem; color: #ffd700; }
+        .pix-toast-below button { background: #25D366; border: none; padding: 4px 12px; border-radius: 40px; font-weight: bold; cursor: pointer; font-size: 0.7rem; transition: transform 0.1s, background 0.2s; }
+        .pix-toast-below button:active { transform: scale(0.95); background: #1a8c4a; }
 
         .feedback-buttons { position:fixed; bottom:120px; left:16px; display:flex; gap:10px; z-index:27; }
         .feedback-btn { width:40px; height:40px; border-radius:50%; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); border:var(--border-subtle); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; transition:transform 0.1s, background 0.2s; }
@@ -182,7 +164,6 @@
         .feedback-btn.dislike { color:#ef4444; }
         .feedback-btn.dislike:active { background:#ef4444; color:#000; }
 
-        /* FEEDBACK MODAL */
         .feedback-modal { 
             bottom: 80px; 
             right: 20px; 
@@ -197,84 +178,43 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
         .feedback-modal.open { display: block; }
-        .feedback-modal h3 { 
-            color: white; 
-            text-align: center; 
-            margin-bottom: 12px;
-            font-size: 1rem;
-        }
-        .rating { 
-            display: flex; 
-            gap: 6px; 
-            margin: 10px 0; 
-            justify-content: center; 
-        }
-        .star { 
-            color: #555; 
-            font-size: 1.4rem; 
-            cursor: pointer; 
-            transition: transform 0.1s, color 0.2s;
-        }
+        .feedback-modal h3 { color: white; text-align: center; margin-bottom: 12px; font-size: 1rem; }
+        .rating { display: flex; gap: 6px; margin: 10px 0; justify-content: center; }
+        .star { color: #555; font-size: 1.4rem; cursor: pointer; transition: transform 0.1s, color 0.2s; }
         .star:active { transform: scale(0.9); }
         .star.active { color: #ffd700; }
-        .feedback-modal textarea { 
-            width: 100%; 
-            padding: 10px; 
-            border-radius: 12px; 
-            border: 1px solid rgba(255,255,255,0.2); 
-            background: rgba(0,0,0,0.5); 
-            color: white;
-            font-size: 0.8rem;
-            resize: vertical;
-            margin: 10px 0;
-        }
-        .feedback-modal textarea::placeholder {
-            color: rgba(255,255,255,0.5);
-        }
-        .modal-buttons { 
-            display: flex; 
-            gap: 10px; 
-            justify-content: center;
-            margin-top: 10px;
-        }
-        .modal-btn { 
-            padding: 8px 16px; 
-            border-radius: 25px; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: bold;
-            transition: transform 0.1s, opacity 0.2s;
-        }
+        .feedback-modal textarea { width: 100%; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-size: 0.8rem; resize: vertical; margin: 10px 0; }
+        .feedback-modal textarea::placeholder { color: rgba(255,255,255,0.5); }
+        .modal-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+        .modal-btn { padding: 8px 16px; border-radius: 25px; border: none; cursor: pointer; font-weight: bold; transition: transform 0.1s, opacity 0.2s; }
         .modal-btn:active { transform: scale(0.95); }
         .modal-btn.cancel { background: #444; color: white; }
         .modal-btn.send { background: #25D366; color: white; }
 
-        /* SPLASH - LETRAS MAIS BONITAS */
         #splash { position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-primary); display:flex; align-items:center; justify-content:center; z-index:9999; transition:opacity .5s, visibility .5s; }
         #splash.hidden { opacity:0; visibility:hidden; pointer-events:none; }
         .splash-content { text-align:center; color:var(--text); }
         .splash-content i { font-size:4rem; color:var(--accent); margin-bottom:1rem; animation:pulse 1.5s infinite; }
-        .splash-content h1 { 
-            font-family: 'Poppins', sans-serif; 
-            font-size: 2rem; 
-            letter-spacing: 2px; 
-            background: linear-gradient(135deg, #fff, #e63946); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-            background-clip: text; 
+        
+        /* LETRAS INICIAIS MAIS BONITAS */
+        .splash-content h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #ffffff, #e63946);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 5px;
         }
-        .splash-content p { 
-            font-family: 'Poppins', sans-serif; 
-            font-size: 0.9rem; 
-            letter-spacing: 1px; 
-            color: #ffaa66; 
+        .splash-content p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            color: #ffaa66;
         }
-        @keyframes pulse { 
-            0% { opacity:.6; transform:scale(1); } 
-            50% { opacity:1; transform:scale(1.1); text-shadow:0 0 20px #e63946; } 
-            100% { opacity:.6; transform:scale(1); } 
-        }
+        
+        @keyframes pulse { 0% { opacity:.6; transform:scale(1); } 50% { opacity:1; transform:scale(1.1); } 100% { opacity:.6; transform:scale(1); } }
 
         /* BOTÃO LARANJA MAIS BONITO */
         #tap-to-start {
@@ -282,7 +222,7 @@
             bottom: 20%;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(135deg, #ff8c00, #ff6600);
+            background: linear-gradient(135deg, #ff8c00, #ff5500);
             color: var(--text);
             padding: 14px 28px;
             border-radius: 60px;
@@ -293,20 +233,20 @@
             z-index: 10000;
             cursor: pointer;
             display: none;
-            animation: btnPulse 1.5s infinite;
+            animation: btnPulseLaranja 1.5s infinite;
             white-space: nowrap;
-            box-shadow: 0 4px 20px rgba(255,102,0,0.5);
+            box-shadow: 0 4px 20px rgba(255,68,0,0.5);
             border: none;
             transition: transform 0.1s, box-shadow 0.2s;
         }
         #tap-to-start:active {
             transform: translateX(-50%) scale(0.97);
-            box-shadow: 0 2px 10px rgba(255,102,0,0.3);
+            box-shadow: 0 2px 10px rgba(255,68,0,0.3);
         }
-        @keyframes btnPulse {
-            0% { transform: translateX(-50%) scale(1); box-shadow: 0 0 20px rgba(255,102,0,0.5); }
-            50% { transform: translateX(-50%) scale(1.03); box-shadow: 0 0 40px rgba(255,102,0,0.8); }
-            100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 20px rgba(255,102,0,0.5); }
+        @keyframes btnPulseLaranja {
+            0% { transform: translateX(-50%) scale(1); box-shadow: 0 0 20px rgba(255,68,0,0.5); }
+            50% { transform: translateX(-50%) scale(1.03); box-shadow: 0 0 40px rgba(255,68,0,0.8); }
+            100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 20px rgba(255,68,0,0.5); }
         }
 
         .genre-badge { position:absolute; top:12px; left:12px; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); padding:5px 12px; border-radius:20px; font-size:.65rem; color:var(--text); z-index:31; pointer-events:none; border-left:3px solid var(--accent); font-weight:bold; }
@@ -334,24 +274,15 @@
         @keyframes cyberPulse { 0% { box-shadow:0 0 8px rgba(0,255,255,0.4); border-color:rgba(0,255,255,0.5); } 100% { box-shadow:0 0 20px rgba(0,255,255,0.8); border-color:#0ff; } }
         @keyframes pulseRed { 0%,100% { transform:scale(1); } 50% { transform:scale(1.05); } }
 
-        .tv-mode-active .genre-marquee {
-            transform: scale(1.1);
-            transform-origin: bottom;
-            z-index: 100;
-            background: rgba(0,0,0,0.9);
-        }
-        .tv-mode-active .genre-marquee-content span {
-            color: white !important;
-        }
+        .tv-mode-active .genre-marquee { transform: scale(1.1); transform-origin: bottom; z-index: 100; background: rgba(0,0,0,0.9); }
+        .tv-mode-active .genre-marquee-content span { color: white !important; }
     </style>
 </head>
 <body>
 <div id="splash"><div class="splash-content"><i class="fas fa-play-circle"></i><h1>Rádio Patico IA</h1><p>🎵 Um novo jeito de ouvir músicas</p></div></div>
 <div id="tap-to-start"><i class="fas fa-play-circle"></i> 🎵 ATIVAR RÁDIO</div>
 <div class="app">
-    <!-- FUNDO PRETO SEM VÍDEO -->
-    <div class="static-bg"></div>
-    
+    <div class="fullscreen-video-container"><video id="mainVideo" autoplay loop muted playsinline><source src="pai101.mp4" type="video/mp4"></video></div>
     <div class="live-info-balloon" id="liveInfoBalloon" style="display:none"><div class="balloon-content"><i class="fas fa-circle"></i><span id="liveInfoText">AO VIVO</span><i class="fas fa-microphone-alt"></i></div><div class="balloon-timer"><div class="timer-bar" id="balloonTimerBar"></div></div></div>
     <div id="notificationTop" class="notification-top"><div class="message" id="notificationMessage"></div></div>
     <div class="controls-overlay"><div class="bottom-controls" id="bottomControls">
@@ -362,12 +293,10 @@
     </div></div>
 </div>
 
-<!-- LETREIRO INFINITO -->
 <div class="genre-marquee" id="genreMarquee">
     <div class="genre-marquee-content" id="marqueeContent"></div>
 </div>
 
-<!-- TOAST DO PIX -->
 <div id="pixToastBelow" class="pix-toast-below">
     <i class="fas fa-hand-holding-heart"></i>
     <span>Pix: 12988461978</span>
@@ -428,10 +357,24 @@
         VOLUME_PLAYER: 0.9,
         INTERVALO_VINHETA_MUSICAS: 10,
         VINHETAS: ['radiopm.mp3', 'Paticom.mp3', 'Paticom.mp3', 'zzvc.mp3'],
-        TEMPO_BALAO_LIVE: 5
+        TEMPO_BALAO_LIVE: 5,
+        VIDEO_POR_GENERO: {
+            SERTANEJO: 'sertanejo181.mp4',
+            FORRÓ: 'forro181.mp4',
+            'FORRÓ ANTIGO': 'forroant181.mp4',
+            BREGA: 'brga181.mp4',
+            POP: 'pop181.mp4',
+            MPB: 'mpb181.mp4',
+            SAMBA: 'samba181.mp4',
+            VARIADAS: 'variadas.mp4',
+            'MODA TOP': 'modatop181.mp4',
+            'AS++': 'pai101.mp4',
+            LIVE: 'pai101.mp4',
+            DEFAULT: 'pai101.mp4'
+        }
     };
 
-    // PLAYLIST (coloque sua playlist completa aqui - os vídeos não são mais usados)
+    // PLAYLIST COMPLETA (coloque sua playlist completa aqui)
     const PLAYLIST = [
        // ==================== SERTANEJO ====================
         { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
@@ -901,13 +844,13 @@
         { id: 592, title: "PAGODE_DO_PAGODE_DO_CASAMENTO_Eduardo_Costa", artist: "Eduardo Costa", src: "PAGODE_DO_PAGODE_DO_CASAMENTO_Eduardo_Costa_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
         { id: 593, title: "Jo_o_Boiadeiro_Jo_o_Boiadeiro", artist: "Desconhecido", src: "Jo_o_Boiadeiro_Jo_o_Boiadeiro_Remasterizado__muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
         { id: 594, title: "Gilberto_e_Gilmar_Boiadeiro_Errante", artist: "Gilberto e Gilmar", src: "Gilberto_e_Gilmar_Boiadeiro_Errante_ltimo_Adeus_Saudade_De_Minha_Terra_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 595, title: "Jeit_o_de_Jeit_o_de_caboclo_Participa", artist: "Desconhecido", src: "Jeit_o_de_Jeit_o_de_caboclo_Participa_o_muzzik.m4a", genero: "MODA TOP", tipo: "normal" } 
+        { id: 595, title: "Jeit_o_de_Jeit_o_de_caboclo_Participa", artist: "Desconhecido", src: "Jeit_o_de_Jeit_o_de_caboclo_Participa_o_muzzik.m4a", genero: "MODA TOP", tipo: "normal" }
+         
         // Adicione o restante da sua playlist completa aqui...
     ];
 
     // ========== CÓDIGO PRINCIPAL ==========
     (function() {
-        // Estado da aplicação
         const state = {
             isPlaying: false,
             isAoVivo: true,
@@ -933,7 +876,6 @@
             stats: { totalPlayed: 0, totalSeconds: 0, genreCount: {}, currentStreak: 0 }
         };
 
-        // Timer Manager
         const TimerManager = {
             timers: new Set(),
             setTimeout(fn, delay) { const id = setTimeout(() => { this.timers.delete(id); fn(); }, delay); this.timers.add(id); return id; },
@@ -943,7 +885,6 @@
             clearAll() { this.timers.forEach(id => { clearTimeout(id); clearInterval(id); }); this.timers.clear(); }
         };
 
-        // Elementos DOM
         const dom = {
             musicPlayer: document.getElementById('musicPlayer'),
             backgroundAudio: document.getElementById('backgroundAudio'),
@@ -974,6 +915,7 @@
             exitTvBtn: document.getElementById('exitTvBtn'),
             menuButton: document.getElementById('menuButton'),
             menuPopup: document.getElementById('menuPopup'),
+            mainVideo: document.getElementById('mainVideo'),
             feedbackModal: document.getElementById('feedbackModal'),
             aiModal: document.getElementById('aiModal'),
             statsModal: document.getElementById('statsModal'),
@@ -998,7 +940,6 @@
         function updateMarquee(genero) {
             const likedCount = state.userPreferences.likedSongs.length;
             const generoDisplay = genero === 'LIVE' ? '🔴 AO VIVO' : (genero === 'MIX' ? 'TODOS OS GÊNEROS' : genero);
-            
             const messages = [
                 `🎵 RÁDIO PATICO MENDES IA| MODO: ${generoDisplay} | 👍 ${likedCount} curtidas`,
                 `⚡ IA APRENDENDO SEU GOSTO | 📻 24 HORAS`,
@@ -1006,7 +947,6 @@
                 `💰 CONTATP: 12988461978`,
                 `🎸 SERTANEJO • 🥁 FORRÓ • 🎶 SAMBA • 🎤 POP • 💔 BREGA • 🎸 MPB`
             ];
-            
             let fullText = '';
             for (let i = 0; i < 8; i++) {
                 fullText += messages.join('   ✨   ') + '   ✨   ';
@@ -1023,6 +963,24 @@
             showToast();
             window.pixToastInterval = TimerManager.setInterval(showToast, 60000);
         }
+
+        const AtualizadorVideo = {
+            currentVideoSrc: '',
+            atualizar(genero) {
+                if (state.isAoVivo) { this.switchVideo(CONFIG.VIDEO_POR_GENERO.LIVE); return; }
+                let videoFile = CONFIG.VIDEO_POR_GENERO[genero] || CONFIG.VIDEO_POR_GENERO.DEFAULT;
+                this.switchVideo(videoFile);
+            },
+            switchVideo(videoFile) {
+                if (this.currentVideoSrc === videoFile && dom.mainVideo.src && dom.mainVideo.src.endsWith(videoFile)) return;
+                this.currentVideoSrc = videoFile;
+                dom.mainVideo.pause();
+                dom.mainVideo.src = videoFile;
+                dom.mainVideo.load();
+                dom.mainVideo.loop = true;
+                dom.mainVideo.play().catch(err => console.warn(`Erro vídeo: ${err}`));
+            }
+        };
 
         const UIManager = {
             showNotification(msg, duration = 3000) {
@@ -1135,6 +1093,7 @@
                 state.filteredPlaylist = novaPlaylist;
                 state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
                 UIManager.updateTrackInfo(state.filteredPlaylist[state.currentIndex]);
+                AtualizadorVideo.atualizar(state.generoAtual === "MIX" ? "VARIADAS" : state.generoAtual);
                 if (state.isPlaying) PlayerEngine.play();
             },
             proximaMusicaLive() {
@@ -1162,6 +1121,7 @@
                 dom.musicPlayer.src = track.src;
                 dom.musicPlayer.load();
                 if (!state.isAoVivo) UIManager.updateGenreBadge(track.genero);
+                AtualizadorVideo.atualizar(state.isAoVivo ? 'LIVE' : track.genero);
                 return new Promise((resolve) => {
                     const timeoutId = TimerManager.setTimeout(() => {
                         UIManager.hideLoading();
@@ -1363,6 +1323,7 @@
                 state.filteredPlaylist = PlaylistManager.shuffleArray(novas);
                 state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
                 UIManager.updateTrackInfo(state.filteredPlaylist[0]);
+                AtualizadorVideo.atualizar(state.generoAtual);
                 UIManager.showNotification(`🎵 Mudando para ${novo}!`, 3000);
                 UIManager.updateGenreBadge(novo);
             }
@@ -1380,6 +1341,7 @@
             UIManager.updateTrackInfo(state.filteredPlaylist[0]);
             UIManager.updateGenreBadge(state.generoAtual);
             dom.liveInfoBalloon.style.display = 'none';
+            AtualizadorVideo.atualizar(state.generoAtual);
             if (state.isPlaying) PlayerEngine.play();
         }
 
@@ -1398,6 +1360,7 @@
             UIManager.updateTrackInfo(state.filteredPlaylist[0]);
             state.contadorMusicasVinheta = 0;
             mostrarBalaoAoVivo();
+            AtualizadorVideo.atualizar('LIVE');
             if (state.isPlaying) PlayerEngine.play();
             UIManager.updateGenreBadge('LIVE');
         }
@@ -1409,11 +1372,15 @@
                 appEl.classList.add('tv-mode-active');
                 dom.exitTvBtn.style.display = 'block';
                 UIManager.showNotification('📺 MODO TV ATIVADO!', 3000);
+                dom.mainVideo.src = "modop.mp4";
+                dom.mainVideo.load();
+                dom.mainVideo.play().catch(() => { });
             } else {
                 state.isTvMode = false;
                 appEl.classList.remove('tv-mode-active');
                 dom.exitTvBtn.style.display = 'none';
                 UIManager.showNotification('Modo TV desativado.', 2000);
+                AtualizadorVideo.atualizar(state.isAoVivo ? 'LIVE' : state.generoAtual);
             }
         }
 
@@ -1475,6 +1442,7 @@
             dom.genreBadge.classList.add('live');
             UIManager.updateTrackInfo(state.filteredPlaylist[0]);
             state.contadorMusicasVinheta = 0;
+            AtualizadorVideo.atualizar('LIVE');
             updateMarquee('LIVE');
         }
 
@@ -1550,6 +1518,7 @@
                 state.currentIndex = 0;
                 UIManager.updateTrackInfo(music);
                 if (!state.isAoVivo) UIManager.updateGenreBadge(music.genero);
+                AtualizadorVideo.atualizar(music.genero);
                 PlayerEngine.play();
                 this.hide();
                 UIManager.showNotification(`🔍 Tocando: ${music.title} - ${music.artist}`, 3000);
@@ -1626,6 +1595,7 @@
 
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
+                    if (dom.mainVideo.paused && dom.mainVideo.src) dom.mainVideo.play().catch(() => { });
                     if (state.isPlaying && dom.musicPlayer.paused && !dom.musicPlayer.ended) dom.musicPlayer.play().catch(() => { });
                 }
             });
@@ -1641,7 +1611,7 @@
             setupEventListeners();
             startPixToastCycle();
             updateMarquee('LIVE');
-            console.log("✅ Rádio Patico IA - Pronto! Vídeo removido.");
+            console.log("✅ Rádio Patico IA - Pronto! Vídeos funcionando!");
         }
 
         init();
