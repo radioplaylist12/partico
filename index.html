@@ -174,18 +174,20 @@
             overflow: hidden;
             white-space: nowrap;
         }
+        /* LETREIRO MAIOR E MAIS LENTO */
         .marquee-text {
             display: inline-block;
-            animation: marquee 15s linear infinite;
+            animation: marquee 30s linear infinite; /* antes 15s, agora 30s = mais lento */
             color: #00f3ff;
-            font-weight: 600;
-            font-size: 0.9rem;
+            font-weight: 700;
+            font-size: 1.2rem;  /* aumentado */
             letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(0,243,255,0.5);
         }
         .next-track {
             text-align: center;
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
             margin-bottom: 6px;
         }
         .progress-area {
@@ -287,6 +289,39 @@
         .menu-button:active {
             transform: scale(0.95);
         }
+        /* Botões Like/Dislike VISÍVEIS */
+        .feedback-btn {
+            position: fixed;
+            bottom: 180px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: 0.1s;
+            z-index: 27;
+            border: 2px solid;
+            background: rgba(0, 0, 0, 0.7);
+        }
+        .feedback-btn:active {
+            transform: scale(0.9);
+        }
+        .feedback-btn.like {
+            left: 16px;
+            color: #4ade80;
+            border-color: #4ade80;
+            box-shadow: 0 0 8px #4ade80;
+        }
+        .feedback-btn.dislike {
+            left: 76px;
+            color: #ef4444;
+            border-color: #ef4444;
+            box-shadow: 0 0 8px #ef4444;
+        }
         .menu-popup {
             position: absolute;
             top: 70px;
@@ -320,10 +355,6 @@
             transition: 0.2s;
             font-family: 'Rajdhani', sans-serif;
         }
-        .menu-popup button:hover {
-            background: rgba(0, 243, 255, 0.2);
-            color: #00f3ff;
-        }
         .genre-button {
             position: fixed;
             bottom: 100px;
@@ -348,6 +379,7 @@
             font-size: 1.5rem;
             color: #000;
         }
+        /* MODAL DE GÊNEROS - CORRIGIDO (TEXTO E ÍCONES VISÍVEIS) */
         .genres-modal {
             position: fixed;
             bottom: 0;
@@ -364,6 +396,12 @@
         .genres-modal.open {
             transform: translateY(0);
         }
+        .genres-modal h3 {
+            color: #00f3ff;
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 20px;
+        }
         .genres-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -371,28 +409,32 @@
             margin: 20px 0;
         }
         .genre-card {
-            background: rgba(0, 243, 255, 0.1);
+            background: rgba(0, 243, 255, 0.15);
             border-radius: 16px;
             padding: 12px 4px;
             text-align: center;
             cursor: pointer;
             transition: 0.1s;
-            border: 1px solid transparent;
+            border: 1px solid rgba(0, 243, 255, 0.4);
         }
         .genre-card:active {
             transform: scale(0.96);
-            background: rgba(0, 243, 255, 0.3);
+            background: rgba(0, 243, 255, 0.4);
             border-color: #00f3ff;
         }
         .genre-card i {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             color: #00f3ff;
+            display: block;
+            margin-bottom: 6px;
         }
         .genre-card span {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: bold;
             color: white;
+            text-shadow: 0 0 4px rgba(0,0,0,0.5);
         }
+        /* Outros modais */
         .ai-modal, .stats-modal, .pix-modal, .manual-modal, .feedback-modal {
             position: fixed;
             background: linear-gradient(135deg, #0a0a0f, #001a2a);
@@ -501,10 +543,6 @@
         .tv-mode-active .exit-tv-btn {
             display: block;
         }
-        .tv-mode-active .bottom-controls {
-            transform: scale(1.05);
-            transform-origin: bottom;
-        }
         @keyframes marquee {
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
@@ -533,6 +571,39 @@
         }
         #tap-to-start:active {
             transform: translateX(-50%) scale(0.96);
+        }
+        .search-container {
+            position: fixed;
+            top: 70px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(16px);
+            border-radius: 20px;
+            padding: 12px;
+            z-index: 5000;
+            display: none;
+            border: 1px solid #00f3ff;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 40px;
+            background: #111;
+            color: white;
+            border: 1px solid #00f3ff;
+            outline: none;
+        }
+        .search-results {
+            max-height: 50vh;
+            overflow-y: auto;
+            margin-top: 8px;
+        }
+        .search-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -603,9 +674,8 @@
         PIX_KEY: '12988461978',
         WHATSAPP_NUMBER: '5512988461978',
         VOLUME_PLAYER: 0.9,
-        INTERVALO_VINHETA_MUSICAS: 10,
+        INTERVALO_VINHETA_MUSICAS: 3, // reduzido para teste, mas mantém lógica (cada 3 músicas toca vinheta)
         VINHETAS: ['radiopm.mp3', 'Paticom.mp3', 'Paticom.mp3', 'zzvc.mp3'],
-        TEMPO_BALAO_LIVE: 5,
         VIDEO_POR_GENERO: {
             SERTANEJO: 'sertanejo181.mp4', FORRÓ: 'forro181.mp4', 'FORRÓ ANTIGO': 'forroant181.mp4',
             BREGA: 'brga181.mp4', POP: 'pop181.mp4', MPB: 'mpb181.mp4', SAMBA: 'samba181.mp4',
@@ -680,22 +750,28 @@
         shuffleBtn: document.getElementById('shuffleBtn'), progressFill: document.getElementById('progressFill'), currentTimeEl: document.getElementById('currentTime'),
         totalTimeEl: document.getElementById('totalTime'), trackMarquee: document.getElementById('trackMarquee'), nextTrackInfo: document.getElementById('nextTrackInfo'),
         splash: document.getElementById('splash'), tapToStart: document.getElementById('tap-to-start'), loadingSpinner: document.getElementById('loadingSpinner'),
-        likeBtn: document.getElementById('likeBtn'), dislikeBtn: document.getElementById('dislikeBtn'), genreBadge: document.getElementById('genreBadge'),
-        bottomControls: document.getElementById('bottomControls'), visualizerBars: document.querySelectorAll('.visualizer-bar'),
-        genreButton: document.getElementById('genreButton'), exitTvBtn: document.getElementById('exitTvBtn'), menuButton: document.getElementById('menuButton'),
-        menuPopup: document.getElementById('menuPopup'), mainVideo: document.getElementById('mainVideo'), feedbackModal: document.getElementById('feedbackModal'),
-        aiModal: document.getElementById('aiModal'), statsModal: document.getElementById('statsModal'), genresModal: document.getElementById('genresModal'),
-        manualModal: document.getElementById('manualModal'), searchContainer: null, searchInput: null, searchResults: null, pixModal: document.getElementById('pixModal'),
+        genreBadge: document.getElementById('genreBadge'), bottomControls: document.getElementById('bottomControls'),
+        visualizerBars: document.querySelectorAll('.visualizer-bar'), genreButton: document.getElementById('genreButton'), exitTvBtn: document.getElementById('exitTvBtn'),
+        menuButton: document.getElementById('menuButton'), menuPopup: document.getElementById('menuPopup'), mainVideo: document.getElementById('mainVideo'),
+        feedbackModal: document.getElementById('feedbackModal'), aiModal: document.getElementById('aiModal'), statsModal: document.getElementById('statsModal'),
+        genresModal: document.getElementById('genresModal'), manualModal: document.getElementById('manualModal'), pixModal: document.getElementById('pixModal'),
         copyPixBtn: document.getElementById('copyPixBtn'), closePixBtn: document.getElementById('closePixBtn')
     };
-    // criar search container dinamicamente (já existe no HTML? vou criar)
-    const searchDiv = document.createElement('div'); searchDiv.id = 'searchContainer'; searchDiv.className = 'search-container'; searchDiv.style.cssText = 'position:fixed; top:70px; left:10px; right:10px; background:rgba(0,0,0,0.95); backdrop-filter:blur(16px); border-radius:20px; padding:12px; z-index:5000; display:none; border:1px solid #00f3ff;';
-    searchDiv.innerHTML = '<button class="search-close" id="closeSearchBtn" style="position:absolute; top:12px; right:16px; background:none; border:none; color:#00f3ff; font-size:1.2rem;">✕</button><input type="search" id="searchInput" class="search-input" placeholder="Buscar música ou artista..." style="width:100%; padding:12px; border-radius:40px; background:#111; color:white; border:1px solid #00f3ff;"><div id="searchResults" class="search-results" style="max-height:50vh; overflow-y:auto; margin-top:8px;"></div>';
+
+    // criar search container
+    const searchDiv = document.createElement('div'); searchDiv.id = 'searchContainer'; searchDiv.className = 'search-container';
+    searchDiv.innerHTML = '<button class="search-close" id="closeSearchBtn" style="position:absolute; top:12px; right:16px; background:none; border:none; color:#00f3ff; font-size:1.2rem;">✕</button><input type="search" id="searchInput" class="search-input" placeholder="Buscar música ou artista..."><div id="searchResults" class="search-results"></div>';
     document.body.appendChild(searchDiv);
     dom.searchContainer = searchDiv;
     dom.searchInput = document.getElementById('searchInput');
     dom.searchResults = document.getElementById('searchResults');
     document.getElementById('closeSearchBtn').addEventListener('click', () => dom.searchContainer.style.display = 'none');
+
+    // Botões like/dislike físicos (visíveis)
+    const likeBtn = document.createElement('button'); likeBtn.className = 'feedback-btn like'; likeBtn.innerHTML = '<i class="fas fa-thumbs-up"></i>';
+    const dislikeBtn = document.createElement('button'); dislikeBtn.className = 'feedback-btn dislike'; dislikeBtn.innerHTML = '<i class="fas fa-thumbs-down"></i>';
+    document.body.appendChild(likeBtn);
+    document.body.appendChild(dislikeBtn);
 
     // ==================== FUNÇÕES PRINCIPAIS ====================
     function updateMarquee(genero) {
@@ -731,7 +807,8 @@
         const favs = state.userPreferences.likedSongs.map(id => PLAYLIST.find(m=>m.id===id)).filter(s=>s).slice(0,5);
         favs.forEach(song=>{
             const d = document.createElement('div');
-            d.innerHTML = `<span>🎵 ${song.title} - ${song.artist}</span><button style="background:#ff2d7f; border:none; color:white; margin-left:8px; border-radius:20px; padding:2px 8px;">Remover</button>`;
+            d.style.margin = '5px 0';
+            d.innerHTML = `<span style="font-size:0.75rem;">🎵 ${song.title} - ${song.artist}</span><button style="background:#ff2d7f; border:none; color:white; margin-left:8px; border-radius:20px; padding:2px 8px;">Remover</button>`;
             d.querySelector('button').onclick = ()=>{
                 state.userPreferences.likedSongs = state.userPreferences.likedSongs.filter(id=>id!==song.id);
                 salvarPrefs();
@@ -856,13 +933,26 @@
                         state.stats.currentStreak++;
                         salvarStats();
                         state.contadorMusicasVinheta++;
+                        // Vinheta: pausa a música, toca a vinheta e depois retoma
                         if(state.contadorMusicasVinheta >= CONFIG.INTERVALO_VINHETA_MUSICAS && !state.tocandoVinheta){
-                            state.contadorMusicasVinheta=0;
-                            const vin = new Audio(CONFIG.VINHETAS[Math.floor(Math.random()*CONFIG.VINHETAS.length)]);
-                            vin.volume=CONFIG.VOLUME_PLAYER;
-                            state.tocandoVinheta=true;
-                            vin.play().catch(e=>console.warn);
-                            vin.onended = ()=>{ state.tocandoVinheta=false; if(state.isPlaying) PlayerEngine.play(); };
+                            state.contadorMusicasVinheta = 0;
+                            state.tocandoVinheta = true;
+                            const wasPlaying = state.isPlaying;
+                            if(wasPlaying) {
+                                dom.musicPlayer.pause();
+                                state.isPlaying = false;
+                                dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                            }
+                            const vinhetaSrc = CONFIG.VINHETAS[Math.floor(Math.random() * CONFIG.VINHETAS.length)];
+                            const vinAudio = new Audio(vinhetaSrc);
+                            vinAudio.volume = CONFIG.VOLUME_PLAYER;
+                            vinAudio.play().catch(e=>console.warn);
+                            vinAudio.onended = () => {
+                                state.tocandoVinheta = false;
+                                if(wasPlaying) {
+                                    PlayerEngine.play(); // retoma a música
+                                }
+                            };
                         }
                         dom.totalTimeEl.textContent = PlayerEngine.formatTime(dom.musicPlayer.duration);
                         dom.splash.classList.add('hidden');
@@ -1135,7 +1225,8 @@
         document.getElementById('closeStatsBtn').addEventListener('click', ()=> dom.statsModal.classList.remove('open'));
         document.getElementById('closeAiBtn').addEventListener('click', ()=> dom.aiModal.classList.remove('open'));
         document.getElementById('closeManualBtn').addEventListener('click', ()=> dom.manualModal.classList.remove('open'));
-        // feedback
+
+        // Feedback
         let currentRating=0;
         document.querySelectorAll('#ratingStars .star').forEach(star=>{
             star.addEventListener('click',()=>{
@@ -1155,10 +1246,10 @@
             document.getElementById('feedbackText').value='';
             currentRating=0;
         });
-        dom.likeBtn = document.createElement('button'); dom.likeBtn.className = 'feedback-btn like'; dom.likeBtn.innerHTML = '<i class="fas fa-thumbs-up"></i>'; dom.likeBtn.style.position='fixed'; dom.likeBtn.style.bottom='180px'; dom.likeBtn.style.left='16px'; dom.likeBtn.style.background='rgba(0,0,0,0.6)'; dom.likeBtn.style.backdropFilter='blur(8px)'; dom.likeBtn.style.border='1px solid #00f3ff'; dom.likeBtn.style.borderRadius='50%'; dom.likeBtn.style.width='40px'; dom.likeBtn.style.height='40px'; dom.likeBtn.style.cursor='pointer'; dom.likeBtn.style.zIndex='27'; document.body.appendChild(dom.likeBtn);
-        dom.dislikeBtn = document.createElement('button'); dom.dislikeBtn.className = 'feedback-btn dislike'; dom.dislikeBtn.innerHTML = '<i class="fas fa-thumbs-down"></i>'; dom.dislikeBtn.style.position='fixed'; dom.dislikeBtn.style.bottom='180px'; dom.dislikeBtn.style.left='70px'; dom.dislikeBtn.style.background='rgba(0,0,0,0.6)'; dom.dislikeBtn.style.backdropFilter='blur(8px)'; dom.dislikeBtn.style.border='1px solid #ff2d7f'; dom.dislikeBtn.style.borderRadius='50%'; dom.dislikeBtn.style.width='40px'; dom.dislikeBtn.style.height='40px'; dom.dislikeBtn.style.cursor='pointer'; dom.dislikeBtn.style.zIndex='27'; document.body.appendChild(dom.dislikeBtn);
-        dom.likeBtn.addEventListener('click', ()=> PlayerEngine.likeCurrent());
-        dom.dislikeBtn.addEventListener('click', ()=> PlayerEngine.dislikeCurrent());
+
+        // Like / Dislike buttons events
+        likeBtn.addEventListener('click', ()=> PlayerEngine.likeCurrent());
+        dislikeBtn.addEventListener('click', ()=> PlayerEngine.dislikeCurrent());
 
         // tap to start
         dom.tapToStart.addEventListener('click', async ()=>{
@@ -1197,7 +1288,6 @@
     }
     init();
 
-    // Service Worker para offline simples
     if('serviceWorker' in navigator){
         navigator.serviceWorker.register('/sw.js').catch(e=>console.log("SW não registrado", e));
     }
