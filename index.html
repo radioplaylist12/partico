@@ -15,7 +15,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* Evita seleção acidental */
+            user-select: none;
         }
 
         :root {
@@ -40,7 +40,7 @@
             font-family: 'Rajdhani', sans-serif;
         }
 
-        /* SPLASH FUTURISTA */
+        /* SPLASH */
         #splash {
             position: fixed;
             top: 0;
@@ -125,7 +125,7 @@
             pointer-events: none;
         }
 
-        /* APP PRINCIPAL */
+        /* APP */
         .app {
             width: 100%;
             height: 100vh;
@@ -147,23 +147,22 @@
             height: 100%;
             object-fit: cover;
         }
-        .bottom-controls {
+        
+        /* Área de informações (letreiro) - sempre visível */
+        .info-area {
             position: absolute;
-            bottom: 0;
+            top: 70px;
             left: 0;
             right: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(0, 243, 255, 0.3);
-            padding: 12px 20px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(12px);
+            padding: 12px 20px;
             z-index: 20;
-            transition: transform 0.3s ease;
-            border-radius: 24px 24px 0 0;
-            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+            text-align: center;
         }
         .track-info {
-            text-align: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .marquee-wrap {
             width: 100%;
@@ -181,10 +180,29 @@
             will-change: transform;
         }
         .next-track {
-            text-align: center;
             font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 6px;
+        }
+        
+        /* Bottom controls - inicialmente visível, mas pode sumir com tap */
+        .bottom-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0, 243, 255, 0.3);
+            padding: 12px 20px 20px;
+            z-index: 20;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .bottom-controls.hide-controls {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
         }
         .progress-area {
             margin-bottom: 12px;
@@ -243,6 +261,8 @@
             border: none;
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.6);
         }
+        
+        /* Badge de gênero sempre visível */
         .genre-badge {
             position: absolute;
             top: 16px;
@@ -263,36 +283,21 @@
             border-left-color: #ff2d7f;
             animation: pulseRed 1s infinite;
         }
-        .menu-button {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            color: #00f3ff;
-            border: 1px solid #00f3ff;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            cursor: pointer;
-            z-index: 31;
-            transition: 0.2s;
-        }
-        .menu-button:active {
-            transform: scale(0.95);
-        }
-        /* Botões Like/Dislike reposicionados */
+        
+        /* Botões flutuantes like/dislike (sempre na mesma posição, mas somem/aparecem junto com os controles) */
         .feedback-floating {
             position: fixed;
             bottom: 180px;
+            left: 16px;
             display: flex;
             gap: 12px;
             z-index: 27;
-            left: 16px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .feedback-floating.hide-controls {
+            opacity: 0;
+            transform: translateX(-20px);
+            pointer-events: none;
         }
         .feedback-btn {
             width: 48px;
@@ -315,58 +320,16 @@
             color: #4ade80;
             border-color: #4ade80;
             box-shadow: 0 0 8px #4ade80;
+            background: linear-gradient(145deg, #0a2f1a, #000);
         }
         .feedback-btn.dislike {
             color: #ef4444;
             border-color: #ef4444;
             box-shadow: 0 0 8px #ef4444;
+            background: linear-gradient(145deg, #2f0a0a, #000);
         }
-        /* Media query: em telas pequenas, botões vão para dentro do bottom-controls */
-        @media (max-width: 550px) {
-            .feedback-floating {
-                position: static;
-                order: 2;
-                justify-content: center;
-                margin-top: 8px;
-                gap: 20px;
-            }
-            .bottom-controls .control-buttons {
-                flex-wrap: wrap;
-            }
-        }
-        .menu-popup {
-            position: absolute;
-            top: 70px;
-            right: 16px;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(16px);
-            border-radius: 20px;
-            padding: 10px;
-            z-index: 32;
-            display: none;
-            flex-direction: column;
-            gap: 8px;
-            border: 1px solid #00f3ff;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
-        }
-        .menu-popup.open {
-            display: flex;
-        }
-        .menu-popup button {
-            background: rgba(255, 255, 255, 0.05);
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-            font-family: 'Rajdhani', sans-serif;
-        }
+        
+        /* Botão de gênero (estilos) - direito inferior, também some com os controles */
         .genre-button {
             position: fixed;
             bottom: 100px;
@@ -382,7 +345,7 @@
             z-index: 1000;
             border: none;
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.7);
-            transition: 0.1s;
+            transition: 0.1s, opacity 0.3s ease, transform 0.3s ease;
         }
         .genre-button:active {
             transform: scale(0.9);
@@ -391,92 +354,38 @@
             font-size: 1.5rem;
             color: #000;
         }
-        /* MODAL DE GÊNEROS */
-        .genres-modal {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            background: linear-gradient(135deg, #0a0a0f, #001a2a);
-            border-radius: 30px 30px 0 0;
-            padding: 24px 16px 30px;
-            z-index: 5000;
-            border-top: 2px solid #00f3ff;
+        .genre-button.hide-controls {
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
         }
-        .genres-modal.open {
-            transform: translateY(0);
-        }
-        .genres-modal h3 {
+        
+        /* Menu button também some */
+        .menu-button {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
             color: #00f3ff;
-            text-align: center;
-            font-family: 'Orbitron', monospace;
-            margin-bottom: 20px;
-        }
-        .genres-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin: 20px 0;
-        }
-        .genre-card {
-            background: rgba(0, 243, 255, 0.15);
-            border-radius: 16px;
-            padding: 12px 4px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.1s;
-            border: 1px solid rgba(0, 243, 255, 0.4);
-        }
-        .genre-card:active {
-            transform: scale(0.96);
-            background: rgba(0, 243, 255, 0.4);
-            border-color: #00f3ff;
-        }
-        .genre-card i {
-            font-size: 1.8rem;
-            color: #00f3ff;
-            display: block;
-            margin-bottom: 6px;
-        }
-        .genre-card span {
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: 0 0 4px rgba(0,0,0,0.5);
-        }
-        /* Outros modais */
-        .ai-modal, .stats-modal, .pix-modal, .manual-modal, .feedback-modal {
-            position: fixed;
-            background: linear-gradient(135deg, #0a0a0f, #001a2a);
-            border-radius: 28px;
-            padding: 20px;
             border: 1px solid #00f3ff;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
-            z-index: 5000;
-            display: none;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 320px;
-            max-width: 90vw;
-            color: white;
-        }
-        .ai-modal.open, .stats-modal.open, .pix-modal.open, .manual-modal.open, .feedback-modal.open {
-            display: block;
-        }
-        .close-ai, .close-stats, .close-genres, .close-pix, .close-manual-btn {
-            background: #00f3ff;
-            border: none;
-            padding: 10px;
-            border-radius: 40px;
-            font-weight: bold;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
             cursor: pointer;
-            margin-top: 15px;
-            width: 100%;
-            color: #000;
+            z-index: 31;
+            transition: 0.2s, opacity 0.3s ease;
         }
+        .menu-button.hide-controls {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        /* Visualizer sempre visível */
         .visualizer {
             position: fixed;
             top: 80px;
@@ -496,6 +405,8 @@
             border-radius: 2px;
             transition: height 0.05s ease;
         }
+        
+        /* Outros estilos mantidos */
         .loading-spinner {
             position: fixed;
             top: 50%;
@@ -617,40 +528,110 @@
             color: white;
             cursor: pointer;
         }
-        .volume-control {
+        
+        /* Modais */
+        .ai-modal, .stats-modal, .pix-modal, .manual-modal, .feedback-modal {
             position: fixed;
-            bottom: 100px;
-            left: 16px;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
-            border-radius: 30px;
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 28;
+            background: linear-gradient(135deg, #0a0a0f, #001a2a);
+            border-radius: 28px;
+            padding: 20px;
             border: 1px solid #00f3ff;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+            z-index: 5000;
+            display: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px;
+            max-width: 90vw;
+            color: white;
         }
-        .volume-control i {
-            color: #00f3ff;
-            font-size: 1.2rem;
+        .ai-modal.open, .stats-modal.open, .pix-modal.open, .manual-modal.open, .feedback-modal.open {
+            display: block;
         }
-        .volume-slider {
-            width: 80px;
-            height: 4px;
-            -webkit-appearance: none;
-            background: rgba(255,255,255,0.3);
-            border-radius: 2px;
-            outline: none;
-        }
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
+        .close-ai, .close-stats, .close-genres, .close-pix, .close-manual-btn {
             background: #00f3ff;
+            border: none;
+            padding: 10px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            color: #000;
+        }
+        .genres-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            background: linear-gradient(135deg, #0a0a0f, #001a2a);
+            border-radius: 30px 30px 0 0;
+            padding: 24px 16px 30px;
+            z-index: 5000;
+            border-top: 2px solid #00f3ff;
+        }
+        .genres-modal.open {
+            transform: translateY(0);
+        }
+        .genres-modal h3 {
+            color: #00f3ff;
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 20px;
+        }
+        .genres-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .genre-card {
+            background: rgba(0, 243, 255, 0.15);
+            border-radius: 16px;
+            padding: 12px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.1s;
+            border: 1px solid rgba(0, 243, 255, 0.4);
+        }
+        .genre-card:active {
+            transform: scale(0.96);
+            background: rgba(0, 243, 255, 0.4);
+            border-color: #00f3ff;
+        }
+        .genre-card i {
+            font-size: 1.8rem;
+            color: #00f3ff;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .genre-card span {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 4px rgba(0,0,0,0.5);
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 40px;
+            border: none;
+            font-weight: bold;
             cursor: pointer;
         }
+        .modal-btn.cancel { background: #333; color: white; }
+        .modal-btn.send { background: #00f3ff; color: black; }
+        #ratingStars { display: flex; justify-content: center; gap: 8px; margin: 12px 0; font-size: 1.5rem; cursor: pointer; }
+        #ratingStars .star.active { color: #ffd700; }
+        textarea { width: 100%; padding: 8px; border-radius: 12px; background: #111; color: white; border: 1px solid #00f3ff; margin: 12px 0; }
     </style>
 </head>
 <body>
@@ -662,23 +643,35 @@
     </div>
 </div>
 <div id="tap-to-start"><i class="fas fa-play-circle"></i> ATIVAR RÁDIO</div>
-<div class="app">
+<div class="app" id="appRoot">
     <div class="fullscreen-video-container"><video id="mainVideo" autoplay loop muted playsinline><source src="pai101.mp4" type="video/mp4"></video></div>
-    <div class="controls-overlay"><div class="bottom-controls" id="bottomControls">
+    
+    <!-- Área de informações (letreiro) separada -->
+    <div class="info-area">
         <div class="track-info"><div class="marquee-wrap"><span class="marquee-text" id="trackMarquee">🎵 Rádio Patico IA - Modo Futurista</span></div></div>
         <div class="next-track"><span id="nextTrackInfo">Próxima: --</span></div>
-        <div class="progress-area"><div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div><div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div></div>
+    </div>
+    
+    <!-- Controles que somem com toque na tela -->
+    <div class="bottom-controls" id="bottomControls">
+        <div class="progress-area">
+            <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
+            <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
         <div class="control-buttons">
             <button class="control-btn" id="prevBtn"><i class="fas fa-step-backward"></i></button>
             <button class="control-btn play-btn" id="playPauseBtn"><i class="fas fa-play"></i></button>
             <button class="control-btn" id="shuffleBtn"><i class="fas fa-random"></i></button>
             <button class="control-btn" id="nextBtn"><i class="fas fa-step-forward"></i></button>
         </div>
-        <div class="feedback-floating">
-            <button class="feedback-btn like" id="likeBtn"><i class="fas fa-thumbs-up"></i></button>
-            <button class="feedback-btn dislike" id="dislikeBtn"><i class="fas fa-thumbs-down"></i></button>
-        </div>
-    </div></div>
+    </div>
+    
+    <!-- Botões flutuantes like/dislike -->
+    <div class="feedback-floating" id="feedbackFloating">
+        <button class="feedback-btn like" id="likeBtn"><i class="fas fa-thumbs-up"></i></button>
+        <button class="feedback-btn dislike" id="dislikeBtn"><i class="fas fa-thumbs-down"></i></button>
+    </div>
+    
     <div class="genre-badge" id="genreBadge"><i class="fas fa-broadcast-tower"></i> LIVE</div>
     <div class="visualizer" id="visualizer"><div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div></div>
     <button class="genre-button" id="genreButton"><i class="fas fa-music"></i></button>
@@ -694,10 +687,6 @@
         <button id="statsMenuBtn"><i class="fas fa-chart-line"></i> Estatísticas</button>
         <button id="aiMenuBtn"><i class="fas fa-brain"></i> IA Preferências</button>
         <button id="feedbackMenuBtn"><i class="fab fa-whatsapp"></i> Feedback</button>
-    </div>
-    <div class="volume-control" id="volumeControl">
-        <i class="fas fa-volume-up"></i>
-        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.9">
     </div>
 </div>
 <div id="notificationTop" class="notification-top"></div>
@@ -732,7 +721,7 @@
         PIX_KEY: '12988461978',
         WHATSAPP_NUMBER: '5512988461978',
         VOLUME_PLAYER: 0.9,
-        INTERVALO_VINHETA_MUSICAS: 3, // a cada 3 músicas toca vinheta
+        INTERVALO_VINHETA_MUSICAS: 3,
         VINHETAS: ['radiopm.mp3', 'Paticom.mp3', 'Paticom.mp3', 'zzvc.mp3'],
         VIDEO_POR_GENERO: {
             SERTANEJO: 'sertanejo181.mp4', FORRÓ: 'forro181.mp4', 'FORRÓ ANTIGO': 'forroant181.mp4',
@@ -741,7 +730,7 @@
             LIVE: 'pai101.mp4', DEFAULT: 'pai101.mp4'
         },
         PLAYLIST_URL: 'https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json',
-        FALLBACK_PLAYLIST: []  // será preenchido com músicas locais se necessário
+        FALLBACK_PLAYLIST: []
     };
 
     let PLAYLIST = [];
@@ -767,10 +756,10 @@
         sourceNode: null,
         animationId: null,
         progressInterval: null,
-        currentTrackObj: null
+        currentTrackObj: null,
+        controlsTimer: null
     };
 
-    // ==================== UTILITÁRIOS ====================
     function mostrarNotificacao(msg, dur=2500) {
         const n = document.getElementById('notificationTop');
         n.textContent = msg;
@@ -786,20 +775,17 @@
         return arr; 
     }
 
-    // Salvar preferências e estatísticas
     function salvarPrefs() { localStorage.setItem('radio_patico_ai_preferences', JSON.stringify(state.userPreferences)); }
     function carregarPrefs() { const s = localStorage.getItem('radio_patico_ai_preferences'); if(s) Object.assign(state.userPreferences, JSON.parse(s)); }
     function salvarStats() { localStorage.setItem('radio_patico_stats', JSON.stringify(state.stats)); }
     function carregarStats() { const s = localStorage.getItem('radio_patico_stats'); if(s) Object.assign(state.stats, JSON.parse(s)); }
 
-    // ==================== CARREGAR PLAYLIST COM FALLBACK ====================
     async function carregarPlaylist() {
         try {
             const resp = await fetch(CONFIG.PLAYLIST_URL);
             if (!resp.ok) throw new Error();
             PLAYLIST = await resp.json();
             console.log(`✅ Playlist carregada: ${PLAYLIST.length} músicas`);
-            // Normalizar
             PLAYLIST = PLAYLIST.map((m, idx) => { 
                 if (!m.id) m.id = idx;
                 if (!m.artist) m.artist = "Desconhecido";
@@ -808,11 +794,10 @@
             });
         } catch(e) {
             console.error("Erro ao carregar playlist, usando fallback", e);
-            // Fallback mínimo para não quebrar
             PLAYLIST = [
                 { id: 0, title: "Música Exemplo", artist: "Artista", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "VARIADAS", tipo: "normal" }
             ];
-            mostrarNotificacao("⚠️ Usando playlist de fallback (conexão com internet pode estar instável)", 4000);
+            mostrarNotificacao("⚠️ Usando playlist de fallback", 4000);
         }
     }
 
@@ -828,8 +813,9 @@
         menuButton: document.getElementById('menuButton'), menuPopup: document.getElementById('menuPopup'), mainVideo: document.getElementById('mainVideo'),
         feedbackModal: document.getElementById('feedbackModal'), aiModal: document.getElementById('aiModal'), statsModal: document.getElementById('statsModal'),
         genresModal: document.getElementById('genresModal'), manualModal: document.getElementById('manualModal'), pixModal: document.getElementById('pixModal'),
-        copyPixBtn: document.getElementById('copyPixBtn'), closePixBtn: document.getElementById('closePixBtn'), volumeSlider: document.getElementById('volumeSlider'),
-        likeBtn: document.getElementById('likeBtn'), dislikeBtn: document.getElementById('dislikeBtn')
+        copyPixBtn: document.getElementById('copyPixBtn'), closePixBtn: document.getElementById('closePixBtn'),
+        likeBtn: document.getElementById('likeBtn'), dislikeBtn: document.getElementById('dislikeBtn'),
+        feedbackFloating: document.getElementById('feedbackFloating'), appRoot: document.getElementById('appRoot')
     };
 
     // Criar search container
@@ -841,7 +827,46 @@
     dom.searchResults = document.getElementById('searchResults');
     document.getElementById('closeSearchBtn').addEventListener('click', () => dom.searchContainer.style.display = 'none');
 
-    // ==================== VISUALIZER REAL COM ANALYSER ====================
+    // ==================== CONTROLES COM TOQUE NA TELA ====================
+    function hideControls() {
+        dom.bottomControls.classList.add('hide-controls');
+        dom.feedbackFloating.classList.add('hide-controls');
+        dom.genreButton.classList.add('hide-controls');
+        dom.menuButton.classList.add('hide-controls');
+    }
+    function showControls() {
+        dom.bottomControls.classList.remove('hide-controls');
+        dom.feedbackFloating.classList.remove('hide-controls');
+        dom.genreButton.classList.remove('hide-controls');
+        dom.menuButton.classList.remove('hide-controls');
+        // Reset timer
+        if (state.controlsTimer) clearTimeout(state.controlsTimer);
+        state.controlsTimer = setTimeout(() => {
+            if (state.isPlaying && !state.isLoadingTrack) hideControls();
+        }, 3000);
+    }
+    function setupTapToToggle() {
+        dom.appRoot.addEventListener('click', (e) => {
+            // Se clicou em algum botão, não esconder automaticamente, mas resetar timer
+            if (e.target.closest('.control-btn') || e.target.closest('.feedback-btn') || e.target.closest('.genre-button') || e.target.closest('.menu-button')) {
+                // não esconde, apenas reseta timer
+                if (state.controlsTimer) clearTimeout(state.controlsTimer);
+                state.controlsTimer = setTimeout(() => { if (state.isPlaying && !state.isLoadingTrack) hideControls(); }, 3000);
+                return;
+            }
+            // Tocar em qualquer outra área alterna visibilidade (mostra se estiver oculto)
+            if (dom.bottomControls.classList.contains('hide-controls')) {
+                showControls();
+            } else {
+                // se estiver visível, apenas reseta timer
+                if (state.controlsTimer) clearTimeout(state.controlsTimer);
+                state.controlsTimer = setTimeout(() => { if (state.isPlaying && !state.isLoadingTrack) hideControls(); }, 3000);
+            }
+        });
+        // Inicialmente, após iniciar a reprodução, mostrar controles e depois esconder após 3s
+    }
+
+    // ==================== VISUALIZER REAL ====================
     async function setupVisualizer() {
         if (state.audioContext) return;
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -851,12 +876,6 @@
         state.sourceNode = state.audioContext.createMediaElementSource(dom.musicPlayer);
         state.sourceNode.connect(state.analyser);
         state.analyser.connect(state.audioContext.destination);
-        // Não conectar ao destino padrão para não duplicar som? Precisamos conectar ao destino para ouvir.
-        // A linha acima já conecta ao destination, mas o MediaElementSource também precisa do destino final
-        // Vamos ajustar: MediaElementSource -> Analyser -> Destination
-        state.sourceNode.connect(state.analyser);
-        state.analyser.connect(state.audioContext.destination);
-        // Iniciar animação
         function updateBars() {
             if (!state.analyser || !state.isPlaying) {
                 dom.visualizerBars.forEach(b => b.style.height = '4px');
@@ -876,7 +895,7 @@
         updateBars();
     }
 
-    // ==================== PLAYER ENGINE REFATORADA ====================
+    // ==================== PLAYER ENGINE ====================
     const PlayerEngine = {
         formatTime(sec) { if (isNaN(sec)) return '0:00'; const m = Math.floor(sec/60); const s = Math.floor(sec%60); return `${m}:${s<10?'0':''}${s}`; },
         
@@ -895,7 +914,6 @@
             dom.musicPlayer.src = track.src;
             dom.musicPlayer.load();
             
-            // Atualizar UI
             atualizarTrackInfo(track);
             if (!state.isAoVivo) updateGenreBadge(track.genero);
             atualizarVideo(state.isAoVivo ? 'LIVE' : track.genero);
@@ -914,7 +932,6 @@
                     dom.loadingSpinner.classList.remove('show');
                     state.isLoadingTrack = false;
                     try {
-                        // Se AudioContext estiver suspenso, retomar
                         if (state.audioContext && state.audioContext.state === 'suspended') {
                             await state.audioContext.resume();
                         }
@@ -923,18 +940,18 @@
                         dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                         this.startProgressTimer();
                         
-                        // Atualizar estatísticas
                         state.stats.totalPlayed++;
                         if (!state.stats.genreCount[track.genero]) state.stats.genreCount[track.genero] = 0;
                         state.stats.genreCount[track.genero]++;
                         state.stats.currentStreak++;
                         salvarStats();
                         
-                        // Controle de vinheta (apenas após música completa, mas faremos no evento 'ended')
                         state.currentTrackObj = track;
                         dom.splash.classList.add('hidden');
                         setTimeout(() => dom.splash.style.display = 'none', 500);
                         dom.tapToStart.style.display = 'none';
+                        // Mostrar controles ao iniciar e programar esconder
+                        showControls();
                         resolve(true);
                     } catch(e) {
                         clearTimeout(timeout);
@@ -977,7 +994,6 @@
                     state.currentIndex = state.filteredPlaylist.length - 1;
                     await this.play();
                 } else {
-                    // Reiniciar playlist ao vivo
                     state.historicoMusicasLive = [];
                     let novas = PLAYLIST.filter(m => m.tipo === "ao vivo");
                     if (!novas.length) novas = shuffleArray([...PLAYLIST]);
@@ -1021,7 +1037,6 @@
                     dom.totalTimeEl.textContent = this.formatTime(dom.musicPlayer.duration);
                 }
             }, 200);
-            // Evento de fim da música para tocar vinheta e next
             dom.musicPlayer.onended = () => {
                 if (state.tocandoVinheta) return;
                 state.contadorMusicasVinheta++;
@@ -1083,7 +1098,7 @@
                 salvarPrefs();
                 mostrarNotificacao(`👎 Não curtiu "${track.title}"`, 2000);
                 atualizarAIModal();
-                this.next(); // pula automaticamente após dislike
+                this.next();
             } else mostrarNotificacao("👎 Já marcou", 1500);
         }
     };
@@ -1093,19 +1108,19 @@
         const liked = state.userPreferences.likedSongs.length;
         const g = state.isAoVivo ? '🔴 AO VIVO' : (state.generoAtual === 'MIX' ? 'TODOS' : state.generoAtual);
         const msg = `🎵 RÁDIO PATICO IA | MODO: ${g} | 👍 ${liked} curtidas | ⚡ IA APRENDENDO | 📻 24h | 💰 CONTATO: 12988461978`;
-        document.getElementById('trackMarquee').innerHTML = `<span class="marquee-text">${msg}</span>`;
+        dom.trackMarquee.innerHTML = `<span class="marquee-text">${msg}</span>`;
     }
     
     function atualizarTrackInfo(track) {
         if (!track) return;
-        document.getElementById('trackMarquee').innerHTML = `<span class="marquee-text">${track.title} - ${track.artist} [${track.genero}]</span>`;
+        dom.trackMarquee.innerHTML = `<span class="marquee-text">${track.title} - ${track.artist} [${track.genero}]</span>`;
         let nextIdx = state.currentIndex + 1;
         if (nextIdx >= state.filteredPlaylist.length) nextIdx = 0;
         const next = state.filteredPlaylist[nextIdx];
-        document.getElementById('nextTrackInfo').innerHTML = next ? `Próxima: ${next.title} - ${next.artist}` : 'Próxima: --';
-        document.getElementById('currentTime').textContent = '0:00';
-        document.getElementById('totalTime').textContent = '0:00';
-        document.getElementById('progressFill').style.width = '0%';
+        dom.nextTrackInfo.innerHTML = next ? `Próxima: ${next.title} - ${next.artist}` : 'Próxima: --';
+        dom.currentTimeEl.textContent = '0:00';
+        dom.totalTimeEl.textContent = '0:00';
+        dom.progressFill.style.width = '0%';
     }
     
     function updateGenreBadge(genero) {
@@ -1154,7 +1169,6 @@
         });
     }
     
-    // Playlist Manager
     const PlaylistManager = {
         generateSmartPlaylist() {
             let candidates = [...PLAYLIST];
@@ -1208,10 +1222,9 @@
     }
     
     function toggleTvMode() {
-        const app = document.querySelector('.app');
         if(!state.isTvMode){
             state.isTvMode = true;
-            app.classList.add('tv-mode-active');
+            document.querySelector('.app').classList.add('tv-mode-active');
             dom.exitTvBtn.style.display = 'block';
             dom.mainVideo.src = "modop.mp4";
             dom.mainVideo.load();
@@ -1219,7 +1232,7 @@
             mostrarNotificacao('📺 Modo TV ativado', 2000);
         } else {
             state.isTvMode = false;
-            app.classList.remove('tv-mode-active');
+            document.querySelector('.app').classList.remove('tv-mode-active');
             dom.exitTvBtn.style.display = 'none';
             atualizarVideo(state.isAoVivo ? 'LIVE' : state.generoAtual);
             mostrarNotificacao('Modo TV desativado', 1500);
@@ -1311,7 +1324,6 @@
         document.getElementById('closeAiBtn').addEventListener('click', ()=> dom.aiModal.classList.remove('open'));
         document.getElementById('closeManualBtn').addEventListener('click', ()=> dom.manualModal.classList.remove('open'));
         
-        // Feedback estrelas
         let currentRating=0;
         document.querySelectorAll('#ratingStars .star').forEach(star=>{
             star.addEventListener('click',()=>{
@@ -1338,15 +1350,6 @@
         dom.likeBtn.addEventListener('click', ()=> PlayerEngine.likeCurrent());
         dom.dislikeBtn.addEventListener('click', ()=> PlayerEngine.dislikeCurrent());
         
-        dom.volumeSlider.addEventListener('input', (e) => {
-            const vol = parseFloat(e.target.value);
-            dom.musicPlayer.volume = vol;
-            localStorage.setItem('radio_volume', vol);
-        });
-        const savedVol = localStorage.getItem('radio_volume');
-        if (savedVol) dom.musicPlayer.volume = parseFloat(savedVol);
-        dom.volumeSlider.value = dom.musicPlayer.volume;
-        
         dom.tapToStart.addEventListener('click', async () => {
             mostrarNotificacao('🔊 Ativando áudio...', 1500);
             await setupVisualizer();
@@ -1358,6 +1361,8 @@
             try{ await document.documentElement.requestFullscreen(); } catch(e){}
             mostrarNotificacao('✅ Rádio ao vivo!', 3000);
         });
+        
+        setupTapToToggle();
     }
     
     async function init() {
@@ -1375,7 +1380,6 @@
         atualizarVideo('LIVE');
         dom.tapToStart.style.display = 'block';
         setupEventListeners();
-        // Contagem de tempo real
         setInterval(() => {
             if (state.isPlaying && !dom.musicPlayer.paused && dom.musicPlayer.currentTime > 0) {
                 state.stats.totalSeconds++;
