@@ -35,7 +35,7 @@
         @keyframes glitch { 0%, 100% { text-shadow: 2px 0 #ff2d7f, -2px 0 #00f3ff; } 25% { text-shadow: -2px 0 #ff2d7f, 2px 0 #00f3ff; } 50% { text-shadow: 2px 2px #ff2d7f, -2px -2px #00f3ff; } 75% { text-shadow: -2px -2px #ff2d7f, 2px 2px #00f3ff; } }
         
         #splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        .app { width: 100%; height: 100vh; background: var(--bg-primary); position: relative; overflow: hidden; }
+        .app { width: 100%; height: 100vh; background: var(--bg-primary); position: relative; overflow: hidden; display: none; }
         .fullscreen-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1; }
         .fullscreen-video-container video { width: 100%; height: 100%; object-fit: cover; }
         .info-area { position: fixed; bottom: 230px; left: 0; right: 0; background: rgba(0, 0, 0, 0.7); padding: 10px 16px; z-index: 25; text-align: center; border-top: 1px solid rgba(0, 243, 255, 0.3); border-bottom: 1px solid rgba(0, 243, 255, 0.3); backdrop-filter: none; box-shadow: none; }
@@ -81,8 +81,6 @@
         .tv-mode-active .exit-tv-btn { display: block; }
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         @keyframes pulseRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        #tap-to-start { position: fixed; bottom: 20%; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #00f3ff, #ff2d7f); color: #000; padding: 12px 24px; border-radius: 50px; font-weight: bold; font-family: 'Orbitron', monospace; z-index: 10000; cursor: pointer; display: none; box-shadow: 0 0 20px #00f3ff; white-space: nowrap; border: none; }
-        #tap-to-start:active { transform: translateX(-50%) scale(0.96); }
         .search-container { position: fixed; top: 70px; left: 10px; right: 10px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(16px); border-radius: 20px; padding: 12px; z-index: 5000; display: none; border: 1px solid #00f3ff; }
         .search-input { width: 100%; padding: 10px; border-radius: 40px; background: #111; color: white; border: 1px solid #00f3ff; outline: none; }
         .search-results { max-height: 50vh; overflow-y: auto; margin-top: 8px; }
@@ -120,7 +118,7 @@
 </div>
 
 <!-- TELA PRINCIPAL (INICIALMENTE OCULTA ATÉ O CLIQUE) -->
-<div class="app" id="appRoot" style="display: none;">
+<div class="app" id="appRoot">
     <div class="fullscreen-video-container"><video id="mainVideo" autoplay loop muted playsinline><source src="pailogo.mp4" type="video/mp4"></video></div>
     
     <div class="info-area">
@@ -731,11 +729,16 @@
         });
     }
     
-    // Função para tocar anúncio e depois iniciar rádio ao vivo
+    // Função para tocar anúncio e depois iniciar rádio ao vivo (com tela cheia)
     let radioStarted = false;
     async function tocarAnuncioEDepoisRadio() {
         if (radioStarted) return;
         radioStarted = true;
+        
+        // Ativar tela cheia primeiro
+        try {
+            await document.documentElement.requestFullscreen();
+        } catch(e) { console.warn("Falha ao entrar em tela cheia", e); }
         
         // Esconder splash e mostrar app
         dom.splash.classList.add('hidden');
@@ -773,7 +776,6 @@
         updateMarquee();
         
         await PlayerEngine.play();
-        try { await document.documentElement.requestFullscreen(); } catch(e) {}
         mostrarNotificacao("🎧 Rádio AO VIVO!", 3000);
         showControls();
     }
