@@ -21,7 +21,7 @@
         .splash-content i { font-size: 6rem; background: linear-gradient(135deg, #00f3ff, #ff2d7f); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 30px rgba(0, 243, 255, 0.5); animation: pulseGlow 1.8s infinite; margin-bottom: 1rem; }
         .splash-content h1 { font-family: 'Orbitron', monospace; font-size: 2.5rem; letter-spacing: 4px; background: linear-gradient(135deg, #fff, #00f3ff, #ff2d7f); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 20px rgba(0, 243, 255, 0.3); margin-bottom: 8px; animation: glitch 3s infinite; }
         .splash-content p { font-family: 'Rajdhani', sans-serif; font-size: 1rem; letter-spacing: 2px; color: #00f3ff; text-transform: uppercase; font-weight: 500; }
-        .splash-content .formal { font-size: 0.8rem; color: rgba(255,255,255,0.6); letter-spacing: 1px; margin-top: 20px; border-top: 1px solid rgba(0,243,255,0.3); padding-top: 15px; display: inline-block; }
+        .splash-content .formal { font-size: 0.8rem; color: rgba(255,255,255,0.7); letter-spacing: 1px; margin-top: 20px; border-top: 1px solid rgba(0,243,255,0.3); padding-top: 15px; display: inline-block; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulseGlow { 0% { text-shadow: 0 0 0px rgba(0, 243, 255, 0); transform: scale(1); } 50% { text-shadow: 0 0 30px rgba(0, 243, 255, 0.8); transform: scale(1.05); } 100% { text-shadow: 0 0 0px rgba(0, 243, 255, 0); transform: scale(1); } }
         @keyframes glitch { 0%, 100% { text-shadow: 2px 0 #ff2d7f, -2px 0 #00f3ff; } 25% { text-shadow: -2px 0 #ff2d7f, 2px 0 #00f3ff; } 50% { text-shadow: 2px 2px #ff2d7f, -2px -2px #00f3ff; } 75% { text-shadow: -2px -2px #ff2d7f, 2px 2px #00f3ff; } }
@@ -198,6 +198,7 @@
 
     let PLAYLIST = [];
 
+    // Estado global
     const state = {
         isPlaying: false,
         isAoVivo: true,
@@ -222,6 +223,7 @@
         radioStarted: false
     };
 
+    // Funções auxiliares
     function mostrarNotificacao(msg, dur=2500) {
         const n = document.getElementById('notificationTop');
         n.textContent = msg;
@@ -253,6 +255,7 @@
                 if (!m.tipo) m.tipo = "normal";
                 return m;
             });
+            console.log(`Playlist carregada: ${PLAYLIST.length} músicas`);
         } catch(e) {
             console.error("Erro ao carregar playlist", e);
             PLAYLIST = [{ id: 0, title: "Música Exemplo", artist: "Artista", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "VARIADAS", tipo: "normal" }];
@@ -260,6 +263,7 @@
         }
     }
 
+    // DOM elements
     const dom = {
         musicPlayer: document.getElementById('musicPlayer'),
         playBtn: document.getElementById('playPauseBtn'), prevBtn: document.getElementById('prevBtn'), nextBtn: document.getElementById('nextBtn'),
@@ -273,7 +277,7 @@
         feedbackFloating: document.getElementById('feedbackFloating'), appRoot: document.getElementById('appRoot')
     };
 
-    // Search container
+    // Search container (criado dinamicamente)
     const searchDiv = document.createElement('div'); searchDiv.id = 'searchContainer'; searchDiv.className = 'search-container';
     searchDiv.innerHTML = '<button class="search-close" id="closeSearchBtn" style="position:absolute; top:12px; right:16px; background:none; border:none; color:#00f3ff; font-size:1.2rem;">✕</button><input type="search" id="searchInput" class="search-input" placeholder="Buscar música ou artista..."><div id="searchResults" class="search-results"></div>';
     document.body.appendChild(searchDiv);
@@ -282,6 +286,7 @@
     dom.searchResults = document.getElementById('searchResults');
     document.getElementById('closeSearchBtn').addEventListener('click', () => dom.searchContainer.style.display = 'none');
 
+    // Visualizer com Web Audio
     async function setupVisualizer() {
         if (state.audioContext) return;
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -310,6 +315,7 @@
         updateBars();
     }
 
+    // Player Engine
     const PlayerEngine = {
         formatTime(sec) { if (isNaN(sec)) return '0:00'; const m = Math.floor(sec/60); const s = Math.floor(sec%60); return `${m}:${s<10?'0':''}${s}`; },
         
@@ -481,7 +487,7 @@
                 mostrarNotificacao(`👍 Curtiu "${track.title}"`, 2000);
                 atualizarAIModal();
                 updateMarquee();
-            }
+            } else mostrarNotificacao("❤️ Já curtiu", 1500);
         },
         
         dislikeCurrent() {
@@ -494,14 +500,15 @@
                 mostrarNotificacao(`👎 Não curtiu "${track.title}"`, 2000);
                 atualizarAIModal();
                 this.next();
-            }
+            } else mostrarNotificacao("👎 Já marcou", 1500);
         }
     };
     
+    // Funções de UI
     function updateMarquee() {
         const liked = state.userPreferences.likedSongs?.length || 0;
         const g = state.isAoVivo ? '🔴 AO VIVO' : (state.generoAtual === 'MIX' ? 'TODOS' : state.generoAtual);
-        const msg = `🎵 RÁDIO PATICO IA | MODO: ${g} | 👍 ${liked} curtidas | ⚡ IA APRENDENDO | 📻 24h`;
+        const msg = `🎵 RÁDIO PATICO IA | MODO: ${g} | 👍 ${liked} curtidas | ⚡ IA APRENDENDO | 📻 24h | 💰 CONTATO: 12988461978`;
         dom.trackMarquee.innerHTML = `<span class="marquee-text">${msg}</span>`;
     }
     
@@ -658,6 +665,7 @@
         });
     }
     
+    // Controles de toque
     function hideControls() {
         dom.bottomControls.classList.add('hide-controls');
         dom.feedbackFloating.classList.add('hide-controls');
@@ -689,6 +697,7 @@
         });
     }
     
+    // Inicialização com anúncio
     async function iniciarComAnuncio() {
         if (state.radioStarted) return;
         state.radioStarted = true;
@@ -727,6 +736,7 @@
         showControls();
     }
     
+    // Event listeners
     function setupEventListeners(){
         dom.playBtn.addEventListener('click', ()=> PlayerEngine.togglePlayPause());
         dom.prevBtn.addEventListener('click', ()=> PlayerEngine.prev());
