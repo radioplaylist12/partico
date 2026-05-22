@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Rádio Patico IA - LUIS GOMES RN</title>
-    <!-- Ícones - certifique-se de que o arquivo falcon.png está na raiz do servidor -->
     <link rel="icon" type="image/png" href="falcon.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="falcon.png">
@@ -12,11 +11,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* (mesmo CSS do código anterior, sem alterações) */
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
         :root { --bg-primary: #0a0a0f; --accent: #00f3ff; --secondary: #ff2d7f; }
         body { min-height: 100vh; background: var(--bg-primary); overflow: hidden; position: fixed; width: 100%; height: 100%; font-family: 'Rajdhani', sans-serif; }
-        /* SPLASH */ #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, #0a0a0f, #000000); display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), visibility 0.8s; overflow: hidden; }
+        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, #0a0a0f, #000000); display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), visibility 0.8s; overflow: hidden; }
         #splash::before { content: ""; position: absolute; width: 200%; height: 200%; background-image: linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px); background-size: 40px 40px; animation: gridMove 20s linear infinite; pointer-events: none; }
         @keyframes gridMove { 0% { transform: translate(0, 0); } 100% { transform: translate(40px, 40px); } }
         .splash-content { text-align: center; z-index: 2; animation: fadeInUp 1s ease-out; }
@@ -193,6 +191,7 @@
             LIVE: 'pailog.mp4', DEFAULT: 'pailogo.mp4'
         },
         PLAYLIST_URL: 'https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json',
+        ANUNCIO_INICIAL: 'midiapai.mp3'   // <-- Áudio do anúncio
     };
 
     let PLAYLIST = [];
@@ -219,7 +218,9 @@
         animationId: null,
         progressInterval: null,
         currentTrackObj: null,
-        controlsTimer: null
+        controlsTimer: null,
+        // Flag para saber se o anúncio inicial já foi tocado
+        anuncioInicialTocado: false
     };
 
     function mostrarNotificacao(msg, dur=2500) {
@@ -553,11 +554,7 @@
     }
     
     function atualizarVideo(genero) {
-        // CORREÇÃO: Se o modo TV estiver ativo, NÃO trocar o vídeo, manter o modop.mp4
-        if (state.isTvMode) {
-            // Já estamos no modo TV, o vídeo já é modop.mp4 (ou foi definido ao ativar)
-            return;
-        }
+        if (state.isTvMode) return;
         let file = CONFIG.VIDEO_POR_GENERO[genero] || CONFIG.VIDEO_POR_GENERO.DEFAULT;
         if (state.isAoVivo) file = CONFIG.VIDEO_POR_GENERO.LIVE;
         if (dom.mainVideo.src.endsWith(file)) return;
@@ -653,7 +650,6 @@
             state.isTvMode = true;
             document.querySelector('.app').classList.add('tv-mode-active');
             dom.exitTvBtn.style.display = 'block';
-            // Força o vídeo do modo TV e impede trocas futuras
             dom.mainVideo.src = "modop.mp4";
             dom.mainVideo.load();
             dom.mainVideo.play().catch(()=>{});
@@ -662,7 +658,6 @@
             state.isTvMode = false;
             document.querySelector('.app').classList.remove('tv-mode-active');
             dom.exitTvBtn.style.display = 'none';
-            // Restaura o vídeo de acordo com o gênero atual
             atualizarVideo(state.isAoVivo ? 'LIVE' : state.generoAtual);
             mostrarNotificacao('Modo TV desativado', 1500);
         }
@@ -725,6 +720,63 @@
         });
     }
     
+    // ==================== ANÚNCIO INICIAL ====================
+    async function tocarAnuncioInicial() {
+        return new Promise((resolve) => {
+            mostrarNotificacao("🎙️ Ouvindo anúncio inicial...", 3000);
+            const anuncio = new Audio(CONFIG.ANUNCIO_INICIAL);
+            anuncio.volume = CONFIG.VOLUME_PLAYER;
+            anuncio.play().catch(e => {
+                console.warn("Erro ao tocar anúncio:", e);
+                resolve(); // continua mesmo sem anúncio
+            });
+            anuncio.onended = () => {
+                mostrarNotificacao("✅ Anúncio finalizado. Iniciando rádio!", 2000);
+                resolve();
+            };
+            anuncio.onerror = () => {
+                console.warn("Falha no anúncio, continuando...");
+                resolve();
+            };
+        });
+    }
+    
+    // ==================== INICIALIZAÇÃO COM ANÚNCIO ====================
+    async function startRadioWithAd() {
+        if (state.anuncioInicialTocado) return;
+        state.anuncioInicialTocado = true;
+        // Desabilita controles durante o anúncio
+        dom.bottomControls.classList.add('hide-controls');
+        dom.feedbackFloating.classList.add('hide-controls');
+        dom.genreButton.classList.add('hide-controls');
+        dom.menuButton.classList.add('hide-controls');
+        
+        await setupVisualizer();
+        if (state.audioContext && state.audioContext.state === 'suspended') {
+            await state.audioContext.resume();
+        }
+        await tocarAnuncioInicial();
+        
+        // Inicia o modo ao vivo
+        state.isAoVivo = true;
+        dom.genreBadge.innerHTML = '<i class="fas fa-broadcast-tower"></i> LIVE';
+        dom.genreBadge.classList.add('live');
+        let musicasAoVivo = PLAYLIST.filter(m => m.tipo === "ao vivo");
+        if (!musicasAoVivo.length) musicasAoVivo = shuffleArray([...PLAYLIST]);
+        state.filteredPlaylist = shuffleArray(musicasAoVivo);
+        state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
+        state.historicoMusicasLive = [];
+        atualizarTrackInfo(state.filteredPlaylist[0]);
+        atualizarVideo('LIVE');
+        updateMarquee();
+        
+        await PlayerEngine.play();
+        dom.tapToStart.style.display = 'none';
+        try { await document.documentElement.requestFullscreen(); } catch(e) {}
+        mostrarNotificacao("🎧 Rádio AO VIVO!", 3000);
+        showControls();
+    }
+    
     // ==================== EVENTOS ====================
     function setupEventListeners(){
         dom.playBtn.addEventListener('click', ()=> PlayerEngine.togglePlayPause());
@@ -759,7 +811,6 @@
         });
         document.getElementById('closeGenresBtn').addEventListener('click', ()=> dom.genresModal.classList.remove('open'));
         
-        // Menu button
         dom.menuButton.addEventListener('click', (e)=>{ e.stopPropagation(); dom.menuPopup.classList.toggle('open'); });
         document.addEventListener('click', (e)=>{ if(!dom.menuButton.contains(e.target) && !dom.menuPopup.contains(e.target)) dom.menuPopup.classList.remove('open'); });
         
@@ -789,7 +840,6 @@
         document.getElementById('closeAiBtn').addEventListener('click', ()=> dom.aiModal.classList.remove('open'));
         document.getElementById('closeManualBtn').addEventListener('click', ()=> dom.manualModal.classList.remove('open'));
         
-        // Feedback stars
         let currentRating=0;
         document.querySelectorAll('#ratingStars .star').forEach(star=>{
             star.addEventListener('click',()=>{
@@ -816,17 +866,8 @@
         dom.likeBtn.addEventListener('click', ()=> PlayerEngine.likeCurrent());
         dom.dislikeBtn.addEventListener('click', ()=> PlayerEngine.dislikeCurrent());
         
-        dom.tapToStart.addEventListener('click', async () => {
-            mostrarNotificacao('🔊 Ativando áudio...', 1500);
-            await setupVisualizer();
-            if (state.audioContext && state.audioContext.state === 'suspended') {
-                await state.audioContext.resume();
-            }
-            await PlayerEngine.play();
-            dom.tapToStart.style.display = 'none';
-            try{ await document.documentElement.requestFullscreen(); } catch(e){}
-            mostrarNotificacao('✅ Rádio ao vivo!', 3000);
-        });
+        // Substitui o evento antigo do tap-to-start
+        dom.tapToStart.addEventListener('click', startRadioWithAd);
         
         setupTapToToggle();
     }
@@ -835,6 +876,7 @@
         await carregarPlaylist();
         carregarPrefs(); carregarStats();
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
+        // Pré-configura o modo ao vivo (para exibição)
         state.isAoVivo = true;
         let musicasAoVivo = PLAYLIST.filter(m=>m.tipo === "ao vivo");
         if(!musicasAoVivo.length) musicasAoVivo = shuffleArray([...PLAYLIST]);
