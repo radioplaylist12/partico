@@ -186,6 +186,12 @@
 
 <script>
     // ==================== CONFIGURAÇÕES ====================
+    // ========== [ALTERE AQUI O MODO/GÊNERO INICIAL] ==========
+    // Defina 'MODO_INICIAL' como 'LIVE' para iniciar no modo AO VIVO,
+    // ou coloque o nome do gênero desejado (ex: 'BREGA', 'SERTANEJO', 'FORRÓ', 'POP', 'MPB', 'VARIADAS', 'MODA TOP', 'AS++', 'TODOS').
+    const MODO_INICIAL = 'LIVE';  // <--- Mude aqui para o modo/gênero que desejar
+    // ========================================================
+    
     const CONFIG = {
         PIX_KEY: '12988461978',
         WHATSAPP_NUMBER: '5512988461978',
@@ -194,7 +200,7 @@
         VINHETAS: ['radiopm.mp3', 'Paticom.mp3', 'Paticom.mp3', 'zzvc.mp3'],
         VIDEO_POR_GENERO: {
             SERTANEJO: 'paixi.mp4', FORRÓ: 'paixi.mp4', 'FORRÓ ANTIGO': 'paixi1.mp4',
-            BREGA: 'pai123.mp4', POP: 'paixi1.mp4', MPB: 'paixi1.mp4', SAMBA: 'paixi1.mp4',
+            BREGA: 'paixi1.mp4', POP: 'paixi1.mp4', MPB: 'paixi1.mp4', SAMBA: 'paixi1.mp4',
             VARIADAS: 'pai123.mp4', 'MODA TOP': 'paix.mp4', 'AS++': 'pai123.mp4',
             LIVE: 'paixi1.mp4', DEFAULT: 'paixi1.mp4'
         },
@@ -724,29 +730,25 @@
         });
     }
     
-    // Função para tocar anúncio e depois iniciar rádio no modo BREGA
+    // Função para tocar anúncio e depois iniciar o rádio de acordo com MODO_INICIAL
     let radioStarted = false;
     async function tocarAnuncioEDepoisRadio() {
         if (radioStarted) return;
         radioStarted = true;
         
-        // Ativar tela cheia primeiro
         try {
             await document.documentElement.requestFullscreen();
         } catch(e) { console.warn("Falha ao entrar em tela cheia", e); }
         
-        // Esconder splash e mostrar app
         dom.splash.classList.add('hidden');
         setTimeout(() => { dom.splash.style.display = 'none'; }, 800);
         dom.appRoot.style.display = 'block';
         
-        // Preparar visualizer e contexto
         await setupVisualizer();
         if (state.audioContext && state.audioContext.state === 'suspended') {
             await state.audioContext.resume();
         }
         
-        // Tocar anúncio
         mostrarNotificacao("🎙️ Tocando anúncio inicial...", 3000);
         const anuncio = new Audio(CONFIG.ANUNCIO_INICIAL);
         anuncio.volume = CONFIG.VOLUME_PLAYER;
@@ -756,27 +758,32 @@
             anuncio.onerror = () => resolve();
         });
         
-        // Iniciar modo BREGA
-        mostrarNotificacao("✅ Iniciando rádio - Modo BREGA", 2000);
-        state.isAoVivo = false;
-        state.generoAtual = "BREGA";
-        dom.genreBadge.innerHTML = '<i class="fas fa-heart"></i> BREGA';
-        dom.genreBadge.classList.remove('live');
-        
-        let musicasBrega = PLAYLIST.filter(m => m.genero === "BREGA");
-        if (!musicasBrega.length) {
-            musicasBrega = shuffleArray([...PLAYLIST]);
-            mostrarNotificacao("⚠️ Nenhuma música BREGA encontrada. Tocando todas.", 3000);
+        // ========== INICIAR CONFORME MODO_INICIAL ==========
+        if (MODO_INICIAL === 'LIVE') {
+            ativarModoAoVivo();
+        } else {
+            // Iniciar com gênero específico
+            state.isAoVivo = false;
+            state.generoAtual = MODO_INICIAL;
+            let musicasGenero = PLAYLIST.filter(m => m.genero === MODO_INICIAL);
+            if (!musicasGenero.length) {
+                musicasGenero = shuffleArray([...PLAYLIST]);
+                mostrarNotificacao(`⚠️ Nenhuma música para ${MODO_INICIAL}. Carregando todas.`, 3000);
+                state.generoAtual = "MIX";
+                updateGenreBadge("MIX");
+            } else {
+                updateGenreBadge(MODO_INICIAL);
+            }
+            state.filteredPlaylist = shuffleArray(musicasGenero);
+            state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
+            state.historicoMusicasLive = [];
+            atualizarTrackInfo(state.filteredPlaylist[0]);
+            atualizarVideo(MODO_INICIAL === 'MIX' ? 'VARIADAS' : MODO_INICIAL);
+            updateMarquee();
         }
-        state.filteredPlaylist = shuffleArray(musicasBrega);
-        state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
-        state.historicoMusicasLive = [];
-        atualizarTrackInfo(state.filteredPlaylist[0]);
-        atualizarVideo('BREGA');
-        updateMarquee();
         
+        mostrarNotificacao(`✅ Rádio iniciada no modo: ${MODO_INICIAL === 'LIVE' ? 'AO VIVO' : MODO_INICIAL}`, 3000);
         await PlayerEngine.play();
-        mostrarNotificacao("🎧 Rádio no ar - Modo BREGA!", 3000);
         showControls();
     }
     
@@ -880,7 +887,7 @@
         await carregarPlaylist();
         carregarPrefs(); carregarStats();
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
-        // Pré-configura estado inicial para BREGA
+        // Pré-configuração (será sobrescrita após o anúncio)
         state.isAoVivo = false;
         state.generoAtual = "BREGA";
         let musicasBrega = PLAYLIST.filter(m => m.genero === "BREGA");
