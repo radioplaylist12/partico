@@ -121,7 +121,7 @@
     </div>
 </div>
 
-<!-- TELA PRINCIPAL (INICIALMENTE OCULTA ATÉ O CLIQUE) -->
+<!-- TELA PRINCIPAL -->
 <div class="app" id="appRoot">
     <div class="fullscreen-video-container"><video id="mainVideo" autoplay loop muted playsinline><source src="pak.mp4" type="video/mp4"></video></div>
     
@@ -208,8 +208,9 @@
         VOLUME_PLAYER: 0.9,
         INTERVALO_VINHETA_MUSICAS: 10,
         VINHETAS: ['radiopm.mp3', 'Paticom.mp3', 'Paticom.mp3', 'zzvc.mp3'],
+        // AGORA TODOS OS VÍDEOS SÃO pak.mp4 (vídeo principal fixo)
         VIDEO_POR_GENERO: {
-            SERTANEJO: 'paik.mp4', FORRÓ: 'pak.mp4', 'FORRÓ ANTIGO': 'pak.mp4',
+            SERTANEJO: 'pak.mp4', FORRÓ: 'pak.mp4', 'FORRÓ ANTIGO': 'pak.mp4',
             BREGA: 'pak.mp4', POP: 'pak.mp4', MPB: 'pak.mp4', SAMBA: 'pak.mp4',
             VARIADAS: 'pak.mp4', 'MODA TOP': 'pak.mp4', 'AS++': 'pak.mp4',
             LIVE: 'pak.mp4', DEFAULT: 'pak.mp4'
@@ -227,7 +228,7 @@
         generoAtual: 'BREGA',
         currentIndex: 0,
         filteredPlaylist: [],
-        historicoMusicasLive: [],
+        historicoMusicasLive: [],  // guarda IDs das últimas 5 músicas no modo LIVE
         tocandoVinheta: false,
         contadorMusicasVinheta: 0,
         skipLock: false,
@@ -336,7 +337,7 @@
     dom.searchResults = document.getElementById('searchResults');
     document.getElementById('closeSearchBtn').addEventListener('click', () => dom.searchContainer.style.display = 'none');
 
-    // Visualizer com limpeza
+    // Visualizer
     function stopVisualizer() {
         if (state.animationId) {
             cancelAnimationFrame(state.animationId);
@@ -381,7 +382,48 @@
         updateBars();
     }
 
-    // Player Engine
+    // ==================== NOVA LÓGICA AO VIVO (MISTURA TOTAL) ====================
+    function selecionarProximaLive() {
+        // Escolhe uma música aleatória de TODA a PLAYLIST, excluindo as últimas 5 tocadas
+        if (!PLAYLIST.length) return null;
+        let disponiveis = PLAYLIST.filter(m => !state.historicoMusicasLive.includes(m.id));
+        if (disponiveis.length === 0) {
+            // Se todas já estão no histórico, limpa histórico e pega qualquer uma
+            state.historicoMusicasLive = [];
+            disponiveis = [...PLAYLIST];
+        }
+        const prox = disponiveis[Math.floor(Math.random() * disponiveis.length)];
+        // Atualiza histórico
+        state.historicoMusicasLive.push(prox.id);
+        if (state.historicoMusicasLive.length > 5) state.historicoMusicasLive.shift();
+        return prox;
+    }
+
+    function ativarModoAoVivo() {
+        state.isAoVivo = true;
+        dom.genreBadge.innerHTML = '<i class="fas fa-broadcast-tower"></i> LIVE';
+        dom.genreBadge.classList.add('live');
+        // Limpa a playlist filtrada e o histórico
+        state.filteredPlaylist = [];
+        state.historicoMusicasLive = [];
+        state.currentIndex = 0;
+        // Seleciona a primeira música aleatória
+        const primeira = selecionarProximaLive();
+        if (primeira) {
+            state.filteredPlaylist = [primeira];
+        } else {
+            state.filteredPlaylist = [];
+        }
+        state.currentIndex = 0;
+        state.contadorMusicasVinheta = 0;
+        atualizarVideo('LIVE');
+        updateMarquee();
+        mostrarNotificacao('🔴 Modo AO VIVO ativado - todas as músicas em sequência aleatória', 3000);
+        if (state.isPlaying) PlayerEngine.play();
+        salvarEstado();
+    }
+
+    // Player Engine (modificado para suportar LIVE com randomização total)
     const PlayerEngine = {
         formatTime(sec) { if (isNaN(sec)) return '0:00'; const m = Math.floor(sec/60); const s = Math.floor(sec%60); return `${m}:${s<10?'0':''}${s}`; },
         
@@ -394,7 +436,19 @@
         
         async play() {
             if (state.isLoadingTrack || state.tocandoVinheta) return;
-            if (!state.filteredPlaylist.length) { mostrarNotificacao("Nenhuma música disponível", 2000); return false; }
+            
+            // Para modo LIVE: se não houver música na posição atual, seleciona uma nova
+            if (state.isAoVivo) {
+                if (!state.filteredPlaylist.length || !state.filteredPlaylist[state.currentIndex]) {
+                    const nova = selecionarProximaLive();
+                    if (!nova) { mostrarNotificacao("Nenhuma música disponível", 2000); return false; }
+                    state.filteredPlaylist = [nova];
+                    state.currentIndex = 0;
+                }
+            } else {
+                if (!state.filteredPlaylist.length) { mostrarNotificacao("Nenhuma música disponível", 2000); return false; }
+            }
+            
             const track = state.filteredPlaylist[state.currentIndex];
             if (!track || !track.src) { 
                 mostrarNotificacao("Música inválida, pulando...", 1500);
@@ -496,19 +550,16 @@
             state.lastClickTime = now;
             if (state.isLoadingTrack || state.skipLock || state.tocandoVinheta) return;
             if (state.progressInterval) clearInterval(state.progressInterval);
+            
             if (state.isAoVivo) {
-                const proxima = this.getNextLiveMusic();
+                // Modo LIVE: seleciona uma nova música aleatória respeitando o histórico
+                const proxima = selecionarProximaLive();
                 if (proxima) {
-                    state.filteredPlaylist.push(proxima);
-                    state.currentIndex = state.filteredPlaylist.length - 1;
-                    await this.play();
-                } else {
-                    state.historicoMusicasLive = [];
-                    let novas = PLAYLIST.filter(m => m.tipo === "ao vivo");
-                    if (!novas.length) novas = shuffleArray([...PLAYLIST]);
-                    state.filteredPlaylist = shuffleArray(novas);
+                    state.filteredPlaylist = [proxima];
                     state.currentIndex = 0;
                     await this.play();
+                } else {
+                    mostrarNotificacao("Erro ao selecionar próxima música", 2000);
                 }
             } else {
                 let nextIndex = state.currentIndex + 1;
@@ -518,25 +569,21 @@
             }
         },
         
-        getNextLiveMusic() {
-            const disponiveis = state.filteredPlaylist.filter(m => !state.historicoMusicasLive.includes(m.id));
-            if (disponiveis.length === 0) return null;
-            const prox = disponiveis[Math.floor(Math.random() * disponiveis.length)];
-            state.historicoMusicasLive.push(prox.id);
-            if (state.historicoMusicasLive.length > 5) state.historicoMusicasLive.shift();
-            return prox;
-        },
-        
         async prev() {
             const now = Date.now();
             if (now - state.lastClickTime < 500) return;
             state.lastClickTime = now;
             if (state.isLoadingTrack || state.skipLock || state.tocandoVinheta) return;
             if (state.progressInterval) clearInterval(state.progressInterval);
-            let prevIndex = state.currentIndex - 1;
-            if (prevIndex < 0) prevIndex = state.filteredPlaylist.length - 1;
-            state.currentIndex = prevIndex;
-            await this.play();
+            // No modo LIVE, "anterior" não tem sentido real, apenas pula para uma aleatória
+            if (state.isAoVivo) {
+                this.next();
+            } else {
+                let prevIndex = state.currentIndex - 1;
+                if (prevIndex < 0) prevIndex = state.filteredPlaylist.length - 1;
+                state.currentIndex = prevIndex;
+                await this.play();
+            }
         },
         
         startProgressTimer() {
@@ -730,24 +777,6 @@
         }
     };
     
-    function ativarModoAoVivo() {
-        state.isAoVivo = true;
-        dom.genreBadge.innerHTML = '<i class="fas fa-broadcast-tower"></i> LIVE';
-        dom.genreBadge.classList.add('live');
-        let musicas = PLAYLIST.filter(m=>m.tipo === "ao vivo");
-        if(!musicas.length) { musicas = shuffleArray([...PLAYLIST]); }
-        state.filteredPlaylist = shuffleArray(musicas);
-        state.currentIndex = Math.floor(Math.random()*state.filteredPlaylist.length);
-        state.historicoMusicasLive = [];
-        atualizarTrackInfo(state.filteredPlaylist[0]);
-        state.contadorMusicasVinheta = 0;
-        atualizarVideo('LIVE');
-        updateMarquee();
-        mostrarNotificacao('🔴 Modo AO VIVO ativado!', 2000);
-        if(state.isPlaying) PlayerEngine.play();
-        salvarEstado();
-    }
-    
     function toggleTvMode() {
         if(!state.isTvMode){
             state.isTvMode = true;
@@ -790,7 +819,6 @@
         });
     }
     
-    // Controles de toque
     function hideControls() {
         dom.bottomControls.classList.add('hide-controls');
         dom.feedbackFloating.classList.add('hide-controls');
@@ -827,7 +855,6 @@
         });
     }
     
-    // Swipe gestures
     let touchStartX = 0;
     function setupSwipe() {
         dom.appRoot.addEventListener('touchstart', (e) => {
@@ -843,7 +870,6 @@
         });
     }
     
-    // Função para tocar anúncio e depois iniciar o rádio
     let radioStarted = false;
     let anuncio = null;
     let anuncioTimeout = null;
@@ -869,9 +895,7 @@
             if (state.audioContext && state.audioContext.state === 'suspended') {
                 await state.audioContext.resume();
             }
-            
             const estadoSalvo = carregarEstado();
-            
             if (MODO_INICIAL === 'LIVE' || estadoSalvo.modoLive) {
                 ativarModoAoVivo();
             } else if (estadoSalvo.ultimoGenero && estadoSalvo.ultimoGenero !== 'MIX') {
@@ -907,7 +931,6 @@
                     updateMarquee();
                 }
             }
-            
             mostrarNotificacao(`✅ Rádio iniciada!`, 3000);
             await PlayerEngine.play();
             showControls();
@@ -916,37 +939,30 @@
     
     async function tocarAnuncioEDepoisRadio() {
         if (radioStarted) return;
-        
         try {
             await document.documentElement.requestFullscreen();
         } catch(e) { console.warn("Falha ao entrar em tela cheia", e); }
-        
         dom.splash.classList.add('hidden');
         setTimeout(() => { dom.splash.style.display = 'none'; }, 800);
         dom.appRoot.style.display = 'block';
-        
         await setupVisualizer();
         if (state.audioContext && state.audioContext.state === 'suspended') {
             await state.audioContext.resume();
         }
-        
         mostrarNotificacao("🎙️ Tocando anúncio inicial...", 3000);
         anuncio = new Audio(CONFIG.ANUNCIO_INICIAL);
         anuncio.volume = CONFIG.VOLUME_PLAYER;
-        
         anuncioTimeout = setTimeout(() => {
             if (anuncio && !radioStarted) {
                 anuncio.pause();
                 iniciarRadioDireto();
             }
         }, 8000);
-        
         await new Promise((resolve) => {
             anuncio.play().catch(e => { console.warn("Erro anúncio:", e); resolve(); });
             anuncio.onended = () => resolve();
             anuncio.onerror = () => resolve();
         });
-        
         clearTimeout(anuncioTimeout);
         iniciarRadioDireto();
     }
@@ -981,7 +997,7 @@
         dom.prevBtn.addEventListener('click', debounce(() => PlayerEngine.prev(), 300));
         dom.nextBtn.addEventListener('click', debounce(() => PlayerEngine.next(), 300));
         dom.shuffleBtn.addEventListener('click', ()=>{
-            if(state.isAoVivo) { mostrarNotificacao('Modo AO VIVO - aleatório não disponível!', 2000); return; }
+            if(state.isAoVivo) { mostrarNotificacao('Modo AO VIVO já é totalmente aleatório!', 2000); return; }
             state.shuffleMode = !state.shuffleMode;
             if(state.shuffleMode){
                 state.filteredPlaylist = shuffleArray(state.filteredPlaylist);
@@ -1086,6 +1102,7 @@
         carregarPrefs(); carregarStats();
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
         
+        // Estado inicial padrão (BREGA) mas será sobrescrito pelo modo LIVE se MODO_INICIAL for LIVE
         state.isAoVivo = false;
         state.generoAtual = "BREGA";
         let musicasBrega = PLAYLIST.filter(m => m.genero === "BREGA");
