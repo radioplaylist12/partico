@@ -49,14 +49,13 @@
             animation: marquee 28s linear infinite; 
             color: #00f3ff; 
             font-weight: 800; 
-            font-size: 2rem;      /* LETREIRO BEM MAIOR SEM AUMENTAR LINHAS */
+            font-size: 2rem;      /* Tamanho do letreiro */
             letter-spacing: 2px; 
             text-shadow: 0 0 6px rgba(0,243,255,0.6); 
             will-change: transform;
             line-height: 1.2;
             font-family: 'Orbitron', monospace;
         }
-        /* REMOVIDO O ESTILO DO .next-track (pois elemento foi eliminado) */
         .bottom-controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(0, 243, 255, 0.3); padding: 10px 20px 20px; z-index: 20; transition: transform 0.3s ease, opacity 0.3s ease; border-radius: 24px 24px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
         .bottom-controls.hide-controls { transform: translateY(100%); opacity: 0; pointer-events: none; }
         .progress-area { margin-bottom: 10px; }
@@ -85,8 +84,6 @@
         .menu-popup.open { display: flex; }
         .menu-popup button { background: rgba(255, 255, 255, 0.05); border: none; color: white; padding: 8px 16px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.2s; font-family: 'Rajdhani', sans-serif; }
         .menu-popup button:active { background: #00f3ff; color: #000; }
-        
-        /* VISUALIZER E NEXT-TRACK TOTALMENTE REMOVIDOS DO HTML - NENHUM ESTILO NECESSÁRIO */
         
         .loading-spinner { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(12px); padding: 12px 24px; border-radius: 60px; z-index: 10001; display: none; gap: 12px; color: #00f3ff; font-weight: bold; border: 1px solid #00f3ff; }
         .loading-spinner.show { display: flex; }
@@ -149,7 +146,6 @@
                 <span class="marquee-text" id="trackMarquee">🎵 Rádio Patico IA - Modo Futurista</span>
             </div>
         </div>
-        <!-- PRÓXIMA MÚSICA REMOVIDA CONFORME SOLICITADO -->
     </div>
     
     <div class="bottom-controls" id="bottomControls">
@@ -172,7 +168,6 @@
     
     <button class="genre-button" id="genreButton"><i class="fas fa-music"></i></button>
     <div class="genre-badge" id="genreBadge"><i class="fas fa-heart"></i> BREGA</div>
-    <!-- GRÁFICO DE MÚSICAS (VISUALIZER) TOTALMENTE REMOVIDO -->
     <button class="exit-tv-btn" id="exitTvBtn"><i class="fas fa-tv"></i> SAIR TV</button>
     <div class="menu-button" id="menuButton"><i class="fas fa-bolt"></i></div>
     <div class="menu-popup" id="menuPopup">
@@ -219,8 +214,8 @@
 <audio id="musicPlayer" preload="auto" crossorigin></audio>
 
 <script>
-    // ========== CONFIGURAÇÕES (SEM VISUALIZER E SEM NEXT-TRACK) ==========
-    const MODO_INICIAL = 'LIVE';
+    // ========== CONFIGURAÇÕES ==========
+    const MODO_INICIAL = 'LIVE'; // Pode ser "LIVE" ou um gênero específico
     const CONFIG = {
         PIX_KEY: '12988461978',
         WHATSAPP_NUMBER: '5512988461978',
@@ -236,6 +231,29 @@
         PLAYLIST_URL: 'https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json',
         ANUNCIO_INICIAL: 'o.mp3'
     };
+
+    // 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯
+    // ⬇️⬇️⬇️ EDITAR TEXTO DO LETREIRO AQUI ⬇️⬇️⬇️
+    // 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯
+    //
+    // A variável abaixo define o texto que vai rolar.
+    // Você pode usar as variáveis:
+    //   ${track.title}   → título da música
+    //   ${track.artist}  → artista
+    //   ${track.genero}  → gênero musical
+    // Além disso, pode adicionar texto fixo, emojis, etc.
+    //
+    // EXEMPLOS:
+    // const TEXTO_LETREIRO = `${track.title} - ${track.artist} [${track.genero}]`;
+    // const TEXTO_LETREIRO = `🎵 RÁDIO PATICO • ${track.title} • ${track.artist} • AO VIVO 🎵`;
+    // const TEXTO_LETREIRO = `📻 OUÇA SEMPRE • ${track.title} — ${track.artist} • GÊNERO: ${track.genero}`;
+    // const TEXTO_LETREIRO = `⚡ ${track.title} ⚡ ${track.artist} ⚡ RÁDIO PATICO IA ⚡`;
+    //
+    // BASTA ALTERAR A LINHA ABAIXO 👇
+    const TEXTO_LETREIRO = (track) => `${track.title} - ${track.artist} [${track.genero}]`;
+    //
+    // ⬆️⬆️⬆️ EDITAR TEXTO DO LETREIRO AQUI ⬆️⬆️⬆️
+    // 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯 🎯
 
     let PLAYLIST = [];
     const state = {
@@ -323,7 +341,9 @@
 
     function atualizarTrackInfo(track) {
         if (!track) return;
-        dom.trackMarquee.innerHTML = `<span class="marquee-text">${track.title} - ${track.artist} [${track.genero}]</span>`;
+        // 🎯 AQUI USA A VARIÁVEL DE TEXTO PERSONALIZÁVEL 🎯
+        const textoFinal = TEXTO_LETREIRO(track);
+        dom.trackMarquee.innerHTML = `<span class="marquee-text">${textoFinal}</span>`;
         dom.currentTimeEl.textContent = '0:00';
         dom.totalTimeEl.textContent = '0:00';
         dom.progressFill.style.width = '0%';
