@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rádio Patico IA - LUIS GOMES RN</title>
+    <title>Rádio Patico - Óticas São Miguel</title>
     <link rel="icon" type="image/png" href="falcon.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="falcon.png">
@@ -12,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Seus estilos permanecem IGUAIS, sem alterações aqui */
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
         :root { --bg-primary: #0a0a0f; --accent: #00f3ff; --secondary: #ff2d7f; }
         body { min-height: 100vh; background: var(--bg-primary); overflow: hidden; position: fixed; width: 100%; height: 100%; font-family: 'Rajdhani', sans-serif; }
@@ -30,7 +30,7 @@
         
         #splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         .app { width: 100%; height: 100vh; background: var(--bg-primary); position: relative; overflow: hidden; display: none; }
-        .fullscreen-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1; }
+        .fullscreen-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1; cursor: pointer; }
         .fullscreen-video-container video { width: 100%; height: 100%; object-fit: cover; }
         .info-area { position: fixed; bottom: 100px; left: 0; right: 0; background: rgba(0, 0, 0, 0.7); padding: 12px 20px; z-index: 25; text-align: center; border-top: 1px solid rgba(0, 243, 255, 0.3); border-bottom: 1px solid rgba(0, 243, 255, 0.3); }
         .track-info { margin-bottom: 4px; }
@@ -117,7 +117,7 @@
 
 <!-- TELA PRINCIPAL -->
 <div class="app" id="appRoot">
-    <div class="fullscreen-video-container">
+    <div class="fullscreen-video-container" id="videoContainer">
         <video id="mainVideo" autoplay loop muted playsinline>
             <source src="pak.mp4" type="video/mp4">
         </video>
@@ -126,7 +126,7 @@
     <div class="info-area">
         <div class="track-info">
             <div class="marquee-wrap">
-                <span class="marquee-text" id="trackMarquee">🎵 RÁDIO PATICO MENDES- LUIS GOMES RN | SERTANEJO • FORRÓ • BREGA • MPB | O MELHOR DA MÚSICA BRASILEIRA | 24h NO AR | OPERANDO EM FASSE DE TESTA</span>
+                <span class="marquee-text" id="trackMarquee">🎵 RÁDIO PATICO - LUIS GOMES RN | SERTANEJO • FORRÓ • BREGA • MPB | O MELHOR DA MÚSICA BRASILEIRA | 📻 24h NO AR | 💰 CHAVE PIX: 12988461978</span>
             </div>
         </div>
     </div>
@@ -200,7 +200,7 @@
 
 <script>
     // ==================== CONFIGURAÇÕES ====================
-    const MODO_INICIAL = 'LIVE';  // SEMPRE INICIA EM LIVE
+    const MODO_INICIAL = 'LIVE';
     
     const CONFIG = {
         PIX_KEY: '12988461978',
@@ -212,8 +212,11 @@
             VARIADAS: 'pak.mp4', 'MODA TOP': 'pak.mp4', 'AS++': 'pak.mp4',
             LIVE: 'pak.mp4', DEFAULT: 'pak.mp4'
         },
+        VIDEO_MIGUEL: 'miguel.mp4',
+        SITE_MIGUEL: 'https://oticassaomiguel.com.br/',
         ANUNCIO_INICIAL: 'o.mp3',
-        PLAYLIST_URL: 'https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json'
+        PLAYLIST_URL: 'https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json',
+        TIMEOUT_CARREGAMENTO_MUSICA: 8000
     };
 
     let PLAYLIST = [];
@@ -221,27 +224,23 @@
     // ==================== ESTADO GLOBAL ====================
     const state = {
         isPlaying: false,
-        isAoVivo: true,  // INICIA EM AO VIVO
+        isAoVivo: true,
         generoAtual: 'LIVE',
         currentIndex: 0,
         filteredPlaylist: [],
         historicoMusicasLive: [],
         tocandoVinheta: false,
         contadorMusicasVinheta: 0,
-        skipLock: false,
         isLoadingTrack: false,
-        isTvMode: false,
-        shuffleMode: false,
         controlsVisible: true,
         userPreferences: { likedSongs: [], dislikedSongs: [], songPlays: {}, songComplete: {}, genrePreference: {}, lastPlayed: null },
         stats: { totalPlayed: 0, totalSeconds: 0, genreCount: {}, currentStreak: 0 },
         audioContext: null,
-        analyser: null,
-        sourceNode: null,
-        animationId: null,
         progressInterval: null,
         controlsTimer: null,
-        lastClickTime: 0
+        lastClickTime: 0,
+        isMiguelVideoActive: false,
+        miguelVideoTimeout: null
     };
 
     // ==================== FUNÇÕES AUXILIARES ====================
@@ -291,17 +290,67 @@
                 console.log("⚠️ Usando cache antigo");
             } else {
                 PLAYLIST = [
-                    { id: 0, title: "Amor de Verdade", artist: "Banda Sayonara", src: "amor_de_verdade.mp3", genero: "BREGA", tipo: "normal" },
-                    { id: 1, title: "Coração Cigano", artist: "Banda Ravelly", src: "coracao_cigano.mp3", genero: "BREGA", tipo: "normal" },
-                    { id: 2, title: "Evidências", artist: "Chitãozinho & Xororó", src: "evidencias.mp3", genero: "SERTANEJO", tipo: "normal" },
-                    { id: 3, title: "Garota de Ipanema", artist: "Tom Jobim", src: "garota_ipanema.mp3", genero: "MPB", tipo: "normal" },
-                    { id: 4, title: "Trem Bala", artist: "Ana Vilela", src: "trem_bala.mp3", genero: "MPB", tipo: "normal" }
+                    { id: 0, title: "Amor de Verdade", artist: "Banda Sayonara", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "BREGA", tipo: "normal" },
+                    { id: 1, title: "Coração Cigano", artist: "Banda Ravelly", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "BREGA", tipo: "normal" },
+                    { id: 2, title: "Evidências", artist: "Chitãozinho & Xororó", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "SERTANEJO", tipo: "normal" },
+                    { id: 3, title: "Garota de Ipanema", artist: "Tom Jobim", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", genero: "MPB", tipo: "normal" },
+                    { id: 4, title: "Trem Bala", artist: "Ana Vilela", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", genero: "MPB", tipo: "normal" }
                 ];
             }
             mostrarNotificacao("⚠️ Usando playlist de fallback", 4000);
         }
     }
 
+    // ==================== GERENCIAMENTO DO VÍDEO MIGUEL ====================
+    function ativarVideoMiguel() {
+        if (state.isMiguelVideoActive) return;
+        
+        const videoElement = document.getElementById('mainVideo');
+        const videoContainer = document.getElementById('videoContainer');
+        
+        // Salvar o vídeo atual antes de trocar
+        const currentSrc = videoElement.src;
+        
+        // Trocar para o vídeo do Miguel
+        videoElement.pause();
+        videoElement.src = CONFIG.VIDEO_MIGUEL;
+        videoElement.load();
+        videoElement.play().catch(e => console.warn("Erro ao tocar vídeo Miguel:", e));
+        
+        state.isMiguelVideoActive = true;
+        mostrarNotificacao("🎥 Vídeo institucional - Óticas São Miguel", 3000);
+        
+        // Configurar timeout para voltar ao vídeo normal após 30 segundos
+        if (state.miguelVideoTimeout) clearTimeout(state.miguelVideoTimeout);
+        state.miguelVideoTimeout = setTimeout(() => {
+            desativarVideoMiguel();
+        }, 30000);
+    }
+    
+    function desativarVideoMiguel() {
+        if (!state.isMiguelVideoActive) return;
+        
+        const videoElement = document.getElementById('mainVideo');
+        
+        // Voltar para o vídeo padrão baseado no gênero atual
+        let videoPadrao = CONFIG.VIDEO_POR_GENERO[state.generoAtual] || CONFIG.VIDEO_POR_GENERO.DEFAULT;
+        if (state.isAoVivo) videoPadrao = CONFIG.VIDEO_POR_GENERO.LIVE;
+        
+        videoElement.pause();
+        videoElement.src = videoPadrao;
+        videoElement.load();
+        videoElement.play().catch(e => console.warn("Erro ao voltar para vídeo padrão:", e));
+        
+        state.isMiguelVideoActive = false;
+        if (state.miguelVideoTimeout) clearTimeout(state.miguelVideoTimeout);
+        mostrarNotificacao("🎬 Voltando ao vídeo padrão", 2000);
+    }
+    
+    function abrirSiteMiguel() {
+        window.open(CONFIG.SITE_MIGUEL, '_blank');
+        mostrarNotificacao("🌐 Abrindo site: Óticas São Miguel", 2000);
+    }
+    
     // ==================== BLUETOOTH ====================
     async function conectarBluetooth() {
         mostrarNotificacao("🔵 Procurando dispositivos Bluetooth...", 2000);
@@ -348,42 +397,13 @@
         splash: document.getElementById('splash'), appRoot: document.getElementById('appRoot'), loadingSpinner: document.getElementById('loadingSpinner'),
         genreBadge: document.getElementById('genreBadge'), bottomControls: document.getElementById('bottomControls'),
         genreButton: document.getElementById('genreButton'), menuButton: document.getElementById('menuButton'), menuPopup: document.getElementById('menuPopup'),
-        mainVideo: document.getElementById('mainVideo'), feedbackModal: document.getElementById('feedbackModal'), aiModal: document.getElementById('aiModal'),
-        statsModal: document.getElementById('statsModal'), genresModal: document.getElementById('genresModal'), manualModal: document.getElementById('manualModal'),
-        pixModal: document.getElementById('pixModal'), copyPixBtn: document.getElementById('copyPixBtn'), closePixBtn: document.getElementById('closePixBtn'),
+        mainVideo: document.getElementById('mainVideo'), videoContainer: document.getElementById('videoContainer'),
+        feedbackModal: document.getElementById('feedbackModal'), aiModal: document.getElementById('aiModal'), statsModal: document.getElementById('statsModal'),
+        genresModal: document.getElementById('genresModal'), manualModal: document.getElementById('manualModal'), pixModal: document.getElementById('pixModal'),
+        copyPixBtn: document.getElementById('copyPixBtn'), closePixBtn: document.getElementById('closePixBtn'),
         likeBtn: document.getElementById('likeBtn'), dislikeBtn: document.getElementById('dislikeBtn'),
         feedbackFloating: document.getElementById('feedbackFloating'), volumeSlider: document.getElementById('volumeSlider')
     };
-
-    // ==================== VISUALIZER ====================
-    function stopVisualizer() {
-        if (state.animationId) {
-            cancelAnimationFrame(state.animationId);
-            state.animationId = null;
-        }
-    }
-
-    async function setupVisualizer() {
-        if (state.audioContext) return;
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        state.audioContext = new AudioContext();
-        state.analyser = state.audioContext.createAnalyser();
-        state.analyser.fftSize = 64;
-        state.sourceNode = state.audioContext.createMediaElementSource(dom.musicPlayer);
-        state.sourceNode.connect(state.analyser);
-        state.analyser.connect(state.audioContext.destination);
-        
-        function updateBars() {
-            if (!state.analyser || !state.isPlaying) {
-                state.animationId = requestAnimationFrame(updateBars);
-                return;
-            }
-            const dataArray = new Uint8Array(state.analyser.frequencyBinCount);
-            state.analyser.getByteFrequencyData(dataArray);
-            state.animationId = requestAnimationFrame(updateBars);
-        }
-        updateBars();
-    }
 
     // ==================== CONTROLES DE VISIBILIDADE ====================
     function hideControls() {
@@ -450,18 +470,27 @@
             
             this.atualizarTrackInfo(track);
             if (!state.isAoVivo) this.updateGenreBadge(track.genero);
-            this.atualizarVideo(state.isAoVivo ? 'LIVE' : track.genero);
+            // Não alterar o vídeo se o vídeo do Miguel estiver ativo
+            if (!state.isMiguelVideoActive) {
+                this.atualizarVideo(state.isAoVivo ? 'LIVE' : track.genero);
+            }
+            
+            let musicLoaded = false;
             
             return new Promise((resolve) => {
                 let timeout = setTimeout(() => {
-                    dom.loadingSpinner.classList.remove('show');
-                    state.isLoadingTrack = false;
-                    mostrarNotificacao(`Timeout: ${track.title}`, 2000);
-                    this.next();
-                    resolve(false);
-                }, 12000);
+                    if (!musicLoaded) {
+                        dom.loadingSpinner.classList.remove('show');
+                        state.isLoadingTrack = false;
+                        mostrarNotificacao(`⏱️ Pulando: ${track.title} (demorou muito)`, 3000);
+                        this.next();
+                        resolve(false);
+                    }
+                }, CONFIG.TIMEOUT_CARREGAMENTO_MUSICA);
                 
                 dom.musicPlayer.oncanplaythrough = async () => {
+                    if (musicLoaded) return;
+                    musicLoaded = true;
                     clearTimeout(timeout);
                     dom.loadingSpinner.classList.remove('show');
                     state.isLoadingTrack = false;
@@ -492,10 +521,13 @@
                         state.isLoadingTrack = false;
                         state.isPlaying = false;
                         dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        console.error(e);
                         resolve(false);
                     }
                 };
                 dom.musicPlayer.onerror = () => {
+                    if (musicLoaded) return;
+                    musicLoaded = true;
                     clearTimeout(timeout);
                     dom.loadingSpinner.classList.remove('show');
                     state.isLoadingTrack = false;
@@ -528,6 +560,7 @@
         },
         
         atualizarVideo(genero) {
+            if (state.isMiguelVideoActive) return;
             let file = CONFIG.VIDEO_POR_GENERO[genero] || CONFIG.VIDEO_POR_GENERO.DEFAULT;
             if (state.isAoVivo) file = CONFIG.VIDEO_POR_GENERO.LIVE;
             if (dom.mainVideo.src.endsWith(file)) return;
@@ -550,7 +583,6 @@
             dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
             if (state.progressInterval) clearInterval(state.progressInterval);
             state.progressInterval = null;
-            stopVisualizer();
         },
         
         togglePlayPause() { state.isPlaying ? this.pause() : this.play(); },
@@ -711,7 +743,9 @@
             state.filteredPlaylist = nova;
             state.currentIndex = Math.floor(Math.random()*state.filteredPlaylist.length);
             PlayerEngine.atualizarTrackInfo(state.filteredPlaylist[state.currentIndex]);
-            PlayerEngine.atualizarVideo(state.generoAtual === "MIX" ? "VARIADAS" : state.generoAtual);
+            if (!state.isMiguelVideoActive) {
+                PlayerEngine.atualizarVideo(state.generoAtual === "MIX" ? "VARIADAS" : state.generoAtual);
+            }
             if(state.isPlaying) PlayerEngine.play();
         },
         
@@ -725,7 +759,9 @@
             state.currentIndex = Math.floor(Math.random()*state.filteredPlaylist.length);
             state.historicoMusicasLive = [];
             PlayerEngine.atualizarTrackInfo(state.filteredPlaylist[0]);
-            PlayerEngine.atualizarVideo('LIVE');
+            if (!state.isMiguelVideoActive) {
+                PlayerEngine.atualizarVideo('LIVE');
+            }
             PlayerEngine.updateMarquee();
             mostrarNotificacao('🔴 Modo AO VIVO ativado!', 2000);
             if(state.isPlaying) PlayerEngine.play();
@@ -758,7 +794,9 @@
                     state.currentIndex = 0;
                     PlayerEngine.atualizarTrackInfo(music);
                     if(!state.isAoVivo) PlayerEngine.updateGenreBadge(music.genero);
-                    PlayerEngine.atualizarVideo(music.genero);
+                    if (!state.isMiguelVideoActive) {
+                        PlayerEngine.atualizarVideo(music.genero);
+                    }
                     PlayerEngine.play();
                     searchContainer.style.display = 'none';
                     mostrarNotificacao(`🔍 Tocando: ${music.title}`, 2500);
@@ -790,10 +828,19 @@
         // Forçar tela cheia
         try { document.documentElement.requestFullscreen(); } catch(e) { console.warn("Falha ao entrar em tela cheia", e); }
         
-        // INICIA EM MODO LIVE (ao vivo)
+        // INICIA EM MODO LIVE
         PlaylistManager.ativarModoAoVivo();
         
-        mostrarNotificacao(`✅ Rádio iniciada em modo LIVE!`, 3000);
+        // Configurar evento de clique no vídeo para abrir o site do Miguel
+        dom.videoContainer.addEventListener('click', () => {
+            if (state.isMiguelVideoActive) {
+                abrirSiteMiguel();
+            } else {
+                ativarVideoMiguel();
+            }
+        });
+        
+        mostrarNotificacao(`✅ Rádio iniciada! Clique no vídeo para ver institucional.`, 5000);
         PlayerEngine.play();
         showControls();
     }
@@ -840,16 +887,9 @@
         
         dom.shuffleBtn.addEventListener('click', () => {
             if(state.isAoVivo) { mostrarNotificacao('Modo AO VIVO - aleatório não disponível!', 2000); return; }
-            state.shuffleMode = !state.shuffleMode;
-            if(state.shuffleMode){
-                state.filteredPlaylist = shuffleArray(state.filteredPlaylist);
-                mostrarNotificacao('🔀 Aleatório ativado', 1500);
-            } else {
-                state.filteredPlaylist = PLAYLIST.filter(m=> m.genero === (state.generoAtual === 'MIX' ? 'VARIADAS' : state.generoAtual));
-                mostrarNotificacao('➡️ Sequencial', 1500);
-            }
+            state.filteredPlaylist = shuffleArray(state.filteredPlaylist);
             state.currentIndex = 0;
-            PlayerEngine.atualizarTrackInfo(state.filteredPlaylist[0]);
+            mostrarNotificacao('🔀 Aleatório ativado', 1500);
             if(state.isPlaying) PlayerEngine.play();
         });
         
@@ -969,6 +1009,11 @@
                 salvarStats();
             }
         }, 1000);
+        
+        // Iniciar o áudio de contexto (necessário para navegadores modernos)
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        state.audioContext = new AudioContext();
+        state.audioContext.resume();
     }
     
     init();
@@ -979,6 +1024,7 @@
     
     console.log('🚀 Rádio Patico IA pronta! Modo LIVE ativado!');
     console.log('🔵 Bluetooth disponível no menu!');
+    console.log('🎥 Vídeo Miguel: ao clicar no vídeo, ele toca por 30 segundos e abre o site!');
 </script>
 </body>
 </html>
