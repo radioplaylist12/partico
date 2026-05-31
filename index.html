@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Seus estilos permanecem IGUAIS, sem alterações aqui */
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
         :root { --bg-primary: #0a0a0f; --accent: #00f3ff; --secondary: #ff2d7f; }
         body { min-height: 100vh; background: var(--bg-primary); overflow: hidden; position: fixed; width: 100%; height: 100%; font-family: 'Rajdhani', sans-serif; }
@@ -35,7 +36,6 @@
         .track-info { margin-bottom: 4px; }
         .marquee-wrap { width: 100%; overflow: hidden; white-space: nowrap; }
         .marquee-text { display: inline-block; animation: marquee 40s linear infinite; color: #00f3ff; font-weight: 700; font-size: 1.3rem; letter-spacing: 1px; text-shadow: 0 0 3px rgba(0,243,255,0.5); }
-        .marquee-text img.logo-marquee { height: 1.8rem; vertical-align: middle; margin: 0 10px; background: white; padding: 4px 8px; border-radius: 20px; display: inline-block; }
         .bottom-controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(0, 243, 255, 0.3); padding: 10px 20px 20px; z-index: 20; transition: transform 0.3s ease, opacity 0.3s ease; border-radius: 24px 24px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
         .bottom-controls.hide-controls { transform: translateY(100%); opacity: 0; pointer-events: none; }
         .progress-area { margin-bottom: 10px; }
@@ -126,7 +126,7 @@
     <div class="info-area">
         <div class="track-info">
             <div class="marquee-wrap">
-                <span class="marquee-text" id="trackMarquee"></span>
+                <span class="marquee-text" id="trackMarquee">🎵 RÁDIO PATICO - LUIS GOMES RN | SERTANEJO • FORRÓ • BREGA • MPB | O MELHOR DA MÚSICA BRASILEIRA | 📻 24h NO AR | 💰 CHAVE PIX: 12988461978</span>
             </div>
         </div>
     </div>
@@ -306,6 +306,7 @@
         if (state.isMiguelVideoActive) return;
         
         const videoElement = document.getElementById('mainVideo');
+        const videoContainer = document.getElementById('videoContainer');
         
         // Salvar o vídeo atual antes de trocar
         const currentSrc = videoElement.src;
@@ -348,13 +349,6 @@
     function abrirSiteMiguel() {
         window.open(CONFIG.SITE_MIGUEL, '_blank');
         mostrarNotificacao("🌐 Abrindo site: Óticas São Miguel", 2000);
-    }
-    
-    // ==================== FUNÇÃO PARA ATUALIZAR O LETREIRO COM A LOGO ====================
-    function atualizarLetreiro(conteudo) {
-        const marqueeElement = document.getElementById('trackMarquee');
-        const logoHtml = `<img src="miguel.png" class="logo-marquee" alt="Óticas São Miguel">`;
-        marqueeElement.innerHTML = `${conteudo} ${logoHtml}`;
     }
     
     // ==================== BLUETOOTH ====================
@@ -547,8 +541,7 @@
         atualizarTrackInfo(track) {
             if (!track) return;
             const g = state.isAoVivo ? '🔴 LIVE' : track.genero;
-            const textoBase = `🎵 ${track.title} - ${track.artist} [${g}] | RÁDIO PATICO - LUIS GOMES RN | SERTANEJO • FORRÓ • BREGA • MPB | O MELHOR DA MÚSICA BRASILEIRA | 📻 24h NO AR | 💰 CHAVE PIX: 12988461978`;
-            atualizarLetreiro(textoBase);
+            dom.trackMarquee.innerHTML = `<span class="marquee-text">🎵 ${track.title} - ${track.artist} [${g}] | RÁDIO PATICO - LUIS GOMES RN | SERTANEJO • FORRÓ • BREGA • MPB | O MELHOR DA MÚSICA BRASILEIRA | 📻 24h NO AR | 💰 CHAVE PIX: 12988461978</span>`;
             dom.currentTimeEl.textContent = '0:00';
             dom.totalTimeEl.textContent = '0:00';
             dom.progressFill.style.width = '0%';
@@ -580,8 +573,8 @@
         updateMarquee() {
             const liked = state.userPreferences.likedSongs.length;
             const g = state.isAoVivo ? '🔴 AO VIVO' : (state.generoAtual === 'MIX' ? 'TODOS' : state.generoAtual);
-            const textoBase = `🎵 RÁDIO PATICO IA | MODO: ${g} | 👍 ${liked} curtidas | ⚡ IA APRENDENDO | 📻 24h | 💰 CONTATO: 12988461978`;
-            atualizarLetreiro(textoBase);
+            const msg = `🎵 RÁDIO PATICO IA | MODO: ${g} | 👍 ${liked} curtidas | ⚡ IA APRENDENDO | 📻 24h | 💰 CONTATO: 12988461978`;
+            dom.trackMarquee.innerHTML = `<span class="marquee-text">${msg}</span>`;
         },
         
         pause() {
@@ -847,10 +840,6 @@
             }
         });
         
-        // Atualizar letreiro inicial
-        const textoInicial = `🎵 RÁDIO PATICO - LUIS GOMES RN | SERTANEJO • FORRÓ • BREGA • MPB | O MELHOR DA MÚSICA BRASILEIRA | 📻 24h NO AR | 💰 CHAVE PIX: 12988461978`;
-        atualizarLetreiro(textoInicial);
-        
         mostrarNotificacao(`✅ Rádio iniciada! Clique no vídeo para ver institucional.`, 5000);
         PlayerEngine.play();
         showControls();
@@ -1036,7 +1025,6 @@
     console.log('🚀 Rádio Patico IA pronta! Modo LIVE ativado!');
     console.log('🔵 Bluetooth disponível no menu!');
     console.log('🎥 Vídeo Miguel: ao clicar no vídeo, ele toca por 30 segundos e abre o site!');
-    console.log('🖼️ Logo miguel.png no final do letreiro com fundo branco!');
 </script>
 </body>
 </html>
