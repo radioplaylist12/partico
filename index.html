@@ -15,102 +15,57 @@
         :root { --bg-primary: #0a0a0f; --accent: #00f3ff; --secondary: #ff2d7f; }
         body { min-height: 100vh; background: var(--bg-primary); overflow: hidden; position: fixed; width: 100%; height: 100%; font-family: 'Rajdhani', sans-serif; }
         
-        /* ESTILOS DAS DICAS - TODAS COM LETRAS BRANCAS */
-        .gesture-hand {
-            position: fixed;
-            z-index: 10002;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.8));
-        }
-        
-        .gesture-hand.show {
-            opacity: 1;
-            animation: handWave 0.8s ease-in-out infinite;
-        }
-        
-        .gesture-hand.swipe-left {
-            left: 70%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
-        
-        .gesture-hand.swipe-right {
-            left: 30%;
-            top: 50%;
-            transform: translate(-50%, -50%) scaleX(-1);
-        }
-        
-        .gesture-hand .hand-icon {
-            font-size: 3.5rem;
-            color: #00f3ff;
-            text-shadow: 0 0 20px #00f3ff;
-            display: block;
-        }
-        
-        .gesture-hand .arrow-icon {
-            font-size: 1.8rem;
-            color: #ff2d7f;
-            margin-left: 15px;
-            display: inline-block;
-            animation: arrowMove 0.5s ease-in-out infinite alternate;
-        }
-        
-        .gesture-hand .gesture-text {
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
-            padding: 6px 12px;
-            border-radius: 40px;
-            color: #FFFFFF !important;
-            font-size: 0.75rem;
-            font-weight: bold;
-            margin-top: 8px;
-            white-space: nowrap;
-            border: 1px solid #00f3ff;
-            text-shadow: 0 0 2px black;
-        }
-        
-        @keyframes handWave {
-            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-            25% { transform: translate(-50%, -50%) rotate(-15deg); }
-            75% { transform: translate(-50%, -50%) rotate(15deg); }
-        }
-        
-        @keyframes arrowMove {
-            0% { transform: translateX(0); opacity: 0.5; }
-            100% { transform: translateX(15px); opacity: 1; }
-        }
-        
-        /* Botão flutuante de gênero */
-        .genre-button {
-            position: fixed;
-            bottom: 160px;
-            right: 16px;
-            width: 44px;
-            height: 44px;
+        /* BOTÃO ATIVAR ÁUDIO MELHORADO */
+        #splashStartBtn {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
             background: linear-gradient(135deg, #00f3ff, #ff2d7f);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 27;
-            border: none;
-            box-shadow: 0 0 12px rgba(0, 243, 255, 0.7);
-            transition: 0.1s, opacity 0.3s ease, transform 0.3s ease;
-        }
-        
-        .genre-button:active {
-            transform: scale(0.9);
-        }
-        
-        .genre-button i {
-            font-size: 1.2rem;
             color: #000;
+            padding: 16px 40px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            border: none;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.8), 0 0 15px rgba(255, 45, 127, 0.5);
+            transition: all 0.3s ease;
+            letter-spacing: 2px;
+            animation: btnPulse 1.5s infinite;
         }
         
-        /* Dica flutuante para o botão de gênero - TEXTO BRANCO */
+        @keyframes btnPulse {
+            0% { transform: translateX(-50%) scale(1); box-shadow: 0 0 20px rgba(0, 243, 255, 0.6); }
+            50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 40px rgba(0, 243, 255, 1), 0 0 20px rgba(255, 45, 127, 0.8); }
+            100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 20px rgba(0, 243, 255, 0.6); }
+        }
+        
+        #splashStartBtn:active {
+            transform: translateX(-50%) scale(0.96);
+        }
+        
+        #skipAdBtn {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            color: #00f3ff;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border: 1px solid #00f3ff;
+            cursor: pointer;
+            z-index: 100;
+            transition: 0.2s;
+        }
+        
+        /* Dica flutuante para o botão de gênero */
         .genre-tip {
             position: fixed;
             bottom: 215px;
@@ -146,55 +101,7 @@
             color: #00f3ff;
         }
         
-        /* Dica de arraste para trocar música - TEXTO BRANCO */
-        .swipe-tip {
-            position: fixed;
-            bottom: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(16px);
-            padding: 12px 25px;
-            border-radius: 50px;
-            color: #FFFFFF !important;
-            z-index: 10003;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            border: 2px solid #00f3ff;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.5);
-            text-align: center;
-            white-space: nowrap;
-            text-shadow: 0 0 2px black;
-        }
-        
-        .swipe-tip.show {
-            opacity: 1;
-            animation: tipPulse 0.5s ease-out;
-        }
-        
-        .swipe-tip i {
-            font-size: 1.3rem;
-            margin: 0 8px;
-            color: #00f3ff;
-        }
-        
-        .swipe-tip .fa-arrow-left {
-            color: #ff2d7f;
-        }
-        
-        .swipe-tip .fa-arrow-right {
-            color: #00f3ff;
-        }
-        
-        .swipe-tip span {
-            margin: 0 10px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            color: #FFFFFF;
-        }
-        
-        /* Overlay de tutorial inicial - TEXTO BRANCO */
+        /* Overlay de tutorial inicial simplificado */
         .tutorial-overlay {
             position: fixed;
             top: 0;
@@ -240,64 +147,69 @@
             font-size: 1.1rem;
         }
         
-        .tutorial-card .tutorial-swipe {
-            background: rgba(0, 243, 255, 0.15);
-            border-radius: 15px;
-            padding: 12px;
-            margin: 12px 0;
-        }
-        
-        .tutorial-card .tutorial-swipe i {
-            font-size: 1.8rem;
-            margin: 0 12px;
-        }
-        
-        .tutorial-card .fa-arrow-left { color: #ff2d7f; }
-        .tutorial-card .fa-arrow-right { color: #00f3ff; }
-        .tutorial-card .fa-hand-peace { color: #00f3ff; }
-        
-        .tutorial-card .tutorial-swipe p {
-            color: #FFFFFF;
-            font-size: 0.8rem;
-            margin-top: 8px;
-            font-weight: bold;
-        }
-        
         .tutorial-card .tutorial-genre {
             background: linear-gradient(135deg, #00f3ff, #ff2d7f);
-            width: 45px;
-            height: 45px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin: 10px 0;
+            margin: 15px 0;
         }
         
         .tutorial-card .tutorial-genre i {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             color: #000;
         }
         
         .tutorial-card p {
-            font-size: 0.75rem;
-            margin: 8px 0;
+            font-size: 0.8rem;
+            margin: 10px 0;
             color: #FFFFFF;
         }
         
         .tutorial-card button {
             background: linear-gradient(135deg, #00f3ff, #ff2d7f);
             border: none;
-            padding: 8px 25px;
+            padding: 10px 30px;
             border-radius: 40px;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             cursor: pointer;
             margin-top: 12px;
             color: #000;
         }
         
-        /* NOVOS ESTILOS - Histórico, Status, Modo Noturno */
+        /* Botão flutuante de gênero */
+        .genre-button {
+            position: fixed;
+            bottom: 160px;
+            right: 16px;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #00f3ff, #ff2d7f);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 27;
+            border: none;
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.7);
+            transition: 0.1s, opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .genre-button:active {
+            transform: scale(0.9);
+        }
+        
+        .genre-button i {
+            font-size: 1.3rem;
+            color: #000;
+        }
+        
+        /* Histórico e prévia */
         .history-panel {
             position: fixed;
             bottom: 220px;
@@ -339,7 +251,7 @@
         .next-song-preview {
             position: fixed;
             bottom: 220px;
-            right: 16px;
+            right: 80px;
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(12px);
             border-radius: 16px;
@@ -371,11 +283,10 @@
             text-overflow: ellipsis;
         }
         
-        /* Status de rede */
-        .network-status {
+        /* Status de rede e bateria */
+        .network-status, .battery-status {
             position: fixed;
             top: 70px;
-            right: 16px;
             background: rgba(0,0,0,0.7);
             backdrop-filter: blur(8px);
             padding: 4px 10px;
@@ -388,38 +299,18 @@
             gap: 5px;
         }
         
-        .network-status.offline {
-            color: #ff2d7f;
-        }
+        .network-status { right: 16px; }
+        .battery-status { left: 16px; }
         
-        /* Bateria */
-        .battery-status {
-            position: fixed;
-            top: 70px;
-            left: 16px;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.6rem;
-            z-index: 31;
-            color: #00f3ff;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .battery-status.low {
-            color: #ffaa00;
-            animation: batteryWarning 1s infinite;
-        }
+        .network-status.offline { color: #ff2d7f; }
+        .battery-status.low { color: #ffaa00; animation: batteryWarning 1s infinite; }
         
         @keyframes batteryWarning {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
         
-        /* Modo noturno automático */
+        /* Modo noturno */
         body.night-mode .genre-button {
             box-shadow: 0 0 8px rgba(0, 243, 255, 0.4);
         }
@@ -428,55 +319,12 @@
             background: rgba(0, 0, 0, 0.8);
         }
         
-        /* Indicador de carregamento melhorado */
-        .loading-indicator {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
-            padding: 12px 24px;
-            border-radius: 50px;
-            z-index: 10005;
-            display: none;
-            align-items: center;
-            gap: 12px;
-            color: white;
-            border: 1px solid #00f3ff;
-        }
-        
-        .loading-indicator.show {
-            display: flex;
-        }
-        
-        /* Efeito de duplo toque */
-        .double-tap-toast {
-            position: fixed;
-            bottom: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
-            padding: 8px 16px;
-            border-radius: 40px;
-            color: #00f3ff;
-            font-size: 0.7rem;
-            z-index: 10006;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        
-        .double-tap-toast.show {
-            opacity: 1;
-        }
-        
         /* Resto dos estilos originais */
         #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), visibility 0.8s; overflow: hidden; }
         #splash-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
         .splash-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2; display: flex; align-items: center; justify-content: center; flex-direction: column; }
         .splash-content { text-align: center; z-index: 3; animation: fadeInUp 1s ease-out; }
-        .splash-content h1 { font-family: 'Orbitron', monospace; font-size: 2.5rem; letter-spacing: 4px; background: linear-gradient(135deg, #fff, #00f3ff, #ff2d7f); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 20px rgba(0, 243, 255, 0.5); margin-bottom: 15px; animation: glitch 3s infinite; }
+        .splash-content h1 { font-family: 'Orbitron', monospace; font-size: 3rem; letter-spacing: 6px; background: linear-gradient(135deg, #fff, #00f3ff, #ff2d7f); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 20px rgba(0, 243, 255, 0.5); margin-bottom: 15px; animation: glitch 3s infinite; }
         
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes glitch { 0%, 100% { text-shadow: 2px 0 #ff2d7f, -2px 0 #00f3ff; } 25% { text-shadow: -2px 0 #ff2d7f, 2px 0 #00f3ff; } 50% { text-shadow: 2px 2px #ff2d7f, -2px -2px #00f3ff; } 75% { text-shadow: -2px -2px #ff2d7f, 2px 2px #00f3ff; } }
@@ -556,7 +404,7 @@
         <div class="splash-content">
             <h1>RÁDIO PATICO</h1>
         </div>
-        <button id="splashStartBtn">▶ ATIVAR</button>
+        <button id="splashStartBtn"><i class="fas fa-play"></i> ▶ ATIVAR RÁDIO</button>
         <button id="skipAdBtn">⏩ PULAR</button>
     </div>
 </div>
@@ -569,7 +417,7 @@
         </video>
     </div>
     
-    <!-- NOVOS ELEMENTOS -->
+    <!-- Painéis informativos -->
     <div class="network-status" id="networkStatus">
         <i class="fas fa-wifi"></i>
         <span id="networkText">Online</span>
@@ -642,46 +490,20 @@
 
 <div id="notificationTop" class="notification-top"></div>
 <div class="loading-spinner" id="loadingSpinner"><i class="fas fa-circle-notch fa-spin"></i><span>Carregando...</span></div>
-<div class="loading-indicator" id="loadingIndicator"><i class="fas fa-circle-notch fa-spin"></i><span>Carregando música...</span></div>
-<div class="double-tap-toast" id="doubleTapToast">🔇 Áudio silenciado</div>
 
-<!-- ELEMENTOS DE TUTORIAL E DICAS -->
-<div class="gesture-hand swipe-left" id="gestureHandLeft">
-    <i class="fas fa-hand-peace hand-icon"></i>
-    <i class="fas fa-arrow-left arrow-icon"></i>
-    <div class="gesture-text">← ARRASTE PARA TROCAR →</div>
-</div>
-
-<div class="gesture-hand swipe-right" id="gestureHandRight">
-    <i class="fas fa-hand-peace hand-icon"></i>
-    <i class="fas fa-arrow-right arrow-icon"></i>
-    <div class="gesture-text">← ARRASTE PARA TROCAR →</div>
-</div>
-
+<!-- Dicas simplificadas -->
 <div class="genre-tip" id="genreTip">
     <i class="fas fa-fingerprint"></i> TOQUE AQUI PARA TROCAR GÊNERO
-</div>
-
-<div class="swipe-tip" id="swipeTip">
-    <i class="fas fa-arrow-left"></i>
-    <span>ARRASTE PARA TROCAR MÚSICA</span>
-    <i class="fas fa-arrow-right"></i>
 </div>
 
 <div class="tutorial-overlay" id="tutorialOverlay">
     <div class="tutorial-card">
         <h3><i class="fas fa-magic"></i> DICAS RÁPIDAS</h3>
-        <div class="tutorial-swipe">
-            <i class="fas fa-arrow-left"></i>
-            <i class="fas fa-hand-peace"></i>
-            <i class="fas fa-arrow-right"></i>
-            <p>← ARRASTE PARA TROCAR MÚSICA →</p>
-        </div>
         <div class="tutorial-genre">
             <i class="fas fa-music"></i>
         </div>
         <p>TOQUE NO BOTÃO FLUTUANTE PARA TROCAR O ESTILO MUSICAL</p>
-        <p><i class="fas fa-tap"></i> DUPLO TOQUE NO VÍDEO = SILENCIAR/ATIVAR</p>
+        <p><i class="fas fa-headphones"></i> DÊ LIKE/DISLIKE PARA A IA APRENDER</p>
         <button id="closeTutorialBtn">ENTENDI! 🚀</button>
     </div>
 </div>
@@ -689,7 +511,7 @@
 <!-- MODAIS -->
 <div class="ai-modal" id="aiModal"><h3><i class="fas fa-brain"></i> IA</h3><div>Curtidas: <span id="aiLikedCount">0</span></div><div>Não curtidas: <span id="aiDislikedCount">0</span></div><div>Gênero fav: <span id="aiTopGenre">-</span></div><div id="aiTopSongs"></div><button class="close-ai" id="closeAiBtn">Fechar</button></div>
 <div class="stats-modal" id="statsModal"><h3>📊 Estatísticas</h3><div>Músicas ouvidas: <span id="statTotalPlayed">0</span></div><div>Tempo total: <span id="statTotalTime">0h 0m</span></div><div>Gênero fav: <span id="statTopGenre">-</span></div><div>Sequência: <span id="statStreak">0</span></div><button class="close-stats" id="closeStatsBtn">Fechar</button></div>
-<div class="manual-modal" id="manualModal"><h3>📘 Manual</h3><p>✔️ Like/dislike para IA<br>✔️ Selecione gêneros<br>✔️ Busque músicas<br>✔️ Bluetooth conecta<br>✔️ Duplo toque no vídeo = silenciar</p><button id="closeManualBtn" class="close-manual-btn">Fechar</button></div>
+<div class="manual-modal" id="manualModal"><h3>📘 Manual</h3><p>✔️ Like/dislike para IA<br>✔️ Selecione gêneros<br>✔️ Busque músicas<br>✔️ Bluetooth conecta</p><button id="closeManualBtn" class="close-manual-btn">Fechar</button></div>
 <div class="genres-modal" id="genresModal"><h3>🎧 ESTILOS</h3><div class="genres-grid">
     <div class="genre-card" data-genero="SERTANEJO"><i class="fas fa-guitar"></i><span>SERTANEJO</span></div>
     <div class="genre-card" data-genero="FORRÓ"><i class="fas fa-drum"></i><span>FORRÓ</span></div>
@@ -751,46 +573,12 @@
         progressInterval: null,
         controlsTimer: null,
         lastClickTime: 0,
-        lastTapTime: 0,
         isMiguelVideoActive: false,
         miguelVideoTimeout: null,
         isNightMode: false
     };
 
-    // ==================== FUNÇÕES DE TUTORIAL E DICAS ====================
-    function showGestureHand() {
-        const leftHand = document.getElementById('gestureHandLeft');
-        const rightHand = document.getElementById('gestureHandRight');
-        const swipeTip = document.getElementById('swipeTip');
-        const genreTip = document.getElementById('genreTip');
-        
-        leftHand.classList.add('show');
-        rightHand.classList.add('show');
-        swipeTip.classList.add('show');
-        genreTip.classList.add('show');
-        
-        setTimeout(() => {
-            leftHand.classList.remove('show');
-            rightHand.classList.remove('show');
-            swipeTip.classList.remove('show');
-            genreTip.classList.remove('show');
-        }, 5000);
-    }
-    
-    function startPeriodicGesture() {
-        setTimeout(() => {
-            if (radioStarted) {
-                showGestureHand();
-            }
-        }, 3000);
-        
-        setInterval(() => {
-            if (radioStarted && state.isPlaying && !document.hidden) {
-                showGestureHand();
-            }
-        }, 300000);
-    }
-    
+    // ==================== FUNÇÕES ====================
     function showTutorial() {
         const tutorial = document.getElementById('tutorialOverlay');
         tutorial.classList.add('show');
@@ -799,10 +587,7 @@
             tutorial.classList.remove('show');
         });
     }
-
-    // ==================== NOVAS FUNÇÕES ====================
     
-    // Salvar gênero preferido
     function salvarGeneroPreferido(genero) {
         localStorage.setItem('radio_patico_last_genre', genero);
         state.userPreferences.savedGenre = genero;
@@ -817,7 +602,6 @@
         return 'LIVE';
     }
     
-    // Atualizar histórico
     function adicionarAoHistorico(musica) {
         if (!musica) return;
         state.historicoReproduzidas.unshift({ title: musica.title, artist: musica.artist, genero: musica.genero });
@@ -904,14 +688,6 @@
                     else if (level >= 40) icon.className = 'fas fa-battery-half';
                     else if (level >= 15) icon.className = 'fas fa-battery-quarter';
                     else icon.className = 'fas fa-battery-empty';
-                    
-                    // Economia de bateria
-                    if (level <= 20 && state.isPlaying) {
-                        // Reduzir qualidade visual se necessário
-                        document.body.style.opacity = '0.98';
-                    } else {
-                        document.body.style.opacity = '1';
-                    }
                 }
                 
                 updateBattery();
@@ -949,38 +725,7 @@
         }
     }
     
-    // Duplo toque para silenciar
-    let lastTapTime = 0;
-    function setupDoubleTapMute() {
-        const videoContainer = document.getElementById('videoContainer');
-        const toast = document.getElementById('doubleTapToast');
-        
-        videoContainer.addEventListener('click', (e) => {
-            const now = Date.now();
-            const timeSince = now - lastTapTime;
-            
-            if (timeSince < 300 && timeSince > 0) {
-                // Duplo toque detectado
-                if (state.isMuted) {
-                    dom.musicPlayer.volume = state.previousVolume;
-                    state.isMuted = false;
-                    toast.innerHTML = '🔊 Áudio ativado';
-                } else {
-                    state.previousVolume = dom.musicPlayer.volume;
-                    dom.musicPlayer.volume = 0;
-                    state.isMuted = true;
-                    toast.innerHTML = '🔇 Áudio silenciado';
-                }
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 1500);
-                lastTapTime = 0;
-                return;
-            }
-            lastTapTime = now;
-        });
-    }
-    
-    // Forçar tela cheia permanente
+    // Forçar tela cheia
     function forcarTelaCheia() {
         const docEl = document.documentElement;
         if (!document.fullscreenElement) {
@@ -993,7 +738,7 @@
         if (radioStarted && !document.fullscreenElement) {
             forcarTelaCheia();
         }
-    }, 5000);
+    }, 3000);
     
     // ==================== FUNÇÕES AUXILIARES ====================
     function mostrarNotificacao(msg, dur=1500) {
@@ -1211,8 +956,6 @@
             
             state.isLoadingTrack = true;
             dom.loadingSpinner.classList.add('show');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            loadingIndicator.classList.add('show');
             dom.musicPlayer.pause();
             dom.musicPlayer.src = track.src;
             dom.musicPlayer.load();
@@ -1229,7 +972,6 @@
                 let timeout = setTimeout(() => {
                     if (!musicLoaded) {
                         dom.loadingSpinner.classList.remove('show');
-                        loadingIndicator.classList.remove('show');
                         state.isLoadingTrack = false;
                         this.next();
                         resolve(false);
@@ -1241,7 +983,6 @@
                     musicLoaded = true;
                     clearTimeout(timeout);
                     dom.loadingSpinner.classList.remove('show');
-                    loadingIndicator.classList.remove('show');
                     state.isLoadingTrack = false;
                     try {
                         if (state.audioContext && state.audioContext.state === 'suspended') {
@@ -1270,7 +1011,6 @@
                     } catch(e) {
                         clearTimeout(timeout);
                         dom.loadingSpinner.classList.remove('show');
-                        loadingIndicator.classList.remove('show');
                         state.isLoadingTrack = false;
                         state.isPlaying = false;
                         dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
@@ -1283,7 +1023,6 @@
                     musicLoaded = true;
                     clearTimeout(timeout);
                     dom.loadingSpinner.classList.remove('show');
-                    loadingIndicator.classList.remove('show');
                     state.isLoadingTrack = false;
                     setTimeout(() => this.next(), 500);
                     resolve(false);
@@ -1616,9 +1355,6 @@
             }
         });
         
-        startPeriodicGesture();
-        setupDoubleTapMute();
-        
         setTimeout(() => {
             showTutorial();
         }, 2000);
@@ -1626,13 +1362,6 @@
         mostrarNotificacao(`✅ Rádio iniciada - Tela cheia ativa`, 2500);
         PlayerEngine.play();
         showControls();
-        
-        // Monitorar tela cheia
-        setInterval(() => {
-            if (!document.fullscreenElement) {
-                forcarTelaCheia();
-            }
-        }, 3000);
     }
 
     async function tocarAnuncioEDepoisRadio() {
@@ -1822,11 +1551,9 @@
     }
     
     console.log('🚀 Rádio Patico IA pronta!');
-    console.log('✋ Dicas com texto BRANCO para melhor visualização!');
     console.log('🔋 Monitor de bateria ativo');
     console.log('🌐 Status de rede ativo');
     console.log('📜 Histórico e prévia da próxima música');
-    console.log('🔇 Duplo toque no vídeo = silenciar');
     console.log('🌙 Modo noturno automático');
     console.log('📱 Tela cheia permanente');
 </script>
