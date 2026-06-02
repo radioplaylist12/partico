@@ -209,7 +209,6 @@
         isLoadingTrack: false,
         isTvMode: false,
         shuffleMode: false,
-        isTransitioning: false, // NOVO: evita múltiplas chamadas de next
         userPreferences: { likedSongs: [], dislikedSongs: [], songPlays: {}, songComplete: {}, genrePreference: {}, lastPlayed: null },
         stats: { totalPlayed: 0, totalSeconds: 0, genreCount: {}, currentStreak: 0 },
         audioContext: null,
@@ -322,14 +321,13 @@
         formatTime(sec) { if (isNaN(sec)) return '0:00'; const m = Math.floor(sec/60); const s = Math.floor(sec%60); return `${m}:${s<10?'0':''}${s}`; },
         
         async play() {
-            if (state.isLoadingTrack || state.tocandoVinheta || state.isTransitioning) return;
+            if (state.isLoadingTrack || state.tocandoVinheta) return false;
             
             if (!state.filteredPlaylist.length) { 
                 mostrarNotificacao("Nenhuma música disponível", 2000); 
                 return false; 
             }
             
-            // Garantir que o índice seja válido
             if (state.currentIndex >= state.filteredPlaylist.length) {
                 state.currentIndex = 0;
             }
@@ -344,7 +342,6 @@
             state.isLoadingTrack = true;
             dom.loadingSpinner.classList.add('show');
             
-            // Limpar evento anterior para evitar duplicidade
             dom.musicPlayer.onended = null;
             dom.musicPlayer.pause();
             dom.musicPlayer.src = track.src;
@@ -360,12 +357,10 @@
                         dom.loadingSpinner.classList.remove('show');
                         state.isLoadingTrack = false;
                         mostrarNotificacao(`Timeout: ${track.title}`, 2000);
-                        state.isTransitioning = true;
                         this.next();
-                        setTimeout(() => { state.isTransitioning = false; }, 1000);
                         resolve(false);
                     }
-                }, 15000); // Aumentado para 15 segundos
+                }, 15000);
                 
                 dom.musicPlayer.oncanplaythrough = async () => {
                     clearTimeout(timeout);
@@ -382,16 +377,11 @@
                         dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                         this.startProgressTimer();
                         
-                        // Configurar evento de término
                         dom.musicPlayer.onended = () => {
-                            console.log("Música terminou, chamando next");
-                            if (!state.tocandoVinheta && !state.isTransitioning) {
-                                state.isTransitioning = true;
-                                this.handleTrackEnd();
-                            }
+                            console.log("Música terminou");
+                            this.handleTrackEnd();
                         };
                         
-                        // Registrar estatísticas
                         if (!state.stats.genreCount[track.genero]) state.stats.genreCount[track.genero] = 0;
                         state.stats.genreCount[track.genero]++;
                         state.stats.currentStreak++;
@@ -420,18 +410,13 @@
                     state.isLoadingTrack = false;
                     dom.loadingSpinner.classList.remove('show');
                     mostrarNotificacao(`Erro: ${track.title}`, 2000);
-                    state.isTransitioning = true;
-                    setTimeout(() => {
-                        this.next();
-                        setTimeout(() => { state.isTransitioning = false; }, 1000);
-                    }, 500);
+                    setTimeout(() => this.next(), 500);
                     resolve(false);
                 };
             });
         },
         
         handleTrackEnd() {
-            console.log("handleTrackEnd chamado");
             state.contadorMusicasVinheta++;
             
             const tocarVinheta = !state.isAoVivo && state.contadorMusicasVinheta >= CONFIG.INTERVALO_VINHETA_MUSICAS;
@@ -440,16 +425,11 @@
                 console.log("Tocando vinheta");
                 this.tocarVinheta().then(() => {
                     state.contadorMusicasVinheta = 0;
-                    state.isTransitioning = false;
-                    this.next();
-                }).catch(() => {
-                    state.isTransitioning = false;
                     this.next();
                 });
             } else {
                 console.log("Próxima música direto");
                 this.next();
-                setTimeout(() => { state.isTransitioning = false; }, 500);
             }
         },
         
@@ -467,12 +447,20 @@
         },
         
         async next() {
-            if (state.isLoadingTrack || state.tocandoVinheta || state.isTransitioning) {
-                console.log("Next bloqueado:", {isLoadingTrack: state.isLoadingTrack, tocandoVinheta: state.tocandoVinheta, isTransitioning: state.isTransitioning});
+            // Remove locks que podem travar o botão
+            if (state.isLoadingTrack) {
+                console.log("Aguardando fim do loading...");
+                mostrarNotificacao("Carregando música, aguarde...", 1000);
                 return;
             }
             
-            state.isTransitioning = true;
+            if (state.tocandoVinheta) {
+                console.log("Vinheta tocando...");
+                mostrarNotificacao("Vinheta em execução...", 1000);
+                return;
+            }
+            
+            console.log("Próxima música solicitada");
             
             if (state.progressInterval) {
                 clearInterval(state.progressInterval);
@@ -485,7 +473,6 @@
                     state.filteredPlaylist = [proxima, ...state.filteredPlaylist.filter(m => m.id !== proxima.id)];
                     state.currentIndex = 0;
                 } else {
-                    // Recarregar playlist ao vivo
                     let novas = PLAYLIST.filter(m => m.tipo === "ao vivo");
                     if (!novas.length) novas = shuffleArray([...PLAYLIST]);
                     state.filteredPlaylist = shuffleArray(novas);
@@ -496,7 +483,6 @@
                 let nextIndex = state.currentIndex + 1;
                 if (nextIndex >= state.filteredPlaylist.length) {
                     nextIndex = 0;
-                    // Se acabou a playlist, recarregar com base no gênero atual
                     if (state.generoAtual === "MIX") {
                         state.filteredPlaylist = shuffleArray([...PLAYLIST]);
                     } else {
@@ -510,7 +496,6 @@
             }
             
             await this.play();
-            setTimeout(() => { state.isTransitioning = false; }, 500);
         },
         
         getNextLiveMusic() {
@@ -523,9 +508,16 @@
         },
         
         async prev() {
-            if (state.isLoadingTrack || state.skipLock || state.tocandoVinheta || state.isTransitioning) return;
+            if (state.isLoadingTrack) {
+                mostrarNotificacao("Carregando música, aguarde...", 1000);
+                return;
+            }
             
-            state.isTransitioning = true;
+            if (state.tocandoVinheta) {
+                mostrarNotificacao("Vinheta em execução...", 1000);
+                return;
+            }
+            
             if (state.progressInterval) clearInterval(state.progressInterval);
             
             let prevIndex = state.currentIndex - 1;
@@ -533,7 +525,6 @@
             state.currentIndex = prevIndex;
             
             await this.play();
-            setTimeout(() => { state.isTransitioning = false; }, 500);
         },
         
         startProgressTimer() {
@@ -566,7 +557,11 @@
                 vinAudio.play().catch(e => {
                     console.warn("Erro ao tocar vinheta:", e);
                     state.tocandoVinheta = false;
-                    resolve();
+                    if (wasPlaying) {
+                        this.play().then(() => resolve());
+                    } else {
+                        resolve();
+                    }
                 });
                 
                 vinAudio.onended = () => {
@@ -632,9 +627,7 @@
     }
     
     function atualizarVideo(genero) {
-        if (state.isTvMode) {
-            return;
-        }
+        if (state.isTvMode) return;
         let file = CONFIG.VIDEO_POR_GENERO[genero] || CONFIG.VIDEO_POR_GENERO.DEFAULT;
         if (state.isAoVivo) file = CONFIG.VIDEO_POR_GENERO.LIVE;
         if (dom.mainVideo.src.endsWith(file)) return;
@@ -928,7 +921,6 @@
         dom.tapToStart.style.display = 'block';
         setupEventListeners();
         
-        // Timer para estatísticas
         setInterval(() => {
             if (state.isPlaying && !dom.musicPlayer.paused && dom.musicPlayer.currentTime > 0) {
                 state.stats.totalSeconds++;
