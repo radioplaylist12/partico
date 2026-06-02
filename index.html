@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Rádio Patico IA - LUIS GOMES RN</title>
+    <!-- Ícones - certifique-se de que o arquivo falcon.png está na raiz do servidor -->
     <link rel="icon" type="image/png" href="falcon.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="falcon.png">
@@ -11,10 +12,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* (mesmo CSS do código anterior, sem alterações) */
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
         :root { --bg-primary: #0a0a0f; --accent: #00f3ff; --secondary: #ff2d7f; }
         body { min-height: 100vh; background: var(--bg-primary); overflow: hidden; position: fixed; width: 100%; height: 100%; font-family: 'Rajdhani', sans-serif; }
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, #0a0a0f, #000000); display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), visibility 0.8s; overflow: hidden; }
+        /* SPLASH */ #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, #0a0a0f, #000000); display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), visibility 0.8s; overflow: hidden; }
         #splash::before { content: ""; position: absolute; width: 200%; height: 200%; background-image: linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px); background-size: 40px 40px; animation: gridMove 20s linear infinite; pointer-events: none; }
         @keyframes gridMove { 0% { transform: translate(0, 0); } 100% { transform: translate(40px, 40px); } }
         .splash-content { text-align: center; z-index: 2; animation: fadeInUp 1s ease-out; }
@@ -107,7 +109,7 @@
 </div>
 <div id="tap-to-start"><i class="fas fa-play-circle"></i> ATIVAR RÁDIO</div>
 <div class="app" id="appRoot">
-    <div class="fullscreen-video-container"><video id="mainVideo" autoplay loop muted playsinline><source src="pak1.mp4" type="video/mp4"></video></div>
+    <div class="fullscreen-video-container"><video id="mainVideo" autoplay loop muted playsinline><source src="pailogo.mp4" type="video/mp4"></video></div>
     
     <div class="info-area">
         <div class="track-info"><div class="marquee-wrap"><span class="marquee-text" id="trackMarquee">🎵 Rádio Patico IA - Modo Futurista</span></div></div>
@@ -185,10 +187,10 @@
         INTERVALO_VINHETA_MUSICAS: 3,
         VINHETAS: ['radiopm.mp3', 'Paticom.mp3', 'Paticom.mp3', 'zzvc.mp3'],
         VIDEO_POR_GENERO: {
-            SERTANEJO: 'pak1.mp4', FORRÓ: 'pak1.mp4', 'FORRÓ ANTIGO': 'pak1.mp4',
-            BREGA: 'brga181.mp4', POP: 'pak1.mp4', MPB: 'pak1.mp4', SAMBA: 'samba181.mp4',
-            VARIADAS: 'pak1.mp4', 'MODA TOP': 'pak1.mp4', 'AS++': 'pak1.mp4',
-            LIVE: 'pak1.mp4', DEFAULT: 'pak1.mp4'
+            SERTANEJO: 'sertanejo181.mp4', FORRÓ: 'forro181.mp4', 'FORRÓ ANTIGO': 'forroant181.mp4',
+            BREGA: 'brga181.mp4', POP: 'pop181.mp4', MPB: 'mpb181.mp4', SAMBA: 'samba181.mp4',
+            VARIADAS: 'variadas.mp4', 'MODA TOP': 'modatop181.mp4', 'AS++': 'pailogo.mp4',
+            LIVE: 'pailog.mp4', DEFAULT: 'pailogo.mp4'
         },
         PLAYLIST_URL: 'https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json',
     };
@@ -209,7 +211,6 @@
         isLoadingTrack: false,
         isTvMode: false,
         shuffleMode: false,
-        isTransitioning: false, // NOVO: evita múltiplas chamadas de next
         userPreferences: { likedSongs: [], dislikedSongs: [], songPlays: {}, songComplete: {}, genrePreference: {}, lastPlayed: null },
         stats: { totalPlayed: 0, totalSeconds: 0, genreCount: {}, currentStreak: 0 },
         audioContext: null,
@@ -322,30 +323,16 @@
         formatTime(sec) { if (isNaN(sec)) return '0:00'; const m = Math.floor(sec/60); const s = Math.floor(sec%60); return `${m}:${s<10?'0':''}${s}`; },
         
         async play() {
-            if (state.isLoadingTrack || state.tocandoVinheta || state.isTransitioning) return;
-            
-            if (!state.filteredPlaylist.length) { 
-                mostrarNotificacao("Nenhuma música disponível", 2000); 
-                return false; 
-            }
-            
-            // Garantir que o índice seja válido
-            if (state.currentIndex >= state.filteredPlaylist.length) {
-                state.currentIndex = 0;
-            }
-            
+            if (state.isLoadingTrack || state.tocandoVinheta) return;
+            if (!state.filteredPlaylist.length) { mostrarNotificacao("Nenhuma música disponível", 2000); return false; }
             const track = state.filteredPlaylist[state.currentIndex];
             if (!track || !track.src) { 
                 mostrarNotificacao("Música inválida, pulando...", 1500);
                 this.next();
                 return false;
             }
-            
             state.isLoadingTrack = true;
             dom.loadingSpinner.classList.add('show');
-            
-            // Limpar evento anterior para evitar duplicidade
-            dom.musicPlayer.onended = null;
             dom.musicPlayer.pause();
             dom.musicPlayer.src = track.src;
             dom.musicPlayer.load();
@@ -356,42 +343,27 @@
             
             return new Promise((resolve) => {
                 let timeout = setTimeout(() => {
-                    if (state.isLoadingTrack) {
-                        dom.loadingSpinner.classList.remove('show');
-                        state.isLoadingTrack = false;
-                        mostrarNotificacao(`Timeout: ${track.title}`, 2000);
-                        state.isTransitioning = true;
-                        this.next();
-                        setTimeout(() => { state.isTransitioning = false; }, 1000);
-                        resolve(false);
-                    }
-                }, 15000); // Aumentado para 15 segundos
+                    dom.loadingSpinner.classList.remove('show');
+                    state.isLoadingTrack = false;
+                    mostrarNotificacao(`Timeout: ${track.title}`, 2000);
+                    this.next();
+                    resolve(false);
+                }, 10000);
                 
                 dom.musicPlayer.oncanplaythrough = async () => {
                     clearTimeout(timeout);
-                    
+                    dom.loadingSpinner.classList.remove('show');
+                    state.isLoadingTrack = false;
                     try {
                         if (state.audioContext && state.audioContext.state === 'suspended') {
                             await state.audioContext.resume();
                         }
                         await dom.musicPlayer.play();
-                        
                         state.isPlaying = true;
-                        state.isLoadingTrack = false;
-                        dom.loadingSpinner.classList.remove('show');
                         dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                         this.startProgressTimer();
                         
-                        // Configurar evento de término
-                        dom.musicPlayer.onended = () => {
-                            console.log("Música terminou, chamando next");
-                            if (!state.tocandoVinheta && !state.isTransitioning) {
-                                state.isTransitioning = true;
-                                this.handleTrackEnd();
-                            }
-                        };
-                        
-                        // Registrar estatísticas
+                        state.stats.totalPlayed++;
                         if (!state.stats.genreCount[track.genero]) state.stats.genreCount[track.genero] = 0;
                         state.stats.genreCount[track.genero]++;
                         state.stats.currentStreak++;
@@ -405,52 +377,23 @@
                         resolve(true);
                     } catch(e) {
                         clearTimeout(timeout);
-                        state.isLoadingTrack = false;
                         dom.loadingSpinner.classList.remove('show');
+                        state.isLoadingTrack = false;
                         state.isPlaying = false;
                         dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                        console.error("Erro ao tocar:", e);
-                        mostrarNotificacao(`Erro ao tocar música`, 2000);
+                        console.error(e);
                         resolve(false);
                     }
                 };
-                
                 dom.musicPlayer.onerror = () => {
                     clearTimeout(timeout);
-                    state.isLoadingTrack = false;
                     dom.loadingSpinner.classList.remove('show');
+                    state.isLoadingTrack = false;
                     mostrarNotificacao(`Erro: ${track.title}`, 2000);
-                    state.isTransitioning = true;
-                    setTimeout(() => {
-                        this.next();
-                        setTimeout(() => { state.isTransitioning = false; }, 1000);
-                    }, 500);
+                    setTimeout(() => this.next(), 500);
                     resolve(false);
                 };
             });
-        },
-        
-        handleTrackEnd() {
-            console.log("handleTrackEnd chamado");
-            state.contadorMusicasVinheta++;
-            
-            const tocarVinheta = !state.isAoVivo && state.contadorMusicasVinheta >= CONFIG.INTERVALO_VINHETA_MUSICAS;
-            
-            if (tocarVinheta) {
-                console.log("Tocando vinheta");
-                this.tocarVinheta().then(() => {
-                    state.contadorMusicasVinheta = 0;
-                    state.isTransitioning = false;
-                    this.next();
-                }).catch(() => {
-                    state.isTransitioning = false;
-                    this.next();
-                });
-            } else {
-                console.log("Próxima música direto");
-                this.next();
-                setTimeout(() => { state.isTransitioning = false; }, 500);
-            }
         },
         
         pause() {
@@ -461,56 +404,31 @@
             state.progressInterval = null;
         },
         
-        togglePlayPause() { 
-            if (state.isLoadingTrack || state.tocandoVinheta) return;
-            state.isPlaying ? this.pause() : this.play(); 
-        },
+        togglePlayPause() { state.isPlaying ? this.pause() : this.play(); },
         
         async next() {
-            if (state.isLoadingTrack || state.tocandoVinheta || state.isTransitioning) {
-                console.log("Next bloqueado:", {isLoadingTrack: state.isLoadingTrack, tocandoVinheta: state.tocandoVinheta, isTransitioning: state.isTransitioning});
-                return;
-            }
-            
-            state.isTransitioning = true;
-            
-            if (state.progressInterval) {
-                clearInterval(state.progressInterval);
-                state.progressInterval = null;
-            }
-            
+            if (state.isLoadingTrack || state.skipLock || state.tocandoVinheta) return;
+            if (state.progressInterval) clearInterval(state.progressInterval);
             if (state.isAoVivo) {
                 const proxima = this.getNextLiveMusic();
                 if (proxima) {
-                    state.filteredPlaylist = [proxima, ...state.filteredPlaylist.filter(m => m.id !== proxima.id)];
-                    state.currentIndex = 0;
+                    state.filteredPlaylist.push(proxima);
+                    state.currentIndex = state.filteredPlaylist.length - 1;
+                    await this.play();
                 } else {
-                    // Recarregar playlist ao vivo
+                    state.historicoMusicasLive = [];
                     let novas = PLAYLIST.filter(m => m.tipo === "ao vivo");
                     if (!novas.length) novas = shuffleArray([...PLAYLIST]);
                     state.filteredPlaylist = shuffleArray(novas);
                     state.currentIndex = 0;
-                    state.historicoMusicasLive = [];
+                    await this.play();
                 }
             } else {
                 let nextIndex = state.currentIndex + 1;
-                if (nextIndex >= state.filteredPlaylist.length) {
-                    nextIndex = 0;
-                    // Se acabou a playlist, recarregar com base no gênero atual
-                    if (state.generoAtual === "MIX") {
-                        state.filteredPlaylist = shuffleArray([...PLAYLIST]);
-                    } else {
-                        state.filteredPlaylist = shuffleArray(PLAYLIST.filter(m => m.genero === state.generoAtual));
-                        if (!state.filteredPlaylist.length) {
-                            state.filteredPlaylist = shuffleArray([...PLAYLIST]);
-                        }
-                    }
-                }
+                if (nextIndex >= state.filteredPlaylist.length) nextIndex = 0;
                 state.currentIndex = nextIndex;
+                await this.play();
             }
-            
-            await this.play();
-            setTimeout(() => { state.isTransitioning = false; }, 500);
         },
         
         getNextLiveMusic() {
@@ -518,22 +436,17 @@
             if (disponiveis.length === 0) return null;
             const prox = disponiveis[Math.floor(Math.random() * disponiveis.length)];
             state.historicoMusicasLive.push(prox.id);
-            if (state.historicoMusicasLive.length > 10) state.historicoMusicasLive.shift();
+            if (state.historicoMusicasLive.length > 5) state.historicoMusicasLive.shift();
             return prox;
         },
         
         async prev() {
-            if (state.isLoadingTrack || state.skipLock || state.tocandoVinheta || state.isTransitioning) return;
-            
-            state.isTransitioning = true;
+            if (state.isLoadingTrack || state.skipLock || state.tocandoVinheta) return;
             if (state.progressInterval) clearInterval(state.progressInterval);
-            
             let prevIndex = state.currentIndex - 1;
             if (prevIndex < 0) prevIndex = state.filteredPlaylist.length - 1;
             state.currentIndex = prevIndex;
-            
             await this.play();
-            setTimeout(() => { state.isTransitioning = false; }, 500);
         },
         
         startProgressTimer() {
@@ -546,32 +459,40 @@
                     dom.totalTimeEl.textContent = this.formatTime(dom.musicPlayer.duration);
                 }
             }, 200);
+            dom.musicPlayer.onended = () => {
+                if (state.tocandoVinheta) return;
+                state.contadorMusicasVinheta++;
+                if (state.contadorMusicasVinheta >= CONFIG.INTERVALO_VINHETA_MUSICAS && !state.isAoVivo) {
+                    this.tocarVinheta().then(() => {
+                        state.contadorMusicasVinheta = 0;
+                        this.next();
+                    });
+                } else {
+                    this.next();
+                }
+            };
         },
         
         async tocarVinheta() {
             return new Promise((resolve) => {
                 state.tocandoVinheta = true;
                 const wasPlaying = state.isPlaying;
-                
                 if (wasPlaying) {
                     dom.musicPlayer.pause();
                     state.isPlaying = false;
                     dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
                 }
-                
                 const vinhetaSrc = CONFIG.VINHETAS[Math.floor(Math.random() * CONFIG.VINHETAS.length)];
                 const vinAudio = new Audio(vinhetaSrc);
                 vinAudio.volume = dom.musicPlayer.volume;
-                
-                vinAudio.play().catch(e => {
-                    console.warn("Erro ao tocar vinheta:", e);
-                    state.tocandoVinheta = false;
-                    resolve();
-                });
-                
+                vinAudio.play().catch(e => console.warn);
                 vinAudio.onended = () => {
                     state.tocandoVinheta = false;
-                    resolve();
+                    if (wasPlaying) {
+                        this.play().then(() => resolve());
+                    } else {
+                        resolve();
+                    }
                 };
             });
         },
@@ -632,7 +553,9 @@
     }
     
     function atualizarVideo(genero) {
+        // CORREÇÃO: Se o modo TV estiver ativo, NÃO trocar o vídeo, manter o modop.mp4
         if (state.isTvMode) {
+            // Já estamos no modo TV, o vídeo já é modop.mp4 (ou foi definido ao ativar)
             return;
         }
         let file = CONFIG.VIDEO_POR_GENERO[genero] || CONFIG.VIDEO_POR_GENERO.DEFAULT;
@@ -697,16 +620,8 @@
                 updateGenreBadge("MIX");
             } else {
                 nova = PLAYLIST.filter(m=>m.genero === genero);
-                if(!nova.length) { 
-                    nova = shuffleArray([...PLAYLIST]); 
-                    mostrarNotificacao(`⚠️ Nenhuma música para ${genero}. Carregando todas.`, 2000); 
-                    state.generoAtual = "MIX"; 
-                    updateGenreBadge("MIX"); 
-                }
-                else { 
-                    state.generoAtual = genero; 
-                    updateGenreBadge(genero); 
-                }
+                if(!nova.length) { nova = shuffleArray([...PLAYLIST]); mostrarNotificacao(`⚠️ Nenhuma música para ${genero}. Carregando todas.`, 2000); state.generoAtual = "MIX"; updateGenreBadge("MIX"); }
+                else { state.generoAtual = genero; updateGenreBadge(genero); }
             }
             state.filteredPlaylist = nova;
             state.currentIndex = Math.floor(Math.random()*state.filteredPlaylist.length);
@@ -738,6 +653,7 @@
             state.isTvMode = true;
             document.querySelector('.app').classList.add('tv-mode-active');
             dom.exitTvBtn.style.display = 'block';
+            // Força o vídeo do modo TV e impede trocas futuras
             dom.mainVideo.src = "modop.mp4";
             dom.mainVideo.load();
             dom.mainVideo.play().catch(()=>{});
@@ -746,6 +662,7 @@
             state.isTvMode = false;
             document.querySelector('.app').classList.remove('tv-mode-active');
             dom.exitTvBtn.style.display = 'none';
+            // Restaura o vídeo de acordo com o gênero atual
             atualizarVideo(state.isAoVivo ? 'LIVE' : state.generoAtual);
             mostrarNotificacao('Modo TV desativado', 1500);
         }
@@ -842,6 +759,7 @@
         });
         document.getElementById('closeGenresBtn').addEventListener('click', ()=> dom.genresModal.classList.remove('open'));
         
+        // Menu button
         dom.menuButton.addEventListener('click', (e)=>{ e.stopPropagation(); dom.menuPopup.classList.toggle('open'); });
         document.addEventListener('click', (e)=>{ if(!dom.menuButton.contains(e.target) && !dom.menuPopup.contains(e.target)) dom.menuPopup.classList.remove('open'); });
         
@@ -871,6 +789,7 @@
         document.getElementById('closeAiBtn').addEventListener('click', ()=> dom.aiModal.classList.remove('open'));
         document.getElementById('closeManualBtn').addEventListener('click', ()=> dom.manualModal.classList.remove('open'));
         
+        // Feedback stars
         let currentRating=0;
         document.querySelectorAll('#ratingStars .star').forEach(star=>{
             star.addEventListener('click',()=>{
@@ -927,8 +846,6 @@
         atualizarVideo('LIVE');
         dom.tapToStart.style.display = 'block';
         setupEventListeners();
-        
-        // Timer para estatísticas
         setInterval(() => {
             if (state.isPlaying && !dom.musicPlayer.paused && dom.musicPlayer.currentTime > 0) {
                 state.stats.totalSeconds++;
