@@ -182,8 +182,6 @@
         PIX_KEY: '12988461978',
         WHATSAPP_NUMBER: '5512988461978',
         VOLUME_PLAYER: 0.9,
-        INTERVALO_VINHETA_MUSICAS: 3,
-        VINHETAS: ['radiopm.mp3', 'Paticom.mp3', 'Paticom.mp3', 'zzvc.mp3'],
         VIDEO_POR_GENERO: {
             SERTANEJO: 'pak1.mp4', FORRÓ: 'pak1.mp4', 'FORRÓ ANTIGO': 'pak1.mp4',
             BREGA: 'brga181.mp4', POP: 'pak1.mp4', MPB: 'pak1.mp4', SAMBA: 'samba181.mp4',
@@ -203,12 +201,10 @@
         currentIndex: 0,
         filteredPlaylist: [],
         historicoMusicasLive: [],
-        tocandoVinheta: false,
-        contadorMusicasVinheta: 0,
-        skipLock: false,
         isLoadingTrack: false,
         isTvMode: false,
         shuffleMode: false,
+        monitorInterval: null, // Para monitorar o fim da música
         userPreferences: { likedSongs: [], dislikedSongs: [], songPlays: {}, songComplete: {}, genrePreference: {}, lastPlayed: null },
         stats: { totalPlayed: 0, totalSeconds: 0, genreCount: {}, currentStreak: 0 },
         audioContext: null,
@@ -217,7 +213,9 @@
         animationId: null,
         progressInterval: null,
         currentTrackObj: null,
-        controlsTimer: null
+        controlsTimer: null,
+        lastCurrentTime: 0,
+        stalledCount: 0
     };
 
     function mostrarNotificacao(msg, dur=2500) {
@@ -255,7 +253,9 @@
         } catch(e) {
             console.error("Erro ao carregar playlist", e);
             PLAYLIST = [
-                { id: 0, title: "Música Exemplo", artist: "Artista", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "VARIADAS", tipo: "normal" }
+                { id: 0, title: "Música Exemplo 1", artist: "Artista 1", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "VARIADAS", tipo: "normal" },
+                { id: 1, title: "Música Exemplo 2", artist: "Artista 2", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "VARIADAS", tipo: "normal" },
+                { id: 2, title: "Música Exemplo 3", artist: "Artista 3", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "VARIADAS", tipo: "normal" }
             ];
             mostrarNotificacao("⚠️ Usando playlist de fallback", 4000);
         }
@@ -316,12 +316,52 @@
         updateBars();
     }
 
+    // ==================== MONITOR DE FIM DA MÚSICA ====================
+    function startMusicMonitor() {
+        if (state.monitorInterval) clearInterval(state.monitorInterval);
+        
+        state.monitorInterval = setInterval(() => {
+            if (!state.isPlaying || state.isLoadingTrack) return;
+            
+            const player = dom.musicPlayer;
+            if (!player.src || player.paused) return;
+            
+            const currentTime = player.currentTime;
+            const duration = player.duration;
+            
+            // Verificar se a música terminou (com margem de segurança)
+            if (duration > 0 && (currentTime >= duration - 0.5 || (currentTime === state.lastCurrentTime && currentTime > 0 && currentTime < duration - 1))) {
+                // Se o tempo não mudou por 2 segundos consecutivos, pode ser stall
+                if (currentTime === state.lastCurrentTime) {
+                    state.stalledCount++;
+                    if (state.stalledCount >= 3) {
+                        console.log("Música travada ou terminada, avançando...");
+                        state.stalledCount = 0;
+                        PlayerEngine.next();
+                    }
+                } else {
+                    state.stalledCount = 0;
+                }
+            }
+            
+            // Verificar se chegou ao fim
+            if (duration > 0 && currentTime >= duration - 0.3) {
+                console.log("Monitor detectou fim da música");
+                clearInterval(state.monitorInterval);
+                state.monitorInterval = null;
+                PlayerEngine.next();
+            }
+            
+            state.lastCurrentTime = currentTime;
+        }, 1000);
+    }
+
     // ==================== PLAYER ENGINE ====================
     const PlayerEngine = {
         formatTime(sec) { if (isNaN(sec)) return '0:00'; const m = Math.floor(sec/60); const s = Math.floor(sec%60); return `${m}:${s<10?'0':''}${s}`; },
         
         async play() {
-            if (state.isLoadingTrack || state.tocandoVinheta) return false;
+            if (state.isLoadingTrack) return false;
             
             if (!state.filteredPlaylist.length) { 
                 mostrarNotificacao("Nenhuma música disponível", 2000); 
@@ -342,7 +382,10 @@
             state.isLoadingTrack = true;
             dom.loadingSpinner.classList.add('show');
             
-            dom.musicPlayer.onended = null;
+            // Limpar monitores anteriores
+            if (state.monitorInterval) clearInterval(state.monitorInterval);
+            if (state.progressInterval) clearInterval(state.progressInterval);
+            
             dom.musicPlayer.pause();
             dom.musicPlayer.src = track.src;
             dom.musicPlayer.load();
@@ -375,13 +418,12 @@
                         state.isLoadingTrack = false;
                         dom.loadingSpinner.classList.remove('show');
                         dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        
                         this.startProgressTimer();
+                        startMusicMonitor(); // Iniciar monitor de fim da música
                         
-                        dom.musicPlayer.onended = () => {
-                            console.log("Música terminou");
-                            this.handleTrackEnd();
-                        };
-                        
+                        // Registrar estatísticas
+                        state.stats.totalPlayed++;
                         if (!state.stats.genreCount[track.genero]) state.stats.genreCount[track.genero] = 0;
                         state.stats.genreCount[track.genero]++;
                         state.stats.currentStreak++;
@@ -416,23 +458,6 @@
             });
         },
         
-        handleTrackEnd() {
-            state.contadorMusicasVinheta++;
-            
-            const tocarVinheta = !state.isAoVivo && state.contadorMusicasVinheta >= CONFIG.INTERVALO_VINHETA_MUSICAS;
-            
-            if (tocarVinheta) {
-                console.log("Tocando vinheta");
-                this.tocarVinheta().then(() => {
-                    state.contadorMusicasVinheta = 0;
-                    this.next();
-                });
-            } else {
-                console.log("Próxima música direto");
-                this.next();
-            }
-        },
-        
         pause() {
             dom.musicPlayer.pause();
             state.isPlaying = false;
@@ -442,30 +467,21 @@
         },
         
         togglePlayPause() { 
-            if (state.isLoadingTrack || state.tocandoVinheta) return;
+            if (state.isLoadingTrack) return;
             state.isPlaying ? this.pause() : this.play(); 
         },
         
         async next() {
-            // Remove locks que podem travar o botão
             if (state.isLoadingTrack) {
-                console.log("Aguardando fim do loading...");
                 mostrarNotificacao("Carregando música, aguarde...", 1000);
-                return;
-            }
-            
-            if (state.tocandoVinheta) {
-                console.log("Vinheta tocando...");
-                mostrarNotificacao("Vinheta em execução...", 1000);
                 return;
             }
             
             console.log("Próxima música solicitada");
             
-            if (state.progressInterval) {
-                clearInterval(state.progressInterval);
-                state.progressInterval = null;
-            }
+            if (state.progressInterval) clearInterval(state.progressInterval);
+            if (state.monitorInterval) clearInterval(state.monitorInterval);
+            state.monitorInterval = null;
             
             if (state.isAoVivo) {
                 const proxima = this.getNextLiveMusic();
@@ -513,12 +529,9 @@
                 return;
             }
             
-            if (state.tocandoVinheta) {
-                mostrarNotificacao("Vinheta em execução...", 1000);
-                return;
-            }
-            
             if (state.progressInterval) clearInterval(state.progressInterval);
+            if (state.monitorInterval) clearInterval(state.monitorInterval);
+            state.monitorInterval = null;
             
             let prevIndex = state.currentIndex - 1;
             if (prevIndex < 0) prevIndex = state.filteredPlaylist.length - 1;
@@ -537,38 +550,6 @@
                     dom.totalTimeEl.textContent = this.formatTime(dom.musicPlayer.duration);
                 }
             }, 200);
-        },
-        
-        async tocarVinheta() {
-            return new Promise((resolve) => {
-                state.tocandoVinheta = true;
-                const wasPlaying = state.isPlaying;
-                
-                if (wasPlaying) {
-                    dom.musicPlayer.pause();
-                    state.isPlaying = false;
-                    dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                }
-                
-                const vinhetaSrc = CONFIG.VINHETAS[Math.floor(Math.random() * CONFIG.VINHETAS.length)];
-                const vinAudio = new Audio(vinhetaSrc);
-                vinAudio.volume = dom.musicPlayer.volume;
-                
-                vinAudio.play().catch(e => {
-                    console.warn("Erro ao tocar vinheta:", e);
-                    state.tocandoVinheta = false;
-                    if (wasPlaying) {
-                        this.play().then(() => resolve());
-                    } else {
-                        resolve();
-                    }
-                });
-                
-                vinAudio.onended = () => {
-                    state.tocandoVinheta = false;
-                    resolve();
-                };
-            });
         },
         
         likeCurrent() {
@@ -719,7 +700,6 @@
         state.currentIndex = Math.floor(Math.random()*state.filteredPlaylist.length);
         state.historicoMusicasLive = [];
         atualizarTrackInfo(state.filteredPlaylist[0]);
-        state.contadorMusicasVinheta = 0;
         atualizarVideo('LIVE');
         updateMarquee();
         mostrarNotificacao('🔴 Modo AO VIVO ativado!', 2000);
@@ -903,6 +883,18 @@
         });
         
         setupTapToToggle();
+        
+        // Prevenir que o navegador suspenda o áudio quando a tela desligar
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                console.log("App em segundo plano - mantendo áudio");
+                // Forçar keep-alive
+                const silentAudio = new Audio();
+                silentAudio.src = "data:audio/mp3;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNMAAAAZAAAFNnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dk=";
+                silentAudio.play().catch(()=>{});
+                setTimeout(() => { silentAudio.pause(); }, 100);
+            }
+        });
     }
     
     async function init() {
