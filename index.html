@@ -15,57 +15,102 @@
         :root { --bg-primary: #0a0a0f; --accent: #00f3ff; --secondary: #ff2d7f; }
         body { min-height: 100vh; background: var(--bg-primary); overflow: hidden; position: fixed; width: 100%; height: 100%; font-family: 'Rajdhani', sans-serif; }
         
-        /* BOTÃO ATIVAR ÁUDIO MELHORADO */
-        #splashStartBtn {
-            position: absolute;
-            bottom: 25%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #00f3ff, #ff2d7f);
-            color: #000;
-            padding: 16px 40px;
-            border-radius: 60px;
-            font-weight: bold;
-            font-family: 'Orbitron', monospace;
-            font-size: 1.3rem;
-            border: none;
-            cursor: pointer;
-            z-index: 100;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.8), 0 0 15px rgba(255, 45, 127, 0.5);
-            transition: all 0.3s ease;
-            letter-spacing: 2px;
-            animation: btnPulse 1.5s infinite;
+        /* ESTILOS DAS DICAS - TODAS COM LETRAS BRANCAS */
+        .gesture-hand {
+            position: fixed;
+            z-index: 10002;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.8));
         }
         
-        @keyframes btnPulse {
-            0% { transform: translateX(-50%) scale(1); box-shadow: 0 0 20px rgba(0, 243, 255, 0.6); }
-            50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 40px rgba(0, 243, 255, 1), 0 0 20px rgba(255, 45, 127, 0.8); }
-            100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 20px rgba(0, 243, 255, 0.6); }
+        .gesture-hand.show {
+            opacity: 1;
+            animation: handWave 0.8s ease-in-out infinite;
         }
         
-        #splashStartBtn:active {
-            transform: translateX(-50%) scale(0.96);
+        .gesture-hand.swipe-left {
+            left: 70%;
+            top: 50%;
+            transform: translate(-50%, -50%);
         }
         
-        #skipAdBtn {
-            position: absolute;
-            bottom: 15%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
+        .gesture-hand.swipe-right {
+            left: 30%;
+            top: 50%;
+            transform: translate(-50%, -50%) scaleX(-1);
+        }
+        
+        .gesture-hand .hand-icon {
+            font-size: 3.5rem;
             color: #00f3ff;
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            border: 1px solid #00f3ff;
-            cursor: pointer;
-            z-index: 100;
-            transition: 0.2s;
+            text-shadow: 0 0 20px #00f3ff;
+            display: block;
         }
         
-        /* Dica flutuante para o botão de gênero */
+        .gesture-hand .arrow-icon {
+            font-size: 1.8rem;
+            color: #ff2d7f;
+            margin-left: 15px;
+            display: inline-block;
+            animation: arrowMove 0.5s ease-in-out infinite alternate;
+        }
+        
+        .gesture-hand .gesture-text {
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            padding: 6px 12px;
+            border-radius: 40px;
+            color: #FFFFFF !important;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 8px;
+            white-space: nowrap;
+            border: 1px solid #00f3ff;
+            text-shadow: 0 0 2px black;
+        }
+        
+        @keyframes handWave {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            25% { transform: translate(-50%, -50%) rotate(-15deg); }
+            75% { transform: translate(-50%, -50%) rotate(15deg); }
+        }
+        
+        @keyframes arrowMove {
+            0% { transform: translateX(0); opacity: 0.5; }
+            100% { transform: translateX(15px); opacity: 1; }
+        }
+        
+        /* Botão flutuante de gênero */
+        .genre-button {
+            position: fixed;
+            bottom: 160px;
+            right: 16px;
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #00f3ff, #ff2d7f);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 27;
+            border: none;
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.7);
+            transition: 0.1s, opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .genre-button:active {
+            transform: scale(0.9);
+        }
+        
+        .genre-button i {
+            font-size: 1.2rem;
+            color: #000;
+        }
+        
+        /* Dica flutuante para o botão de gênero - TEXTO BRANCO */
         .genre-tip {
             position: fixed;
             bottom: 215px;
@@ -101,7 +146,55 @@
             color: #00f3ff;
         }
         
-        /* Overlay de tutorial inicial simplificado */
+        /* Dica de arraste para trocar música - TEXTO BRANCO */
+        .swipe-tip {
+            position: fixed;
+            bottom: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(16px);
+            padding: 12px 25px;
+            border-radius: 50px;
+            color: #FFFFFF !important;
+            z-index: 10003;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border: 2px solid #00f3ff;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.5);
+            text-align: center;
+            white-space: nowrap;
+            text-shadow: 0 0 2px black;
+        }
+        
+        .swipe-tip.show {
+            opacity: 1;
+            animation: tipPulse 0.5s ease-out;
+        }
+        
+        .swipe-tip i {
+            font-size: 1.3rem;
+            margin: 0 8px;
+            color: #00f3ff;
+        }
+        
+        .swipe-tip .fa-arrow-left {
+            color: #ff2d7f;
+        }
+        
+        .swipe-tip .fa-arrow-right {
+            color: #00f3ff;
+        }
+        
+        .swipe-tip span {
+            margin: 0 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #FFFFFF;
+        }
+        
+        /* Overlay de tutorial inicial - TEXTO BRANCO */
         .tutorial-overlay {
             position: fixed;
             top: 0;
@@ -147,184 +240,127 @@
             font-size: 1.1rem;
         }
         
+        .tutorial-card .tutorial-swipe {
+            background: rgba(0, 243, 255, 0.15);
+            border-radius: 15px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+        
+        .tutorial-card .tutorial-swipe i {
+            font-size: 1.8rem;
+            margin: 0 12px;
+        }
+        
+        .tutorial-card .fa-arrow-left { color: #ff2d7f; }
+        .tutorial-card .fa-arrow-right { color: #00f3ff; }
+        .tutorial-card .fa-hand-peace { color: #00f3ff; }
+        
+        .tutorial-card .tutorial-swipe p {
+            color: #FFFFFF;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+        
         .tutorial-card .tutorial-genre {
             background: linear-gradient(135deg, #00f3ff, #ff2d7f);
-            width: 55px;
-            height: 55px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin: 15px 0;
+            margin: 10px 0;
         }
         
         .tutorial-card .tutorial-genre i {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: #000;
         }
         
         .tutorial-card p {
-            font-size: 0.8rem;
-            margin: 10px 0;
+            font-size: 0.75rem;
+            margin: 8px 0;
             color: #FFFFFF;
         }
         
         .tutorial-card button {
             background: linear-gradient(135deg, #00f3ff, #ff2d7f);
             border: none;
-            padding: 10px 30px;
+            padding: 8px 25px;
             border-radius: 40px;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
             margin-top: 12px;
             color: #000;
         }
         
-        /* Botão flutuante de gênero */
-        .genre-button {
-            position: fixed;
-            bottom: 160px;
-            right: 16px;
-            width: 48px;
-            height: 48px;
+        /* BOTÃO ATIVAR ÁUDIO */
+        #splashStartBtn {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
             background: linear-gradient(135deg, #00f3ff, #ff2d7f);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 27;
-            border: none;
-            box-shadow: 0 0 12px rgba(0, 243, 255, 0.7);
-            transition: 0.1s, opacity 0.3s ease, transform 0.3s ease;
-        }
-        
-        .genre-button:active {
-            transform: scale(0.9);
-        }
-        
-        .genre-button i {
-            font-size: 1.3rem;
             color: #000;
-        }
-        
-        /* Histórico e prévia */
-        .history-panel {
-            position: fixed;
-            bottom: 220px;
-            left: 16px;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(12px);
-            border-radius: 16px;
-            padding: 8px 12px;
-            z-index: 26;
-            border-left: 3px solid #00f3ff;
-            max-width: 200px;
-            transition: opacity 0.3s ease;
-        }
-        
-        .history-panel.hide-controls {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .history-title {
-            font-size: 0.55rem;
-            color: #00f3ff;
-            margin-bottom: 4px;
+            padding: 10px 24px;
+            border-radius: 40px;
             font-weight: bold;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 15px #00f3ff;
+            transition: transform 0.2s;
         }
         
-        .history-list {
-            font-size: 0.55rem;
-            color: #ccc;
-        }
-        
-        .history-item {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin: 2px 0;
-        }
-        
-        .next-song-preview {
-            position: fixed;
-            bottom: 220px;
-            right: 80px;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(12px);
-            border-radius: 16px;
-            padding: 8px 12px;
-            z-index: 26;
-            border-right: 3px solid #ff2d7f;
-            max-width: 180px;
-            text-align: right;
-            transition: opacity 0.3s ease;
-        }
-        
-        .next-song-preview.hide-controls {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .next-title {
-            font-size: 0.55rem;
-            color: #ff2d7f;
-            margin-bottom: 4px;
-            font-weight: bold;
-        }
-        
-        .next-name {
-            font-size: 0.6rem;
-            color: white;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        /* Status de rede e bateria */
-        .network-status, .battery-status {
-            position: fixed;
-            top: 70px;
-            background: rgba(0,0,0,0.7);
+        #skipAdBtn {
+            position: absolute;
+            bottom: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
             backdrop-filter: blur(8px);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.6rem;
-            z-index: 31;
             color: #00f3ff;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            border: 1px solid #00f3ff;
+            cursor: pointer;
+            z-index: 100;
+            transition: 0.2s;
         }
         
-        .network-status { right: 16px; }
-        .battery-status { left: 16px; }
-        
-        .network-status.offline { color: #ff2d7f; }
-        .battery-status.low { color: #ffaa00; animation: batteryWarning 1s infinite; }
-        
-        @keyframes batteryWarning {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        /* NOTIFICAÇÕES */
+        .notification-top {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 6px 16px;
+            border-radius: 40px;
+            color: #00f3ff;
+            font-size: 0.7rem;
+            z-index: 30;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+            white-space: nowrap;
+            border-left: 3px solid #00f3ff;
         }
         
-        /* Modo noturno */
-        body.night-mode .genre-button {
-            box-shadow: 0 0 8px rgba(0, 243, 255, 0.4);
-        }
-        
-        body.night-mode .control-btn {
-            background: rgba(0, 0, 0, 0.8);
-        }
-        
-        /* Resto dos estilos originais */
+        /* CONTINUAÇÃO DOS ESTILOS ORIGINAIS */
         #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), visibility 0.8s; overflow: hidden; }
         #splash-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
         .splash-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2; display: flex; align-items: center; justify-content: center; flex-direction: column; }
         .splash-content { text-align: center; z-index: 3; animation: fadeInUp 1s ease-out; }
-        .splash-content h1 { font-family: 'Orbitron', monospace; font-size: 3rem; letter-spacing: 6px; background: linear-gradient(135deg, #fff, #00f3ff, #ff2d7f); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 20px rgba(0, 243, 255, 0.5); margin-bottom: 15px; animation: glitch 3s infinite; }
+        .splash-content h1 { font-family: 'Orbitron', monospace; font-size: 2.5rem; letter-spacing: 4px; background: linear-gradient(135deg, #fff, #00f3ff, #ff2d7f); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 20px rgba(0, 243, 255, 0.5); margin-bottom: 15px; animation: glitch 3s infinite; }
         
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes glitch { 0%, 100% { text-shadow: 2px 0 #ff2d7f, -2px 0 #00f3ff; } 25% { text-shadow: -2px 0 #ff2d7f, 2px 0 #00f3ff; } 50% { text-shadow: 2px 2px #ff2d7f, -2px -2px #00f3ff; } 75% { text-shadow: -2px -2px #ff2d7f, 2px 2px #00f3ff; } }
@@ -404,7 +440,7 @@
         <div class="splash-content">
             <h1>RÁDIO PATICO</h1>
         </div>
-        <button id="splashStartBtn"><i class="fas fa-play"></i> ▶ ATIVAR RÁDIO</button>
+        <button id="splashStartBtn">▶ ATIVAR</button>
         <button id="skipAdBtn">⏩ PULAR</button>
     </div>
 </div>
@@ -415,27 +451,6 @@
         <video id="mainVideo" autoplay loop muted playsinline>
             <source src="pak1.mp4" type="video/mp4">
         </video>
-    </div>
-    
-    <!-- Painéis informativos -->
-    <div class="network-status" id="networkStatus">
-        <i class="fas fa-wifi"></i>
-        <span id="networkText">Online</span>
-    </div>
-    
-    <div class="battery-status" id="batteryStatus">
-        <i class="fas fa-battery-full"></i>
-        <span id="batteryText">--</span>
-    </div>
-    
-    <div class="history-panel" id="historyPanel">
-        <div class="history-title"><i class="fas fa-history"></i> Últimas</div>
-        <div class="history-list" id="historyList">-</div>
-    </div>
-    
-    <div class="next-song-preview" id="nextPreview">
-        <div class="next-title"><i class="fas fa-forward"></i> Próxima</div>
-        <div class="next-name" id="nextName">-</div>
     </div>
     
     <div class="info-area">
@@ -479,7 +494,6 @@
         <button id="statsMenuBtn"><i class="fas fa-chart-line"></i> Estatísticas</button>
         <button id="aiMenuBtn"><i class="fas fa-brain"></i> IA</button>
         <button id="feedbackMenuBtn"><i class="fab fa-whatsapp"></i> Feedback</button>
-        <button id="nightModeBtn"><i class="fas fa-moon"></i> Modo Noturno</button>
     </div>
 </div>
 
@@ -491,19 +505,42 @@
 <div id="notificationTop" class="notification-top"></div>
 <div class="loading-spinner" id="loadingSpinner"><i class="fas fa-circle-notch fa-spin"></i><span>Carregando...</span></div>
 
-<!-- Dicas simplificadas -->
+<!-- ELEMENTOS DE TUTORIAL E DICAS - TODOS COM TEXTO BRANCO -->
+<div class="gesture-hand swipe-left" id="gestureHandLeft">
+    <i class="fas fa-hand-peace hand-icon"></i>
+    <i class="fas fa-arrow-left arrow-icon"></i>
+    <div class="gesture-text">← ARRASTE PARA TROCAR →</div>
+</div>
+
+<div class="gesture-hand swipe-right" id="gestureHandRight">
+    <i class="fas fa-hand-peace hand-icon"></i>
+    <i class="fas fa-arrow-right arrow-icon"></i>
+    <div class="gesture-text">← ARRASTE PARA TROCAR →</div>
+</div>
+
 <div class="genre-tip" id="genreTip">
-    <i class="fas fa-fingerprint"></i> TOQUE AQUI PARA TROCAR GÊNERO
+    <i class="fas fa-fingerprint"></i> TOQUE AQUI PARA TROCAR GÊNERO MUSICAL
+</div>
+
+<div class="swipe-tip" id="swipeTip">
+    <i class="fas fa-arrow-left"></i>
+    <span>ARRASTE PARA TROCAR MÚSICA</span>
+    <i class="fas fa-arrow-right"></i>
 </div>
 
 <div class="tutorial-overlay" id="tutorialOverlay">
     <div class="tutorial-card">
         <h3><i class="fas fa-magic"></i> DICAS RÁPIDAS</h3>
+        <div class="tutorial-swipe">
+            <i class="fas fa-arrow-left"></i>
+            <i class="fas fa-hand-peace"></i>
+            <i class="fas fa-arrow-right"></i>
+            <p>← ARRASTE PARA TROCAR MÚSICA →</p>
+        </div>
         <div class="tutorial-genre">
             <i class="fas fa-music"></i>
         </div>
         <p>TOQUE NO BOTÃO FLUTUANTE PARA TROCAR O ESTILO MUSICAL</p>
-        <p><i class="fas fa-headphones"></i> DÊ LIKE/DISLIKE PARA A IA APRENDER</p>
         <button id="closeTutorialBtn">ENTENDI! 🚀</button>
     </div>
 </div>
@@ -560,25 +597,54 @@
         currentIndex: 0,
         filteredPlaylist: [],
         historicoMusicasLive: [],
-        historicoReproduzidas: [],
         tocandoVinheta: false,
         contadorMusicasVinheta: 0,
         isLoadingTrack: false,
         controlsVisible: true,
-        isMuted: false,
-        previousVolume: 0.9,
-        userPreferences: { likedSongs: [], dislikedSongs: [], songPlays: {}, songComplete: {}, genrePreference: {}, lastPlayed: null, savedGenre: 'LIVE' },
+        userPreferences: { likedSongs: [], dislikedSongs: [], songPlays: {}, songComplete: {}, genrePreference: {}, lastPlayed: null },
         stats: { totalPlayed: 0, totalSeconds: 0, genreCount: {}, currentStreak: 0 },
         audioContext: null,
         progressInterval: null,
         controlsTimer: null,
         lastClickTime: 0,
         isMiguelVideoActive: false,
-        miguelVideoTimeout: null,
-        isNightMode: false
+        miguelVideoTimeout: null
     };
 
-    // ==================== FUNÇÕES ====================
+    // ==================== FUNÇÕES DE TUTORIAL E DICAS ====================
+    function showGestureHand() {
+        const leftHand = document.getElementById('gestureHandLeft');
+        const rightHand = document.getElementById('gestureHandRight');
+        const swipeTip = document.getElementById('swipeTip');
+        const genreTip = document.getElementById('genreTip');
+        
+        leftHand.classList.add('show');
+        rightHand.classList.add('show');
+        swipeTip.classList.add('show');
+        genreTip.classList.add('show');
+        
+        setTimeout(() => {
+            leftHand.classList.remove('show');
+            rightHand.classList.remove('show');
+            swipeTip.classList.remove('show');
+            genreTip.classList.remove('show');
+        }, 5000);
+    }
+    
+    function startPeriodicGesture() {
+        setTimeout(() => {
+            if (radioStarted) {
+                showGestureHand();
+            }
+        }, 3000);
+        
+        setInterval(() => {
+            if (radioStarted && state.isPlaying && !document.hidden) {
+                showGestureHand();
+            }
+        }, 300000);
+    }
+    
     function showTutorial() {
         const tutorial = document.getElementById('tutorialOverlay');
         tutorial.classList.add('show');
@@ -587,159 +653,7 @@
             tutorial.classList.remove('show');
         });
     }
-    
-    function salvarGeneroPreferido(genero) {
-        localStorage.setItem('radio_patico_last_genre', genero);
-        state.userPreferences.savedGenre = genero;
-    }
-    
-    function carregarGeneroPreferido() {
-        const saved = localStorage.getItem('radio_patico_last_genre');
-        if (saved && saved !== 'LIVE') {
-            state.userPreferences.savedGenre = saved;
-            return saved;
-        }
-        return 'LIVE';
-    }
-    
-    function adicionarAoHistorico(musica) {
-        if (!musica) return;
-        state.historicoReproduzidas.unshift({ title: musica.title, artist: musica.artist, genero: musica.genero });
-        if (state.historicoReproduzidas.length > 5) state.historicoReproduzidas.pop();
-        atualizarPainelHistorico();
-    }
-    
-    function atualizarPainelHistorico() {
-        const historyList = document.getElementById('historyList');
-        if (!historyList) return;
-        if (state.historicoReproduzidas.length === 0) {
-            historyList.innerHTML = '<div class="history-item">-</div>';
-            return;
-        }
-        let html = '';
-        state.historicoReproduzidas.forEach(m => {
-            html += `<div class="history-item">🎵 ${m.title.substring(0, 20)}</div>`;
-        });
-        historyList.innerHTML = html;
-    }
-    
-    function atualizarProximaPreview() {
-        const nextName = document.getElementById('nextName');
-        if (!nextName) return;
-        
-        if (state.isAoVivo) {
-            nextName.textContent = '🔴 Modo Ao Vivo';
-            return;
-        }
-        
-        let nextIndex = state.currentIndex + 1;
-        if (nextIndex >= state.filteredPlaylist.length) nextIndex = 0;
-        const nextTrack = state.filteredPlaylist[nextIndex];
-        if (nextTrack) {
-            nextName.textContent = `${nextTrack.title.substring(0, 25)}`;
-        } else {
-            nextName.textContent = '-';
-        }
-    }
-    
-    // Status de rede
-    function atualizarStatusRede() {
-        const networkDiv = document.getElementById('networkStatus');
-        const networkText = document.getElementById('networkText');
-        
-        window.addEventListener('online', () => {
-            networkDiv.classList.remove('offline');
-            networkText.textContent = 'Online';
-            networkText.style.color = '#00f3ff';
-            mostrarNotificacao('🌐 Conexão restaurada', 1500);
-        });
-        
-        window.addEventListener('offline', () => {
-            networkDiv.classList.add('offline');
-            networkText.textContent = 'Offline';
-            networkText.style.color = '#ff2d7f';
-            mostrarNotificacao('⚠️ Sem conexão com internet', 2500);
-        });
-    }
-    
-    // Status da bateria
-    async function atualizarStatusBateria() {
-        if ('getBattery' in navigator) {
-            try {
-                const battery = await navigator.getBattery();
-                const batteryDiv = document.getElementById('batteryStatus');
-                const batteryText = document.getElementById('batteryText');
-                
-                function updateBattery() {
-                    const level = Math.round(battery.level * 100);
-                    batteryText.textContent = `${level}%`;
-                    
-                    if (level <= 15) {
-                        batteryDiv.classList.add('low');
-                        batteryDiv.style.color = '#ffaa00';
-                    } else {
-                        batteryDiv.classList.remove('low');
-                        batteryDiv.style.color = '#00f3ff';
-                    }
-                    
-                    const icon = batteryDiv.querySelector('i');
-                    if (level >= 90) icon.className = 'fas fa-battery-full';
-                    else if (level >= 70) icon.className = 'fas fa-battery-three-quarters';
-                    else if (level >= 40) icon.className = 'fas fa-battery-half';
-                    else if (level >= 15) icon.className = 'fas fa-battery-quarter';
-                    else icon.className = 'fas fa-battery-empty';
-                }
-                
-                updateBattery();
-                battery.addEventListener('levelchange', updateBattery);
-                battery.addEventListener('chargingchange', updateBattery);
-            } catch(e) {
-                console.log("Battery API não disponível");
-            }
-        }
-    }
-    
-    // Modo noturno automático
-    function atualizarModoNoturno() {
-        const hora = new Date().getHours();
-        const isNight = hora >= 18 || hora <= 6;
-        
-        if (isNight && !state.isNightMode) {
-            document.body.classList.add('night-mode');
-            state.isNightMode = true;
-        } else if (!isNight && state.isNightMode) {
-            document.body.classList.remove('night-mode');
-            state.isNightMode = false;
-        }
-    }
-    
-    function toggleNightMode() {
-        if (state.isNightMode) {
-            document.body.classList.remove('night-mode');
-            state.isNightMode = false;
-            mostrarNotificacao('☀️ Modo claro', 1000);
-        } else {
-            document.body.classList.add('night-mode');
-            state.isNightMode = true;
-            mostrarNotificacao('🌙 Modo noturno', 1000);
-        }
-    }
-    
-    // Forçar tela cheia
-    function forcarTelaCheia() {
-        const docEl = document.documentElement;
-        if (!document.fullscreenElement) {
-            docEl.requestFullscreen().catch(e => console.log("Fullscreen já ativo"));
-        }
-    }
-    
-    // Verificar tela cheia periodicamente
-    setInterval(() => {
-        if (radioStarted && !document.fullscreenElement) {
-            forcarTelaCheia();
-        }
-    }, 3000);
-    
+
     // ==================== FUNÇÕES AUXILIARES ====================
     function mostrarNotificacao(msg, dur=1500) {
         const n = document.getElementById('notificationTop');
@@ -898,10 +812,6 @@
         dom.menuButton.classList.add('hide-controls');
         document.getElementById('volumeControl').style.opacity = '0';
         document.getElementById('volumeControl').style.pointerEvents = 'none';
-        const historyPanel = document.getElementById('historyPanel');
-        const nextPreview = document.getElementById('nextPreview');
-        if (historyPanel) historyPanel.classList.add('hide-controls');
-        if (nextPreview) nextPreview.classList.add('hide-controls');
         state.controlsVisible = false;
     }
     
@@ -912,10 +822,6 @@
         dom.menuButton.classList.remove('hide-controls');
         document.getElementById('volumeControl').style.opacity = '1';
         document.getElementById('volumeControl').style.pointerEvents = 'auto';
-        const historyPanel = document.getElementById('historyPanel');
-        const nextPreview = document.getElementById('nextPreview');
-        if (historyPanel) historyPanel.classList.remove('hide-controls');
-        if (nextPreview) nextPreview.classList.remove('hide-controls');
         state.controlsVisible = true;
         
         if (state.controlsTimer) clearTimeout(state.controlsTimer);
@@ -1002,9 +908,6 @@
                         if (!state.userPreferences.songPlays[track.id]) state.userPreferences.songPlays[track.id] = 0;
                         state.userPreferences.songPlays[track.id]++;
                         salvarPrefs();
-                        
-                        adicionarAoHistorico(track);
-                        atualizarProximaPreview();
                         
                         showControls();
                         resolve(true);
@@ -1106,7 +1009,6 @@
                 state.currentIndex = nextIndex;
                 await this.play();
             }
-            atualizarProximaPreview();
         },
         
         getNextLiveMusic() {
@@ -1129,7 +1031,6 @@
             if (prevIndex < 0) prevIndex = state.filteredPlaylist.length - 1;
             state.currentIndex = prevIndex;
             await this.play();
-            atualizarProximaPreview();
         },
         
         startProgressTimer() {
@@ -1242,9 +1143,7 @@
                 PlayerEngine.atualizarVideo(state.generoAtual === "MIX" ? "VARIADAS" : state.generoAtual);
             }
             if(state.isPlaying) PlayerEngine.play();
-            salvarGeneroPreferido(genero);
             mostrarNotificacao(`🎵 ${genero}`, 1000);
-            atualizarProximaPreview();
         },
         
         ativarModoAoVivo() {
@@ -1261,10 +1160,8 @@
                 PlayerEngine.atualizarVideo('LIVE');
             }
             PlayerEngine.updateMarquee();
-            salvarGeneroPreferido('LIVE');
             mostrarNotificacao('🔴 AO VIVO', 1000);
             if(state.isPlaying) PlayerEngine.play();
-            atualizarProximaPreview();
         }
     };
 
@@ -1300,7 +1197,6 @@
                     PlayerEngine.play();
                     searchContainer.style.display = 'none';
                     mostrarNotificacao(`🔍 ${music.title}`, 1200);
-                    atualizarProximaPreview();
                 }
             });
         });
@@ -1326,26 +1222,9 @@
         setTimeout(() => { dom.splash.style.display = 'none'; }, 800);
         dom.appRoot.style.display = 'block';
         
-        // Forçar tela cheia imediatamente
-        forcarTelaCheia();
+        try { document.documentElement.requestFullscreen(); } catch(e) { console.warn("Erro fullscreen", e); }
         
-        // Carregar último gênero salvo
-        const ultimoGenero = carregarGeneroPreferido();
-        if (ultimoGenero !== 'LIVE') {
-            state.isAoVivo = false;
-            state.generoAtual = ultimoGenero;
-            let musicas = PLAYLIST.filter(m=>m.genero === ultimoGenero);
-            if(musicas.length) {
-                state.filteredPlaylist = shuffleArray(musicas);
-                state.currentIndex = Math.floor(Math.random()*state.filteredPlaylist.length);
-                PlayerEngine.updateGenreBadge(ultimoGenero);
-                PlayerEngine.atualizarVideo(ultimoGenero);
-            } else {
-                PlaylistManager.ativarModoAoVivo();
-            }
-        } else {
-            PlaylistManager.ativarModoAoVivo();
-        }
+        PlaylistManager.ativarModoAoVivo();
         
         dom.videoContainer.addEventListener('click', () => {
             if (state.isMiguelVideoActive) {
@@ -1355,11 +1234,13 @@
             }
         });
         
+        startPeriodicGesture();
+        
         setTimeout(() => {
             showTutorial();
         }, 2000);
         
-        mostrarNotificacao(`✅ Rádio iniciada - Tela cheia ativa`, 2500);
+        mostrarNotificacao(`✅ Rádio iniciada`, 2500);
         PlayerEngine.play();
         showControls();
     }
@@ -1371,8 +1252,7 @@
         setTimeout(() => { dom.splash.style.display = 'none'; }, 800);
         dom.appRoot.style.display = 'block';
         
-        // Forçar tela cheia imediatamente
-        await forcarTelaCheia();
+        try { await document.documentElement.requestFullscreen(); } catch(e) { console.warn("Erro fullscreen", e); }
         
         mostrarNotificacao("🎙️ Anúncio...", 1500);
         anuncio = new Audio(CONFIG.ANUNCIO_INICIAL);
@@ -1410,7 +1290,6 @@
             state.currentIndex = 0;
             mostrarNotificacao('🔀 Aleatório', 800);
             if(state.isPlaying) PlayerEngine.play();
-            atualizarProximaPreview();
         });
         
         document.getElementById('progressBar').addEventListener('click', e => {
@@ -1435,7 +1314,7 @@
         document.addEventListener('click', (e) => { if(!dom.menuButton.contains(e.target) && !dom.menuPopup.contains(e.target)) dom.menuPopup.classList.remove('open'); });
         
         document.getElementById('searchMenuBtn').addEventListener('click', () => { searchContainer.style.display = 'block'; searchInput.focus(); dom.menuPopup.classList.remove('open'); });
-        document.getElementById('fullscreenMenuBtn').addEventListener('click', () => { forcarTelaCheia(); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('fullscreenMenuBtn').addEventListener('click', () => { document.documentElement.requestFullscreen(); dom.menuPopup.classList.remove('open'); });
         document.getElementById('shareMenuBtn').addEventListener('click', () => { abrirCompartilhar(); dom.menuPopup.classList.remove('open'); });
         document.getElementById('bluetoothMenuBtn').addEventListener('click', () => { conectarBluetooth(); dom.menuPopup.classList.remove('open'); });
         document.getElementById('statsMenuBtn').addEventListener('click', () => {
@@ -1453,7 +1332,6 @@
         document.getElementById('feedbackMenuBtn').addEventListener('click', () => { dom.feedbackModal.classList.toggle('open'); dom.menuPopup.classList.remove('open'); });
         document.getElementById('manualMenuBtn').addEventListener('click', () => { dom.manualModal.classList.add('open'); dom.menuPopup.classList.remove('open'); });
         document.getElementById('pixMenuBtn').addEventListener('click', () => { dom.pixModal.classList.add('open'); dom.menuPopup.classList.remove('open'); });
-        document.getElementById('nightModeBtn').addEventListener('click', () => { toggleNightMode(); dom.menuPopup.classList.remove('open'); });
         
         dom.copyPixBtn.addEventListener('click', () => { navigator.clipboard.writeText(CONFIG.PIX_KEY); mostrarNotificacao('✅ Copiado!', 1000); });
         dom.closePixBtn.addEventListener('click', () => dom.pixModal.classList.remove('open'));
@@ -1464,7 +1342,6 @@
         dom.volumeSlider.addEventListener('input', (e) => {
             const vol = parseFloat(e.target.value);
             dom.musicPlayer.volume = vol;
-            if (!state.isMuted) state.previousVolume = vol;
             localStorage.setItem('radio_volume', vol);
         });
         
@@ -1502,12 +1379,6 @@
         dom.dislikeBtn.addEventListener('click', () => PlayerEngine.dislikeCurrent());
         
         setupTapToToggle();
-        
-        // Atualizar hora e modo noturno a cada minuto
-        setInterval(() => {
-            atualizarModoNoturno();
-        }, 60000);
-        atualizarModoNoturno();
     }
 
     // ==================== SWIPE GESTURES ====================
@@ -1529,8 +1400,6 @@
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
         
         setupEventListeners();
-        atualizarStatusRede();
-        atualizarStatusBateria();
         
         setInterval(() => {
             if (state.isPlaying && !dom.musicPlayer.paused && dom.musicPlayer.currentTime > 0) {
@@ -1551,11 +1420,7 @@
     }
     
     console.log('🚀 Rádio Patico IA pronta!');
-    console.log('🔋 Monitor de bateria ativo');
-    console.log('🌐 Status de rede ativo');
-    console.log('📜 Histórico e prévia da próxima música');
-    console.log('🌙 Modo noturno automático');
-    console.log('📱 Tela cheia permanente');
+    console.log('✋ Dicas com texto BRANCO para melhor visualização!');
 </script>
 </body>
 </html>
