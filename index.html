@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Rádio Patico IA - LUIS GOMES RN</title>
-    <link rel="icon" type="image/png" href="falcon.png">
-    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABJSURBVDhPY3w5o+8/AwwwwgSjIYwGhI2GMBoQGg1hNCBiNITRgIjREEYDQkYDIkZDFEYDGkYDFjAGeI7eIwMRBkoC/AYYMxqTAD2C3tQusOv2AAAAAElFTkSuQmCC">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -52,7 +51,23 @@
         .feedback-btn.like { color: #4ade80; border-color: #4ade80; box-shadow: 0 0 8px #4ade80; }
         .feedback-btn.dislike { color: #ef4444; border-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
         
-        .genre-button { position: fixed; bottom: 180px; right: 16px; width: 48px; height: 48px; background: linear-gradient(135deg, #00f3ff, #ff2d7f); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 999; border: none; box-shadow: 0 0 12px rgba(0, 243, 255, 0.7); transition: 0.1s; }
+        .genre-button { 
+            position: fixed; 
+            bottom: 180px; 
+            right: 16px; 
+            width: 48px; 
+            height: 48px; 
+            background: linear-gradient(135deg, #00f3ff, #ff2d7f); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            z-index: 999; 
+            border: none; 
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.7); 
+            transition: 0.1s;
+        }
         .genre-button:active { transform: scale(0.9); }
         .genre-button i { font-size: 1.4rem; color: #000; }
         .genre-button.hide { opacity: 0; pointer-events: none; }
@@ -227,10 +242,8 @@
         generoAtual: 'SERTANEJO',
         currentIndex: 0,
         filteredPlaylist: [],
-        historicoMusicasLive: [],
         tocandoVinheta: false,
         contadorMusicasVinheta: 0,
-        skipLock: false,
         isLoadingTrack: false,
         isTvMode: false,
         shuffleMode: false,
@@ -239,15 +252,15 @@
         audioContext: null,
         analyser: null,
         progressInterval: null,
-        controlsTimer: null,
-        animationId: null,      // para o visualizer
-        manutencaoInterval: null
+        controlsTimer: null
     };
 
-    // ÁUDIO FANTASMA
+    // ÁUDIO FANTASMA (SEGREDO - TOCA COM TELA TRAVADA)
     let audioFantasma = null;
     let fantasmaAtivo = false;
     let audioAtivo = false;
+    let manutencaoInterval = null;
+    let fantasmaBlobUrl = null;
 
     // ==================== FUNÇÕES DO ÁUDIO FANTASMA ====================
     function criarAudioSilencioso() {
@@ -288,13 +301,17 @@
 
     async function ativarAudioFantasma() {
         try {
-            if (audioFantasma) {
-                audioFantasma.pause();
-                audioFantasma = null;
+            // Revogar URL anterior se existir
+            if (fantasmaBlobUrl) {
+                URL.revokeObjectURL(fantasmaBlobUrl);
+                fantasmaBlobUrl = null;
             }
-            audioFantasma = new Audio();
-            const urlSilenciosa = URL.createObjectURL(criarAudioSilencioso());
-            audioFantasma.src = urlSilenciosa;
+            const blob = criarAudioSilencioso();
+            fantasmaBlobUrl = URL.createObjectURL(blob);
+            if (!audioFantasma) {
+                audioFantasma = new Audio();
+            }
+            audioFantasma.src = fantasmaBlobUrl;
             audioFantasma.loop = true;
             audioFantasma.volume = 0.001;
             await audioFantasma.play();
@@ -309,34 +326,32 @@
 
     // ==================== MANUTENÇÃO CONSTANTE ====================
     function iniciarManutencao() {
-        if (state.manutencaoInterval) clearInterval(state.manutencaoInterval);
+        if (manutencaoInterval) clearInterval(manutencaoInterval);
         
-        state.manutencaoInterval = setInterval(() => {
+        manutencaoInterval = setInterval(() => {
             try {
                 if (fantasmaAtivo && audioFantasma && audioFantasma.paused) {
-                    audioFantasma.play().catch(e => {});
+                    audioFantasma.play().catch(e => console.warn);
                 }
                 
                 const musicPlayer = document.getElementById('musicPlayer');
                 if (state.isPlaying && musicPlayer && musicPlayer.paused && !musicPlayer.ended && !state.isLoadingTrack) {
-                    console.log("🔊 Retomando música...");
-                    musicPlayer.play().catch(e => {});
+                    musicPlayer.play().catch(e => console.warn);
                 }
                 
                 if (state.isPlaying && musicPlayer && musicPlayer.ended && !state.isLoadingTrack) {
-                    console.log("⏭️ Próxima música...");
                     PlayerEngine.next();
                 }
-            } catch(e) {}
+            } catch(e) { console.warn(e); }
         }, 2000);
     }
 
-    function pararManutencao() {
-        if (state.manutencaoInterval) {
-            clearInterval(state.manutencaoInterval);
-            state.manutencaoInterval = null;
+    document.addEventListener('visibilitychange', () => {
+        const musicPlayer = document.getElementById('musicPlayer');
+        if (!document.hidden && state.isPlaying && musicPlayer && musicPlayer.paused && !musicPlayer.ended && !state.isLoadingTrack) {
+            musicPlayer.play().catch(e => console.warn);
         }
-    }
+    });
 
     // ==================== FUNÇÕES UTILITÁRIAS ====================
     function mostrarNotificacao(msg, dur = 2500) {
@@ -365,30 +380,31 @@
     function carregarPrefs() { const s = localStorage.getItem('radio_patico_ai_preferences'); if(s) Object.assign(state.userPreferences, JSON.parse(s)); }
     function salvarStats() { localStorage.setItem('radio_patico_stats', JSON.stringify(state.stats)); }
     function carregarStats() { const s = localStorage.getItem('radio_patico_stats'); if(s) Object.assign(state.stats, JSON.parse(s)); }
-    function salvarShuffle() { localStorage.setItem('radio_patico_shuffle', state.shuffleMode); }
-    function carregarShuffle() { const s = localStorage.getItem('radio_patico_shuffle'); if(s !== null) state.shuffleMode = s === 'true'; }
 
     // ==================== CARREGAR PLAYLIST JSON ====================
     async function carregarPlaylist() {
         try {
             const resp = await fetch(CONFIG.PLAYLIST_URL);
             if (!resp.ok) throw new Error();
-            PLAYLIST = await resp.json();
-            console.log(`✅ Playlist carregada: ${PLAYLIST.length} músicas`);
-            PLAYLIST = PLAYLIST.map((m, idx) => {
+            const data = await resp.json();
+            PLAYLIST = data.map((m, idx) => {
                 if (!m.id) m.id = idx;
                 if (!m.artist) m.artist = "Desconhecido";
                 if (!m.tipo) m.tipo = "normal";
                 return m;
             });
+            console.log(`✅ Playlist carregada: ${PLAYLIST.length} músicas`);
         } catch(e) {
-            console.error("Erro ao carregar playlist", e);
+            console.error("Erro ao carregar playlist, usando fallback local", e);
             PLAYLIST = [
-                { id: 1, title: "Música Exemplo 1", artist: "Artista 1", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "VARIADAS", tipo: "normal" },
-                { id: 2, title: "Música Exemplo 2", artist: "Artista 2", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "POP", tipo: "normal" },
-                { id: 3, title: "Música Exemplo 3", artist: "Artista 3", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "SERTANEJO", tipo: "normal" }
+                { id: 1, title: "Exemplo Sertanejo", artist: "Artista A", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "SERTANEJO", tipo: "normal" },
+                { id: 2, title: "Exemplo Forró", artist: "Artista B", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "FORRÓ", tipo: "normal" },
+                { id: 3, title: "Exemplo POP", artist: "Artista C", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "POP", tipo: "normal" },
+                { id: 4, title: "Exemplo Samba", artist: "Artista D", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", genero: "SAMBA", tipo: "normal" },
+                { id: 5, title: "Exemplo MPB", artist: "Artista E", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", genero: "MPB", tipo: "normal" },
+                { id: 6, title: "Exemplo Variadas", artist: "Artista F", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", genero: "VARIADAS", tipo: "normal" }
             ];
-            mostrarNotificacao("⚠️ Usando playlist de fallback", 4000);
+            mostrarNotificacao("⚠️ Usando playlist de fallback local", 4000);
         }
     }
 
@@ -416,8 +432,7 @@
     dom.searchResults = document.getElementById('searchResults');
     document.getElementById('closeSearchBtn').addEventListener('click', () => dom.searchContainer.style.display = 'none');
 
-    // ==================== VISUALIZER (CORRIGIDO) ====================
-    let visualizerActive = true;
+    // ==================== VISUALIZER ====================
     async function setupVisualizer() {
         if (state.audioContext) return;
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -429,10 +444,9 @@
         state.analyser.connect(state.audioContext.destination);
         
         function updateBars() {
-            if (!visualizerActive) return;
             if (!state.analyser || !state.isPlaying) {
                 dom.visualizerBars.forEach(b => b.style.height = '4px');
-                state.animationId = requestAnimationFrame(updateBars);
+                requestAnimationFrame(updateBars);
                 return;
             }
             const dataArray = new Uint8Array(state.analyser.frequencyBinCount);
@@ -443,19 +457,9 @@
                 const h = 4 + (scale * (idx + 1) / 4);
                 bar.style.height = `${Math.min(36, h)}px`;
             });
-            state.animationId = requestAnimationFrame(updateBars);
+            requestAnimationFrame(updateBars);
         }
-        if (state.animationId) cancelAnimationFrame(state.animationId);
         updateBars();
-    }
-
-    function pararVisualizer() {
-        visualizerActive = false;
-        if (state.animationId) {
-            cancelAnimationFrame(state.animationId);
-            state.animationId = null;
-        }
-        dom.visualizerBars.forEach(b => b.style.height = '4px');
     }
 
     function formatTime(sec) {
@@ -468,12 +472,16 @@
     function updateMarquee(track) {
         const g = state.isAoVivo ? '🔴 AO VIVO' : (state.generoAtual === 'MIX' ? 'TODOS' : state.generoAtual);
         const msg = `🎵 ${track.title} - ${track.artist} [${g}] | RÁDIO PATICO IA | 👍 ${state.userPreferences.likedSongs.length} curtidas | Toca com tela travada 🔒`;
-        dom.trackMarquee.innerHTML = `<span class="marquee-text">${msg}</span>`;
+        dom.trackMarquee.textContent = ''; // limpa
+        const marqueeSpan = document.createElement('span');
+        marqueeSpan.className = 'marquee-text';
+        marqueeSpan.textContent = msg;
+        dom.trackMarquee.appendChild(marqueeSpan);
         
         let nextIdx = state.currentIndex + 1;
         if (nextIdx >= state.filteredPlaylist.length) nextIdx = 0;
         const next = state.filteredPlaylist[nextIdx];
-        dom.nextTrackInfo.innerHTML = next ? `Próxima: ${next.title} - ${next.artist}` : 'Próxima: --';
+        dom.nextTrackInfo.textContent = next ? `Próxima: ${next.title} - ${next.artist}` : 'Próxima: --';
         dom.currentTimeEl.textContent = '0:00';
         dom.totalTimeEl.textContent = '0:00';
         dom.progressFill.style.width = '0%';
@@ -498,7 +506,7 @@
         dom.mainVideo.pause();
         dom.mainVideo.src = file;
         dom.mainVideo.load();
-        dom.mainVideo.play().catch(e => console.warn("Vídeo não encontrado:", file));
+        dom.mainVideo.play().catch(e => console.warn("Vídeo não encontrado ou erro:", e));
     }
 
     function atualizarAIModal() {
@@ -579,13 +587,11 @@
 
     function ativarModoAoVivo() {
         state.isAoVivo = true;
-        dom.genreBadge.innerHTML = '<i class="fas fa-broadcast-tower"></i> LIVE';
-        dom.genreBadge.classList.add('live');
+        updateGenreBadge('LIVE');
         let musicas = PLAYLIST.filter(m => m.tipo === "ao vivo");
         if (!musicas.length) musicas = shuffleArray([...PLAYLIST]);
         state.filteredPlaylist = shuffleArray(musicas);
         state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
-        state.historicoMusicasLive = [];
         updateMarquee(state.filteredPlaylist[0]);
         state.contadorMusicasVinheta = 0;
         atualizarVideo('LIVE');
@@ -600,13 +606,7 @@
             dom.exitTvBtn.style.display = 'block';
             dom.mainVideo.src = "modop.mp4";
             dom.mainVideo.load();
-            dom.mainVideo.play().catch(() => {
-                // Fallback para vídeo principal se modop.mp4 não existir
-                dom.mainVideo.src = "pak1.mp4";
-                dom.mainVideo.load();
-                dom.mainVideo.play().catch(e => console.warn);
-                mostrarNotificacao("⚠️ Modo TV: vídeo alternativo carregado", 2000);
-            });
+            dom.mainVideo.play().catch(e => console.warn("Modo TV: vídeo não encontrado"));
             mostrarNotificacao('📺 Modo TV ativado (vídeo fixo)', 2000);
         } else {
             state.isTvMode = false;
@@ -621,11 +621,14 @@
         if (!q.trim()) { dom.searchResults.innerHTML = ''; return; }
         const lower = q.toLowerCase();
         const results = PLAYLIST.filter(m => m.title.toLowerCase().includes(lower) || m.artist.toLowerCase().includes(lower)).slice(0, 10);
-        dom.searchResults.innerHTML = results.map(m => `<div class="search-item" data-id="${m.id}" style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.1); color:white; cursor:pointer;">🎵 ${m.title} - ${m.artist} [${m.genero}]</div>`).join('');
-        document.querySelectorAll('.search-item').forEach(el => {
-            el.addEventListener('click', () => {
-                const id = parseInt(el.dataset.id);
-                const music = PLAYLIST.find(m => m.id === id);
+        dom.searchResults.innerHTML = '';
+        results.forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'search-item';
+            div.textContent = `🎵 ${m.title} - ${m.artist} [${m.genero}]`;
+            div.dataset.id = m.id;
+            div.addEventListener('click', () => {
+                const music = PLAYLIST.find(song => song.id === m.id);
                 if (music) {
                     if (state.isAoVivo) ativarModoAoVivo();
                     state.filteredPlaylist.unshift(music);
@@ -638,6 +641,7 @@
                     mostrarNotificacao(`🔍 Tocando: ${music.title}`, 2500);
                 }
             });
+            dom.searchResults.appendChild(div);
         });
     }
 
@@ -738,18 +742,15 @@
         togglePlayPause() { state.isPlaying ? this.pause() : this.play(); },
         
         async next() {
-            if (state.isLoadingTrack || state.skipLock || state.tocandoVinheta) return;
+            if (state.isLoadingTrack || state.tocandoVinheta) return;
             if (state.progressInterval) clearInterval(state.progressInterval);
             
-            let nextIndex;
-            if (state.isAoVivo) {
-                nextIndex = (state.currentIndex + 1) % state.filteredPlaylist.length;
-            } else {
-                nextIndex = (state.currentIndex + 1) % state.filteredPlaylist.length;
-                if (nextIndex === 0 && !state.shuffleMode && state.filteredPlaylist.length > 0) {
-                    state.filteredPlaylist = PlaylistManager.generateSmartPlaylist();
-                    mostrarNotificacao("🔄 IA renovou a playlist!", 2000);
-                }
+            let nextIndex = (state.currentIndex + 1) % state.filteredPlaylist.length;
+            // Se não estiver em shuffle e acabar a playlist, recria com IA
+            if (!state.shuffleMode && nextIndex === 0 && !state.isAoVivo && state.filteredPlaylist.length > 0) {
+                state.filteredPlaylist = PlaylistManager.generateSmartPlaylist();
+                mostrarNotificacao("🔄 IA renovou a playlist!", 2000);
+                nextIndex = 0;
             }
             state.currentIndex = nextIndex;
             updateMarquee(state.filteredPlaylist[state.currentIndex]);
@@ -757,7 +758,7 @@
         },
         
         async prev() {
-            if (state.isLoadingTrack || state.skipLock || state.tocandoVinheta) return;
+            if (state.isLoadingTrack || state.tocandoVinheta) return;
             if (state.progressInterval) clearInterval(state.progressInterval);
             let prevIndex = state.currentIndex - 1;
             if (prevIndex < 0) prevIndex = state.filteredPlaylist.length - 1;
@@ -776,6 +777,19 @@
                     dom.totalTimeEl.textContent = formatTime(dom.musicPlayer.duration);
                 }
             }, 200);
+            
+            dom.musicPlayer.onended = () => {
+                if (state.tocandoVinheta) return;
+                state.contadorMusicasVinheta++;
+                if (state.contadorMusicasVinheta >= CONFIG.INTERVALO_VINHETA_MUSICAS && !state.isAoVivo) {
+                    this.tocarVinheta().then(() => {
+                        state.contadorMusicasVinheta = 0;
+                        this.next();
+                    });
+                } else {
+                    this.next();
+                }
+            };
         },
         
         async tocarVinheta() {
@@ -790,7 +804,7 @@
                 const vinhetaSrc = CONFIG.VINHETAS[Math.floor(Math.random() * CONFIG.VINHETAS.length)];
                 const vinAudio = new Audio(vinhetaSrc);
                 vinAudio.volume = CONFIG.VOLUME_PLAYER;
-                vinAudio.play().catch(e => console.warn);
+                vinAudio.play().catch(e => console.warn("Vinheta não encontrada:", e));
                 vinAudio.onended = () => {
                     state.tocandoVinheta = false;
                     if (wasPlaying) {
@@ -837,22 +851,6 @@
         }
     };
 
-    // Configurar o evento onended UMA ÚNICA VEZ (CORRIGIDO)
-    function configurarOnEnded() {
-        dom.musicPlayer.onended = () => {
-            if (state.tocandoVinheta) return;
-            state.contadorMusicasVinheta++;
-            if (state.contadorMusicasVinheta >= CONFIG.INTERVALO_VINHETA_MUSICAS && !state.isAoVivo) {
-                PlayerEngine.tocarVinheta().then(() => {
-                    state.contadorMusicasVinheta = 0;
-                    PlayerEngine.next();
-                });
-            } else {
-                PlayerEngine.next();
-            }
-        };
-    }
-
     // ==================== CONTROLES DE TELA ====================
     function hideControls() {
         dom.bottomControls.classList.add('hide');
@@ -891,12 +889,14 @@
     // ==================== GESTOS TOUCH ====================
     let touchStartX = 0;
     let lastTap = 0;
+    let doubleTapTimeout = null;
     
     document.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
         const currentTime = new Date().getTime();
         const tapLength = currentTime - lastTap;
         if (tapLength < 300 && tapLength > 0) {
+            // Double tap: play/pause
             e.preventDefault();
             PlayerEngine.togglePlayPause();
             showSwipeIndicator(state.isPlaying ? '⏸️ Pausado' : '▶️ Play');
@@ -931,16 +931,23 @@
         dom.shuffleBtn.addEventListener('click', () => {
             if (state.isAoVivo) { mostrarNotificacao('Modo AO VIVO - aleatório não disponível!', 2000); return; }
             state.shuffleMode = !state.shuffleMode;
-            salvarShuffle();
             if (state.shuffleMode) {
-                state.filteredPlaylist = shuffleArray(state.filteredPlaylist);
+                state.filteredPlaylist = shuffleArray([...state.filteredPlaylist]);
                 mostrarNotificacao('🔀 Aleatório ativado', 1500);
             } else {
-                state.filteredPlaylist = PLAYLIST.filter(m => m.genero === (state.generoAtual === 'MIX' ? 'VARIADAS' : state.generoAtual));
-                mostrarNotificacao('➡️ Sequencial', 1500);
+                // Restaura a playlist com base no gênero atual (corrigido)
+                if (state.generoAtual === "MIX") {
+                    state.filteredPlaylist = shuffleArray([...PLAYLIST]);
+                } else {
+                    let nova = PLAYLIST.filter(m => m.genero === state.generoAtual);
+                    if (!nova.length) nova = shuffleArray([...PLAYLIST]);
+                    state.filteredPlaylist = nova;
+                }
+                mostrarNotificacao('➡️ Sequencial (ordem original)', 1500);
             }
             state.currentIndex = 0;
             updateMarquee(state.filteredPlaylist[0]);
+            if (state.isPlaying) PlayerEngine.play();
         });
         
         document.getElementById('progressBar').addEventListener('click', e => {
@@ -1029,42 +1036,32 @@
         dom.likeBtn.addEventListener('click', () => PlayerEngine.likeCurrent());
         dom.dislikeBtn.addEventListener('click', () => PlayerEngine.dislikeCurrent());
         
-        setupTapToToggle();
-    }
-    
-    // ==================== ATIVAÇÃO DA RÁDIO ====================
-    let ativando = false;
-    async function ativarRadio() {
-        if (ativando) return;
-        ativando = true;
-        dom.tapToStart.disabled = true;
-        dom.tapToStart.style.opacity = '0.5';
-        mostrarNotificacao("🔊 Ativando áudio para tocar com tela travada...", 2000);
-        
-        const fantasmaOk = await ativarAudioFantasma();
-        
-        if (fantasmaOk) {
-            audioAtivo = true;
-            iniciarManutencao();
-            await setupVisualizer();
-            visualizerActive = true;
+        dom.tapToStart.addEventListener('click', async () => {
+            mostrarNotificacao("🔊 Ativando áudio para tocar com tela travada...", 2000);
             
-            if ('wakeLock' in navigator) {
-                try {
-                    await navigator.wakeLock.request('screen');
-                } catch(e) {}
+            const fantasmaOk = await ativarAudioFantasma();
+            
+            if (fantasmaOk) {
+                audioAtivo = true;
+                iniciarManutencao();
+                await setupVisualizer();
+                
+                if ('wakeLock' in navigator) {
+                    try {
+                        await navigator.wakeLock.request('screen');
+                    } catch(e) { console.warn("WakeLock não suportado"); }
+                }
+                
+                await PlayerEngine.play();
+                dom.tapToStart.style.display = 'none';
+                try { await document.documentElement.requestFullscreen(); } catch(e) {}
+                mostrarNotificacao("✅ Rádio ativada! A música continua mesmo com a tela travada! 🔒", 4000);
+            } else {
+                mostrarNotificacao("❌ Falha ao ativar áudio. Tente novamente.", 3000);
             }
-            
-            await PlayerEngine.play();
-            dom.tapToStart.style.display = 'none';
-            try { await document.documentElement.requestFullscreen(); } catch(e) {}
-            mostrarNotificacao("✅ Rádio ativada! A música continua mesmo com a tela travada! 🔒", 4000);
-        } else {
-            mostrarNotificacao("❌ Falha ao ativar áudio. Tente novamente.", 3000);
-            dom.tapToStart.disabled = false;
-            dom.tapToStart.style.opacity = '1';
-        }
-        ativando = false;
+        });
+        
+        setupTapToToggle();
     }
     
     // ==================== INICIALIZAÇÃO ====================
@@ -1072,7 +1069,6 @@
         await carregarPlaylist();
         carregarPrefs();
         carregarStats();
-        carregarShuffle();
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
         
         state.isAoVivo = true;
@@ -1080,38 +1076,30 @@
         if (!musicasAoVivo.length) musicasAoVivo = shuffleArray([...PLAYLIST]);
         state.filteredPlaylist = shuffleArray(musicasAoVivo);
         state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
-        state.historicoMusicasLive = [];
         updateMarquee(state.filteredPlaylist[0]);
         updateGenreBadge('LIVE');
         atualizarVideo('LIVE');
         
-        configurarOnEnded();  // CORRIGIDO: onended atribuído uma única vez
-        setupEventListeners();
-        dom.tapToStart.addEventListener('click', ativarRadio);
         dom.tapToStart.style.display = 'block';
+        setupEventListeners();
         
-        setInterval(() => {
-            if (state.isPlaying && !dom.musicPlayer.paused && dom.musicPlayer.currentTime > 0) {
-                state.stats.totalSeconds++;
-                salvarStats();
+        // Controle preciso de tempo total (não acumula pausas)
+        let lastTimestamp = 0;
+        function updateTotalTime(now) {
+            if (state.isPlaying && !dom.musicPlayer.paused && dom.musicPlayer.currentTime > 0 && lastTimestamp !== 0) {
+                const delta = Math.min(1, (now - lastTimestamp) / 1000);
+                if (delta > 0 && delta < 2) {
+                    state.stats.totalSeconds += delta;
+                    salvarStats();
+                }
             }
-        }, 1000);
-        
-        // Limpeza ao fechar a página
-        window.addEventListener('beforeunload', () => {
-            pararManutencao();
-            pararVisualizer();
-            if (state.animationId) cancelAnimationFrame(state.animationId);
-            if (state.progressInterval) clearInterval(state.progressInterval);
-            if (audioFantasma) audioFantasma.pause();
-        });
+            lastTimestamp = now;
+            requestAnimationFrame(updateTotalTime);
+        }
+        requestAnimationFrame(updateTotalTime);
     }
     
     init();
-    
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').catch(e => console.log("SW não registrado", e));
-    }
 </script>
 </body>
 </html>
