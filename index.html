@@ -1,1 +1,845 @@
 
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Ótica São Miguel • Música Ambiente</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: #000;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .app {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 2;
+        }
+
+        .player-container {
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 60px;
+            padding: 12px 20px;
+            z-index: 20;
+            transform: translateY(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .player-container.hide {
+            transform: translateY(150%);
+        }
+
+        .control-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .ctrl-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.2rem;
+        }
+
+        .ctrl-btn:active {
+            transform: scale(0.95);
+            background: #25D366;
+            color: #000;
+        }
+
+        .play-btn {
+            width: 65px;
+            height: 65px;
+            background: #25D366;
+            color: #000;
+            font-size: 1.5rem;
+        }
+
+        .float-buttons {
+            position: fixed;
+            right: 15px;
+            bottom: 100px;
+            z-index: 25;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .float-btn {
+            cursor: pointer;
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            font-size: 1.1rem;
+        }
+
+        .float-btn:active {
+            transform: scale(0.92);
+        }
+
+        .btn-wpp { background: #25D366; }
+        .btn-info { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .btn-bluetooth { background: #0082fc; }
+
+        .menu-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 30;
+            color: white;
+            font-size: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-popup {
+            position: fixed;
+            top: 65px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 8px;
+            z-index: 31;
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 180px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-popup.open {
+            display: flex;
+        }
+
+        .menu-popup button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .menu-popup button:active {
+            background: #25D366;
+            color: #000;
+        }
+
+        .activate-btn {
+            position: fixed;
+            bottom: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(50%);
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            border: none;
+            padding: 18px 36px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) translateY(50%) scale(1); }
+            50% { transform: translateX(-50%) translateY(50%) scale(1.05); }
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 25px;
+            padding: 20px;
+            z-index: 1000;
+            display: none;
+            max-width: 85vw;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal.open {
+            display: block;
+        }
+
+        .modal h2 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 1.3rem;
+        }
+
+        .modal button {
+            background: #25D366;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            color: white;
+            font-weight: bold;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 50px;
+            color: white;
+            font-size: 0.8rem;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+
+        .ad-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #25D366, #667eea);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 60px;
+            z-index: 150;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .ad-toast.show {
+            display: flex;
+        }
+
+        .now-playing {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 6px 14px;
+            border-radius: 30px;
+            color: white;
+            font-size: 0.7rem;
+            z-index: 15;
+            pointer-events: none;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 70%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .now-playing i {
+            color: #25D366;
+            margin-right: 6px;
+        }
+
+        @media (max-width: 600px) {
+            .control-buttons { gap: 20px; }
+            .ctrl-btn { width: 45px; height: 45px; }
+            .play-btn { width: 55px; height: 55px; }
+            .activate-btn { padding: 15px 30px; font-size: 1rem; }
+            .ad-toast { font-size: 0.7rem; white-space: normal; width: 80%; text-align: center; }
+            .now-playing { font-size: 0.6rem; max-width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
+        <source src="pak1.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <div class="now-playing" id="nowPlaying">
+        <i class="fas fa-music"></i> <span id="nowPlayingText">Carregando playlist...</span>
+    </div>
+
+    <div class="player-container hide" id="playerContainer">
+        <div class="control-buttons">
+            <button class="ctrl-btn" id="prevBtn"><i class="fas fa-backward"></i></button>
+            <button class="ctrl-btn play-btn" id="playPauseBtn"><i class="fas fa-play"></i></button>
+            <button class="ctrl-btn" id="nextBtn"><i class="fas fa-forward"></i></button>
+        </div>
+    </div>
+
+    <div class="float-buttons">
+        <button class="float-btn btn-bluetooth" id="bluetoothBtn"><i class="fab fa-bluetooth-b"></i></button>
+        <button class="float-btn btn-wpp" id="wppBtn"><i class="fab fa-whatsapp"></i></button>
+        <button class="float-btn btn-info" id="infoBtn"><i class="fas fa-info"></i></button>
+    </div>
+
+    <div class="menu-btn" id="menuBtn">
+        <i class="fas fa-ellipsis-v"></i>
+    </div>
+    <div class="menu-popup" id="menuPopup">
+        <button id="manualBtn"><i class="fas fa-book-open"></i> Como funciona</button>
+        <button id="shareBtn"><i class="fas fa-share-alt"></i> Compartilhar</button>
+        <button id="menuWppBtn"><i class="fab fa-whatsapp"></i> Falar com Ótica</button>
+    </div>
+
+    <button class="activate-btn" id="activateBtn">
+        <i class="fas fa-headphones"></i> ATIVAR SISTEMA
+    </button>
+
+    <div class="notification" id="notification">
+        <span id="notificationMsg"></span>
+    </div>
+
+    <div class="ad-toast" id="adToast">
+        <i class="fas fa-bullhorn"></i>
+        <span id="adToastText">📢 ANÚNCIO - Ótica São Miguel</span>
+    </div>
+
+    <div class="modal" id="infoModal">
+        <h2><i class="fas fa-glasses"></i> Ótica São Miguel</h2>
+        <p>👓 Armações de qualidade</p>
+        <p>🔬 Lentes de precisão</p>
+        <p>⭐ Atendimento especializado</p>
+        <p style="margin-top: 10px;"><i class="fab fa-whatsapp"></i> (12) 98846-1978</p>
+        <button onclick="closeModal('infoModal')">FECHAR</button>
+    </div>
+
+    <div class="modal" id="manualModal">
+        <h2>📘 Como Funciona</h2>
+        <div style="text-align: left;">
+            <p><strong>🔊 LÓGICA EXATA:</strong></p>
+            <p style="color: #25D366; font-weight: bold;">✅ ANÚNCIO → MÚSICA → ANÚNCIO → MÚSICA → ANÚNCIO...</p>
+            <p style="margin-top: 10px;"><strong>🎮 GESTOS:</strong><br>
+            Toque na tela = mostra/esconde controles<br>
+            Deslizar ← → = trocar música<br>
+            Toque duplo = play/pause</p>
+        </div>
+        <button onclick="closeModal('manualModal')">ENTENDI</button>
+    </div>
+</div>
+
+<audio id="audioPlayer" preload="auto"></audio>
+
+<script>
+    // ==================== CONFIGURAÇÕES ====================
+    let isActive = false;
+    let isPlaying = false;
+    let isAdPlaying = false;
+    let autoHideTimer = null;
+    let currentAdIndex = 0;
+    let currentSongIndex = 0;
+    let shuffledSongs = [];
+    let allSongs = []; // Será preenchido via JSON
+    
+    const audio = document.getElementById('audioPlayer');
+    const playerContainer = document.getElementById('playerContainer');
+    const nowPlayingSpan = document.getElementById('nowPlayingText');
+    
+    // ==================== ANÚNCIOS (mesmos arquivos) ====================
+    const ADS = [
+        { text: "📢 Ótica São Miguel! Qualidade em armações e lentes.", src: "as.m4a" },
+        { text: "📢 Promoção especial na Ótica São Miguel! Venha conferir.", src: "sa.m4a" }
+    ];
+    
+    // ==================== FUNÇÕES ====================
+    
+    function updateNowPlaying(text) {
+        nowPlayingSpan.innerText = text;
+    }
+    
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('open');
+    }
+    
+    function showNotification(msg, duration = 3000) {
+        const notificationDiv = document.getElementById('notification');
+        const notificationMsg = document.getElementById('notificationMsg');
+        notificationMsg.innerText = msg;
+        notificationDiv.classList.add('show');
+        setTimeout(() => notificationDiv.classList.remove('show'), duration);
+    }
+    
+    function togglePlayer() {
+        playerContainer.classList.toggle('hide');
+        if (!playerContainer.classList.contains('hide')) {
+            if (autoHideTimer) clearTimeout(autoHideTimer);
+            autoHideTimer = setTimeout(() => {
+                if (isPlaying || isAdPlaying) {
+                    playerContainer.classList.add('hide');
+                }
+            }, 4000);
+        }
+    }
+    
+    // Embaralhar array
+    function shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+    
+    // Iniciar playlist embaralhada
+    function initPlaylist() {
+        if (allSongs.length === 0) {
+            console.warn("⚠️ Nenhuma música carregada!");
+            return;
+        }
+        shuffledSongs = shuffleArray(allSongs);
+        currentSongIndex = 0;
+        console.log(`📀 Playlist embaralhada com ${shuffledSongs.length} músicas`);
+        if (shuffledSongs.length > 0) {
+            console.log(`  Primeira música: ${shuffledSongs[0].title} - ${shuffledSongs[0].artist} -> ${shuffledSongs[0].src}`);
+        }
+    }
+    
+    // Tocar música
+    function playMusic() {
+        if (!isActive || isAdPlaying) return;
+        
+        if (shuffledSongs.length === 0 || allSongs.length === 0) {
+            console.error("❌ Playlist vazia!");
+            showNotification("Erro: playlist vazia", 2000);
+            return;
+        }
+        
+        const song = shuffledSongs[currentSongIndex];
+        if (!song) {
+            console.error("❌ Música não encontrada no índice", currentSongIndex);
+            initPlaylist();
+            if (shuffledSongs.length > 0) {
+                playMusic();
+            }
+            return;
+        }
+        
+        const displayText = `${song.title} - ${song.artist}`;
+        console.log(`🎵 Tocando: ${displayText} (arquivo: ${song.src})`);
+        updateNowPlaying(displayText);
+        showNotification(`🎵 ${displayText}`, 2500);
+        
+        audio.src = song.src;
+        audio.load();
+        
+        audio.oncanplaythrough = () => {
+            audio.play().then(() => {
+                isPlaying = true;
+                isAdPlaying = false;
+                const playPauseBtn = document.getElementById('playPauseBtn');
+                if (playPauseBtn) playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                console.log("✅ Música tocando com sucesso!");
+            }).catch(err => {
+                console.log("Erro ao tocar música:", err);
+                // Tenta novamente após erro
+                setTimeout(() => playMusic(), 1000);
+            });
+        };
+        
+        audio.onerror = (e) => {
+            console.log(`❌ Arquivo não encontrado: ${song.src}`);
+            showNotification(`⚠️ Arquivo não encontrado: ${song.title}`, 2000);
+            nextTrack();
+        };
+    }
+    
+    // Tocar anúncio
+    function playAd() {
+        if (!isActive) return;
+        
+        isAdPlaying = true;
+        isPlaying = false;
+        updateNowPlaying("📢 ANÚNCIO - Ótica São Miguel");
+        
+        const ad = ADS[currentAdIndex % ADS.length];
+        currentAdIndex++;
+        
+        const adToast = document.getElementById('adToast');
+        const adToastText = document.getElementById('adToastText');
+        adToastText.innerHTML = `<i class="fas fa-bullhorn"></i> ${ad.text}`;
+        adToast.classList.add('show');
+        
+        console.log(`📢 TOCANDO ANÚNCIO: ${ad.text} (${ad.src})`);
+        showNotification(ad.text, 4000);
+        
+        audio.src = ad.src;
+        audio.load();
+        
+        audio.oncanplaythrough = () => {
+            audio.play().then(() => {
+                console.log("✅ Anúncio tocando...");
+            }).catch(err => {
+                console.log("Erro no anúncio:", err);
+                finalizarAnuncio();
+            });
+        };
+        
+        audio.onended = () => {
+            console.log("✅ Anúncio finalizado!");
+            finalizarAnuncio();
+        };
+        
+        audio.onerror = () => {
+            console.log(`❌ Arquivo de anúncio não encontrado: ${ad.src}`);
+            showNotification(`⚠️ Pulando anúncio...`, 2000);
+            setTimeout(() => finalizarAnuncio(), 2000);
+        };
+    }
+    
+    function finalizarAnuncio() {
+        console.log("🔁 ANÚNCIO FINALIZADO! Voltando para música...");
+        isAdPlaying = false;
+        document.getElementById('adToast').classList.remove('show');
+        
+        if (shuffledSongs.length === 0) {
+            initPlaylist();
+        }
+        
+        currentSongIndex++;
+        if (currentSongIndex >= shuffledSongs.length) {
+            console.log("📀 Playlist completa! Embaralhando novamente...");
+            initPlaylist();
+        }
+        
+        playMusic();
+    }
+    
+    audio.onended = () => {
+        if (isAdPlaying) return;
+        if (isActive && isPlaying) {
+            console.log("🎵 Música finalizada! Iniciando anúncio...");
+            playAd();
+        }
+    };
+    
+    function nextTrack() {
+        if (!isActive || isAdPlaying) return;
+        if (isPlaying) {
+            audio.pause();
+            console.log("⏭️ Pulando música...");
+            currentSongIndex++;
+            if (currentSongIndex >= shuffledSongs.length) {
+                initPlaylist();
+            }
+            playAd();
+        }
+    }
+    
+    function prevTrack() {
+        if (!isActive || isAdPlaying) return;
+        if (isPlaying) {
+            audio.pause();
+            currentSongIndex--;
+            if (currentSongIndex < 0) {
+                currentSongIndex = shuffledSongs.length - 1;
+            }
+            playAd();
+        }
+    }
+    
+    function pauseMusic() {
+        if (audio.src && !audio.paused) {
+            audio.pause();
+            isPlaying = false;
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            if (playPauseBtn) playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+    }
+    
+    function togglePlayPause() {
+        if (!isActive) {
+            showNotification("Clique no botão verde primeiro!", 2000);
+            return;
+        }
+        if (isAdPlaying) {
+            showNotification("Anúncio em execução, aguarde...", 1500);
+            return;
+        }
+        if (isPlaying) {
+            pauseMusic();
+            updateNowPlaying("⏸ Pausado");
+        } else {
+            if (audio.src && audio.src !== "") {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    const playPauseBtn = document.getElementById('playPauseBtn');
+                    if (playPauseBtn) playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    const song = shuffledSongs[currentSongIndex];
+                    if (song) updateNowPlaying(`${song.title} - ${song.artist}`);
+                }).catch(() => playMusic());
+            } else {
+                playMusic();
+            }
+        }
+    }
+    
+    // Carregar playlist do JSON
+    async function loadPlaylist() {
+        try {
+            showNotification("📥 Carregando playlist...", 2000);
+            const response = await fetch('https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            
+            if (!Array.isArray(data) || data.length === 0) {
+                throw new Error("JSON vazio ou inválido");
+            }
+            
+            // Mapear dados para o formato esperado
+            allSongs = data.map(item => ({
+                id: item.id,
+                title: item.title || "Sem título",
+                artist: item.artist || "Artista desconhecido",
+                src: item.src || "",
+                genero: item.genero || "",
+                tipo: item.tipo || ""
+            })).filter(song => song.src && song.src.trim() !== "");
+            
+            console.log(`🎵 ${allSongs.length} músicas carregadas do JSON!`);
+            console.log("🎶 Exemplos:", allSongs.slice(0, 3));
+            showNotification(`✅ ${allSongs.length} músicas carregadas!`, 3000);
+            updateNowPlaying(`📀 ${allSongs.length} músicas prontas`);
+            
+            if (allSongs.length === 0) {
+                console.error("❌ Nenhuma música válida no JSON!");
+                updateNowPlaying("Erro: playlist vazia");
+                showNotification("Erro: playlist vazia!", 4000);
+            } else {
+                initPlaylist();
+            }
+        } catch (error) {
+            console.error("❌ Erro ao carregar playlist:", error);
+            updateNowPlaying("Erro ao carregar músicas");
+            showNotification("Erro ao carregar playlist! Verifique a conexão.", 5000);
+        }
+    }
+    
+    async function startSystem() {
+        if (isActive) return;
+        
+        if (allSongs.length === 0) {
+            showNotification("⏳ Aguardando carregamento da playlist...", 2000);
+            await loadPlaylist();
+            if (allSongs.length === 0) {
+                showNotification("❌ Playlist não carregou! Tente novamente.", 3000);
+                return;
+            }
+        }
+        
+        showNotification("🎬 Iniciando sistema...", 2000);
+        
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioContext();
+            const oscillator = ctx.createOscillator();
+            const gain = ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(ctx.destination);
+            gain.gain.value = 0;
+            oscillator.start();
+            oscillator.stop(ctx.currentTime + 0.1);
+            await ctx.resume();
+            setTimeout(() => ctx.close(), 200);
+            
+            isActive = true;
+            const activateBtn = document.getElementById('activateBtn');
+            if (activateBtn) activateBtn.style.display = 'none';
+            
+            try {
+                await document.documentElement.requestFullscreen();
+            } catch(e) {
+                console.log("Fullscreen não suportado ou bloqueado");
+            }
+            
+            const video = document.getElementById('bgVideo');
+            video.play().catch(e => console.log("Vídeo:", e));
+            
+            setTimeout(() => {
+                console.log("🎬 INICIANDO COM ANÚNCIO...");
+                playAd();
+            }, 500);
+            
+            showNotification("🔊 ANÚNCIO → MÚSICA → ANÚNCIO → MÚSICA...", 4000);
+            console.log("✅ SISTEMA INICIADO!");
+            console.log(`📋 Total de músicas carregadas: ${allSongs.length}`);
+            
+        } catch (err) {
+            console.error("Erro:", err);
+            showNotification("🔊 Clique NOVAMENTE!", 3000);
+            isActive = false;
+            const activateBtn = document.getElementById('activateBtn');
+            if (activateBtn) activateBtn.style.display = 'block';
+        }
+    }
+    
+    // ==================== EVENTOS ====================
+    
+    document.getElementById('activateBtn').addEventListener('click', startSystem);
+    document.getElementById('playPauseBtn').addEventListener('click', (e) => { e.stopPropagation(); togglePlayPause(); });
+    document.getElementById('nextBtn').addEventListener('click', (e) => { e.stopPropagation(); nextTrack(); });
+    document.getElementById('prevBtn').addEventListener('click', (e) => { e.stopPropagation(); prevTrack(); });
+    
+    document.addEventListener('touchstart', (e) => {
+        if (isActive && !e.target.closest('.ctrl-btn') && !e.target.closest('.float-btn') && !e.target.closest('.menu-btn')) {
+            togglePlayer();
+        }
+    });
+    
+    let lastTap = 0;
+    document.addEventListener('touchstart', (e) => {
+        const now = Date.now();
+        if (now - lastTap < 300) {
+            e.preventDefault();
+            togglePlayPause();
+        }
+        lastTap = now;
+    });
+    
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+    document.addEventListener('touchend', (e) => {
+        const diff = e.changedTouches[0].screenX - touchStartX;
+        if (Math.abs(diff) > 50 && isActive && !isAdPlaying) {
+            if (diff > 0) prevTrack();
+            else nextTrack();
+        }
+    });
+    
+    function openWhatsApp() { window.open('https://wa.me/5512988461978', '_blank'); }
+    document.getElementById('wppBtn').addEventListener('click', openWhatsApp);
+    document.getElementById('menuWppBtn').addEventListener('click', openWhatsApp);
+    
+    document.getElementById('bluetoothBtn').addEventListener('click', async () => {
+        showNotification("🔵 Procurando...", 2000);
+        if ('bluetooth' in navigator) {
+            try {
+                await navigator.bluetooth.requestDevice({ acceptAllDevices: true });
+                showNotification("✅ Conectado!", 3000);
+            } catch(error) { showNotification("❌ Cancelado", 2000); }
+        } else { showNotification("⚠️ Use Chrome", 3000); }
+    });
+    
+    document.getElementById('infoBtn').addEventListener('click', () => { document.getElementById('infoModal').classList.add('open'); });
+    document.getElementById('manualBtn').addEventListener('click', () => {
+        document.getElementById('manualModal').classList.add('open');
+        document.getElementById('menuPopup').classList.remove('open');
+    });
+    
+    const menuPopup = document.getElementById('menuPopup');
+    document.getElementById('menuBtn').addEventListener('click', (e) => { e.stopPropagation(); menuPopup.classList.toggle('open'); });
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#menuBtn') && !e.target.closest('#menuPopup')) menuPopup.classList.remove('open');
+    });
+    
+    document.getElementById('shareBtn').addEventListener('click', () => {
+        if (navigator.share) { navigator.share({ title: 'Ótica São Miguel', url: window.location.href }); }
+        else { navigator.clipboard.writeText(window.location.href); showNotification("🔗 Link copiado!", 2000); }
+        menuPopup.classList.remove('open');
+    });
+    
+    const video = document.getElementById('bgVideo');
+    video.play().catch(e => console.log("Aguardando interação"));
+    
+    // Carregar playlist automaticamente ao iniciar
+    loadPlaylist();
+    
+    console.log("✅ SISTEMA PRONTO - Playlist via JSON!");
+    console.log("🎵 Para adicionar mais músicas, edite o arquivo JSON no repositório.");
+</script>
+</body>
+</html>
