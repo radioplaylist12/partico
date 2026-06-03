@@ -52,23 +52,7 @@
         .feedback-btn.like { color: #4ade80; border-color: #4ade80; box-shadow: 0 0 8px #4ade80; }
         .feedback-btn.dislike { color: #ef4444; border-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
         
-        .genre-button { 
-            position: fixed; 
-            bottom: 180px; 
-            right: 16px; 
-            width: 48px; 
-            height: 48px; 
-            background: linear-gradient(135deg, #00f3ff, #ff2d7f); 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            z-index: 999; 
-            border: none; 
-            box-shadow: 0 0 12px rgba(0, 243, 255, 0.7); 
-            transition: 0.1s;
-        }
+        .genre-button { position: fixed; bottom: 180px; right: 16px; width: 48px; height: 48px; background: linear-gradient(135deg, #00f3ff, #ff2d7f); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 999; border: none; box-shadow: 0 0 12px rgba(0, 243, 255, 0.7); transition: 0.1s; }
         .genre-button:active { transform: scale(0.9); }
         .genre-button i { font-size: 1.4rem; color: #000; }
         .genre-button.hide { opacity: 0; pointer-events: none; }
@@ -216,7 +200,6 @@
 <div class="feedback-modal" id="feedbackModal"><h3>Sua opinião</h3><div class="rating" id="ratingStars"><i class="far fa-star star" data-rating="1"></i><i class="far fa-star star" data-rating="2"></i><i class="far fa-star star" data-rating="3"></i><i class="far fa-star star" data-rating="4"></i><i class="far fa-star star" data-rating="5"></i></div><textarea id="feedbackText" placeholder="Sugestões..."></textarea><div class="modal-buttons"><button class="modal-btn cancel" id="cancelFeedback">Cancelar</button><button class="modal-btn send" id="sendFeedback">Enviar</button></div></div>
 
 <audio id="musicPlayer" preload="auto" crossorigin></audio>
-<audio id="backgroundAudio" preload="auto" crossorigin style="display: none;"></audio>
 
 <script>
     // ==================== CONFIGURAÇÕES ====================
@@ -256,14 +239,15 @@
         audioContext: null,
         analyser: null,
         progressInterval: null,
-        controlsTimer: null
+        controlsTimer: null,
+        animationId: null,      // para o visualizer
+        manutencaoInterval: null
     };
 
-    // ÁUDIO FANTASMA (SEGREDO - TOCA COM TELA TRAVADA)
-    const audioFantasma = new Audio();
+    // ÁUDIO FANTASMA
+    let audioFantasma = null;
     let fantasmaAtivo = false;
     let audioAtivo = false;
-    let manutencaoInterval = null;
 
     // ==================== FUNÇÕES DO ÁUDIO FANTASMA ====================
     function criarAudioSilencioso() {
@@ -304,6 +288,11 @@
 
     async function ativarAudioFantasma() {
         try {
+            if (audioFantasma) {
+                audioFantasma.pause();
+                audioFantasma = null;
+            }
+            audioFantasma = new Audio();
             const urlSilenciosa = URL.createObjectURL(criarAudioSilencioso());
             audioFantasma.src = urlSilenciosa;
             audioFantasma.loop = true;
@@ -313,18 +302,18 @@
             console.log("✅ Áudio fantasma ativado!");
             return true;
         } catch (error) {
-            console.log("Erro:", error);
+            console.log("Erro ao ativar áudio fantasma:", error);
             return false;
         }
     }
 
     // ==================== MANUTENÇÃO CONSTANTE ====================
     function iniciarManutencao() {
-        if (manutencaoInterval) clearInterval(manutencaoInterval);
+        if (state.manutencaoInterval) clearInterval(state.manutencaoInterval);
         
-        manutencaoInterval = setInterval(() => {
+        state.manutencaoInterval = setInterval(() => {
             try {
-                if (fantasmaAtivo && audioFantasma.paused) {
+                if (fantasmaAtivo && audioFantasma && audioFantasma.paused) {
                     audioFantasma.play().catch(e => {});
                 }
                 
@@ -342,12 +331,12 @@
         }, 2000);
     }
 
-    document.addEventListener('visibilitychange', () => {
-        const musicPlayer = document.getElementById('musicPlayer');
-        if (!document.hidden && state.isPlaying && musicPlayer && musicPlayer.paused && !musicPlayer.ended && !state.isLoadingTrack) {
-            musicPlayer.play().catch(e => {});
+    function pararManutencao() {
+        if (state.manutencaoInterval) {
+            clearInterval(state.manutencaoInterval);
+            state.manutencaoInterval = null;
         }
-    });
+    }
 
     // ==================== FUNÇÕES UTILITÁRIAS ====================
     function mostrarNotificacao(msg, dur = 2500) {
@@ -376,6 +365,8 @@
     function carregarPrefs() { const s = localStorage.getItem('radio_patico_ai_preferences'); if(s) Object.assign(state.userPreferences, JSON.parse(s)); }
     function salvarStats() { localStorage.setItem('radio_patico_stats', JSON.stringify(state.stats)); }
     function carregarStats() { const s = localStorage.getItem('radio_patico_stats'); if(s) Object.assign(state.stats, JSON.parse(s)); }
+    function salvarShuffle() { localStorage.setItem('radio_patico_shuffle', state.shuffleMode); }
+    function carregarShuffle() { const s = localStorage.getItem('radio_patico_shuffle'); if(s !== null) state.shuffleMode = s === 'true'; }
 
     // ==================== CARREGAR PLAYLIST JSON ====================
     async function carregarPlaylist() {
@@ -425,7 +416,8 @@
     dom.searchResults = document.getElementById('searchResults');
     document.getElementById('closeSearchBtn').addEventListener('click', () => dom.searchContainer.style.display = 'none');
 
-    // ==================== VISUALIZER ====================
+    // ==================== VISUALIZER (CORRIGIDO) ====================
+    let visualizerActive = true;
     async function setupVisualizer() {
         if (state.audioContext) return;
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -437,9 +429,10 @@
         state.analyser.connect(state.audioContext.destination);
         
         function updateBars() {
+            if (!visualizerActive) return;
             if (!state.analyser || !state.isPlaying) {
                 dom.visualizerBars.forEach(b => b.style.height = '4px');
-                requestAnimationFrame(updateBars);
+                state.animationId = requestAnimationFrame(updateBars);
                 return;
             }
             const dataArray = new Uint8Array(state.analyser.frequencyBinCount);
@@ -450,9 +443,19 @@
                 const h = 4 + (scale * (idx + 1) / 4);
                 bar.style.height = `${Math.min(36, h)}px`;
             });
-            requestAnimationFrame(updateBars);
+            state.animationId = requestAnimationFrame(updateBars);
         }
+        if (state.animationId) cancelAnimationFrame(state.animationId);
         updateBars();
+    }
+
+    function pararVisualizer() {
+        visualizerActive = false;
+        if (state.animationId) {
+            cancelAnimationFrame(state.animationId);
+            state.animationId = null;
+        }
+        dom.visualizerBars.forEach(b => b.style.height = '4px');
     }
 
     function formatTime(sec) {
@@ -495,7 +498,7 @@
         dom.mainVideo.pause();
         dom.mainVideo.src = file;
         dom.mainVideo.load();
-        dom.mainVideo.play().catch(e => console.warn);
+        dom.mainVideo.play().catch(e => console.warn("Vídeo não encontrado:", file));
     }
 
     function atualizarAIModal() {
@@ -597,7 +600,13 @@
             dom.exitTvBtn.style.display = 'block';
             dom.mainVideo.src = "modop.mp4";
             dom.mainVideo.load();
-            dom.mainVideo.play().catch(() => {});
+            dom.mainVideo.play().catch(() => {
+                // Fallback para vídeo principal se modop.mp4 não existir
+                dom.mainVideo.src = "pak1.mp4";
+                dom.mainVideo.load();
+                dom.mainVideo.play().catch(e => console.warn);
+                mostrarNotificacao("⚠️ Modo TV: vídeo alternativo carregado", 2000);
+            });
             mostrarNotificacao('📺 Modo TV ativado (vídeo fixo)', 2000);
         } else {
             state.isTvMode = false;
@@ -767,19 +776,6 @@
                     dom.totalTimeEl.textContent = formatTime(dom.musicPlayer.duration);
                 }
             }, 200);
-            
-            dom.musicPlayer.onended = () => {
-                if (state.tocandoVinheta) return;
-                state.contadorMusicasVinheta++;
-                if (state.contadorMusicasVinheta >= CONFIG.INTERVALO_VINHETA_MUSICAS && !state.isAoVivo) {
-                    this.tocarVinheta().then(() => {
-                        state.contadorMusicasVinheta = 0;
-                        this.next();
-                    });
-                } else {
-                    this.next();
-                }
-            };
         },
         
         async tocarVinheta() {
@@ -840,6 +836,22 @@
             } else mostrarNotificacao("👎 Já marcou", 1500);
         }
     };
+
+    // Configurar o evento onended UMA ÚNICA VEZ (CORRIGIDO)
+    function configurarOnEnded() {
+        dom.musicPlayer.onended = () => {
+            if (state.tocandoVinheta) return;
+            state.contadorMusicasVinheta++;
+            if (state.contadorMusicasVinheta >= CONFIG.INTERVALO_VINHETA_MUSICAS && !state.isAoVivo) {
+                PlayerEngine.tocarVinheta().then(() => {
+                    state.contadorMusicasVinheta = 0;
+                    PlayerEngine.next();
+                });
+            } else {
+                PlayerEngine.next();
+            }
+        };
+    }
 
     // ==================== CONTROLES DE TELA ====================
     function hideControls() {
@@ -919,6 +931,7 @@
         dom.shuffleBtn.addEventListener('click', () => {
             if (state.isAoVivo) { mostrarNotificacao('Modo AO VIVO - aleatório não disponível!', 2000); return; }
             state.shuffleMode = !state.shuffleMode;
+            salvarShuffle();
             if (state.shuffleMode) {
                 state.filteredPlaylist = shuffleArray(state.filteredPlaylist);
                 mostrarNotificacao('🔀 Aleatório ativado', 1500);
@@ -939,18 +952,14 @@
         
         dom.exitTvBtn.addEventListener('click', () => toggleTvMode());
         
-        // BOTÃO DE GÊNEROS FLUTUANTE - CORRIGIDO!
         dom.genreButton.addEventListener('click', (e) => {
             e.stopPropagation();
-            console.log("Botão de gêneros clicado!");
             dom.genresModal.classList.add('open');
             showControls();
         });
         
-        // TAMBÉM O BADGE DE GÊNERO (canto superior esquerdo)
         dom.genreBadge.addEventListener('click', (e) => {
             e.stopPropagation();
-            console.log("Badge de gênero clicado!");
             dom.genresModal.classList.add('open');
             showControls();
         });
@@ -1020,32 +1029,42 @@
         dom.likeBtn.addEventListener('click', () => PlayerEngine.likeCurrent());
         dom.dislikeBtn.addEventListener('click', () => PlayerEngine.dislikeCurrent());
         
-        dom.tapToStart.addEventListener('click', async () => {
-            mostrarNotificacao("🔊 Ativando áudio para tocar com tela travada...", 2000);
-            
-            const fantasmaOk = await ativarAudioFantasma();
-            
-            if (fantasmaOk) {
-                audioAtivo = true;
-                iniciarManutencao();
-                await setupVisualizer();
-                
-                if ('wakeLock' in navigator) {
-                    try {
-                        await navigator.wakeLock.request('screen');
-                    } catch(e) {}
-                }
-                
-                await PlayerEngine.play();
-                dom.tapToStart.style.display = 'none';
-                try { await document.documentElement.requestFullscreen(); } catch(e) {}
-                mostrarNotificacao("✅ Rádio ativada! A música continua mesmo com a tela travada! 🔒", 4000);
-            } else {
-                mostrarNotificacao("❌ Falha ao ativar áudio. Tente novamente.", 3000);
-            }
-        });
-        
         setupTapToToggle();
+    }
+    
+    // ==================== ATIVAÇÃO DA RÁDIO ====================
+    let ativando = false;
+    async function ativarRadio() {
+        if (ativando) return;
+        ativando = true;
+        dom.tapToStart.disabled = true;
+        dom.tapToStart.style.opacity = '0.5';
+        mostrarNotificacao("🔊 Ativando áudio para tocar com tela travada...", 2000);
+        
+        const fantasmaOk = await ativarAudioFantasma();
+        
+        if (fantasmaOk) {
+            audioAtivo = true;
+            iniciarManutencao();
+            await setupVisualizer();
+            visualizerActive = true;
+            
+            if ('wakeLock' in navigator) {
+                try {
+                    await navigator.wakeLock.request('screen');
+                } catch(e) {}
+            }
+            
+            await PlayerEngine.play();
+            dom.tapToStart.style.display = 'none';
+            try { await document.documentElement.requestFullscreen(); } catch(e) {}
+            mostrarNotificacao("✅ Rádio ativada! A música continua mesmo com a tela travada! 🔒", 4000);
+        } else {
+            mostrarNotificacao("❌ Falha ao ativar áudio. Tente novamente.", 3000);
+            dom.tapToStart.disabled = false;
+            dom.tapToStart.style.opacity = '1';
+        }
+        ativando = false;
     }
     
     // ==================== INICIALIZAÇÃO ====================
@@ -1053,6 +1072,7 @@
         await carregarPlaylist();
         carregarPrefs();
         carregarStats();
+        carregarShuffle();
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
         
         state.isAoVivo = true;
@@ -1065,8 +1085,10 @@
         updateGenreBadge('LIVE');
         atualizarVideo('LIVE');
         
-        dom.tapToStart.style.display = 'block';
+        configurarOnEnded();  // CORRIGIDO: onended atribuído uma única vez
         setupEventListeners();
+        dom.tapToStart.addEventListener('click', ativarRadio);
+        dom.tapToStart.style.display = 'block';
         
         setInterval(() => {
             if (state.isPlaying && !dom.musicPlayer.paused && dom.musicPlayer.currentTime > 0) {
@@ -1074,6 +1096,15 @@
                 salvarStats();
             }
         }, 1000);
+        
+        // Limpeza ao fechar a página
+        window.addEventListener('beforeunload', () => {
+            pararManutencao();
+            pararVisualizer();
+            if (state.animationId) cancelAnimationFrame(state.animationId);
+            if (state.progressInterval) clearInterval(state.progressInterval);
+            if (audioFantasma) audioFantasma.pause();
+        });
     }
     
     init();
