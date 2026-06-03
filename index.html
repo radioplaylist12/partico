@@ -35,6 +35,7 @@
         #splash.hidden { opacity: 0; pointer-events: none; }
         .splash-content i { font-size: 4rem; color: #e63946; margin-bottom: 20px; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
+        .status-text { margin-top: 15px; font-size: 0.8rem; color: #ffaa00; }
         
         #tap-to-start {
             position: fixed;
@@ -292,7 +293,8 @@
     <div class="splash-content">
         <i class="fas fa-brain"></i>
         <h1>Cazé Playlist IA</h1>
-        <p style="margin-top: 10px;">🎵 Pronto para tocar!</p>
+        <p>🎵 Carregando playlist do servidor...</p>
+        <div class="status-text" id="statusText">📡 Conectando...</div>
     </div>
 </div>
 
@@ -342,7 +344,7 @@
 
 <div class="modal" id="genresModal">
     <h3><i class="fas fa-music"></i> Estilos Musicais</h3>
-    <div class="genres-grid">
+    <div class="genres-grid" id="genresList">
         <div class="genre-item" data-genero="SERTANEJO">🎸 SERTANEJO</div>
         <div class="genre-item" data-genero="FORRÓ">🥁 FORRÓ</div>
         <div class="genre-item" data-genero="FORRÓ ANTIGO">📀 FORRÓ ANTIGO</div>
@@ -361,69 +363,13 @@
 <div class="notification" id="notification">📡</div>
 
 <script>
-    // ==================== PLAYLIST EMBUTIDA (COMPLETA) ====================
-    const musicas = [
-        // SERTANEJO
-        { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO" },
-        { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO" },
-        { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO" },
-        { id: 4, title: "Retrovisor", artist: "Gusttavo Lima", src: "Gusttavo_Lima_Retrovisor_DVD_muzzik.m4a", genero: "SERTANEJO" },
-        { id: 5, title: "Catedral", artist: "Lauana Prado", src: "LAUANA_PRADO_CATEDRAL_TUDO_DE_NOVO_AMOR_I_LOVE_YOU_muzzik (1).m4a", genero: "SERTANEJO" },
-        { id: 6, title: "Seu Brilho Sumiu", artist: "Israel e Rodolffo", src: "Israel -Rodolffo-MariFernandez - Seu Brilho Sumiu  .mp3", genero: "SERTANEJO" },
-        { id: 7, title: "Desbloqueado", artist: "Diego & Victor Hugo", src: "Diego _ Victor Hugo - Desbloqueado .mp3", genero: "SERTANEJO" },
-        { id: 8, title: "Que Era Eu", artist: "Lauana Prado", src: "LAUANA_PRADO_QUE_ERA_EU_UM_DIA_DE_DOMINGO.m4a", genero: "SERTANEJO" },
-        { id: 9, title: "Assino com X", artist: "VH e Alexandre", src: "VH_e_Alexandre_Assino_com_X.m4a", genero: "SERTANEJO" },
-        
-        // FORRÓ
-        { id: 10, title: "Ficar por Ficar", artist: "Zé Vaqueiro", src: "Zé-Vaqueiro-Ficar-por-Ficar.m4a", genero: "FORRÓ" },
-        { id: 11, title: "Coração Partido", artist: "Luan Estilizado", src: "16 - Coracao Partido - Luan Estilizado.mp3", genero: "FORRÓ" },
-        { id: 12, title: "To Bebendo To Pagando", artist: "Mano Walter", src: "Mano_Walter_Sirano_Sirino_To_Bebendo_To_Pagando_muzzik.m4a", genero: "FORRÓ" },
-        { id: 13, title: "Vagabundo", artist: "Forró Boys", src: "02 VAGABUNDO (1) (1).mp3", genero: "FORRÓ" },
-        { id: 14, title: "Saudade", artist: "Dan Ventura", src: "Dan_Ventura_Saudade_muzzik.m4a", genero: "FORRÓ" },
-        { id: 15, title: "Muito Estranho", artist: "Cintura de Mola", src: "Muito_Estranho_Muito_Estranho_muzzik.m4a", genero: "FORRÓ" },
-        { id: 16, title: "Senta Danada", artist: "Zé Felipe", src: "Zé Felipe e Os Barões Da Pisadinha - Senta Danada .mp3", genero: "FORRÓ" },
-        
-        // FORRÓ ANTIGO
-        { id: 17, title: "Luiz Gonzaga - Nem Se Despediu De Mim", artist: "Luiz Gonzaga", src: "Luiz_Gonzaga_Nem_Se_Despediu_De_Mim_muzzik.m4a", genero: "FORRÓ ANTIGO" },
-        { id: 18, title: "João Tatu", artist: "Brasas do forro", src: "Jo_o_Tatu_Jo_o_Tatu_Live__muzzik.m4a", genero: "FORRÓ ANTIGO" },
-        { id: 19, title: "Forró da multidão", artist: "Mastruz com Leite", src: "Forroz_o_Da_Forroz_o_Da_Multid_o_muzzik.m4a", genero: "FORRÓ ANTIGO" },
-        
-        // BREGA
-        { id: 20, title: "Entre Espumas", artist: "Roberto Miler", src: "Entre_Espumas_Entre_Espumas_muzzik.m4a", genero: "BREGA" },
-        { id: 21, title: "Mande um telegrama", artist: "Odair José", src: "Mande_Nem_Mande_Nem_Que_Seja_um_Telegrama_muzzik.m4a", genero: "BREGA" },
-        { id: 22, title: "A Raposa e as uvas", artist: "Reginaldo Rossi", src: "A_Raposa_A_Raposa_e_as_Uvas_muzzik.m4a", genero: "BREGA" },
-        
-        // MODA TOP
-        { id: 23, title: "Pout-Pourri Top", artist: "VH e Alexandre", src: "VH_e_Alexandre_Pout_Pourri_Top.m4a", genero: "MODA TOP" },
-        { id: 24, title: "Modão Sertanejo", artist: "Various", src: "modao_sertanejo.m4a", genero: "MODA TOP" },
-        
-        // SAMBA
-        { id: 25, title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa 10 - Lance Livre _ NA VIBE DO K10(MP3_160K).mp3", genero: "SAMBA" },
-        { id: 26, title: "Momentos", artist: "Xande de Pilares", src: "Xande_de_Pilares_Momentos_N_o_Foi_Toa.m4a", genero: "SAMBA" },
-        { id: 27, title: "Amei Te Ver", artist: "Tiago Iorc", src: "TIAGO_IORC_MENOS_MAIS_Amei_Te_Ver.m4a", genero: "SAMBA" },
-        
-        // POP
-        { id: 28, title: "Billie Jean", artist: "Michael Jackson", src: "Michael_Jackson_Billie_Jean_muzzik.m4a", genero: "POP" },
-        { id: 29, title: "Thank You", artist: "Dido", src: "Dido_Thank_You.m4a", genero: "POP" },
-        { id: 30, title: "Careless Whisper", artist: "George Michael", src: "George_Michael_Careless_Whisper_muzzik.m4a", genero: "POP" },
-        { id: 31, title: "I'm Yours", artist: "Jason Mraz", src: "Jason_Mraz_I_m_Yours_muzzik.m4a", genero: "POP" },
-        
-        // MPB
-        { id: 32, title: "Palpite", artist: "Vanessa Rangel", src: "Palpite_Palpite_muzzik.m4a", genero: "MPB" },
-        { id: 33, title: "Sina", artist: "Djavan", src: "Djavan_Sina_muzzik.m4a", genero: "MPB" },
-        { id: 34, title: "Velha Infância", artist: "Tribalistas", src: "Tribalistas_Velha_Inf_ncia_muzzik (1).m4a", genero: "MPB" },
-        { id: 35, title: "Codinome Beija Flor", artist: "Cazuza", src: "Cazuza_Codinome_Beija_Flor.m4a", genero: "MPB" },
-        
-        // VARIADAS
-        { id: 36, title: "Dona da Minha Cabeça", artist: "Geraldo Azevedo", src: "Geraldo_Azevedo_Dona_da_Minha_Cabe_a_muzzik (1).m4a", genero: "VARIADAS" },
-        { id: 37, title: "Easy", artist: "Commodores", src: "Commodores_Easy_6.m4a", genero: "VARIADAS" },
-        { id: 38, title: "Another Day In Paradise", artist: "Ivan Barreto", src: "Ivan_Barreto_Another_Day_In_Paradise_.m4a", genero: "VARIADAS" }
-    ];
-    
+    // ==================== CONFIGURAÇÕES ====================
+    const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json";
     const WHATSAPP = "5512988461978";
     const VOLUME = 0.9;
     
     // ==================== VARIÁVEIS ====================
+    let musicas = [];
     let playlist = [];
     let currentIndex = 0;
     let isPlaying = false;
@@ -431,6 +377,7 @@
     let isLoading = false;
     let progressInterval = null;
     let bgInterval = null;
+    let carregado = false;
     
     // Preferências IA
     let prefs = {
@@ -442,6 +389,7 @@
     
     // ==================== DOM ====================
     const splash = document.getElementById('splash');
+    const statusText = document.getElementById('statusText');
     const tapBtn = document.getElementById('tap-to-start');
     const app = document.getElementById('app');
     const music = document.getElementById('musicPlayer');
@@ -497,6 +445,7 @@
     }
     
     function gerarPlaylist() {
+        if (!musicas.length) return [];
         let candidates = [...musicas];
         candidates = candidates.filter(m => !prefs.disliked.includes(m.id));
         if (candidates.length === 0) candidates = [...musicas];
@@ -582,7 +531,6 @@
                         });
                     }
                     
-                    // Atualizar estatísticas
                     prefs.plays[track.id] = (prefs.plays[track.id] || 0) + 1;
                     savePrefs();
                     
@@ -653,7 +601,7 @@
             prefs.disliked = prefs.disliked.filter(id => id !== track.id);
             prefs.genrePref[track.genero] = (prefs.genrePref[track.genero] || 0) + 1;
             savePrefs();
-            showNotif(`👍 Curtiu "${track.title}"! A IA vai tocar mais assim!`, 2500);
+            showNotif(`👍 Curtiu "${track.title}"!`, 2000);
         }
     }
     
@@ -664,7 +612,7 @@
             prefs.disliked.push(track.id);
             prefs.liked = prefs.liked.filter(id => id !== track.id);
             savePrefs();
-            showNotif(`👎 Não curtiu "${track.title}". Pulando...`, 2000);
+            showNotif(`👎 Não curtiu "${track.title}"`, 2000);
             setTimeout(() => nextTrack(), 500);
         }
     }
@@ -743,16 +691,144 @@
         }
     }
     
+    // ==================== CARREGAR PLAYLIST DO JSON ====================
+    async function carregarPlaylist() {
+        statusText.innerHTML = "📡 Baixando playlist do servidor...";
+        
+        // Tentar cache primeiro
+        const cached = localStorage.getItem('caze_playlist');
+        const cacheTime = localStorage.getItem('caze_playlist_time');
+        
+        if (cached && cacheTime && (Date.now() - parseInt(cacheTime) < 3600000)) {
+            try {
+                musicas = JSON.parse(cached);
+                console.log(`📦 Cache: ${musicas.length} músicas`);
+                statusText.innerHTML = `✅ ${musicas.length} músicas carregadas!`;
+                finalizarInicio();
+                return;
+            } catch(e) {}
+        }
+        
+        try {
+            console.log("🔄 Buscando playlist em:", PLAYLIST_URL);
+            const res = await fetch(PLAYLIST_URL);
+            
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+            }
+            
+            musicas = await res.json();
+            console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
+            
+            // Garantir que cada música tenha os campos necessários
+            musicas = musicas.map((m, i) => ({
+                id: m.id || i + 1,
+                title: m.title || "Sem título",
+                artist: m.artist || "Desconhecido",
+                src: m.src,
+                genero: m.genero || "VARIADAS"
+            }));
+            
+            // Salvar cache
+            localStorage.setItem('caze_playlist', JSON.stringify(musicas));
+            localStorage.setItem('caze_playlist_time', Date.now().toString());
+            
+            statusText.innerHTML = `✅ ${musicas.length} músicas carregadas!`;
+            finalizarInicio();
+            
+        } catch(e) {
+            console.error("Erro ao carregar playlist:", e);
+            statusText.innerHTML = "⚠️ Erro ao carregar! Verifique o link do JSON";
+            showNotif("❌ Erro ao carregar playlist! Verifique o arquivo JSON", 5000);
+            
+            // Se tiver cache, usa ele
+            if (cached) {
+                try {
+                    musicas = JSON.parse(cached);
+                    statusText.innerHTML = `⚠️ Usando cache: ${musicas.length} músicas`;
+                    finalizarInicio();
+                } catch(e2) {}
+            }
+        }
+    }
+    
+    function finalizarInicio() {
+        if (!musicas.length) {
+            statusText.innerHTML = "❌ Nenhuma música encontrada!";
+            return;
+        }
+        
+        carregado = true;
+        playlist = gerarPlaylist();
+        currentIndex = 0;
+        updateUI();
+        
+        // Esconder splash e mostrar app
+        setTimeout(() => {
+            splash.classList.add('hidden');
+            setTimeout(() => splash.style.display = 'none', 500);
+            app.style.display = 'block';
+            tapBtn.style.display = 'block';
+        }, 800);
+        
+        // Carregar gêneros únicos no modal
+        const generosUnicos = [...new Set(musicas.map(m => m.genero))];
+        const genresGrid = document.getElementById('genresList');
+        if (generosUnicos.length > 0) {
+            genresGrid.innerHTML = '';
+            generosUnicos.forEach(genero => {
+                const div = document.createElement('div');
+                div.className = 'genre-item';
+                div.setAttribute('data-genero', genero);
+                div.innerHTML = getIconGenero(genero) + ' ' + genero;
+                div.onclick = () => { filterByGenre(genero); document.getElementById('genresModal').classList.remove('open'); };
+                genresGrid.appendChild(div);
+            });
+            // Adicionar TODOS
+            const divTodos = document.createElement('div');
+            divTodos.className = 'genre-item';
+            divTodos.setAttribute('data-genero', 'TODOS');
+            divTodos.innerHTML = '📋 TODOS';
+            divTodos.onclick = () => { filterByGenre('TODOS'); document.getElementById('genresModal').classList.remove('open'); };
+            genresGrid.appendChild(divTodos);
+        }
+        
+        showNotif(`✅ ${musicas.length} músicas prontas!`, 3000);
+    }
+    
+    function getIconGenero(genero) {
+        switch(genero) {
+            case 'SERTANEJO': return '🎸';
+            case 'FORRÓ': return '🥁';
+            case 'FORRÓ ANTIGO': return '📀';
+            case 'BREGA': return '💔';
+            case 'MODA TOP': return '👑';
+            case 'SAMBA': return '🎭';
+            case 'POP': return '🎤';
+            case 'MPB': return '🎸';
+            default: return '🎵';
+        }
+    }
+    
     // ==================== ATIVAR RÁDIO ====================
     async function ativarRadio() {
         tapBtn.style.display = 'none';
         showNotif("🔊 Ativando áudio...", 2000);
         const ok = await ativarAudio();
         
-        if (ok) {
+        if (ok && musicas.length) {
             await playMusic();
             try { await document.documentElement.requestFullscreen(); } catch(e) {}
             showNotif("✅ Rádio tocando! Tela bloqueada funciona! ✅", 4000);
+        } else if (!musicas.length) {
+            showNotif("⏳ Aguardando playlist carregar...", 2000);
+            const esperar = setInterval(() => {
+                if (musicas.length) {
+                    clearInterval(esperar);
+                    playMusic();
+                }
+            }, 1000);
+            setTimeout(() => clearInterval(esperar), 10000);
         } else {
             showNotif("❌ Falha ao ativar áudio. Tente novamente.", 3000);
             tapBtn.style.display = 'block';
@@ -773,14 +849,6 @@
         });
         document.getElementById('closeGenresBtn').addEventListener('click', () => {
             document.getElementById('genresModal').classList.remove('open');
-        });
-        
-        document.querySelectorAll('.genre-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const genero = item.getAttribute('data-genero');
-                if (genero) filterByGenre(genero);
-                document.getElementById('genresModal').classList.remove('open');
-            });
         });
         
         document.getElementById('progressBar').addEventListener('click', (e) => {
@@ -819,29 +887,13 @@
     }
     
     // ==================== INICIAR ====================
-    function iniciar() {
-        playlist = gerarPlaylist();
-        currentIndex = 0;
-        updateUI();
-        
-        // Esconder splash e mostrar app
-        setTimeout(() => {
-            splash.classList.add('hidden');
-            setTimeout(() => splash.style.display = 'none', 500);
-            app.style.display = 'block';
-            tapBtn.style.display = 'block';
-        }, 500);
-        
-        showNotif(`✅ ${musicas.length} músicas carregadas!`, 3000);
-    }
-    
     loadPrefs();
     setupEvents();
-    iniciar();
+    carregarPlaylist();
     music.volume = VOLUME;
     
-    console.log("🎬 Cazé Playlist IA - Playlist embutida!");
-    console.log(`📦 Total de músicas: ${musicas.length}`);
+    console.log("🎬 Cazé Playlist IA - Carregando playlist do JSON");
+    console.log("📦 URL:", PLAYLIST_URL);
     console.log("📱 Aguardando usuário clicar em ATIVAR");
 </script>
 </body>
