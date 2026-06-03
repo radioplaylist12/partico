@@ -3,1358 +3,1026 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rádio Patico - Player Musical</title>
+    <title>Rádio Patico IA - LUIS GOMES RN</title>
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TpUUqDnYQcchQnSyIijhKFYtgobQVWnUwufQLmjQkKS6OgmvBwY/FqoOLs64OroIg+AHi5uak6CIl/i8ptIjx4Lgf7+497t4BQr3MNKtrAtB020wl4mImuyoGXxHEEEKAAcKYZczOImkJuPbuHhP17i6upP/73h29as5iQEAknuWGbRNvEE9v2g3nfeIQK0qK8TnxtEkXJH7kuuzyG+eCwwLPDBlZ+twRYrHYYaUT2OKZ+GPiSdkw0Hk9zCIMiyW77xvO+4OwuqQ1zxlmKpYwZP4pSRAizC/jgHIWJoxTYPIm7KK3txN9CO9P7nOF+SeEoq/EGWgAE3CAhEsooYQQNnGTwU4Fnd/2+yV+kXwxcjOAxDbQdh23vgfszw9TZDrNl4DpPeB6Z7ALyPXcYHcH+B5g+hXg+g7AA8/gGDyxJ0Lsq1kIesD7DUD3InDdKeqY8wPc/wog93NodQC4v6KUXNcA2D8C9t7Pz4dyjfN4Gjj+AoJNcktqIkmXAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAERJREFUOI3t1LEJgEAQRNFnRcFKbMAKtBGbsB+JjVhj4K+ZzS0W3wu7MDvLOx/i4ADBTrCjZQfYoGX3G9S07C4smtZ3Jw4Obw7d6koiAAAAAElFTkSuQmCC">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            min-height: 100vh;
-            background: #000;
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-        }
-
-        .app {
-            width: 100%;
-            height: 100vh;
-            background: #000;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .video-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 1;
-        }
-
-        .overlay-dark {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.3);
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .controls-container {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255,255,255,0.2);
-            padding: 16px 20px 25px;
-            z-index: 20;
-            transition: transform 0.3s ease;
-        }
-
-        .controls-container.hide {
-            transform: translateY(100%);
-        }
-
-        .track-title {
-            text-align: center;
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .track-artist {
-            text-align: center;
-            color: #ccc;
-            font-size: 0.8rem;
-            margin-bottom: 8px;
-        }
-
-        .next-info {
-            text-align: center;
-            font-size: 0.7rem;
-            color: #aaa;
-            margin-bottom: 8px;
-        }
-
-        .progress-area {
-            margin-bottom: 12px;
-        }
-        .progress-time {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.7rem;
-            color: #ccc;
-            margin-bottom: 4px;
-        }
-        .progress-bar-bg {
-            height: 3px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .progress-fill {
-            height: 100%;
-            background: #e63946;
-            width: 0%;
-            border-radius: 3px;
-        }
-
-        .control-buttons {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 24px;
-            margin-bottom: 10px;
-        }
-        .ctrl-btn {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .ctrl-btn:active {
-            transform: scale(0.92);
-            background: #e63946;
-        }
-        .play-btn {
-            background: #e63946;
-            width: 56px;
-            height: 56px;
-            font-size: 1.5rem;
-            box-shadow: 0 0 15px rgba(230,57,70,0.5);
-        }
-
-        .rating-bar {
-            position: fixed;
-            bottom: 140px;
-            left: 20px;
-            display: flex;
-            gap: 12px;
-            z-index: 25;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(12px);
-            padding: 8px 16px;
-            border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .rating-btn {
-            background: transparent;
-            border: none;
-            font-size: 1.4rem;
-            cursor: pointer;
-            padding: 6px;
-            border-radius: 40px;
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        :root { --bg-primary: #0a0a0f; --accent: #00f3ff; --secondary: #ff2d7f; }
+        body { min-height: 100vh; background: var(--bg-primary); overflow: hidden; position: fixed; width: 100%; height: 100%; font-family: 'Rajdhani', sans-serif; }
+        
+        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, #0a0a0f, #000000); display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.8s; flex-direction: column; gap: 15px; }
+        #splash::before { content: ""; position: absolute; width: 200%; height: 200%; background-image: linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px); background-size: 40px 40px; animation: gridMove 20s linear infinite; }
+        @keyframes gridMove { 0% { transform: translate(0, 0); } 100% { transform: translate(40px, 40px); } }
+        .splash-content { text-align: center; z-index: 2; animation: fadeInUp 1s ease-out; }
+        .splash-content i { font-size: 6rem; background: linear-gradient(135deg, #00f3ff, #ff2d7f); -webkit-background-clip: text; background-clip: text; color: transparent; animation: pulseGlow 1.8s infinite; margin-bottom: 1rem; }
+        .splash-content h1 { font-family: 'Orbitron', monospace; font-size: 2.5rem; letter-spacing: 4px; background: linear-gradient(135deg, #fff, #00f3ff, #ff2d7f); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .splash-content p { font-family: 'Rajdhani', sans-serif; font-size: 1rem; letter-spacing: 2px; color: #00f3ff; text-transform: uppercase; font-weight: 500; }
+        .splash-status { color: #0f0; font-size: 0.8rem; margin-top: 20px; font-family: monospace; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulseGlow { 0%, 100% { text-shadow: 0 0 0px rgba(0, 243, 255, 0); transform: scale(1); } 50% { text-shadow: 0 0 30px rgba(0, 243, 255, 0.8); transform: scale(1.05); } }
+        #splash.hidden { opacity: 0; pointer-events: none; }
+        
+        .app { width: 100%; height: 100vh; background: var(--bg-primary); position: relative; overflow: hidden; }
+        .fullscreen-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1; }
+        .fullscreen-video-container video { width: 100%; height: 100%; object-fit: cover; }
+        
+        .info-area { position: fixed; bottom: 230px; left: 0; right: 0; background: rgba(0, 0, 0, 0.7); padding: 10px 16px; z-index: 25; text-align: center; border-top: 1px solid rgba(0, 243, 255, 0.3); border-bottom: 1px solid rgba(0, 243, 255, 0.3); backdrop-filter: blur(10px); }
+        .track-info { margin-bottom: 4px; }
+        .marquee-wrap { width: 100%; overflow: hidden; white-space: nowrap; }
+        .marquee-text { display: inline-block; animation: marquee 30s linear infinite; color: #00f3ff; font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; text-shadow: 0 0 3px rgba(0,243,255,0.5); }
+        .next-track { font-size: 0.7rem; color: rgba(255, 255, 255, 0.8); }
+        
+        .bottom-controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(0, 243, 255, 0.3); padding: 10px 20px 20px; z-index: 20; transition: transform 0.3s ease; border-radius: 24px 24px 0 0; }
+        .bottom-controls.hide { transform: translateY(100%); opacity: 0; pointer-events: none; }
+        .progress-area { margin-bottom: 10px; }
+        .progress-time { display: flex; justify-content: space-between; font-size: 0.65rem; color: #aaa; }
+        .progress-bar { height: 3px; background: rgba(255, 255, 255, 0.2); border-radius: 3px; cursor: pointer; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #00f3ff, #ff2d7f); width: 0%; border-radius: 3px; }
+        .control-buttons { display: flex; align-items: center; justify-content: center; gap: 20px; }
+        .control-btn { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); border: 1px solid rgba(0, 243, 255, 0.5); color: #00f3ff; font-size: 1.1rem; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .control-btn:active { transform: scale(0.92); background: #00f3ff; color: #000; box-shadow: 0 0 15px #00f3ff; }
+        .play-btn { width: 56px; height: 56px; background: linear-gradient(135deg, #00f3ff, #ff2d7f); color: #000; border: none; box-shadow: 0 0 15px rgba(0, 243, 255, 0.6); }
+        
+        .feedback-floating { position: fixed; bottom: 180px; left: 16px; display: flex; gap: 12px; z-index: 27; transition: opacity 0.3s ease; }
+        .feedback-floating.hide { opacity: 0; pointer-events: none; }
+        .feedback-btn { width: 48px; height: 48px; border-radius: 50%; backdrop-filter: blur(8px); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; transition: 0.1s; border: 2px solid; background: rgba(0, 0, 0, 0.7); }
+        .feedback-btn:active { transform: scale(0.9); }
+        .feedback-btn.like { color: #4ade80; border-color: #4ade80; box-shadow: 0 0 8px #4ade80; }
+        .feedback-btn.dislike { color: #ef4444; border-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
+        
+        .genre-button { 
+            position: fixed; 
+            bottom: 180px; 
+            right: 16px; 
+            width: 48px; 
+            height: 48px; 
+            background: linear-gradient(135deg, #00f3ff, #ff2d7f); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            z-index: 999; 
+            border: none; 
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.7); 
             transition: 0.1s;
         }
-        .rating-btn.like { color: #4ade80; }
-        .rating-btn.dislike { color: #f87171; }
-        .rating-btn:active { transform: scale(0.85); }
-
-        .genre-fab {
-            position: fixed;
-            bottom: 140px;
-            right: 20px;
-            width: 48px;
-            height: 48px;
-            background: radial-gradient(circle at 30% 20%, #1e1e2f, #0a0a1a);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 25;
-            border: 1px solid rgba(0,255,255,0.5);
-            box-shadow: 0 0 15px rgba(0,255,255,0.3);
-            transition: 0.1s;
-        }
-        .genre-fab:active { transform: scale(0.9); background: #e63946; }
-        .genre-fab i { font-size: 1.4rem; color: #0ff; }
-
-        .modal-genres {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
-            border-radius: 28px 28px 0 0;
-            padding: 24px 16px 30px;
-            z-index: 100;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
-            border-top: 1px solid #e63946;
-        }
-        .modal-genres.open { transform: translateY(0); }
-        .modal-genres h3 {
-            color: white;
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-        }
-        .genres-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .genre-card {
-            background: rgba(255,255,255,0.1);
-            border-radius: 40px;
-            padding: 12px 6px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.1s;
-        }
-        .genre-card:active { transform: scale(0.96); background: #e63946; }
-        .genre-card i { font-size: 1.5rem; color: white; display: block; margin-bottom: 5px; }
-        .genre-card span { font-size: 0.7rem; font-weight: bold; color: white; }
-        .close-genres {
-            width: 100%;
-            background: #e63946;
-            border: none;
-            padding: 12px;
-            border-radius: 40px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .menu-btn {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px);
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 30;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            font-size: 1.2rem;
-        }
-        .menu-popup {
-            position: fixed;
-            top: 68px;
-            right: 12px;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 10px;
-            z-index: 31;
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
+        .genre-button:active { transform: scale(0.9); }
+        .genre-button i { font-size: 1.4rem; color: #000; }
+        .genre-button.hide { opacity: 0; pointer-events: none; }
+        
+        .menu-button { position: absolute; top: 16px; right: 16px; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); color: #00f3ff; border: 1px solid #00f3ff; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 31; }
+        .menu-popup { position: absolute; top: 70px; right: 16px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(16px); border-radius: 20px; padding: 10px; z-index: 32; display: none; flex-direction: column; gap: 8px; border: 1px solid #00f3ff; }
         .menu-popup.open { display: flex; }
-        .menu-popup button {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            text-align: left;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-        .menu-popup button:active { background: #e63946; }
-
-        .toast-msg {
-            position: fixed;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(12px);
-            padding: 8px 18px;
-            border-radius: 40px;
-            color: white;
-            font-size: 0.8rem;
-            z-index: 200;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            white-space: nowrap;
-        }
-        .toast-msg.show { opacity: 1; }
-
-        .splash {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            transition: opacity 0.5s;
-        }
-        .splash.hide { opacity: 0; pointer-events: none; }
-        .splash-content { text-align: center; color: white; }
-        .splash-content i { font-size: 4rem; color: #e63946; animation: pulse 1.2s infinite; }
-        @keyframes pulse { 0% { opacity: 0.6; transform: scale(1); } 100% { opacity: 1; transform: scale(1.05); } }
-
-        .activate-btn {
-            position: fixed;
-            bottom: 25%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #ff8c00, #ff6600);
-            border: none;
-            padding: 14px 28px;
-            border-radius: 60px;
-            color: white;
-            font-weight: bold;
-            font-size: 1rem;
-            z-index: 10001;
-            cursor: pointer;
-            white-space: nowrap;
-            box-shadow: 0 0 20px rgba(255,102,0,0.5);
-        }
-        .loading {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
-            padding: 12px 24px;
-            border-radius: 40px;
-            color: white;
-            z-index: 10002;
-            display: none;
-            gap: 8px;
-        }
-        .volume-toast {
-            position: fixed;
-            bottom: 30%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: black;
-            padding: 6px 16px;
-            border-radius: 30px;
-            color: white;
-            font-size: 0.75rem;
-            z-index: 10003;
-            opacity: 0;
-            transition: 0.1s;
-        }
-        .genre-badge {
-            position: fixed;
-            top: 16px;
-            left: 16px;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            padding: 5px 14px;
-            border-radius: 30px;
-            color: white;
-            font-size: 0.7rem;
-            font-weight: bold;
-            z-index: 30;
-            border-left: 3px solid #e63946;
-        }
+        .menu-popup button { background: rgba(255, 255, 255, 0.05); border: none; color: white; padding: 8px 16px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .menu-popup button:active { background: #00f3ff; color: #000; }
+        
+        .genre-badge { position: absolute; top: 16px; left: 16px; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(12px); padding: 5px 14px; border-radius: 40px; font-size: 0.7rem; font-weight: bold; color: #00f3ff; z-index: 31; border-left: 3px solid #00f3ff; font-family: 'Orbitron', monospace; cursor: pointer; }
+        .genre-badge.live { border-left-color: #ff2d7f; animation: pulseRed 1s infinite; }
+        
+        .visualizer { position: fixed; top: 80px; right: 20px; display: flex; gap: 4px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); padding: 5px 10px; border-radius: 30px; z-index: 31; }
+        .visualizer-bar { width: 3px; height: 16px; background: #00f3ff; border-radius: 2px; transition: height 0.05s ease; }
+        
+        .loading-spinner { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(12px); padding: 12px 24px; border-radius: 60px; z-index: 10001; display: none; gap: 12px; color: #00f3ff; font-weight: bold; border: 1px solid #00f3ff; }
+        .loading-spinner.show { display: flex; }
+        
+        .notification-top { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(12px); padding: 6px 18px; border-radius: 50px; color: #00f3ff; font-size: 0.8rem; z-index: 30; opacity: 0; transition: 0.2s; pointer-events: none; white-space: nowrap; border-left: 3px solid #00f3ff; }
+        .notification-top.show { opacity: 1; }
+        
+        .exit-tv-btn { position: fixed; top: 16px; left: 16px; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); padding: 6px 14px; border-radius: 40px; font-size: 0.7rem; font-weight: bold; color: #fff; border: 1px solid #ff2d7f; z-index: 102; display: none; cursor: pointer; }
+        .tv-mode-active .exit-tv-btn { display: block; }
+        
+        .search-container { position: fixed; top: 70px; left: 10px; right: 10px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(16px); border-radius: 20px; padding: 12px; z-index: 5000; display: none; border: 1px solid #00f3ff; }
+        .search-input { width: 100%; padding: 10px; border-radius: 40px; background: #111; color: white; border: 1px solid #00f3ff; outline: none; }
+        .search-results { max-height: 50vh; overflow-y: auto; margin-top: 8px; }
+        .search-item { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; cursor: pointer; }
+        
+        .ai-modal, .stats-modal, .pix-modal, .manual-modal, .feedback-modal { position: fixed; background: linear-gradient(135deg, #0a0a0f, #001a2a); border-radius: 28px; padding: 20px; border: 1px solid #00f3ff; box-shadow: 0 0 30px rgba(0, 243, 255, 0.3); z-index: 5000; display: none; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; max-width: 90vw; color: white; }
+        .ai-modal.open, .stats-modal.open, .pix-modal.open, .manual-modal.open, .feedback-modal.open { display: block; }
+        .close-ai, .close-stats, .close-genres, .close-pix, .close-manual-btn { background: #00f3ff; border: none; padding: 8px; border-radius: 40px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; color: #000; }
+        
+        .genres-modal { position: fixed; bottom: 0; left: 0; right: 0; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1); background: linear-gradient(135deg, #0a0a0f, #001a2a); border-radius: 30px 30px 0 0; padding: 20px 16px 25px; z-index: 5000; border-top: 2px solid #00f3ff; }
+        .genres-modal.open { transform: translateY(0); }
+        .genres-modal h3 { color: #00f3ff; text-align: center; font-family: 'Orbitron', monospace; margin-bottom: 15px; font-size: 1rem; }
+        .genres-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+        .genre-card { background: rgba(0, 243, 255, 0.15); border-radius: 14px; padding: 8px 2px; text-align: center; cursor: pointer; transition: 0.1s; border: 1px solid rgba(0, 243, 255, 0.4); }
+        .genre-card:active { transform: scale(0.96); background: rgba(0, 243, 255, 0.4); }
+        .genre-card i { font-size: 1.4rem; color: #00f3ff; display: block; margin-bottom: 4px; }
+        .genre-card span { font-size: 0.7rem; font-weight: bold; color: white; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 10px; }
+        .modal-btn { flex: 1; padding: 8px; border-radius: 40px; border: none; font-weight: bold; cursor: pointer; }
+        .modal-btn.cancel { background: #333; color: white; }
+        .modal-btn.send { background: #00f3ff; color: black; }
+        #ratingStars { display: flex; justify-content: center; gap: 8px; margin: 10px 0; font-size: 1.4rem; cursor: pointer; }
+        #ratingStars .star.active { color: #ffd700; }
+        textarea { width: 100%; padding: 8px; border-radius: 12px; background: #111; color: white; border: 1px solid #00f3ff; margin: 10px 0; }
+        
+        .tap-instruction { position: fixed; bottom: 30%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 8px 16px; border-radius: 30px; color: white; font-size: 0.7rem; z-index: 202; pointer-events: none; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
+        .tap-instruction.visible { opacity: 1; }
+        .swipe-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; z-index: 10002; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        @keyframes pulseRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        
+        #tap-to-start { position: fixed; bottom: 20%; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #00f3ff, #ff2d7f); color: #000; padding: 12px 24px; border-radius: 50px; font-weight: bold; font-family: 'Orbitron', monospace; z-index: 10000; cursor: pointer; display: none; box-shadow: 0 0 20px #00f3ff; white-space: nowrap; border: none; animation: btnPulse 1.5s infinite; }
+        @keyframes btnPulse { 0%, 100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.05); } }
     </style>
 </head>
 <body>
-<div class="splash" id="splash">
-    <div class="splash-content">
-        <i class="fas fa-headphones"></i>
-        <h1>Rádio Patico</h1>
-        <p style="margin-top: 10px;">🎵 Seu player musical</p>
-    </div>
-</div>
-<button class="activate-btn" id="activateBtn">▶ ATIVAR PLAYER</button>
-<div class="app">
-    <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
-        <source src="https://videos.pexels.com/video-files/855742/855742-hd_1920_1080_30fps.mp4" type="video/mp4">
-    </video>
-    <div class="overlay-dark"></div>
-    
-    <div class="genre-badge" id="genreBadge"><i class="fas fa-music"></i> TODOS</div>
-    <div class="menu-btn" id="menuBtn"><i class="fas fa-ellipsis-v"></i></div>
-    <div class="menu-popup" id="menuPopup">
-        <button id="tvModeBtn"><i class="fas fa-tv"></i> Modo TV (tela cheia)</button>
-        <button id="shareBtn"><i class="fas fa-share-alt"></i> Compartilhar</button>
-        <button id="infoBtn"><i class="fas fa-info-circle"></i> Sobre</button>
-    </div>
 
-    <div class="controls-container" id="controlsBar">
-        <div class="track-title" id="trackTitle">Clique em ATIVAR</div>
-        <div class="track-artist" id="trackArtist">Rádio Patico</div>
-        <div class="next-info" id="nextInfo">Próxima: --</div>
+<div id="splash">
+    <div class="splash-content">
+        <i class="fas fa-microchip"></i>
+        <h1>RÁDIO PATICO IA</h1>
+        <p>⚡ Toca mesmo com a tela travada ⚡</p>
+    </div>
+    <div class="splash-status" id="splashStatus">Carregando playlist...</div>
+</div>
+
+<div id="tap-to-start"><i class="fas fa-play-circle"></i> ATIVAR RÁDIO</div>
+
+<div class="app" id="appRoot" style="display: none;">
+    <div class="fullscreen-video-container">
+        <video id="mainVideo" autoplay loop muted playsinline><source src="pak1.mp4" type="video/mp4"></video>
+    </div>
+    
+    <div class="info-area">
+        <div class="track-info"><div class="marquee-wrap"><span class="marquee-text" id="trackMarquee">🎵 Rádio Patico IA - Modo Futurista</span></div></div>
+        <div class="next-track"><span id="nextTrackInfo">Próxima: --</span></div>
+    </div>
+    
+    <div class="bottom-controls" id="bottomControls">
         <div class="progress-area">
             <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
-            <div class="progress-bar-bg" id="progressBarBg"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
         </div>
         <div class="control-buttons">
-            <button class="ctrl-btn" id="prevBtn"><i class="fas fa-backward-step"></i></button>
-            <button class="ctrl-btn play-btn" id="playBtn"><i class="fas fa-play"></i></button>
-            <button class="ctrl-btn" id="nextBtn"><i class="fas fa-forward-step"></i></button>
+            <button class="control-btn" id="prevBtn"><i class="fas fa-step-backward"></i></button>
+            <button class="control-btn play-btn" id="playPauseBtn"><i class="fas fa-play"></i></button>
+            <button class="control-btn" id="shuffleBtn"><i class="fas fa-random"></i></button>
+            <button class="control-btn" id="nextBtn"><i class="fas fa-step-forward"></i></button>
         </div>
     </div>
-
-    <div class="rating-bar">
-        <button class="rating-btn like" id="likeBtn"><i class="fas fa-thumbs-up"></i> Curtir</button>
-        <button class="rating-btn dislike" id="dislikeBtn"><i class="fas fa-thumbs-down"></i> Não curtir</button>
+    
+    <div class="feedback-floating" id="feedbackFloating">
+        <button class="feedback-btn like" id="likeBtn"><i class="fas fa-thumbs-up"></i></button>
+        <button class="feedback-btn dislike" id="dislikeBtn"><i class="fas fa-thumbs-down"></i></button>
     </div>
-    <div class="genre-fab" id="genreFab"><i class="fas fa-music"></i></div>
-
-    <div class="modal-genres" id="genresModal">
-        <h3><i class="fas fa-star"></i> ESCOLHA O ESTILO</h3>
-        <div class="genres-grid" id="genresGrid"></div>
-        <button class="close-genres" id="closeGenresBtn">FECHAR</button>
+    
+    <button class="genre-button" id="genreButton"><i class="fas fa-music"></i></button>
+    
+    <div class="genre-badge" id="genreBadge"><i class="fas fa-broadcast-tower"></i> LIVE</div>
+    <div class="visualizer" id="visualizer"><div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div></div>
+    <button class="exit-tv-btn" id="exitTvBtn"><i class="fas fa-tv"></i> SAIR TV</button>
+    <div class="menu-button" id="menuButton"><i class="fas fa-bolt"></i></div>
+    <div class="menu-popup" id="menuPopup">
+        <button id="searchMenuBtn"><i class="fas fa-search"></i> Buscar música</button>
+        <button id="tvModeMenuBtn"><i class="fas fa-tv"></i> Modo TV</button>
+        <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela cheia</button>
+        <button id="shareMenuBtn"><i class="fas fa-share-alt"></i> Compartilhar</button>
+        <button id="pixMenuBtn"><i class="fas fa-hand-holding-heart"></i> Apoiar com Pix</button>
+        <button id="manualMenuBtn"><i class="fas fa-book"></i> Manual</button>
+        <button id="statsMenuBtn"><i class="fas fa-chart-line"></i> Estatísticas</button>
+        <button id="aiMenuBtn"><i class="fas fa-brain"></i> IA Preferências</button>
+        <button id="feedbackMenuBtn"><i class="fab fa-whatsapp"></i> Feedback</button>
     </div>
-
-    <div class="toast-msg" id="toastMsg">Mensagem</div>
-    <div class="loading" id="loadingSpinner"><i class="fas fa-circle-notch fa-spin"></i> Carregando...</div>
-    <div class="volume-toast" id="volumeToast">Volume: 50%</div>
 </div>
 
-<audio id="audioPlayer" preload="auto"></audio>
+<div class="tap-instruction" id="tapInstruction"><i class="fas fa-hand-pointer"></i> Toque na tela para controles</div>
+<div id="notificationTop" class="notification-top"></div>
+<div class="loading-spinner" id="loadingSpinner"><i class="fas fa-circle-notch fa-spin"></i><span>Carregando...</span></div>
+<div class="swipe-indicator" id="swipeIndicator">👉 Deslize para próxima música</div>
+
+<!-- Modais -->
+<div class="ai-modal" id="aiModal"><h3><i class="fas fa-brain"></i> IA Preferências</h3><div>Curtidas: <span id="aiLikedCount">0</span></div><div>Não curtidas: <span id="aiDislikedCount">0</span></div><div>Gênero fav: <span id="aiTopGenre">-</span></div><div id="aiTopSongs"></div><button class="close-ai" id="closeAiBtn">Fechar</button></div>
+<div class="stats-modal" id="statsModal"><h3>Estatísticas</h3><div>Músicas ouvidas: <span id="statTotalPlayed">0</span></div><div>Tempo total: <span id="statTotalTime">0h 0m</span></div><div>Gênero fav: <span id="statTopGenre">-</span></div><div>Sequência: <span id="statStreak">0</span></div><button class="close-stats" id="closeStatsBtn">Fechar</button></div>
+<div class="manual-modal" id="manualModal"><h3>📘 Manual Rápido</h3><p>✔️ Dê like/dislike para a IA aprender<br>✔️ Selecione gêneros<br>✔️ Busque músicas<br>✔️ Modo TV para visual imersivo<br>✔️ Toca mesmo com a tela travada!</p><button id="closeManualBtn" class="close-manual-btn">Fechar</button></div>
+<div class="genres-modal" id="genresModal"><h3>🎧 ESTILOS MUSICAIS</h3><div class="genres-grid">
+    <div class="genre-card" data-genero="SERTANEJO"><i class="fas fa-guitar"></i><span>SERTANEJO</span></div>
+    <div class="genre-card" data-genero="FORRÓ"><i class="fas fa-drum"></i><span>FORRÓ</span></div>
+    <div class="genre-card" data-genero="FORRÓ ANTIGO"><i class="fas fa-hat-cowboy"></i><span>FORRÓ ANTIGO</span></div>
+    <div class="genre-card" data-genero="SAMBA"><i class="fas fa-music"></i><span>SAMBA</span></div>
+    <div class="genre-card" data-genero="POP"><i class="fas fa-microphone-alt"></i><span>POP</span></div>
+    <div class="genre-card" data-genero="BREGA"><i class="fas fa-heart"></i><span>BREGA</span></div>
+    <div class="genre-card" data-genero="MPB"><i class="fas fa-guitar"></i><span>MPB</span></div>
+    <div class="genre-card" data-genero="VARIADAS"><i class="fas fa-random"></i><span>VARIADAS</span></div>
+    <div class="genre-card" data-genero="MODA TOP"><i class="fas fa-star"></i><span>MODA TOP</span></div>
+    <div class="genre-card" data-genero="AS++"><i class="fas fa-crown"></i><span>AS++</span></div>
+    <div class="genre-card" data-genero="TODOS"><i class="fas fa-list-ul"></i><span>TODOS</span></div>
+    <div class="genre-card" data-genero="LIVE"><i class="fas fa-broadcast-tower"></i><span>🔴 VOLTAR AO VIVO</span></div>
+</div><button class="close-genres" id="closeGenresBtn">FECHAR</button></div>
+<div class="pix-modal" id="pixModal"><h3>❤️ Apoio Pix</h3><p>Chave: <strong>12988461978</strong></p><button id="copyPixBtn" class="close-pix" style="background:#25D366;">Copiar chave</button><button id="closePixBtn" class="close-pix">Fechar</button></div>
+<div class="feedback-modal" id="feedbackModal"><h3>Sua opinião</h3><div class="rating" id="ratingStars"><i class="far fa-star star" data-rating="1"></i><i class="far fa-star star" data-rating="2"></i><i class="far fa-star star" data-rating="3"></i><i class="far fa-star star" data-rating="4"></i><i class="far fa-star star" data-rating="5"></i></div><textarea id="feedbackText" placeholder="Sugestões..."></textarea><div class="modal-buttons"><button class="modal-btn cancel" id="cancelFeedback">Cancelar</button><button class="modal-btn send" id="sendFeedback">Enviar</button></div></div>
+
+<audio id="musicPlayer" preload="auto" crossorigin></audio>
 
 <script>
-    // ============================================================
-    // PLAYLIST COMPLETA - IDs RENOMEADOS DE 1 ATÉ 485
-    // ============================================================
-    // ATENÇÃO: ESTA É A PARTE 1 DA PLAYLIST (IDs 1 até ~267)
-    // A PARTE 2 CONTINUA NA PRÓXIMA MENSAGEM (IDs 268 até 485)
-    // ============================================================
-
-    const PLAYLIST = [
-        // ==================== SERTANEJO (IDs 1 a 22) ====================
-        { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 4, title: "Pout Pourri", artist: "Luiza Martins", src: "Luiza_Martins_Pout_Pourri_Na_Hora_do_Adeus_Fruto_.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 5, title: "Retrovisor", artist: "Gusttavo Lima", src: "Gusttavo_Lima_Retrovisor_DVD_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 6, title: "Pé na Estrada", artist: "VH e Alexandre", src: "VH_e_Alexandre_Pe_o_Apaixonado_Saudade_Pulou_no_Peito_Mexe_que_Bom_ParadaObrigat_ria_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 7, title: "Catedral", artist: "Lauana Prado", src: "LAUANA_PRADO_CATEDRAL_TUDO_DE_NOVO_AMOR_I_LOVE_YOU_muzzik (1).m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 8, title: "Seu Brilho Sumiu", artist: "Israel e Rodolffo", src: "Israel -Rodolffo-MariFernandez - Seu Brilho Sumiu  .mp3", genero: "SERTANEJO", tipo: "normal" },
-        { id: 9, title: "Leão domando", artist: "Parana", src: "Le_o_Domado_Filho_do_Mato_Paran_O_Canto_do_Can_rio_muzzik.m4a", genero: "SERTANEJO", tipo: "ao vivo" },
-        { id: 10, title: "Desbloqueado", artist: "Diego & Victor Hugo", src: "Diego _ Victor Hugo - Desbloqueado .mp3", genero: "SERTANEJO", tipo: "normal" },
-        { id: 11, title: "Que Era Eu", artist: "Lauana Prado", src: "LAUANA_PRADO_QUE_ERA_EU_UM_DIA_DE_DOMINGO.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 12, title: "Assino com X", artist: "VH e Alexandre", src: "VH_e_Alexandre_Assino_com_X.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 13, title: "La Barca", artist: "Murilo Huff", src: "Murilo_Huff_La_Barca_Fruto_Especial_muzzik.m4a", genero: "SERTANEJO", tipo: "ao vivo" },
-        { id: 14, title: "At_Voc_Voltar", artist: "Marilha Mendoça", src: "Mar_lia_Mendon_a_At_Voc_Voltar_muzzik.m4a", genero: "SERTANEJO", tipo: "ao vivo" },
-        { id: 15, title: "Outra_Vida", artist: "A_Vontade", src: "A_Vontade_Outra_Vida_muzzik.m4a", genero: "SERTANEJO", tipo: "ao vivo" },
-        { id: 16, title: "Amor_I_Love_You", artist: "SDF", src: "VH_e_Alexandre_Amor_I_Love_You_part_Hugo_e_Guilherme_Ouve_A__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 17, title: "Pout-pourri", artist: "Rafael_Quadros", src: "Rafael_Quadros_e_Panda_Sou_Eu_Cheiro_De_Shampoo_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 18, title: "Pout-pourr", artist: "vjg", src: "VH_e_Alexandre_Estrada_do_Amor_part_Rafa_e_J_nior_Ouve_A__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 19, title: "Pout-pourri", artist: "Rick_e_Rangel", src: "Rick_e_Rangel_Nem_mais_uma_d_vida_Quando_voc_some_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 20, title: "WESLEY_SAFAD_O_Nessas_horas", artist: "Desconhecido", src: "WESLEY_SAFAD_O_Nessas_horas_NOVO_CD_PROMOCIONAL__muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 21, title: "Bison_e_Comassetto_Decida", artist: "Desconhecido", src: "Bison_e_Comassetto_Decida_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-        { id: 22, title: "Murilo_Huff_DOIS_ENGANADOS_feat_Mar_lia_Mendon_a", artist: "Desconhecido", src: "Murilo_Huff_DOIS_ENGANADOS_feat_Mar_lia_Mendon_a_muzzik.m4a", genero: "SERTANEJO", tipo: "normal" },
-
-        // ==================== FORRÓ (IDs 23 a 101) ====================
-        { id: 23, title: "Ficar por Ficar", artist: "Zé Vaqueiro", src: "Zé-Vaqueiro-Ficar-por-Ficar.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 24, title: "Coração Partido", artist: "Luan Estilizado", src: "16 - Coracao Partido - Luan Estilizado.mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 25, title: "Avião", artist: "Patrick Costa", src: "Patrick_Costa_Henrique_e_Juliano_Xand_Avi_o_Diga_Pra_Mim_Fiquei_Sabendo_FarraDoPatrick_muzzik (1).m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 26, title: "To Bebendo To Pagando", artist: "Mano Walter", src: "Mano_Walter_Sirano_Sirino_To_Bebendo_To_Pagando_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 27, title: "Primeiro Passo", artist: "Márcia Felipe", src: "Peruanno_M_rcia_Fellipe_Primeiro_Passo_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 28, title: "Ainda é Tempo", artist: "Limão com mel", src: "Ainda_Ainda_Tempo__muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 29, title: "Tu", artist: "Real de aço", src: "real.mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 30, title: "Desejo de Menina", artist: "Moldura", src: "Moura-Desejo-de-Menina.mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 31, title: "Você Virou Minha Cabeça", artist: "Ferro na Boneca", src: "VOCÊ VIROU MINHA CABEÇA - FERRO NA BONECA.mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 32, title: "Despacito", artist: "Sol", src: "Despacito_Solange_Almeida_feat_Erika_Ender_muzzik (1).m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 33, title: "Nova Namorada", artist: "Natãzinho Lima", src: "03 - Nova Namorada - De Bar em Bar 9.mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 34, title: "AA", artist: "Rogerplay", src: "Rogerplay1.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 35, title: "É Tarde Demais", artist: "Marquinhos Nava", src: "01 - É TARDE DEMAIS - Marquinhos Navais.mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 36, title: "Onde Anda Você", artist: "Edimilson Batista", src: "01 onde andara vc.mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 37, title: "Vagabundo", artist: "Forró Boys", src: "02 VAGABUNDO (1) (1).mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 38, title: "Saudade", artist: "Dan Ventura", src: "Dan_Ventura_Saudade_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 39, title: "Vida Cigana", artist: "Dayanna", src: "Dayanna_Vida_Cigana_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 40, title: "Pout-Pourri", artist: "Huberto e Ronaldo", src: "Humao_aPand.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 41, title: "Muito Estranho", artist: "Cintura de Mola", src: "Muito_Estranho_Muito_Estranho_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 42, title: "Valeu", artist: "Mara Pavanelly", src: "Valeu_Mara_Pavanelly_Dorgival_Dantas.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 43, title: "Serpente", artist: "Fernandinha", src: "SERPENTE - Fernandinha .mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 44, title: "Pout-Pourri Frávio", artist: "Xande Avião", src: "Xnde-Avião-Pout Pourri Frávio-José.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 45, title: "Dia de Pagamento", artist: "Fernandinha", src: "DIA -DE -PAGAMENTO - Fernandinha .mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 46, title: "Brilho da Lua", artist: "Eliane", src: "Brilho da Lua.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 47, title: "Ultima Noite", artist: "Nattan & Léo Foguete", src: "Nattan_e_Leo_Foguete_Ultima_Noite.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 48, title: "Moldura", artist: "Desejo de Menina", src: "Moldura-Desejo-de-Menina.mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 49, title: "Remédio pra Raiva", artist: "Alinne Reis", src: "Alinne_Reis_e_ZéCantor_Remdio_pra_raiva.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 50, title: "Muleca Estrela", artist: "VH e Alexandre", src: "VH_e_Alexandre_Muleca_Estrela_Guia_A_Gente_Se_Enrosca.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 51, title: "Mocano Hits", artist: "Mocano", src: "Mocano-Hists.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 52, title: "Pout-Pourri Toca do Vale", artist: "Toca do Vale", src: "Toca_do_Vale_ Pout-Pourri.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 53, title: "Senta Danada", artist: "Zé Felipe", src: "Zé Felipe e Os Barões Da Pisadinha - Senta Danada .mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 54, title: "Seu-Matruz", artist: "Seu-Matruz-França", src: "Seu-Matruz-França.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 55, title: "Pout-Pourri Sirano & Sirino", artist: "Mono-walter", src: "Mono-walter (1).m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 56, title: "Lembranças de um beijo", artist: "Cham", src: "Lembran_a_de_um_Beijo_Chambinho_Do_Acordeon_Waldonys_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 57, title: "Dona da Minha Cabeça", artist: "Geraldo Azevedo", src: "Geraldo_Azevedo_Dona_da_Minha_Cabe_a_muzzik (1).m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 58, title: "Proibida", artist: "Zé_Filho", src: "Cover_Paix_o_Proibida_Ao_Vivo_Z_Filho_Sanfoneiro_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 59, title: "ficar por ficar", artist: "Zé_Vaqueiro", src: "Z_Vaqueiro_Z_Vaqueiro_quando_o_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 60, title: "insegurança", artist: "Italo Poeta", src: "Impredor_insiguraça.mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 61, title: "ROGER23", artist: "Forró RealForró Real", src: "real.mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 62, title: "Amar Você É Tão Bom", artist: "Impéredor", src: "Amar Você É Tão Bom.mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 63, title: "Estrelinha do ceu", artist: "Samyra_Show", src: "Samyra_Show_Estrelinha-do -ceu.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 64, title: "Jardim_dos_Animais", artist: "Guilherme_Ferri", src: "Guilherme_Ferri_Jardim_dos_Animais_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 65, title: "Pout-Pourri", artist: "Michele_Andrade", src: "Michele_Andrade_Obsess_o_part_Tony_Guerra_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 66, title: "Pout-Pourri", artist: "Kally_Fonseca_e_DJ_Maluco", src: "Kally_Fonseca_e_DJ_Maluco.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 67, title: "Avine_Vinny_Rey_Vaqueiro", artist: "Vinny_Rey_Vaqueiro", src: "Solteiro_Cruel_Avine_Vinny_Rey_Vaqueiro_Fogo_.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 68, title: "Meu_Grande_Amor", artist: "Galicia", src: "Gal_cia_Meu_Grande_Amor.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 69, title: "O mundo", artist: "Kally_Fonseca_e_Vicente_Nery", src: "Kally_Fonseca_e_Vicente_Nery.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 70, title: "GHF", artist: "FORRO_MEDIN", src: "FORR_MED_IN_FORR_MED_IN_A_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 71, title: "Pequeno_Cel", artist: "Marquinhos_Maraial", src: "Marquinhos_Maraial_e_Xand_Pequeno_Celular_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 72, title: "Erro_Bom", artist: "Samyra_Show", src: "Peruanno_Samyra_Show_Erro_Bom_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 73, title: "Vontade_de_Prestar", artist: "Nattan", src: "Nattan_Vontade_de_Prestar_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 74, title: "Razes do Nordeste", artist: "Mastruz", src: "Ra_zes_do_Nordeste_Mastruz_com_Leite_Audiovisual_Vem_Dan_ar_Forr__muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 75, title: "Cheiro", artist: "Original_Mix", src: "Cheiro_de_Cheiro_de_Nos_Original_Mix__muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 76, title: "Pout-pourri", artist: "ao vivo na ilha", src: "Cora_o_Cigano_Cora_o_Cigano_Apaixonado_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 77, title: "Aonde Está Você", artist: "Ju Moura", src: "AONDE-ESTÁ-VOCÊ-JU-MOURA-_1_.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 78, title: "Sem Radar", artist: "Guilherme Dantas", src: "SEM-RADAR (1).m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 79, title: "Fico Assim Sem Você", artist: "Guilherme Dantas", src: "FICO-ASSIM-SEM-VOCE.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 80, title: "Quero Você", artist: "Moicano", src: "09-Quero-Você.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 81, title: "Pau de Arara", artist: "Samyra Show", src: "01-Pau-de-Arara-Último-Pau-de-Arara.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 82, title: "Número 1", artist: "Real de Aço", src: "Número-1.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 83, title: "Amar Você É Tão Bom", artist: "Imperador", src: "Amar-Você-É-Tão-Bom.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 84, title: "Boa Sorte", artist: "Samyra Show", src: "11-Boa-Sorte-_1_.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 85, title: "Passos_na_Areia", artist: "Safadão", src: "Wesley_Safad_o_e_Xand_Avi_o_Passos_na_Areia_Meu_Forr_Mundo_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 86, title: "Henry_Freitas_Taty_Girl_Fogo_no_Fogo_Pot_ncia_M_xima_muzzik.m4a", artist: "Desconhecido", src: "Pot_ncia_Music_Henry_Freitas_Taty_Girl_Fogo_no_Fogo_Pot_ncia_M_xima_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 87, title: "Bom_Demais_Calcinha_Preta", artist: "Desconhecido", src: "Bom_Demais_Human_Nature_feat_Rodrigo_Teaser_Calcinha_Preta_DVD_M_GICA_O_Espet_culo_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 88, title: "Adulio_Mendes_Bai_o_de_Dois_Cavalo_Lampi_o_Forr_Bod__muzzik.m4a", artist: "Desconhecido", src: "Adu_lio_Mendes_Bai_o_de_Dois_Cavalo_Lampi_o_Forr_Bod__muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 89, title: "UNS_KM_Joõo_Gomes", artist: "Desconhecido", src: "Jo_o_Gomes_Cantor_UNS_KM_Jo_o_Gomes_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 90, title: "Wesley_Safad_o_e_Xand_Avi_o_Passos_na_Areia_Meu", artist: "Desconhecido", src: "Wesley_Safad_o_e_Xand_Avi_o_Passos_na_Areia_Meu_Forr_Mundo_muzzik - Copiar.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 91, title: "Adullio_Mendes", artist: "Desconhecido", src: "ARRAI_DO_ADU_LLIO_Bloco_Adu_llio_Mendes_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 92, title: "Wesley_Safad_o_e_Silv_nia_Aquino_Silv_nia_e_Berg_Eclipse_Total_Meu_Forr_Mundo", artist: "Desconhecido", src: "Wesley_Safad_o_e_Silv_nia_Aquino_Silv_nia_e_Berg_Eclipse_Total_Meu_Forr_Mundo_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 93, title: "Fernandinha_e_Filho_do_Piseiro_Os_Barulhinhos", artist: "Desconhecido", src: "Fernandinha_e_Filho_do_Piseiro_Os_Barulhinhos_muzzik (1).m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 94, title: "Forr_N_mero_Solange_Almeida_Fl_vio_Jos_", artist: "Desconhecido", src: "Forr_N_mero_Solange_Almeida_Fl_vio_Jos__muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 95, title: "Xand_Avi_o_Xote_da_Alegria_Na_Fogueira", artist: "Desconhecido", src: "Xand_Avi_o_Xote_da_Alegria_Na_Fogueira_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 96, title: "Bate_Cora_o_Solange_Almeida_Elba_Ramalho", artist: "Desconhecido", src: "Bate_Cora_o_Solange_Almeida_Elba_Ramalho_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 97, title: "BIPOLAR_Rey_Vaqueiro_e_Tayrone", artist: "Desconhecido", src: "BIPOLAR_Rey_Vaqueiro_e_Tayrone_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 98, title: "M_rcia_Fellipe_P_ssimo_Neg_cio", artist: "Desconhecido", src: "M_rcia_Fellipe_P_ssimo_Neg_cio_muzzik.m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 99, title: "46 RAZÕES  Mastruz", artist: "Desconhecido", src: "46 RAZÕES (1).mp3", genero: "FORRÓ", tipo: "normal" },
-        { id: 100, title: "Forro_Anjo_Azul_Vem_Pra_Mim", artist: "Desconhecido", src: "Forro_Anjo_Azul_Vem_Pra_Mim_muzzik (1).m4a", genero: "FORRÓ", tipo: "normal" },
-        { id: 101, title: "Jo_o_Gomes", artist: "Desconhecido", src: "Jo_o_Gomes_Cantor_FUI_FIEL_Jo_o_Gomes_e_Pablo_Faixa_B_nus_muzzik (1).m4a", genero: "FORRÓ", tipo: "normal" },
-
-        // ==================== FORRÓ ANTIGO (IDs 102 a 113) ====================
-        { id: 102, title: "Luiz_Gonzaga_Nem_Se_Despediu_De_Mim", artist: "Luiz Gonzaga", src: "Luiz_Gonzaga_Nem_Se_Despediu_De_Mim_muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
-        { id: 103, title: "Sonho_Real_Sonho_Real", artist: "Sonho Real", src: "Sonho_Real_Sonho_Real_muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
-        { id: 104, title: "João tatu", artist: "Brasas do forro", src: "Jo_o_Tatu_Jo_o_Tatu_Live__muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
-        { id: 105, title: "Forró da multidão", artist: "desconhecido", src: "Forroz_o_Da_Forroz_o_Da_Multid_o_muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
-        { id: 106, title: "Recado", artist: "Gaucho", src: "Recado_Pro_Recado_Pro_Patr_o_muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
-        { id: 107, title: "PETROLINA_JUAZEIRO", artist: "TR", src: "PETROLINA_JUAZEIRO_TR_S_NORDESTINOS_muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
-        { id: 108, title: "Rei_Solano_Rei_Solano_feat_Sebasti_o_Tapaj_s_", artist: "Desconhecido", src: "Rei_Solano_Rei_Solano_feat_Sebasti_o_Tapaj_s__muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
-        { id: 109, title: "Ferro_na_Boneca_ndia", artist: "Desconhecido", src: "Ferro_na_Boneca_ndia_muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
-        { id: 110, title: "Vaqueiro_e_Vaqueiro_e_o_Motorista", artist: "Desconhecido", src: "Vaqueiro_e_Vaqueiro_e_o_Motorista_muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
-        { id: 111, title: "Lenda_do_Lenda_do_Guaran_Chuva_e", artist: "Desconhecido", src: "Lenda_do_Lenda_do_Guaran_Chuva_e_muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
-        { id: 112, title: "As_Belezas_As_Belezas_de_Alter", artist: "Desconhecido", src: "As_Belezas_As_Belezas_de_Alter_muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
-        { id: 113, title: "A_Rural_A_Rural__Neo pi Neo", artist: "Desconhecido", src: "A_Rural_A_Rural__muzzik.m4a", genero: "FORRÓ ANTIGO", tipo: "normal" },
-
-        // ==================== SAMBA (IDs 114 a 147) ====================
-        { id: 114, title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa 10 - Lance Livre _ NA VIBE DO K10(MP3_160K).mp3", genero: "SAMBA", tipo: "normal" },
-        { id: 115, title: "Foi Bom Mas Foi Ontem", artist: "Grupo Menos é Mais", src: "Grupo Menos é Mais e João Gomes - Foi Bom_ Mas Foi Ontem .mp3", genero: "SAMBA", tipo: "normal" },
-        { id: 116, title: "Pagode do Kiko", artist: "Kiko no Pagode", src: "KIiko no Pagode.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 117, title: "Mordida de Amor", artist: "SPC", src: "Mordida_de_Amor_Dvd_Produto_Nacional_Vol_SPC_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 118, title: "Sorriso Maroto", artist: "Sorriso Maroto", src: "soriso maroto.mp3", genero: "SAMBA", tipo: "normal" },
-        { id: 119, title: "Momentos", artist: "Xande de Pilares", src: "Xande_de_Pilares_Momentos_N_o_Foi_Toa.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 120, title: "Tendência", artist: "Jorge Aragão", src: "Jorge Aragão-endnncia.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 121, title: "Amei Te Ver", artist: "Tiago Iorc", src: "TIAGO_IORC_MENOS_MAIS_Amei_Te_Ver.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 122, title: "Nem_Pagando", artist: "Henrique_Casttro", src: "Henrique_Casttro_Grupo_Menos_Mais_Nem_Pagando_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 123, title: "E_C_T", artist: "Xande_de_Pilares", src: "Xande_de_Pilares_E_C_T_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 124, title: "Champanhe", artist: "Grupo_Menos_Mais", src: "Grupo_Menos_Mais_Champanhe_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 125, title: "Ferrugem_Apagar", artist: "Ferrugem", src: "Ferrugem_Apagar_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 126, title: "Thiago Martins Onde Deus Possa Me Ouvir Esperando Avi es", artist: "Thiago Martins", src: "Thiago_Martins_Onde_Deus_Possa_Me_Ouvir_Esperando_Avi_es_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 127, title: "LEANDRO SAPUCAHY Poxa Disritmia Espelho Que Nem Antigamente", artist: "Leandro Sapucahy", src: "LEANDRO_SAPUCAHY_Poxa_Disritmia_Espelho_Que_Nem_Antigamente__muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 128, title: "Felipe Ara jo Thiaguinho Espa osa Demais", artist: "Felipe Araújo & Thiaguinho", src: "Felipe_Ara_jo_Thiaguinho_Espa_osa_Demais_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 129, title: "Bokaloka Duas paix es Procurando algu m Bye Bye", artist: "Bokaloka", src: "Bokaloka_Duas_paix_es_Procurando_algu_m_Bye_Bye_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 130, title: "Live P ricles Me Apaixonei Pela Pessoa Errada", artist: "Péricles", src: "Live_P_ricles_Me_Apaixonei_Pela_Pessoa_Errada_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 131, title: "Desse Jeito Desse Jeito Ruim pra Mim Ao Vivo", artist: "Desse Jeito", src: "Desse_Jeito_Desse_Jeito_Ruim_pra_Mim_Ao_Vivo__muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 132, title: "Ferrugem Telepatia part Thiaguinho", artist: "Ferrugem", src: "Ferrugem_Telepatia_part_Thiaguinho_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 133, title: "D lcio Luiz Meu casamento Ref m do cora o Luz do desejo", artist: "Délcio Luiz", src: "D_lcio_Luiz_Meu_casamento_Ref_m_do_cora_o_Luz_do_desejo_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 134, title: "At Que At Que Durou Ao Vivo", artist: "At Que", src: "At_Que_At_Que_Durou_Ao_Vivo__muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 135, title: "LUDMILLA Falta de Mim", artist: "Ludmilla", src: "LUDMILLA_Falta_de_Mim_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 136, title: "Belo Transas Ao Vivo DVD Belo In Concert", artist: "Belo", src: "Belo_Transas_Ao_Vivo_DVD_Belo_In_Concert_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 137, title: "Ivete Sangalo Ah Como Eu Te Amei Retalhos de Cetim Ivete Clareou", artist: "Ivete Sangalo", src: "Ivete_Sangalo_Ah_Como_Eu_Te_Amei_Retalhos_de_Cetim_Ivete_Clareou_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 138, title: "Mania de Mania de Voc", artist: "Mania", src: "Mania_de_Mania_de_Voc__muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 139, title: "Xande de Pilares Defunto Caguete Malandro N o Vacila", artist: "Xande de Pilares", src: "Xande_de_Pilares_Defunto_Caguete_Malandro_N_o_Vacila_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 140, title: "Kiko Nem de Gra a Falando Segredo Brilho de Cristal", artist: "Kiko", src: "Kiko_Nem_de_Gra_a_Falando_Segredo_Brilho_de_Cristal_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 141, title: "Marvvila Ivete Sangalo Voc N o Vai Sofrer", artist: "Marvvila & Ivete Sangalo", src: "Marvvila_Ivete_Sangalo_Voc_N_o_Vai_Sofrer_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 142, title: "Rolezinho Rolezinho Grupo", artist: "Rolezinho", src: "Rolezinho_Rolezinho_Grupo_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 143, title: "PaGGodin L o Santana Girassol Uma Brasileira Sombra Da Maldade", artist: "PaGGodin", src: "PaGGodin_L_o_Santana_Girassol_Uma_Brasileira_Sombra_Da_Maldade_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 144, title: "Leandro Sapucahy Naquela Mesa", artist: "Leandro Sapucahy", src: "Leandro_Sapucahy_Naquela_Mesa_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 145, title: "Meu Jeito De Ser Que Se Chama De Amor Sorriso Maroto", artist: "Sorriso Maroto", src: "Meu_Jeito_De_Ser_Que_Se_Chama_De_Amor_Sorriso_Maroto_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 146, title: "Pra N o Pra N o Pensar Em Voc Ao Vivo", artist: "Pra Não", src: "Pra_N_o_Pra_N_o_Pensar_Em_Voc_Ao_Vivo__muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-        { id: 147, title: "Ana_Carolina_Cabide", artist: "Desconhecido", src: "Ana_Carolina_Cabide_muzzik.m4a", genero: "SAMBA", tipo: "normal" },
-
-                // ==================== POP (IDs 148 a 268) ====================
-        { id: 148, title: "Haven't Met You Yet", artist: "Michael Bublé", src: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 149, title: "Billie Jean", artist: "Michael Jackson", src: "Michael_Jackson_Billie_Jean_muzzik.m4a", genero: "POP", tipo: "normal" },
-        { id: 150, title: "Thank You", artist: "Dido", src: "Dido_Thank_You.m4a", genero: "POP", tipo: "normal" },
-        { id: 151, title: "More Than A Woman", artist: "Bee Gees", src: "Bee_Gees_More_Than_A_Woman.m4a", genero: "POP", tipo: "normal" },
-        { id: 152, title: "Another Day In Paradise", artist: "Ivan Barreto", src: "Ivan_Barreto_Another_Day_In_Paradise_.m4a", genero: "POP", tipo: "normal" },
-        { id: 153, title: "Sorri Sou Rei", artist: "Natiruts", src: "Natiruts_Sorri_Sou_Rei_.m4a", genero: "POP", tipo: "normal" },
-        { id: 154, title: "Operator", artist: "Sade_Smooth", src: "Sade_Smooth_Operator_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 155, title: "of_Swing_Backing", artist: "Sultans", src: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 156, title: "ave_You_Ever_Really_Loved_A_Woman", artist: "Bryan_Adams", src: "Bryan_Adams_Have_You_Ever_Really_Loved_A_Woman__muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 157, title: "Down_Under", artist: "Arthur_Rodrigues", src: "Arthur_Rodrigues_Down_Under_muzzik.m4a", genero: "POP", tipo: "normal" },
-        { id: 158, title: "Champagne_King_Love_Come_Down", artist: "Evelyn", src: "Evelyn_Champagne_King_Love_Come_Down_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 159, title: "Timberlake", artist: "Mirrors_Justin", src: "Mirrors_Justin_Timberlake_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 160, title: "You_ll_Never_Find", artist: "HSCC", src: "_You_ll_Never_Find__(LOU_RAWLS)_Cover_by_The_HSCC.mp3", genero: "POP", tipo: "normal" },
-        { id: 161, title: "Lost_In_Your_Eyes", artist: "Dino_Fonseca", src: "Lost_In_Your_Eyes_Dino_Fonseca_O_Melhor_do_Rock_e_Flashback_muzzik.m4a", genero: "POP", tipo: "normal" },
-        { id: 162, title: "Skyline Pigeon", artist: "Elton John", src: "Elton_John_Skyline_Pigeon_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 163, title: "I Like Chopin", artist: "Gazebo", src: "Gazebo_I_Like_Chopin_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 164, title: "I Was Born To Love You", artist: "Freddie Mercury", src: "Freddie_Mercury_I_Was_Born_To_Love_You_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 165, title: "Careless Whisper", artist: "George Michael", src: "George_Michael_Careless_Whisper_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 166, title: "I Don't Want To", artist: "Toni Braxton", src: "I_Don_t_I_Don_t_Want_To_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 167, title: "I'm Yours", artist: "Jason Mraz", src: "Jason_Mraz_I_m_Yours_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 168, title: "Million Miles", artist: "Jason Mraz", src: "Jason_Mraz_Million_Miles_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 169, title: "P.D.A.", artist: "John Legend", src: "John_Legend_P_D_A_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 170, title: "One", artist: "Banda Rock Beats", src: "Banda_Rock_Beats_One_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 171, title: "Everybody's Changing", artist: "Keane", src: "Keane_Everybody_s_Changing_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 172, title: "Born Again", artist: "Lisa", src: "LISA_Born_Again_feat_Doja_Cat_RAYE_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 173, title: "Die With A Smile", artist: "Lady Gaga & Bruno Mars", src: "Lady_Gaga_Bruno_Mars_Die_With_A_Smile_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 174, title: "Let It Be Music", artist: "Travel Love Friends", src: "Let_It_Be_Music_Travel_Love_Friends_20.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 175, title: "For Your Babies", artist: "Simply Red", src: "Simply_Red_For_Your_Babies_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 176, title: "Just Another Day", artist: "Maurício Manieri feat. Jon Secada", src: "Maur_cio_Manieri_feat_Jon_Secada_Just_Another_Day_14.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 177, title: "I've Had The Time Of My Life", artist: "Mauricio Manieri", src: "Mauricio_Manieri_I_ve_Had_The_Time_Of_My_Life_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 178, title: "The Girl Is Mine", artist: "Michael Jackson", src: "Michael_Jackson_The_Girl_Is_Mine_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 179, title: "My Sweet Lord", artist: "George Harrison", src: "My_Sweet_My_Sweet_Lord_GEORGE_HARRISON_The_HSCC_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 180, title: "Lotta Love", artist: "Nicolette Larson", src: "Nicolette_Larson_Lotta_Love_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 181, title: "Let Her Go", artist: "Passenger", src: "Passenger_Passenger_Let_Her_Go_Official_Video__18.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 182, title: "Baby Come Back", artist: "Player", src: "Player_Baby_Come_Back_7.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 183, title: "Lady Lady Lady", artist: "Joe Esposito", src: "Joe_Esposito_Lady_Lady_Lady_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 184, title: "Calm Down", artist: "Rema & Selena Gomez", src: "Rema_Selena_Gomez_Calm_Down_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 185, title: "Everytime You Go Away", artist: "Paul Young", src: "Paul_Young_Everytime_You_Go_Away_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 186, title: "Sexual Healing", artist: "Marvin Gaye", src: "Sexual_Healing_Sexual_Healing_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 187, title: "Shake You Down", artist: "Unknown", src: "Shake_You_Shake_You_Down.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 188, title: "Holding Back The Years", artist: "Simply Red", src: "Simply_Red_Holding_Back_The_Years_15.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 189, title: "Stars", artist: "Simply Red", src: "Simply_Red_Stars_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 190, title: "Sunrise", artist: "Simply Red", src: "Simply_Red_Sunrise_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 191, title: "Stand by Me", artist: "Ben E. King", src: "Stand_by_Stand_by_Me_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 192, title: "Fields of Gold", artist: "Sting", src: "Sting_Fields_Of_Gold_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 193, title: "Sultans of Swing", artist: "Dire Straits", src: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 194, title: "Remember The Time", artist: "A Cha", src: "A_cha_Remember_The_Time_KorgStyle_Life_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 195, title: "Have You Ever Really Loved A Woman", artist: "Bryan Adams", src: "Bryan_Adams_Have_You_Ever_Really_Loved_A_Woman__muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 196, title: "Get Lucky", artist: "Daft Punk", src: "Daft_Punk_Get_Lucky_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 197, title: "Classic", artist: "Adrian Gurvitz", src: "Adrian_Gurvitz_Classic_TopPop_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 198, title: "Take On Me", artist: "a-ha", src: "a_ha_Take_On_Me_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 199, title: "My Love My Love", artist: "Little Texas", src: "My_Love_My_Love_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 200, title: "For Whom The Bell Tolls", artist: "Bee Gees", src: "Bee_Gees_For_Whom_The_Bell_Tolls_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 201, title: "Levitating", artist: "Dua Lipa", src: "Dua_Lipa_Levitating_Featuring_DaBaby_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 202, title: "_In_The_Park", artist: "September", src: "YOU_LL_NEVER_FIND_September_In_The_Park_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 203, title: "Knockin On Heaven s Door", artist: "Guns N Roses", src: "Guns_N_Roses_Knockin_On_Heaven_s_Door_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 204, title: "Cherish", artist: "Kool & The Gang", src: "Kool_The_Gang_Cherish_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 205, title: "Need You Now", artist: "Lady Antebellum", src: "Lady_Antebellum_Need_You_Now_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 206, title: "Beautiful", artist: "Marillion", src: "Marillion_Beautiful_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 207, title: "There s Never a Forever Thing", artist: "a-ha", src: "a_ha_Take_On_Me_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 208, title: "Quanto Amore Sei", artist: "Eros Ramazzotti", src: "Eros_Ramazzotti_Quanto_Amore_Sei_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 209, title: "By My Side", artist: "INXS", src: "My_Love_My_Love_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 210, title: "Love Is Love", artist: "Culture Club", src: "My_Love_My_Love_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 211, title: "Nothing's Gonna Stop Us Now", artist: "Starship", src: "Stand_by_Stand_by_Me_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 212, title: "Right Here Waiting", artist: "Richard Marx", src: "Richard_Marx_Hazard_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 213, title: "Knife", artist: "Rockwell", src: "Knife_Rockwell_Sucesso_de_HD_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 214, title: "Linger", artist: "The Cranberries", src: "The_Cranberries_Linger_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 215, title: "Torn", artist: "Natalie Imbruglia", src: "Natalie_Imbruglia_Torn_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 216, title: "Air Supply Making Love Out Of Nothing At All", artist: "Unknown", src: "Air_Supply_Making_Love_Out_Of_Nothing_At_All_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 217, title: "Bon Jovi Bed Of Roses", artist: "Unknown", src: "Bon_Jovi_Bed_Of_Roses_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 218, title: "Executive Funk Executive Funk My", artist: "Unknown", src: "Executive_Funk_Executive_Funk_My_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 219, title: "Hunting High Hunting High and Low Remaster", artist: "Unknown", src: "Hunting_High_Hunting_High_and_Low_Remaster__muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 220, title: "Night Fever Night Fever Line Dance D", artist: "Unknown", src: "Night_Fever_Night_Fever_Line_Dance_D__muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 221, title: "Take That Back for Good", artist: "Unknown", src: "Take_That_Back_for_Good_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 222, title: "Touchy Touchy", artist: "Unknown", src: "Touchy_Touchy__muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 223, title: "eWoman in Woman in Love muzzik.m", artist: "Unknown", src: "eWoman_in_Woman_in_Love_muzzik.m", genero: "POP", tipo: "ao vivo" },
-        { id: 224, title: "ELECTRIC LOCO s Hits muzzik (1)", artist: "Unknown", src: "ELECTRIC_LOCO_s_Hits_muzzik (1).m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 225, title: "Freddie Mercury Montserrat Caball How Can I Go On", artist: "Unknown", src: "Freddie_Mercury_Montserrat_Caball_How_Can_I_Go_On_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 226, title: "Barbra_Streisand_Guilty", artist: "Barbra_Streisand_Guilty", src: "Barbra_Streisand_Guilty_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 227, title: "Never_Love_Again", artist: "I_ll_Never_I_ll_Never_Love_Again", src: "I_ll_Never_I_ll_Never_Love_Again_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 228, title: "Haven_t_Met_You_Yet", artist: "Michael Bubl", src: "Michael_Bubl_Haven_t_Met_You_Yet_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 229, title: "True True Remaster", artist: "True True Remaster", src: "True_True_Remaster__muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 230, title: "Someone Like You", artist: "Adele", src: "Adele_Someone_Like_You_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 231, title: "I Love You", artist: "Jim Diamond", src: "Jim_Diamond_Remember_I_Love_You_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 232, title: "Forever Young", artist: "Alphaville", src: "Alphaville_Forever_Young_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 233, title: "What's Up", artist: "Banda Rock Beats", src: "Banda_Rock_Beats_What_s_Up__muzzik (1).m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 234, title: "Sailing", artist: "Christopher Cross", src: "Christopher_Cross_Sailing_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 235, title: "Easy", artist: "Commodores", src: "Commodores_Easy_6.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 236, title: "Time After Time", artist: "Cyndi Lauper", src: "Cyndi_Lauper_Time_after_time_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 237, title: "Send It Back", artist: "Don West", src: "DON_WEST_Send_It_Back_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 238, title: "Everytime You Go Away", artist: "Dino Fonseca", src: "Dino_Fonseca_Everytime_You_Go_Away_Back_To_The_s_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 239, title: "Hotel California", artist: "Eagles", src: "Eagles_Hotel_California_12.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 240, title: "Sailing", artist: "Emmerson Nogueira", src: "Emmerson_Nogueira_Sailing_13.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 241, title: "of_Swing_Backing_roger.", artist: "Swing_Backing", src: "Sultans_of_Sultans_of_Swing_Backing_roger.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 242, title: "NatalieImbruglia_Torn", artist: "Natalie", src: "Natalie_Imbruglia_Torn_muzzik.m4a", genero: "POP", tipo: "" },
-        { id: 243, title: "CoverHSCC12", artist: "Orquestra", src: "CoverHSCC.mp3", genero: "POP", tipo: "ao vivo" },
-        { id: 244, title: "Internacional", artist: "Top Hits", src: "internacional.mp3", genero: "POP", tipo: "ao vivo" },
-        { id: 245, title: "Kiss_Me", artist: "Sixpence", src: "Sixpence_None_The_Richer_Kiss_Me_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 246, title: "Don_t_Lie", artist: "Shakira", src: "Shakira_Hips_Don_t_Lie_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 247, title: "Justin_Timberlake", artist: "Mirrors", src: "Mirrors_Justin_Timberlake_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 248, title: "if_Viva_if_Viva_La_Vida_was_sad", artist: "Desconhecido", src: "if_Viva_if_Viva_La_Vida_was_sad__muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 249, title: "Bar_o_Vermelho_Amor_meu_grande_amor", artist: "Desconhecido", src: "Bar_o_Vermelho_Amor_meu_grande_amor_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 250, title: "DINO_Lanterna_dos_Afogados_Feat_Rionegro_DVD_Barzim_de_Rock_muzzik.m4a", artist: "Desconhecido", src: "DINO_Lanterna_dos_Afogados_Feat_Rionegro_DVD_Barzim_de_Rock_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 251, title: "imply_Red_Sunrise", artist: "Desconhecido", src: "imply_Red_Sunrise_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 252, title: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over", artist: "Desconhecido", src: "Lenny_Kravitz_It_Ain_t_Over_Til_It_s_Over_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 253, title: "Il_Medley_di_Christopher_Cross_-_I_migliori_anni", artist: "Desconhecido", src: "Il_Medley_di_Christopher_Cross_-_I_migliori_anni_27_04_2024_M4A_128kbps.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 254, title: "_Back_To_The_80_s_Vol_9_by_The_HSCC", artist: "Desconhecido", src: "_Back_To_The_80_s_Vol_9_by_The_HSCC_M4A_128kbps.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 255, title: "Ray_Parker_Jr_Raydio_A_Woman_Needs_Love", artist: "Desconhecido", src: "Ray_Parker_Jr_Raydio_A_Woman_Needs_Love_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 256, title: "Earth_Wind_Fire_September", artist: "Desconhecido", src: "Earth_Wind_Fire_September_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 257, title: "Miami_Horror_GLOWIN__muzzik.m4a", artist: "Desconhecido", src: "Miami_Horror_GLOWIN__muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 258, title: "Maroon_Sugar", artist: "Desconhecido", src: "Maroon_Sugar_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 259, title: "Mariah_Carey_I_ll_Be_There", artist: "Desconhecido", src: "Mariah_Carey_I_ll_Be_There_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 260, title: "Outro_Lugar_Outro_Lugar", artist: "Desconhecido", src: "Outro_Lugar_Outro_Lugar_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 261, title: "George_Michael_", artist: "Desconhecido", src: "George_Michael_Father_Figure_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 262, title: "Seal_Crazy_muzzik.m4a", artist: "Desconhecido", src: "Seal_Crazy_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 263, title: "Tears_For_Fears_Break_It_Down_Again_muzzik.m4a", artist: "Desconhecido", src: "Tears_For_Fears_Break_It_Down_Again_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 264, title: "Roxette_Milk_And_Toast_And_Honey_muzzik.m4a", artist: "Desconhecido", src: "Roxette_Milk_And_Toast_And_Honey_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 265, title: "Dulce_Quental_Caleidoscopio", artist: "Desconhecido", src: "Dulce_Quental_Caleidoscopio_muzzik.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 266, title: "_Back_To_The_80_s_Vol_9_by_The_HSCC", artist: "Desconhecido", src: "_Back_To_The_80_s_Vol_9_by_The_HSCC_M4A_128kbps.m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 267, title: "ABBA_The_Winner_Takes_It_All", artist: "Desconhecido", src: "ABBA_The_Winner_Takes_It_All_muzzik (1).m4a", genero: "POP", tipo: "ao vivo" },
-        { id: 268, title: "Valerie_Live_Valerie_Live_At_BBC_muzzik (1).m4a", artist: "Desconhecido", src: "Valerie_Live_Valerie_Live_At_BBC_muzzik (1).m4a", genero: "POP", tipo: "ao vivo" },
-
-        // ==================== BREGA (IDs 269 a 309) ====================
-        { id: 269, title: "Tarde Demais", artist: "À Vontade", src: "_Vontade_TARDE_DEMAIS_.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 270, title: "Entre espulmas", artist: "Roberrto Miler", src: "Entre_Espumas_Entre_Espumas_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 271, title: "Mande um telegrama", artist: "Odair José", src: "Mande_Nem_Mande_Nem_Que_Seja_um_Telegrama_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 272, title: "A Raposa e as uvas", artist: "Reginaldo rossi", src: "A_Raposa_A_Raposa_e_as_Uvas_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 273, title: "Chega Chega", artist: "Desconhecido", src: "Chega_Chega_muzzik.m4a", genero: "BREGA", tipo: "ao vivo" },
-        { id: 274, title: "Coisas Estranhas", artist: "Desconhecido", src: "Coisas_Estranhas_Coisas_Estranhas_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 275, title: "De Que Vale Ter Tudo Na Vida", artist: "José Augusto", src: "De_Que_Vale_Ter_Tudo_Na_Vida_Jos_Augusto_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 276, title: "Dupla traição", artist: "Dedim Gouveia", src: "Dedim_Gouveia_Dupla_tra_o_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 277, title: "Entre Espumas", artist: "Desconhecido", src: "Entre_Espumas_Entre_Espumas_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 278, title: "Feiticeira", artist: "Desconhecido", src: "Feiticeira_Feiticeira_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 279, title: "Faz Mais Faz", artist: "Fernando Mendes", src: "Fernando_Mendes_Faz_Mais_Faz_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 280, title: "Madrugada Amiga", artist: "Desconhecido", src: "Madrugada_Amiga_Madrugada_Amiga_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 281, title: "Mande Nem Que Seja um Telegrama", artist: "Desconhecido", src: "Mande_Nem_Mande_Nem_Que_Seja_um_Telegrama_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 282, title: "Meu Fracasso", artist: "Desconhecido", src: "Meu_Fracasso_Meu_Fracasso_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 283, title: "Minha Garota", artist: "Desconhecido", src: "Minha_Garota_Minha_Garota_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 284, title: "Mordida Na Maçã", artist: "Desconhecido", src: "Mordida_Na_Mordida_Na_Ma__muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 285, title: "Não Te Responderei", artist: "Desconhecido", src: "N_o_Te_N_o_Te_Responderei_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 286, title: "Na hora do adeus", artist: "Desconhecido", src: "Na_hora_Na_hora_do_adeus_muzzik.m4a", genero: "BREGA", tipo: "ao vivo" },
-        { id: 287, title: "Nosso Juramento", artist: "Desconhecido", src: "Nosso_Juramento_Nosso_Juramento_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 288, title: "O Pranto dos Meus Olhos", artist: "Desconhecido", src: "O_Pranto_O_Pranto_dos_Meus_Olhos_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 289, title: "Tenho Ciúme De Tudo", artist: "Orlando Dias", src: "Orlando_Dias_Orlando_Dias_Tenho_Ciume_De_Tudo_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 290, title: "Eu Acho Pouco", artist: "Osvaldo Oliveira", src: "Osvaldo_Oliveira_Eu_Acho_Pouco_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 291, title: "Castigo", artist: "Desconhecido", src: "S_Castigo_S_Castigo_muzzik.m4a", genero: "BREGA", tipo: "ao vivo" },
-        { id: 292, title: "Se Errar Outra Vez", artist: "Desconhecido", src: "Se_Errar_Se_Errar_Outra_Vez_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 293, title: "Sem Você", artist: "Desconhecido", src: "Sem_Voc_Sem_Voc__muzzik.m4a", genero: "BREGA", tipo: "ao vivo" },
-        { id: 294, title: "Sendo Assim", artist: "Desconhecido", src: "Sendo_Assim_Sendo_Assim_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 295, title: "Serejeira Rosa", artist: "Desconhecido", src: "Serejeira_Rosa_Serejeira_Rosa_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 296, title: "Siboney feat Alcymar Monteiro", artist: "Desconhecido", src: "Siboney_feat_Siboney_feat_Alcymar_Monteiro__muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 297, title: "Vida Pelo Avesso", artist: "Desconhecido", src: "VIDA_PELO_VIDA_PELO_AVESSO__muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 298, title: "Um Homem Chora De Paixão", artist: "Waldik Soriano", src: "Waldik_Soriano_Um_Homem_Chora_De_Paix_o_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 299, title: "Perfume de Gardênia", artist: "Desconhecido", src: "Perfume_de_Perfume_de_Gard_nia__muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 300, title: "Princesa", artist: "Amado Batista", src: "Amado_Batista_Princesa_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 301, title: "Saudade de Rosa", artist: "Desconhecido", src: "Saudade_de_Saudade_de_Rosa_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 302, title: "Eu Sou Seu Fã", artist: "Desconhecido", src: "Eu_Sou_Eu_Sou_Seu_F__muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 303, title: "MEU VELHO/roger", artist: "Altemar Dutra", src: "meu-velho.mp3", genero: "BREGA", tipo: "normal" },
-        { id: 304, title: "Foi Deus", artist: "ALtemar Dutra", src: "Altemar Dutra-foi-Deus.mp3", genero: "BREGA", tipo: "normal" },
-        { id: 305, title: "Aparencias_Belchior_muzzik.m4a", artist: "Belchior", src: "Aparencias_Belchior_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 306, title: "Voc_n_o_me_ensinou_a_te_esquecer", artist: "Lostalgia", src: "Voc_n_o_me_ensinou_a_te_esquecer_Lostalgia_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 307, title: "Pout_pourri REI", artist: "Emílio Santiago", src: "Pot_Pourri_Detalhes_Emo_es_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 308, title: "Os_Dez_Os_Dez_Mandamentos_do_Amor", artist: "Desconhecido", src: "Os_Dez_Os_Dez_Mandamentos_do_Amor_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-        { id: 309, title: "Com você", artist: "Desconhecido", src: "Com_voc_Com_voc_no_cora_o_muzzik.m4a", genero: "BREGA", tipo: "normal" },
-
-        // ==================== MPB (IDs 310 a 451) ====================
-        { id: 310, title: "Palpite", artist: "Vanessa Rangel", src: "Palpite_Palpite_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 311, title: "Sinais de Fogo", artist: "Preta Gil", src: "Preta_gil_sinais_de_fogo_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 312, title: "Francesa", artist: "Kiko Zabianch", src: "AFrancesa_Francesa_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 313, title: "Linda Juventude", artist: "Flavio Venturini", src: "9Flavio_Venturini_Jota_Quest_Linda_Juventude_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 314, title: "Quem dera eu Seu Zé", artist: "Ana Carolina", src: "Ana_Carolina_Quem_dera_eu_Seu_Ze_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 315, title: "Fé", artist: "Caetano Veloso", src: "Caetano_Veloso_Maria_Bethania_Fe_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 316, title: "Sina", artist: "Djavan", src: "Djavan_Sina_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 317, title: "Dois Beijinhos", artist: "Seu Jorge", src: "Dois_Beijinhos_Dois_Beijinhos_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 318, title: "Pra quem tem fé", artist: "Falcão", src: "Falcao_pra_quem_tem_fe_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 319, title: "Jura Secreta", artist: "Fagner", src: "Fagner_Ze_Ramalho_Jura_Secreta_Revela_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 320, title: "A Tal Canção Pra Lua", artist: "Vitor Kley", src: "Vitor_Kley_Samuel_Rosa_A_Tal_Cancao_Pra_Lua_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 321, title: "Verdade Chinesa", artist: "Emilio Santiago", src: "Verdade_Chinesa_Verdade_Chinesa_Em_lio_Santiago_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 322, title: "Ainda Bem Que Chegou", artist: "Vitor Kley", src: "Vitor_Kley_Ainda_Bem_Que_Chegou_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 323, title: "Tempo Rei", artist: "Gilberto Gil", src: "Tempo_rei_Tempo_rei_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 324, title: "Boa Sorte", artist: "Vanessa da Mata", src: "Vanessa_Da_Mata_Boa_Sorte_Good_Luck_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 325, title: "Velha Infância", artist: "Tribalistas", src: "Tribalistas_Velha_Inf_ncia_muzzik (1).m4a", genero: "MPB", tipo: "normal" },
-        { id: 326, title: "Apenas Mais uma de Amor", artist: "Lulu Santos", src: "Lulu_Santos_Apenas_Mais_uma_de_Amor_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 327, title: "La Belle de Jour", artist: "Alceu Valença", src: "La_Belle_La_Belle_de_Jour_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 328, title: "Codinome Beija Flor", artist: "Cazuza", src: "Cazuza_Codinome_Beija_Flor.m4a", genero: "MPB", tipo: "normal" },
-        { id: 329, title: "Ai Ai Ai Ai Ai", artist: "Ivan Lins", src: "Ivan_Lins_Ai_Ai_Ai_Ai_Ai.m4a", genero: "MPB", tipo: "normal" },
-        { id: 330, title: "Caso Sério", artist: "Ed Motta", src: "Ed_Motta_Caso_S_rio_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 331, title: "Encostar na Tua", artist: "Ana Carolina", src: "Encostar_na_Encostar_na_Tua.m4a", genero: "MPB", tipo: "normal" },
-        { id: 332, title: "Somos Quem Podemos Ser", artist: "Engenheiros", src: "Engenheiros_Do_Hawaii_Somos_Quem_Podemos_Ser_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 333, title: "Epitáfio", artist: "Titãs", src: "Epit_fio_Epit_fio_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 334, title: "Proibida Pra Mim", artist: "Zeca Baleiro", src: "Zeca_Baleiro_Proibida_Pra_Mim.m4a", genero: "MPB", tipo: "normal" },
-        { id: 335, title: "Porque Eu Sei Que Amor", artist: "Titãs", src: "Tit_s_Porque_Eu_Sei_Que_Amor_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 336, title: "Vamos Fugir", artist: "Skank", src: "Skank_Vamos_Fugir_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 337, title: "Palavras Ao Vento", artist: "Cássia Eller", src: "Palavras_Ao_Palavras_Ao_Vento.m4a", genero: "MPB", tipo: "normal" },
-        { id: 338, title: "Equalize", artist: "Pitty", src: "Pitty_Equalize_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 339, title: "Descobridor dos Sete Mares", artist: "Tim Maia", src: "O_Descobridor_O_Descobridor_Dos_Sete_Mares_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 340, title: "Papel Machê", artist: "João Bosco", src: "Jo_o_Bosco_Papel_Machê.m4a", genero: "MPB", tipo: "normal" },
-        { id: 341, title: "Uma Brasileira", artist: "Carlinhos Brown", src: "Uma_Brasileira_Uma_Brasileira_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 342, title: "MPB Toada", artist: "Boca Livre", src: "Boca_Livre_MPB_Toada_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 343, title: "Problemas", artist: "Ana Carolina", src: "Ana_Carolina_Problemas_muzzik.m4a", genero: "MPB", tipo: "normal" },
-        { id: 344, title: "A Loba", artist: "Alcione", src: "A_Loba_A_Loba_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 345, title: "Tes", artist: "1 - Não me perdoei", src: "1 - Não me perdoei (2).mp3", genero: "MPB", tipo: "ao vivo" },
-        { id: 346, title: "Só pro seu prazer", artist: "Heróis da Resistência", src: "so proseu pazer.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 347, title: "Clube da Esquina", artist: "Flávio Venturini", src: "Fl_vio_Venturini_Clube_da_esquina.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 348, title: "Noites com Sol", artist: "Flávio Venturini & Vanessa da Mata", src: "Flavio venturininoitescom sol.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 349, title: "Amado", artist: "Gupe", src: "GUPE_Amado_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 350, title: "Dia Branco", artist: "Geraldo Azevedo", src: "Geraldo_Azevedo_Dia_Branco.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 351, title: "A Noite", artist: "Gusttavo Lima", src: "Gusttavo_Lima_A_Noite_67k.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 352, title: "Ai, Ai, Ai, Ai", artist: "Ivan Lins", src: "Ivan_Lins_Ai_Ai_Ai_Ai_Ai.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 353, title: "Amigo do Sol Amigo da Lua", artist: "Benito Di Paula", src: "Benito_Di_Paula_e_Rodrigo_Vellozo_Amigo_do_Sol_Amigo_da_Lua_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 354, title: "Ah Como Eu Amei", artist: "Ivete Sangalo", src: "Ivete Sangalo - Ah_ Como Eu Amei (Benito di Paula)(MP3_160K).mp3", genero: "MPB", tipo: "ao vivo" },
-        { id: 355, title: "Homem Aranha", artist: "Jorge Vercilo", src: "Jorge_Vercilo_Homem_Aranha_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 356, title: "Dentro de um Abraço", artist: "Jota Quest", src: "Jota_Quest_Dentro_de_um_Abra_o_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 357, title: "Nem Pensar", artist: "Kleiton & Kledir", src: "KLEITON_KLEDIR_nem_pensar_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 358, title: "Lanterna dos Afogados", artist: "Paralamas", src: "Lanterna_Dos_Lanterna_Dos_Afogados_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 359, title: "Muito Estranho", artist: "Liga Joe", src: "Liga_Joe_Muito_Estranho_Flashbacks_ (1).m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 360, title: "Mordida de Amor", artist: "Yahoo", src: "Yahoo_Mordida_de_Amor_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 361, title: "Toda Forma de Amor", artist: "Lulu Santos", src: "Lulu_Santos_Toda_Forma_de_Amor_Um_Certo_Algu_m_O_ltimo_Rom_ntico_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 362, title: "Reluz", artist: "Marcos Sabino", src: "MARCOS_SABINO_MARCOS_SABINO_reluz_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 363, title: "Meu Mundo e Nada Mais", artist: "Guilherme Arantes", src: "MEU_MUNDO_E_NADA_MAIS_Guilherme_Arantes_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 364, title: "Balada de Gisberta", artist: "Maria Bethânia", src: "Maria_Beth_nia_Balada_de_Gisberta_ (1).m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 365, title: "Pra Rua me Levar", artist: "Maria Bethânia & Ana Carolina", src: "Maria_Maria_Beth_nia_Pra_Rua_Me_Levar_muzzik (1).m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 366, title: "Epitáfio", artist: "Nando Reis", src: "Epit_fio_Epit_fio_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 367, title: "Mina do Condomínio", artist: "Seu Jorge", src: "Mina_do_Mina_do_Condom_nio_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 368, title: "O Barquinho", artist: "Naira Leão", src: "O_Barquinho_O_Barquinho.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 369, title: "Paisagem da Janela", artist: "Lô Borges", src: "PAISAGEM_DA_JANELA_L_BORGES_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 370, title: "Palco", artist: "Gilberto Gil & João Gomes", src: "PALCO_PALCO_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 371, title: "Palavras", artist: "Cassia Eller", src: "Palavras_Ao_Palavras_Ao_Vento.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 372, title: "Mil e Uma Noites de Amor", artist: "Pepeu Gomes", src: "Pepeu_Gomes_Mil_e_uma_noites_de_amor_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 373, title: "Primavera", artist: "Cassiano", src: "Primavera_Album_Primavera_Album_Version__muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 374, title: "Jura Secreta Revelação", artist: "Fagner & Zé Ramalho", src: "Fagner_Z_Ramalho_Jura_Secreta_Revela_o_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 375, title: "trém-das-corres", artist: "Caetano-Veloso", src: "Caetano-Veloso-trém-das-corres-mutv.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 376, title: "Casinha Branca", artist: "Roberta Campos", src: "Roberta_Campos_Casinha_Branca.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 377, title: "Furdúncio", artist: "Roberto Carlos", src: "Roberto_Carlos Furduncio.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 378, title: "Róberta Sá", artist: "Róberta Sá", src: "Róberta Sá, _muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 379, title: "Sábado à Noite", artist: "Seu Jorge", src: "S_bado_Noite_Seu_Jorge_4.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 380, title: "Samba de Verão", artist: "Luiza Sonza", src: "Samba_De_Samba_De_Ver_o.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 381, title: "Simples Desejo", artist: "Luciana Mello", src: "Simples_Desejo_Simples_Desejo_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 382, title: "Queixa", artist: "Caetano Veloso", src: "Queixa_Queixa_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 383, title: "sinais de fogo", artist: "Preta_gil", src: "Preta_gil_sinais_de_fogo_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 384, title: "Resposta", artist: "Skank", src: "Skank_Resposta.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 385, title: "Sorte", artist: "Caetano Veloso & Gal Costa", src: "Sorte_Caetano_Veloso_Gal_Costa_.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 386, title: "Rua Ramalhete", artist: "Tavito", src: "Tavito_Rua_Ramalhete.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 387, title: "Várias Queixas", artist: "Gilsons", src: "Gilsons_V_rias_Queixas_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 388, title: "Evidências", artist: "Maneva", src: "Maneva_Evid_ncias_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 389, title: "Oração ao Tempo", artist: "Maria Gadú", src: "Maria_Gad_Ora_o_ao_Tempo_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 390, title: "Samba de Verão", artist: "Various", src: "Samba_de_Samba_de_Ver_o_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 391, title: "Não Vá Embora", artist: "Marisa Montes", src: "Marisa-Montes-não vá embora.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 392, title: "Um Amor Puro", artist: "Djavan", src: "Djavan_Um_Amor_Puro_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 393, title: "Linha Do Equador", artist: "Melim", src: "Melim_Linha_Do_Equador_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 394, title: "Na Estrada", artist: "Marisa Montes", src: "Na_Estrada_Na_Estrada_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 395, title: "Toada", artist: "Boca Livre", src: "Boca_Livre_MPB_Toada_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 396, title: "Eva", artist: "Radio Taxi", src: "Radio_Taxi_Eva_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 397, title: "Vila do Sossego", artist: "Chico Chico", src: "Chico_Chico_Vila_do_Sossego_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 398, title: "Legião Urbana", artist: "Giz", src: "Giz_Legi_o_Urbana_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 399, title: "Fogo", artist: "Capital Inicial", src: "CAPITAL_INICIAL_FOGO_AC_STICO_MTV_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 400, title: "Garoto de Aluguel", artist: "Zé Ramalho", src: "Z_Ramalho_Garoto_de_Aluguel_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 401, title: "Fogo (Acústico)", artist: "Capital Inicial", src: "CAPITAL_INICIAL_FOGO_AC_STICO_MTV_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 402, title: "Na Estrada", artist: "Cidade Negra", src: "Na_Estrada_Na_Estrada_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 403, title: "A Namorada", artist: "Carlinhos Brown", src: "A_Namorada_A_Namorada_Carlinhos_Brown_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 404, title: "Andança", artist: "Luana Carvalho e Golden Boys", src: "Andan_a_Luana_Carvalho_e_Golden_Boys_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 405, title: "Faz Uma Loucura Por Mim", artist: "Alcione", src: "Alcione_Faz_Uma_Loucura_Por_Mim_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 406, title: "Coisas da Vida", artist: "Milton Nascimento", src: "Milton_Nascimento_Coisas_da_Vida_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 407, title: "Saigon", artist: "Emilio Santiago", src: "Saigon_Saigon_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 408, title: "Intriga da Oposição", artist: "Belo", src: "Belo_Intriga_Da_Oposi_o_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 409, title: "Tô Voltando", artist: "Simone", src: "Simone_T_Voltando_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 410, title: "Ana Carolina Quem dera eu Seu Z", artist: "Unknown", src: "Ana_Carolina_Quem_dera_eu_Seu_Z__muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 411, title: "Danni Carlos Coisas Que Eu Sei", artist: "Unknown", src: "Danni_Carlos_Coisas_Que_Eu_Sei_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 412, title: "Djavan Sina", artist: "Unknown", src: "Djavan_Sina_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 413, title: "Dois Beijinhos Dois Beijinhos", artist: "Unknown", src: "Dois_Beijinhos_Dois_Beijinhos_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 414, title: "Isabella Taviani Diga Sim Pra Mim", artist: "Unknown", src: "Isabella_Taviani_Diga_Sim_Pra_Mim__muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 415, title: "Ivete Sangalo A Lua Q Eu T Dei", artist: "Unknown", src: "Ivete_Sangalo_A_Lua_Q_Eu_T_Dei_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 416, title: "Lagrimas e Chuva Paula Toller Ao Vivo Amorosa", artist: "Unknown", src: "L_grimas_e_Chuva_Paula_Toller_Ao_Vivo_Amorosa_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 417, title: "Lulu Santos Apenas Mais uma de Amor", artist: "Unknown", src: "Lulu_Santos_Apenas_Mais_uma_de_Amor_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 418, title: "Maria Rita Cara Valente", artist: "Unknown", src: "Maria_Rita_Cara_Valente_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 419, title: "N o Mexe N o Mexe Comigo Lyric V deo Alcione", artist: "Unknown", src: "N_o_Mexe_N_o_Mexe_Comigo_Lyric_V_deo_Alcione_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 420, title: "Nando Reis e Anavit ria N", artist: "Unknown", src: "Nando_Reis_e_Anavit_ria_N__muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 421, title: "Onde Anda Onde Anda Voc Clipe", artist: "Unknown", src: "Onde_Anda_Onde_Anda_Voc_Clipe_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 422, title: "Sem_radar_Sem_radar", artist: "Ls jack", src: "Sem_radar_Sem_radar_Vers_o_ac_stica__muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 423, title: "Liga_Joe_A_Little_Respect", artist: "Liga_Joe_A_Little_Respect_", src: "Liga_Joe_A_Little_Respect_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 424, title: "Flavio Venturini Feat Jota Quest", artist: "Flavio Venturini & Jota Quest", src: "9Flavio_Venturini_Flavio_Venturini_Feat_Jota_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 425, title: "Esquadros", artist: "Adriana Calcanhotto", src: "Adriana_Calcanhotto_Esquadros.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 426, title: "Simone Migalhas", artist: "Simone", src: "Simone-Migalhas-mutv.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 427, title: "Janaína", artist: "Biquini Cavadão", src: "Biquini_Cavad_o_Jana_na_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 428, title: "Noite do Prazer", artist: "Cláudio Zolli", src: "Brylho_Noite_do_Prazer_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 429, title: "Fé", artist: "Caetano Veloso & Maria Bethânia", src: "Caetano_Veloso_Maria_Bethania.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 430, title: "Codinome Beija-Flor", artist: "Cazuza", src: "Cazuza_Codinome_Beija_Flor.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 431, title: "Só os Loucos Sabem", artist: "Charlie Brown Jr.", src: "Charlie_Brown_Jr_S_os_loucos_sabem_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 432, title: "Charme do Mundo", artist: "Marina Lima", src: "Charme_do_Charme_do_Mundo_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 433, title: "Cheia de Charme", artist: "Guilherme Arantes", src: "Cheia_de_Cheia_de_Charme_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 434, title: "Poeira No Vento", artist: "Chrystian & Ralf", src: "Chrystian_Ralf_Pocket_Show_Poeira_No_Vento.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 435, title: "Corre Pro Meu Mar", artist: "Maneva", src: "Corre_Pro_Corre_Pro_Meu_Mar_Radio_Edit__muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 436, title: "Você Sempre Será", artist: "DINO & Banda Malta", src: "DINO_Feat_Banda_Malta_Voc_Sempre_Ser_DVD_Barzim_de_Rock.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 437, title: "Casinha Branca", artist: "DINO & Renato Vianna", src: "DINO_feat_Renato_Vianna_Casinha_Branca_DVD_Barzim_de_Rock_muzzik (1).m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 438, title: "Ah! Como eu Amei", artist: "Alexandre Pires", src: "Ah_Como_Eu_Amei_Alexandre_Pires_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 439, title: "Correnteza", artist: "Djavan", src: "Djavan_Correnteza.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 440, title: "La Belle de_our", artist: "Paulinho mosca", src: "La_Belle_La_Belle_de_Jour_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 441, title: "Encostar na Tua", artist: "Anavitória", src: "Encostar_na_Encostar_na_Tua.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 442, title: "Somos Quem Podemos Ser", artist: "Engenheiros Do Hawaii", src: "Engenheiros_Do_Hawaii_Somos_Quem_Podemos_Ser_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 443, title: "Entre o Céu e o Mar", artist: "Elba Ramalho", src: "Entre_O_Entre o Ceu e o Mar.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 444, title: "Espumas ao Vento", artist: "Fagner", src: "Espumas_ao_Espumas_ao_Vento.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 445, title: "Esquece e Vem", artist: "Nico Rezende", src: "Esquece_e_Esquece_e_vem_Nico_5.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 446, title: "Noites com sol", artist: "Flavio_Venturini & Vanessa", src: "Flavio_Venturini_Flavio_Venturini_Feat_Vanessa_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 447, title: "Djavan_Se_Acontecer", artist: "Desconhecido", src: "Djavan_Se_Acontecer_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 448, title: "Zeca_Baleiro_Telegrama", artist: "Desconhecido", src: "Zeca_Baleiro_Telegrama_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 449, title: "Drão Gil", artist: "Desconhecido", src: "Dr_o_Dr_o_muzzik.m4a", genero: "MPB", tipo: "ao vivo" },
-        { id: 450, title: "Jõa0 Bosco_Memoria da_Pele", artist: "Desconhecido", src: "Jo_o_Bosco_Mem_ria_da_Pele_muzzik.m4", genero: "MPB", tipo: "normal" },
-        { id: 451, title: "O_Mundo_O_Mundo_Um_Moinho", artist: "Desconhecido", src: "O_Mundo_O_Mundo_Um_Moinho_muzzik.m4a", genero: "MPB", tipo: "normal" },
-
-        // ==================== MODA TOP (IDs 452 a 485) ====================
-        { id: 452, title: "A_coisa_A_coisa_t_feia", artist: "Tião Carreiro & Pardinho", src: "A_coisa_A_coisa_t_feia_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 453, title: "Darlan_Souza_Reis_O_Individado", artist: "O_Individado", src: "Darlan_Souza_Reis_O_Individado_muzzik.m4a", genero: "MODA TOP", tipo: "ao vivo" },
-        { id: 454, title: "Meu_recanto_Meu_recanto", artist: "editando123", src: "Meu_recanto_Meu_recanto_Meu_Para_so_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 455, title: "Pescador", artist: "Cacique e Pagé", src: "Pescador_e_Pescador_e_Catireiro_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 456, title: "_Boiadeiro_Errante", artist: "Liu & Léo", src: "Liu_e_Liu_e_L_u_Boiadeiro_Errante_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 457, title: "Boi_soberano_Ti_o_Carreiro_e_Pardinho", artist: "Tião Carreiro & Pardinho", src: "Boi_soberano_Ti_o_Carreiro_e_Pardinho_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 458, title: "Althair_Alexandre_Do_Outro_Lado_Da_Cidade_Dois_Passarinhos_Ensaio_Turn", artist: "Althair Alexandre", src: "Althair_Alexandre_Do_Outro_Lado_Da_Cidade_Dois_Passarinhos_Ensaio_Turn__muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 459, title: "A_Viola_A_Viola_e_a_Saudade", artist: "Desconhecido", src: "A_Viola_A_Viola_e_a_Saudade_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 460, title: "A_Sementinha_A_Sementinha", artist: "Desconhecido", src: "A_Sementinha_A_Sementinha_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 461, title: "Z_Henrique_Gabriel_Mala_Amarela_", artist: "Z Henrique & Gabriel", src: "Z_Henrique_Gabriel_Mala_Amarela_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 462, title: "Trio_Parada_Dura_Canoeiro", artist: "Trio Parada Dura", src: "Trio_Parada_Dura_Canoeiro_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 463, title: "Trio_Parada_Dura_Canoeiro_muzzik.m4a", artist: "Trio Parada Dura", src: "Trio_Parada_Dura_Canoeiro_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 464, title: "Franguinho_na_panela", artist: "Desconhecido", src: "Franguinho_na_Franguinho_na_panela_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 465, title: "Dom_Marcos_e_Davi_Pot_Pourri", artist: "Dom Marcos e Davi", src: "Dom_Marcos_e_Davi_Pot_Pourri_Fazenda_S_o_Francisco_Loira_Do_Carro_Branco_EP__muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 466, title: "chico_rey_chico_rey_e_parana", artist: "Chico Rey & Parana", src: "chico_rey_chico_rey_e_parana_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 467, title: "Cerne_de_Cerne_de_Aroeira", artist: "Desconhecido", src: "Cerne_de_Cerne_de_Aroeira_A_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 468, title: "Caboclo_Na_Caboclo_Na_Cidade", artist: "Desconhecido", src: "Caboclo_Na_Caboclo_Na_Cidade_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 469, title: "CABOCLA_TEREZA_CABOCLA_TEREZA_Eduardo_Costa", artist: "Eduardo Costa", src: "CABOCLA_TEREZA_CABOCLA_TEREZA_Eduardo_Costa_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 470, title: "Bruna_Viola_Moda_Da_Pinga", artist: "Bruna Viola", src: "Bruna_Viola_Moda_Da_Pinga_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 471, title: "Boiadeiro_Errante_Jo_o_Carreiro_Capataz", artist: "João Carreiro & Capataz", src: "Boiadeiro_Errante_Jo_o_Carreiro_Capataz_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 472, title: "Z_Mulato_Cassiano_Di_rio_do_Caipira_muzzik.m4a", artist: "Zé Mulato & Cassiano", src: "Z_Mulato_Cassiano_Di_rio_do_Caipira_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 473, title: "Eduardo_Costa_A_Vaca_Foi_pro_Brejo", artist: "Eduardo Costa", src: "Eduardo_Costa_A_Vaca_Foi_pro_Brejo_DVD_Pantanal_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 474, title: "A_INCR_VEL_HIST_RIA_DO_NELORE_VALENTE_Mayck_e_Lyan", artist: "Mayck & Lyan", src: "A_INCR_VEL_HIST_RIA_DO_NELORE_VALENTE_Mayck_e_Lyan_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 475, title: "Trio_Parada_Dura_Boi_Tufão", artist: "Trio Parada Dura", src: "Trio_Parada_Dura_Boi_Tuf_o_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 476, title: "Retrato_de_Retrato_de_M_e_Ac_stico_", artist: "Desconhecido", src: "Retrato_de_Retrato_de_M_e_Ac_stico__muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 477, title: "felipe_e_falc_o_Her_i_Sem_Medalha_muzzik.m4a", artist: "Felipe e Falcão", src: "felipe_e_falc_o_Her_i_Sem_Medalha_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 478, title: "Eduardo_Costa_Franguinho_na_Panela", artist: "Eduardo Costa", src: "Eduardo_Costa_Franguinho_na_Panela_DVD_Pantanal_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 479, title: "Meu_S_tio_Meu_S_tio_Meu_Para_so", artist: "Desconhecido", src: "Meu_S_tio_Meu_S_tio_Meu_Para_so_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 480, title: "Minha_Mensagem_Minha_Mensagem_muzzik.m4a", artist: "Desconhecido", src: "Minha_Mensagem_Minha_Mensagem_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 481, title: "Mundo_Velho_Ti_o_Carreiro_e_Pardinho_muzzik.m4a", artist: "Tião Carreiro & Pardinho", src: "Mundo_Velho_Ti_o_Carreiro_e_Pardinho_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 482, title: "PAGODE_DO_PAGODE_DO_CASAMENTO_Eduardo_Costa", artist: "Eduardo Costa", src: "PAGODE_DO_PAGODE_DO_CASAMENTO_Eduardo_Costa_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 483, title: "Jo_o_Boiadeiro_Jo_o_Boiadeiro", artist: "Desconhecido", src: "Jo_o_Boiadeiro_Jo_o_Boiadeiro_Remasterizado__muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 484, title: "Gilberto_e_Gilmar_Boiadeiro_Errante", artist: "Gilberto e Gilmar", src: "Gilberto_e_Gilmar_Boiadeiro_Errante_ltimo_Adeus_Saudade_De_Minha_Terra_muzzik.m4a", genero: "MODA TOP", tipo: "normal" },
-        { id: 485, title: "Jeit_o_de_Jeit_o_de_caboclo_Participa", artist: "Desconhecido", src: "Jeit_o_de_Jeit_o_de_caboclo_Participa_o_muzzik.m4a", genero: "MODA TOP", tipo: "normal" }
-    ];
-
-    // ==================== FIM DA PLAYLIST COMPLETA (485 MÚSICAS) ====================
-    // ==================== INÍCIO DA LÓGICA DO PLAYER ====================
-
-    // Gêneros disponíveis (extraídos da playlist)
-    const ALL_GENRES = [...new Set(PLAYLIST.map(m => m.genero))].sort();
-    const GENRES_LIST = ["TODOS", ...ALL_GENRES];
-
-    // Estado do app
-    let state = {
-        isPlaying: false,
-        currentIndex: 0,
-        filteredPlaylist: [],
-        currentGenre: "TODOS",
-        audioAllowed: false,
-        timerInterval: null,
-        volume: 0.8
+    // ==================== CONFIGURAÇÕES ====================
+    const CONFIG = {
+        PIX_KEY: '12988461978',
+        WHATSAPP_NUMBER: '5512988461978',
+        VOLUME_PLAYER: 0.9,
+        INTERVALO_VINHETA_MUSICAS: 3,
+        VINHETAS: ['radiopm.mp3', 'Paticom.mp3', 'zzvc.mp3'],
+        VIDEO_POR_GENERO: {
+            SERTANEJO: 'sertanejo181.mp4', FORRÓ: 'forro181.mp4', 'FORRÓ ANTIGO': 'forroant181.mp4',
+            BREGA: 'brga181.mp4', POP: 'pop181.mp4', MPB: 'mpb181.mp4', SAMBA: 'samba181.mp4',
+            VARIADAS: 'variadas.mp4', 'MODA TOP': 'modatop181.mp4', 'AS++': 'pailogo.mp4',
+            LIVE: 'pailog.mp4', DEFAULT: 'pailogo.mp4'
+        },
+        PLAYLIST_URL: 'https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json'
     };
 
-    // DOM elements
-    const audio = document.getElementById('audioPlayer');
-    const playBtn = document.getElementById('playBtn');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const trackTitle = document.getElementById('trackTitle');
-    const trackArtist = document.getElementById('trackArtist');
-    const nextInfo = document.getElementById('nextInfo');
-    const progressFill = document.getElementById('progressFill');
-    const currentTimeSpan = document.getElementById('currentTime');
-    const totalTimeSpan = document.getElementById('totalTime');
-    const progressBarBg = document.getElementById('progressBarBg');
-    const toastMsg = document.getElementById('toastMsg');
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    const activateBtn = document.getElementById('activateBtn');
-    const splash = document.getElementById('splash');
-    const genreBadgeSpan = document.getElementById('genreBadge');
-    const volumeToastDiv = document.getElementById('volumeToast');
-    const controlsBar = document.getElementById('controlsBar');
-    const likeBtn = document.getElementById('likeBtn');
-    const dislikeBtn = document.getElementById('dislikeBtn');
-    const genreFab = document.getElementById('genreFab');
-    const genresModal = document.getElementById('genresModal');
-    const closeGenresBtn = document.getElementById('closeGenresBtn');
-    const genresGrid = document.getElementById('genresGrid');
-    const menuBtn = document.getElementById('menuBtn');
-    const menuPopup = document.getElementById('menuPopup');
-    const tvModeBtn = document.getElementById('tvModeBtn');
-    const shareBtn = document.getElementById('shareBtn');
-    const infoBtn = document.getElementById('infoBtn');
-    const bgVideo = document.getElementById('bgVideo');
+    let PLAYLIST = [];
 
-    // Helper: show toast
-    function showToast(text, duration = 2000) {
-        toastMsg.textContent = text;
-        toastMsg.classList.add('show');
-        setTimeout(() => toastMsg.classList.remove('show'), duration);
+    // ==================== ESTADO ====================
+    const state = {
+        isPlaying: false,
+        isAoVivo: true,
+        generoAtual: 'SERTANEJO',
+        currentIndex: 0,
+        filteredPlaylist: [],
+        tocandoVinheta: false,
+        contadorMusicasVinheta: 0,
+        isLoadingTrack: false,
+        isTvMode: false,
+        shuffleMode: false,
+        userPreferences: { likedSongs: [], dislikedSongs: [], songPlays: {}, genrePreference: {} },
+        stats: { totalPlayed: 0, totalSeconds: 0, genreCount: {}, currentStreak: 0 },
+        audioContext: null,
+        analyser: null,
+        progressInterval: null,
+        controlsTimer: null,
+        manutencaoInterval: null
+    };
+
+    let audioAtivo = false;
+
+    // ==================== MANUTENÇÃO CONSTANTE ====================
+    function iniciarManutencao() {
+        if (state.manutencaoInterval) clearInterval(state.manutencaoInterval);
+        state.manutencaoInterval = setInterval(() => {
+            const musicPlayer = document.getElementById('musicPlayer');
+            if (state.isPlaying && musicPlayer && musicPlayer.paused && !musicPlayer.ended && !state.isLoadingTrack) {
+                musicPlayer.play().catch(e => {});
+            }
+            if (state.isPlaying && musicPlayer && musicPlayer.ended && !state.isLoadingTrack) {
+                PlayerEngine.next();
+            }
+        }, 2000);
     }
 
-    // Formatar tempo
-    function formatTime(sec) {
-        if (isNaN(sec)) return "0:00";
-        const mins = Math.floor(sec / 60);
-        const seconds = Math.floor(sec % 60);
-        return `${mins}:${seconds < 10 ? '0' : ''}${seconds}`;
+    document.addEventListener('visibilitychange', () => {
+        const musicPlayer = document.getElementById('musicPlayer');
+        if (!document.hidden && state.isPlaying && musicPlayer && musicPlayer.paused && !musicPlayer.ended && !state.isLoadingTrack) {
+            musicPlayer.play().catch(e => {});
+        }
+    });
+
+    // ==================== FUNÇÕES UTILITÁRIAS ====================
+    function mostrarNotificacao(msg, dur = 2500) {
+        const n = document.getElementById('notificationTop');
+        n.textContent = msg;
+        n.classList.add('show');
+        setTimeout(() => n.classList.remove('show'), dur);
     }
 
-    // Atualizar informações da UI
-    function updateTrackInfo() {
-        const track = state.filteredPlaylist[state.currentIndex];
-        if (!track) return;
-        trackTitle.textContent = track.title;
-        trackArtist.textContent = track.artist;
-        const nextTrack = state.filteredPlaylist[(state.currentIndex + 1) % state.filteredPlaylist.length];
-        nextInfo.textContent = nextTrack ? `Próxima: ${nextTrack.title} - ${nextTrack.artist}` : "Próxima: --";
-        genreBadgeSpan.innerHTML = `<i class="fas fa-tag"></i> ${state.currentGenre === "TODOS" ? "TODOS OS ESTILOS" : state.currentGenre}`;
-        
-        // Trocar vídeo de fundo baseado no gênero
-        if (state.currentGenre === "SERTANEJO") bgVideo.src = "https://videos.pexels.com/video-files/3172282/3172282-uhd_1440_2560_30fps.mp4";
-        else if (state.currentGenre === "FORRÓ") bgVideo.src = "https://videos.pexels.com/video-files/2845281/2845281-uhd_1440_2560_25fps.mp4";
-        else if (state.currentGenre === "SAMBA") bgVideo.src = "https://videos.pexels.com/video-files/4281671/4281671-uhd_1440_2560_30fps.mp4";
-        else if (state.currentGenre === "POP") bgVideo.src = "https://videos.pexels.com/video-files/3764641/3764641-uhd_1440_2560_30fps.mp4";
-        else bgVideo.src = "https://videos.pexels.com/video-files/855742/855742-hd_1920_1080_30fps.mp4";
-        bgVideo.play().catch(e=>{});
+    function showSwipeIndicator(text) {
+        const indicator = document.getElementById('swipeIndicator');
+        indicator.textContent = text;
+        indicator.style.opacity = '1';
+        setTimeout(() => { indicator.style.opacity = '0'; }, 1000);
     }
 
-    // Carregar e tocar música atual
-    async function loadAndPlay() {
-        if (!state.audioAllowed) {
-            showToast("🔊 Clique em ATIVAR PLAYER primeiro!", 2000);
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function salvarPrefs() { localStorage.setItem('radio_patico_ai_preferences', JSON.stringify(state.userPreferences)); }
+    function carregarPrefs() { const s = localStorage.getItem('radio_patico_ai_preferences'); if(s) Object.assign(state.userPreferences, JSON.parse(s)); }
+    function salvarStats() { localStorage.setItem('radio_patico_stats', JSON.stringify(state.stats)); }
+    function carregarStats() { const s = localStorage.getItem('radio_patico_stats'); if(s) Object.assign(state.stats, JSON.parse(s)); }
+
+    // ==================== CARREGAR PLAYLIST (converte objeto por gênero para array) ====================
+    async function carregarPlaylist() {
+        try {
+            const resp = await fetch(CONFIG.PLAYLIST_URL);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+            
+            // Converte objeto com categorias para array único
+            PLAYLIST = [];
+            let id = 1;
+            for (const genero in data) {
+                if (Array.isArray(data[genero])) {
+                    data[genero].forEach(musica => {
+                        PLAYLIST.push({
+                            id: id++,
+                            title: musica.title || "Título desconhecido",
+                            artist: musica.artist || "Desconhecido",
+                            src: musica.src || "",
+                            genero: musica.genero || genero,
+                            tipo: musica.tipo || "normal"
+                        });
+                    });
+                }
+            }
+            console.log(`✅ Playlist carregada: ${PLAYLIST.length} músicas`);
+            document.getElementById('splashStatus').innerHTML = `✅ ${PLAYLIST.length} músicas carregadas!`;
+            return true;
+        } catch(e) {
+            console.error("Erro ao carregar playlist", e);
+            document.getElementById('splashStatus').innerHTML = '⚠️ Usando playlist de fallback';
+            PLAYLIST = [
+                { id: 1, title: "Música Exemplo 1", artist: "Artista 1", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "VARIADAS", tipo: "normal" },
+                { id: 2, title: "Música Exemplo 2", artist: "Artista 2", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "POP", tipo: "normal" },
+                { id: 3, title: "Música Exemplo 3", artist: "Artista 3", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "SERTANEJO", tipo: "normal" }
+            ];
+            mostrarNotificacao("⚠️ Usando playlist de fallback", 4000);
             return false;
         }
-        const track = state.filteredPlaylist[state.currentIndex];
-        if (!track) return false;
-        loadingSpinner.style.display = "flex";
-        audio.pause();
-        audio.src = track.src;
-        audio.load();
+    }
+
+    // ==================== DOM ELEMENTOS ====================
+    const dom = {
+        musicPlayer: document.getElementById('musicPlayer'),
+        playBtn: document.getElementById('playPauseBtn'), prevBtn: document.getElementById('prevBtn'), nextBtn: document.getElementById('nextBtn'),
+        shuffleBtn: document.getElementById('shuffleBtn'), progressFill: document.getElementById('progressFill'), currentTimeEl: document.getElementById('currentTime'),
+        totalTimeEl: document.getElementById('totalTime'), trackMarquee: document.getElementById('trackMarquee'), nextTrackInfo: document.getElementById('nextTrackInfo'),
+        splash: document.getElementById('splash'), tapToStart: document.getElementById('tap-to-start'), loadingSpinner: document.getElementById('loadingSpinner'),
+        genreBadge: document.getElementById('genreBadge'), bottomControls: document.getElementById('bottomControls'),
+        visualizerBars: document.querySelectorAll('.visualizer-bar'), genreButton: document.getElementById('genreButton'), exitTvBtn: document.getElementById('exitTvBtn'),
+        menuButton: document.getElementById('menuButton'), menuPopup: document.getElementById('menuPopup'), mainVideo: document.getElementById('mainVideo'),
+        likeBtn: document.getElementById('likeBtn'), dislikeBtn: document.getElementById('dislikeBtn'), feedbackFloating: document.getElementById('feedbackFloating'),
+        appRoot: document.getElementById('appRoot'), tapInstruction: document.getElementById('tapInstruction'),
+        genresModal: document.getElementById('genresModal')
+    };
+
+    // Search container
+    const searchDiv = document.createElement('div'); searchDiv.id = 'searchContainer'; searchDiv.className = 'search-container';
+    searchDiv.innerHTML = '<button class="search-close" id="closeSearchBtn" style="position:absolute; top:12px; right:16px; background:none; border:none; color:#00f3ff; font-size:1.2rem;">✕</button><input type="search" id="searchInput" class="search-input" placeholder="Buscar música ou artista..."><div id="searchResults" class="search-results"></div>';
+    document.body.appendChild(searchDiv);
+    dom.searchContainer = searchDiv;
+    dom.searchInput = document.getElementById('searchInput');
+    dom.searchResults = document.getElementById('searchResults');
+    document.getElementById('closeSearchBtn').addEventListener('click', () => dom.searchContainer.style.display = 'none');
+
+    // ==================== VISUALIZER ====================
+    async function setupVisualizer() {
+        if (state.audioContext) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        state.audioContext = new AudioContext();
+        state.analyser = state.audioContext.createAnalyser();
+        state.analyser.fftSize = 64;
+        const sourceNode = state.audioContext.createMediaElementSource(dom.musicPlayer);
+        sourceNode.connect(state.analyser);
+        state.analyser.connect(state.audioContext.destination);
         
-        return new Promise((resolve) => {
-            const timeout = setTimeout(() => {
-                loadingSpinner.style.display = "none";
-                showToast("Erro ao carregar música", 1500);
-                resolve(false);
-            }, 8000);
-            
-            audio.oncanplaythrough = async () => {
-                clearTimeout(timeout);
-                loadingSpinner.style.display = "none";
-                try {
-                    await audio.play();
-                    state.isPlaying = true;
-                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                    updateTrackInfo();
-                    startProgressTimer();
-                    resolve(true);
-                } catch (err) {
-                    showToast("Reprodução automática bloqueada", 1500);
-                    state.isPlaying = false;
-                    playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                    resolve(false);
+        function updateBars() {
+            if (!state.analyser || !state.isPlaying) {
+                dom.visualizerBars.forEach(b => b.style.height = '4px');
+                requestAnimationFrame(updateBars);
+                return;
+            }
+            const dataArray = new Uint8Array(state.analyser.frequencyBinCount);
+            state.analyser.getByteFrequencyData(dataArray);
+            const avg = dataArray.reduce((a,b) => a+b, 0) / dataArray.length;
+            const scale = Math.min(28, avg / 4);
+            dom.visualizerBars.forEach((bar, idx) => {
+                const h = 4 + (scale * (idx + 1) / 4);
+                bar.style.height = `${Math.min(36, h)}px`;
+            });
+            requestAnimationFrame(updateBars);
+        }
+        updateBars();
+    }
+
+    function formatTime(sec) {
+        if (isNaN(sec)) return '0:00';
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function updateMarquee(track) {
+        const g = state.isAoVivo ? '🔴 AO VIVO' : (state.generoAtual === 'MIX' ? 'TODOS' : state.generoAtual);
+        const msg = `🎵 ${track.title} - ${track.artist} [${g}] | RÁDIO PATICO IA | 👍 ${state.userPreferences.likedSongs.length} curtidas | Toca com tela travada 🔒`;
+        dom.trackMarquee.innerHTML = `<span class="marquee-text">${msg}</span>`;
+        
+        let nextIdx = state.currentIndex + 1;
+        if (nextIdx >= state.filteredPlaylist.length) nextIdx = 0;
+        const next = state.filteredPlaylist[nextIdx];
+        dom.nextTrackInfo.innerHTML = next ? `Próxima: ${next.title} - ${next.artist}` : 'Próxima: --';
+        dom.currentTimeEl.textContent = '0:00';
+        dom.totalTimeEl.textContent = '0:00';
+        dom.progressFill.style.width = '0%';
+    }
+
+    function updateGenreBadge(genero) {
+        if (state.isAoVivo) {
+            dom.genreBadge.innerHTML = '<i class="fas fa-broadcast-tower"></i> LIVE';
+            dom.genreBadge.classList.add('live');
+        } else {
+            const g = genero === 'MIX' ? 'TODOS' : genero;
+            dom.genreBadge.innerHTML = `<i class="fas fa-music"></i> ${g}`;
+            dom.genreBadge.classList.remove('live');
+        }
+    }
+
+    function atualizarVideo(genero) {
+        if (state.isTvMode) return;
+        let file = CONFIG.VIDEO_POR_GENERO[genero] || CONFIG.VIDEO_POR_GENERO.DEFAULT;
+        if (state.isAoVivo) file = CONFIG.VIDEO_POR_GENERO.LIVE;
+        if (dom.mainVideo.src.endsWith(file)) return;
+        dom.mainVideo.pause();
+        dom.mainVideo.src = file;
+        dom.mainVideo.load();
+        dom.mainVideo.play().catch(e => console.warn("Vídeo não encontrado:", e));
+    }
+
+    function atualizarAIModal() {
+        document.getElementById('aiLikedCount').textContent = state.userPreferences.likedSongs.length;
+        document.getElementById('aiDislikedCount').textContent = state.userPreferences.dislikedSongs.length;
+        let topG = "Nenhum", maxC = 0;
+        for (let [g, c] of Object.entries(state.userPreferences.genrePreference)) if (c > maxC) { maxC = c; topG = g; }
+        document.getElementById('aiTopGenre').textContent = topG;
+        const container = document.getElementById('aiTopSongs');
+        container.innerHTML = '';
+        const favs = state.userPreferences.likedSongs.map(id => PLAYLIST.find(m => m.id === id)).filter(s => s).slice(0, 5);
+        favs.forEach(song => {
+            const d = document.createElement('div');
+            d.style.margin = '5px 0';
+            d.innerHTML = `<span style="font-size:0.75rem;">🎵 ${song.title} - ${song.artist}</span><button style="background:#ff2d7f; border:none; color:white; margin-left:8px; border-radius:20px; padding:2px 8px;">Remover</button>`;
+            d.querySelector('button').onclick = () => {
+                state.userPreferences.likedSongs = state.userPreferences.likedSongs.filter(id => id !== song.id);
+                salvarPrefs();
+                atualizarAIModal();
+                mostrarNotificacao(`👍 Removido dos favoritos`, 1500);
+                if (!state.isAoVivo) {
+                    state.filteredPlaylist = PlaylistManager.generateSmartPlaylist();
+                    state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
+                    updateMarquee(state.filteredPlaylist[state.currentIndex]);
+                    if (state.isPlaying) PlayerEngine.play();
                 }
             };
-            audio.onerror = () => {
-                clearTimeout(timeout);
-                loadingSpinner.style.display = "none";
-                showToast("Falha no áudio", 1500);
-                resolve(false);
-            };
+            container.appendChild(d);
         });
     }
 
-    // Timer da barra de progresso
-    function startProgressTimer() {
-        if (state.timerInterval) clearInterval(state.timerInterval);
-        state.timerInterval = setInterval(() => {
-            if (audio.duration && !audio.paused) {
-                const percent = (audio.currentTime / audio.duration) * 100;
-                progressFill.style.width = `${percent}%`;
-                currentTimeSpan.textContent = formatTime(audio.currentTime);
-                totalTimeSpan.textContent = formatTime(audio.duration);
+    // ==================== IA PLAYLIST ====================
+    const PlaylistManager = {
+        generateSmartPlaylist() {
+            let candidates = [...PLAYLIST];
+            const prefs = state.userPreferences;
+            if (prefs.likedSongs.length) {
+                const likedGenres = {};
+                prefs.likedSongs.forEach(id => {
+                    const m = PLAYLIST.find(mus => mus.id === id);
+                    if (m) likedGenres[m.genero] = (likedGenres[m.genero] || 0) + 1;
+                });
+                const top = Object.keys(likedGenres).reduce((a, b) => likedGenres[a] > likedGenres[b] ? a : b, null);
+                if (top) candidates = candidates.filter(m => m.genero === top);
             }
-        }, 200);
+            candidates = candidates.filter(m => !prefs.dislikedSongs.includes(m.id));
+            if (!candidates.length) candidates = [...PLAYLIST];
+            return shuffleArray(candidates);
+        },
+        
+        filterByGenre(genero) {
+            if (genero === 'LIVE') { ativarModoAoVivo(); return; }
+            state.isAoVivo = false;
+            let nova = [];
+            if (genero === 'TODOS') {
+                nova = shuffleArray([...PLAYLIST]);
+                state.generoAtual = "MIX";
+                updateGenreBadge("MIX");
+            } else {
+                nova = PLAYLIST.filter(m => m.genero === genero);
+                if (!nova.length) {
+                    nova = shuffleArray([...PLAYLIST]);
+                    mostrarNotificacao(`⚠️ Nenhuma música para ${genero}. Carregando todas.`, 2000);
+                    state.generoAtual = "MIX";
+                    updateGenreBadge("MIX");
+                } else {
+                    state.generoAtual = genero;
+                    updateGenreBadge(genero);
+                }
+            }
+            state.filteredPlaylist = nova;
+            state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
+            updateMarquee(state.filteredPlaylist[state.currentIndex]);
+            atualizarVideo(state.generoAtual === "MIX" ? "VARIADAS" : state.generoAtual);
+            if (state.isPlaying) PlayerEngine.play();
+        }
+    };
+
+    function ativarModoAoVivo() {
+        state.isAoVivo = true;
+        updateGenreBadge('LIVE');
+        let musicas = PLAYLIST.filter(m => m.tipo === "ao vivo");
+        if (!musicas.length) musicas = shuffleArray([...PLAYLIST]);
+        state.filteredPlaylist = shuffleArray(musicas);
+        state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
+        updateMarquee(state.filteredPlaylist[0]);
+        state.contadorMusicasVinheta = 0;
+        atualizarVideo('LIVE');
+        mostrarNotificacao('🔴 Modo AO VIVO ativado!', 2000);
+        if (state.isPlaying) PlayerEngine.play();
+    }
+
+    function toggleTvMode() {
+        if (!state.isTvMode) {
+            state.isTvMode = true;
+            document.querySelector('.app').classList.add('tv-mode-active');
+            dom.exitTvBtn.style.display = 'block';
+            dom.mainVideo.src = "modop.mp4";
+            dom.mainVideo.load();
+            dom.mainVideo.play().catch(() => mostrarNotificacao("Vídeo do modo TV não encontrado", 2000));
+            mostrarNotificacao('📺 Modo TV ativado (vídeo fixo)', 2000);
+        } else {
+            state.isTvMode = false;
+            document.querySelector('.app').classList.remove('tv-mode-active');
+            dom.exitTvBtn.style.display = 'none';
+            atualizarVideo(state.isAoVivo ? 'LIVE' : state.generoAtual);
+            mostrarNotificacao('Modo TV desativado', 1500);
+        }
+    }
+
+    function performSearch(q) {
+        if (!q.trim()) { dom.searchResults.innerHTML = ''; return; }
+        const lower = q.toLowerCase();
+        const results = PLAYLIST.filter(m => m.title.toLowerCase().includes(lower) || m.artist.toLowerCase().includes(lower)).slice(0, 10);
+        dom.searchResults.innerHTML = results.map(m => `<div class="search-item" data-id="${m.id}" style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.1); color:white; cursor:pointer;">🎵 ${m.title} - ${m.artist} [${m.genero}]</div>`).join('');
+        document.querySelectorAll('.search-item').forEach(el => {
+            el.addEventListener('click', () => {
+                const id = parseInt(el.dataset.id);
+                const music = PLAYLIST.find(m => m.id === id);
+                if (music) {
+                    if (state.isAoVivo) ativarModoAoVivo();
+                    state.filteredPlaylist.unshift(music);
+                    state.currentIndex = 0;
+                    updateMarquee(music);
+                    if (!state.isAoVivo) updateGenreBadge(music.genero);
+                    atualizarVideo(music.genero);
+                    PlayerEngine.play();
+                    dom.searchContainer.style.display = 'none';
+                    mostrarNotificacao(`🔍 Tocando: ${music.title}`, 2500);
+                }
+            });
+        });
+    }
+
+    // ==================== PLAYER ENGINE ====================
+    const PlayerEngine = {
+        async play() {
+            if (state.isLoadingTrack || state.tocandoVinheta) return;
+            if (!audioAtivo) {
+                mostrarNotificacao("⚠️ Clique em ATIVAR RÁDIO primeiro!", 2000);
+                return false;
+            }
+            if (!state.filteredPlaylist.length) {
+                mostrarNotificacao("Nenhuma música disponível", 2000);
+                return false;
+            }
+            
+            if (state.currentIndex >= state.filteredPlaylist.length) state.currentIndex = 0;
+            const track = state.filteredPlaylist[state.currentIndex];
+            if (!track || !track.src) {
+                mostrarNotificacao("Música inválida, pulando...", 1500);
+                this.next();
+                return false;
+            }
+            
+            state.isLoadingTrack = true;
+            dom.loadingSpinner.classList.add('show');
+            dom.musicPlayer.pause();
+            dom.musicPlayer.src = track.src;
+            dom.musicPlayer.load();
+            
+            updateMarquee(track);
+            if (!state.isAoVivo) updateGenreBadge(track.genero);
+            atualizarVideo(state.isAoVivo ? 'LIVE' : track.genero);
+            
+            return new Promise((resolve) => {
+                let timeout = setTimeout(() => {
+                    dom.loadingSpinner.classList.remove('show');
+                    state.isLoadingTrack = false;
+                    mostrarNotificacao(`Timeout: ${track.title}`, 2000);
+                    this.next();
+                    resolve(false);
+                }, 10000);
+                
+                dom.musicPlayer.oncanplaythrough = async () => {
+                    clearTimeout(timeout);
+                    dom.loadingSpinner.classList.remove('show');
+                    state.isLoadingTrack = false;
+                    try {
+                        if (state.audioContext && state.audioContext.state === 'suspended') {
+                            await state.audioContext.resume();
+                        }
+                        await dom.musicPlayer.play();
+                        state.isPlaying = true;
+                        dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        this.startProgressTimer();
+                        
+                        state.stats.totalPlayed++;
+                        if (!state.stats.genreCount[track.genero]) state.stats.genreCount[track.genero] = 0;
+                        state.stats.genreCount[track.genero]++;
+                        state.stats.currentStreak++;
+                        salvarStats();
+                        
+                        dom.splash.classList.add('hidden');
+                        setTimeout(() => dom.splash.style.display = 'none', 500);
+                        dom.tapToStart.style.display = 'none';
+                        showControls();
+                        resolve(true);
+                    } catch (e) {
+                        clearTimeout(timeout);
+                        dom.loadingSpinner.classList.remove('show');
+                        state.isLoadingTrack = false;
+                        state.isPlaying = false;
+                        dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        console.error(e);
+                        resolve(false);
+                    }
+                };
+                
+                dom.musicPlayer.onerror = () => {
+                    clearTimeout(timeout);
+                    dom.loadingSpinner.classList.remove('show');
+                    state.isLoadingTrack = false;
+                    mostrarNotificacao(`Erro: ${track.title}`, 2000);
+                    setTimeout(() => this.next(), 500);
+                    resolve(false);
+                };
+            });
+        },
+        
+        pause() {
+            dom.musicPlayer.pause();
+            state.isPlaying = false;
+            dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            if (state.progressInterval) clearInterval(state.progressInterval);
+            state.progressInterval = null;
+        },
+        
+        togglePlayPause() { state.isPlaying ? this.pause() : this.play(); },
+        
+        async next() {
+            if (state.isLoadingTrack || state.tocandoVinheta) return;
+            if (state.progressInterval) clearInterval(state.progressInterval);
+            
+            let nextIndex = (state.currentIndex + 1) % state.filteredPlaylist.length;
+            // Se não estiver em shuffle e acabou a playlist, recria com IA
+            if (!state.shuffleMode && nextIndex === 0 && !state.isAoVivo && state.filteredPlaylist.length > 0) {
+                state.filteredPlaylist = PlaylistManager.generateSmartPlaylist();
+                mostrarNotificacao("🔄 IA renovou a playlist!", 2000);
+                nextIndex = 0;
+            }
+            state.currentIndex = nextIndex;
+            updateMarquee(state.filteredPlaylist[state.currentIndex]);
+            if (state.isPlaying) await this.play();
+        },
+        
+        async prev() {
+            if (state.isLoadingTrack || state.tocandoVinheta) return;
+            if (state.progressInterval) clearInterval(state.progressInterval);
+            let prevIndex = state.currentIndex - 1;
+            if (prevIndex < 0) prevIndex = state.filteredPlaylist.length - 1;
+            state.currentIndex = prevIndex;
+            updateMarquee(state.filteredPlaylist[state.currentIndex]);
+            if (state.isPlaying) await this.play();
+        },
+        
+        startProgressTimer() {
+            if (state.progressInterval) clearInterval(state.progressInterval);
+            state.progressInterval = setInterval(() => {
+                if (state.isPlaying && dom.musicPlayer.duration && !dom.musicPlayer.paused) {
+                    const percent = (dom.musicPlayer.currentTime / dom.musicPlayer.duration) * 100;
+                    dom.progressFill.style.width = percent + '%';
+                    dom.currentTimeEl.textContent = formatTime(dom.musicPlayer.currentTime);
+                    dom.totalTimeEl.textContent = formatTime(dom.musicPlayer.duration);
+                }
+            }, 200);
+            
+            dom.musicPlayer.onended = () => {
+                if (state.tocandoVinheta) return;
+                state.contadorMusicasVinheta++;
+                if (state.contadorMusicasVinheta >= CONFIG.INTERVALO_VINHETA_MUSICAS && !state.isAoVivo) {
+                    this.tocarVinheta().then(() => {
+                        state.contadorMusicasVinheta = 0;
+                        this.next();
+                    });
+                } else {
+                    this.next();
+                }
+            };
+        },
+        
+        async tocarVinheta() {
+            return new Promise((resolve) => {
+                state.tocandoVinheta = true;
+                const wasPlaying = state.isPlaying;
+                if (wasPlaying) {
+                    dom.musicPlayer.pause();
+                    state.isPlaying = false;
+                    dom.playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                }
+                const vinhetaSrc = CONFIG.VINHETAS[Math.floor(Math.random() * CONFIG.VINHETAS.length)];
+                const vinAudio = new Audio(vinhetaSrc);
+                vinAudio.volume = CONFIG.VOLUME_PLAYER;
+                vinAudio.play().catch(e => console.warn("Vinheta não encontrada"));
+                vinAudio.onended = () => {
+                    state.tocandoVinheta = false;
+                    if (wasPlaying) {
+                        this.play().then(() => resolve());
+                    } else {
+                        resolve();
+                    }
+                };
+                setTimeout(() => {
+                    if (state.tocandoVinheta) {
+                        state.tocandoVinheta = false;
+                        if (wasPlaying) this.play().then(() => resolve());
+                        else resolve();
+                    }
+                }, 8000);
+            });
+        },
+        
+        likeCurrent() {
+            const track = state.filteredPlaylist[state.currentIndex];
+            if (!track) return;
+            if (!state.userPreferences.likedSongs.includes(track.id)) {
+                state.userPreferences.likedSongs.push(track.id);
+                state.userPreferences.dislikedSongs = state.userPreferences.dislikedSongs.filter(id => id !== track.id);
+                state.userPreferences.genrePreference[track.genero] = (state.userPreferences.genrePreference[track.genero] || 0) + 1;
+                salvarPrefs();
+                mostrarNotificacao(`👍 Curtiu "${track.title}"`, 2000);
+                atualizarAIModal();
+                updateMarquee(track);
+            } else mostrarNotificacao("❤️ Já curtiu", 1500);
+        },
+        
+        dislikeCurrent() {
+            const track = state.filteredPlaylist[state.currentIndex];
+            if (!track) return;
+            if (!state.userPreferences.dislikedSongs.includes(track.id)) {
+                state.userPreferences.dislikedSongs.push(track.id);
+                state.userPreferences.likedSongs = state.userPreferences.likedSongs.filter(id => id !== track.id);
+                salvarPrefs();
+                mostrarNotificacao(`👎 Não curtiu "${track.title}"`, 2000);
+                atualizarAIModal();
+                this.next();
+            } else mostrarNotificacao("👎 Já marcou", 1500);
+        }
+    };
+
+    // ==================== CONTROLES DE TELA ====================
+    function hideControls() {
+        dom.bottomControls.classList.add('hide');
+        dom.feedbackFloating.classList.add('hide');
+        dom.genreButton.classList.add('hide');
+        dom.tapInstruction.classList.remove('visible');
     }
     
-    function stopProgressTimer() {
-        if (state.timerInterval) clearInterval(state.timerInterval);
-        state.timerInterval = null;
+    function showControls() {
+        dom.bottomControls.classList.remove('hide');
+        dom.feedbackFloating.classList.remove('hide');
+        dom.genreButton.classList.remove('hide');
+        dom.tapInstruction.classList.add('visible');
+        if (state.controlsTimer) clearTimeout(state.controlsTimer);
+        state.controlsTimer = setTimeout(() => {
+            if (state.isPlaying && !state.isLoadingTrack) hideControls();
+        }, 3000);
     }
-
-    // Avançar música
-    async function nextTrack() {
-        if (!state.filteredPlaylist.length) return;
-        state.currentIndex = (state.currentIndex + 1) % state.filteredPlaylist.length;
-        updateTrackInfo();
-        if (state.isPlaying) {
-            await loadAndPlay();
-        } else {
-            const track = state.filteredPlaylist[state.currentIndex];
-            trackTitle.textContent = track.title;
-            trackArtist.textContent = track.artist;
-            totalTimeSpan.textContent = "0:00";
-            progressFill.style.width = "0%";
-            currentTimeSpan.textContent = "0:00";
-        }
-    }
-
-    async function prevTrack() {
-        if (!state.filteredPlaylist.length) return;
-        state.currentIndex = (state.currentIndex - 1 + state.filteredPlaylist.length) % state.filteredPlaylist.length;
-        updateTrackInfo();
-        if (state.isPlaying) {
-            await loadAndPlay();
-        } else {
-            const track = state.filteredPlaylist[state.currentIndex];
-            trackTitle.textContent = track.title;
-            trackArtist.textContent = track.artist;
-        }
-    }
-
-    // Toggle play/pause
-    async function togglePlay() {
-        if (!state.audioAllowed) {
-            showToast("Ative o player no botão laranja", 1500);
-            return;
-        }
-        if (state.isPlaying) {
-            audio.pause();
-            state.isPlaying = false;
-            playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            stopProgressTimer();
-        } else {
-            if (audio.src && audio.currentTime > 0 && !audio.ended) {
-                await audio.play();
-                state.isPlaying = true;
-                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                startProgressTimer();
+    
+    function setupTapToToggle() {
+        dom.appRoot.addEventListener('click', (e) => {
+            if (e.target.closest('.control-btn') || e.target.closest('.feedback-btn') || e.target.closest('.genre-button') || e.target.closest('.menu-button')) {
+                if (state.controlsTimer) clearTimeout(state.controlsTimer);
+                state.controlsTimer = setTimeout(() => { if (state.isPlaying && !state.isLoadingTrack) hideControls(); }, 3000);
+                return;
+            }
+            if (dom.bottomControls.classList.contains('hide')) {
+                showControls();
             } else {
-                await loadAndPlay();
+                if (state.controlsTimer) clearTimeout(state.controlsTimer);
+                state.controlsTimer = setTimeout(() => { if (state.isPlaying && !state.isLoadingTrack) hideControls(); }, 3000);
             }
-        }
-    }
-
-    // Filtrar por gênero
-    function filterByGenre(genre) {
-        if (genre === "TODOS") {
-            state.filteredPlaylist = [...PLAYLIST];
-        } else {
-            state.filteredPlaylist = PLAYLIST.filter(m => m.genero === genre);
-            if (state.filteredPlaylist.length === 0) {
-                showToast(`Nenhuma música para ${genre}`, 1500);
-                state.filteredPlaylist = [...PLAYLIST];
-                genre = "TODOS";
-            }
-        }
-        state.currentGenre = genre;
-        state.currentIndex = 0;
-        updateTrackInfo();
-        if (state.isPlaying) {
-            loadAndPlay();
-        } else {
-            const track = state.filteredPlaylist[0];
-            if (track) {
-                trackTitle.textContent = track.title;
-                trackArtist.textContent = track.artist;
-                totalTimeSpan.textContent = "0:00";
-                progressFill.style.width = "0%";
-                currentTimeSpan.textContent = "0:00";
-            }
-        }
-        showToast(`🎵 Estilo: ${genre}`, 1500);
-        genresModal.classList.remove('open');
-    }
-
-    // Construir modal de gêneros
-    function buildGenresModal() {
-        genresGrid.innerHTML = "";
-        GENRES_LIST.forEach(genre => {
-            const card = document.createElement('div');
-            card.className = 'genre-card';
-            let icon = "fa-music";
-            if (genre === "SERTANEJO") icon = "fa-guitar";
-            else if (genre === "FORRÓ") icon = "fa-drum";
-            else if (genre === "SAMBA") icon = "fa-dance";
-            else if (genre === "POP") icon = "fa-microphone-alt";
-            else if (genre === "MPB") icon = "fa-guitar";
-            else if (genre === "BREGA") icon = "fa-heart";
-            else if (genre === "TODOS") icon = "fa-list-ul";
-            card.innerHTML = `<i class="fas ${icon}"></i><span>${genre}</span>`;
-            card.addEventListener('click', () => filterByGenre(genre));
-            genresGrid.appendChild(card);
         });
     }
-
-    // Inicializar com todos
-    function initPlayer() {
-        state.filteredPlaylist = [...PLAYLIST];
-        state.currentGenre = "TODOS";
-        state.currentIndex = 0;
-        updateTrackInfo();
-        audio.volume = state.volume;
-        audio.onended = () => { nextTrack(); };
-        buildGenresModal();
-    }
-
-    // Ativar áudio (user gesture)
-    async function activateAudio() {
-        try {
-            const testAudio = new Audio();
-            testAudio.volume = 0;
-            await testAudio.play().catch(()=>{});
-            state.audioAllowed = true;
-            splash.classList.add('hide');
-            activateBtn.style.display = 'none';
-            showToast("✅ Áudio ativado! Aproveite a música", 2500);
-            document.documentElement.requestFullscreen().catch(()=>{});
-            await loadAndPlay();
-        } catch (err) {
-            showToast("Toque no botão novamente para ativar", 2000);
-            state.audioAllowed = false;
-        }
-    }
-
-    // Avaliações (Like/Dislike - apenas feedback)
-    function sendLike() {
-        const track = state.filteredPlaylist[state.currentIndex];
-        if(track) showToast(`👍 Obrigado por curtir "${track.title}"!`, 2500);
-        else showToast("👍 Curtiu! Avaliação registrada.", 2000);
-    }
-    function sendDislike() {
-        const track = state.filteredPlaylist[state.currentIndex];
-        if(track) showToast(`👎 Que pena que não gostou de "${track.title}".`, 2500);
-        else showToast("👎 Feedback registrado.", 2000);
-    }
-
-    // Modo TV / Fullscreen
-    function toggleTvMode() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => showToast("Erro fullscreen", 1500));
-            showToast("📺 Modo TV ativado", 1500);
-        } else {
-            document.exitFullscreen();
-            showToast("Modo normal", 1500);
-        }
-    }
-    function shareApp() {
-        if (navigator.share) {
-            navigator.share({ title: "Rádio Patico", text: "Ouça música variada!", url: window.location.href });
-        } else {
-            navigator.clipboard.writeText(window.location.href);
-            showToast("Link copiado!", 1500);
-        }
-    }
-    function showAbout() {
-        showToast("🎵 Rádio Patico - Player com diversos estilos! Use likes para avaliar o site.", 3000);
-    }
-
-    // Controle de volume por gesto (direita esquerda)
+    
+    // ==================== GESTOS TOUCH ====================
     let touchStartX = 0;
     let lastTap = 0;
+    
     document.addEventListener('touchstart', (e) => {
-        if (e.target.closest('.controls-container') || e.target.closest('.rating-bar') || e.target.closest('.genre-fab')) return;
-        touchStartX = e.touches[0].clientX;
-        const now = Date.now();
-        if (now - lastTap < 300) {
+        touchStartX = e.changedTouches[0].screenX;
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+        if (tapLength < 300 && tapLength > 0) {
             e.preventDefault();
-            togglePlay();
-            lastTap = 0;
-        } else { lastTap = now; }
-    });
-    document.addEventListener('touchend', (e) => {
-        if (!touchStartX) return;
-        const diff = e.changedTouches[0].clientX - touchStartX;
-        if (Math.abs(diff) > 50) {
-            if (diff > 0) prevTrack();
-            else nextTrack();
-            showToast(diff > 0 ? "⏮ Anterior" : "⏭ Próxima", 1000);
+            PlayerEngine.togglePlayPause();
+            showSwipeIndicator(state.isPlaying ? '⏸️ Pausado' : '▶️ Play');
+            showControls();
         }
-        touchStartX = 0;
+        lastTap = currentTime;
+        showControls();
     });
-
-    // Controle de volume deslizando na borda direita
-    let volumeStartY = 0;
-    const volumeZone = document.createElement('div');
-    volumeZone.style.position = 'fixed';
-    volumeZone.style.right = '0';
-    volumeZone.style.top = '20%';
-    volumeZone.style.bottom = '20%';
-    volumeZone.style.width = '30px';
-    volumeZone.style.zIndex = '50';
-    volumeZone.style.background = 'transparent';
-    document.body.appendChild(volumeZone);
-    volumeZone.addEventListener('touchstart', (e) => { volumeStartY = e.touches[0].clientY; e.preventDefault(); });
-    volumeZone.addEventListener('touchmove', (e) => {
-        const delta = (volumeStartY - e.touches[0].clientY) / 300;
-        let newVol = Math.min(1, Math.max(0, audio.volume + delta));
-        audio.volume = newVol;
-        state.volume = newVol;
-        volumeToastDiv.textContent = `🔊 Volume: ${Math.round(newVol*100)}%`;
-        volumeToastDiv.style.opacity = '1';
-        setTimeout(() => volumeToastDiv.style.opacity = '0', 800);
-        volumeStartY = e.touches[0].clientY;
+    
+    document.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].screenX;
+        const diff = touchEndX - touchStartX;
+        if (Math.abs(diff) > 50) {
+            if (diff > 0) {
+                PlayerEngine.prev();
+                showSwipeIndicator('⏮️ Anterior');
+            } else {
+                PlayerEngine.next();
+                showSwipeIndicator('⏭️ Próxima');
+            }
+            showControls();
+        }
     });
+    
+    document.addEventListener('click', () => { showControls(); });
 
-    // Event listeners UI
-    activateBtn.addEventListener('click', activateAudio);
-    playBtn.addEventListener('click', togglePlay);
-    nextBtn.addEventListener('click', nextTrack);
-    prevBtn.addEventListener('click', prevTrack);
-    likeBtn.addEventListener('click', sendLike);
-    dislikeBtn.addEventListener('click', sendDislike);
-    genreFab.addEventListener('click', () => genresModal.classList.add('open'));
-    closeGenresBtn.addEventListener('click', () => genresModal.classList.remove('open'));
-    menuBtn.addEventListener('click', (e) => { e.stopPropagation(); menuPopup.classList.toggle('open'); });
-    document.addEventListener('click', (e) => { if (!menuBtn.contains(e.target)) menuPopup.classList.remove('open'); });
-    tvModeBtn.addEventListener('click', () => { toggleTvMode(); menuPopup.classList.remove('open'); });
-    shareBtn.addEventListener('click', () => { shareApp(); menuPopup.classList.remove('open'); });
-    infoBtn.addEventListener('click', () => { showAbout(); menuPopup.classList.remove('open'); });
-    progressBarBg.addEventListener('click', (e) => {
-        const rect = progressBarBg.getBoundingClientRect();
-        const percent = (e.clientX - rect.left) / rect.width;
-        if (audio.duration) audio.currentTime = percent * audio.duration;
-    });
-
-    // Auto-hide controls
-    let hideTimer;
-    function showControls() { controlsBar.classList.remove('hide'); clearTimeout(hideTimer); hideTimer = setTimeout(() => controlsBar.classList.add('hide'), 3000); }
-    document.addEventListener('touchstart', showControls);
-    document.addEventListener('click', showControls);
-    showControls();
-
-    // Inicializar
-    initPlayer();
-    audio.volume = 0.8;
-    bgVideo.play().catch(()=>{});
-    showToast("Bem-vindo! Clique em ATIVAR PLAYER", 3000);
+    // ==================== EVENTOS ====================
+    function setupEventListeners() {
+        dom.playBtn.addEventListener('click', () => PlayerEngine.togglePlayPause());
+        dom.prevBtn.addEventListener('click', () => PlayerEngine.prev());
+        dom.nextBtn.addEventListener('click', () => PlayerEngine.next());
+        dom.shuffleBtn.addEventListener('click', () => {
+            if (state.isAoVivo) { mostrarNotificacao('Modo AO VIVO - aleatório não disponível!', 2000); return; }
+            state.shuffleMode = !state.shuffleMode;
+            if (state.shuffleMode) {
+                state.filteredPlaylist = shuffleArray([...state.filteredPlaylist]);
+                mostrarNotificacao('🔀 Aleatório ativado', 1500);
+            } else {
+                // Restaura a playlist com base no gênero atual (corrigido)
+                if (state.generoAtual === "MIX") {
+                    state.filteredPlaylist = shuffleArray([...PLAYLIST]);
+                } else {
+                    let nova = PLAYLIST.filter(m => m.genero === state.generoAtual);
+                    if (!nova.length) nova = shuffleArray([...PLAYLIST]);
+                    state.filteredPlaylist = nova;
+                }
+                mostrarNotificacao('➡️ Sequencial (ordem original)', 1500);
+            }
+            state.currentIndex = 0;
+            updateMarquee(state.filteredPlaylist[0]);
+            if (state.isPlaying) PlayerEngine.play();
+        });
+        
+        document.getElementById('progressBar').addEventListener('click', e => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            if (dom.musicPlayer.duration) dom.musicPlayer.currentTime = percent * dom.musicPlayer.duration;
+            showControls();
+        });
+        
+        dom.exitTvBtn.addEventListener('click', () => toggleTvMode());
+        
+        dom.genreButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dom.genresModal.classList.add('open');
+            showControls();
+        });
+        
+        dom.genreBadge.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dom.genresModal.classList.add('open');
+            showControls();
+        });
+        
+        document.querySelectorAll('.genre-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const genero = card.getAttribute('data-genero');
+                PlaylistManager.filterByGenre(genero);
+                dom.genresModal.classList.remove('open');
+            });
+        });
+        
+        document.getElementById('closeGenresBtn').addEventListener('click', () => dom.genresModal.classList.remove('open'));
+        
+        dom.menuButton.addEventListener('click', (e) => { e.stopPropagation(); dom.menuPopup.classList.toggle('open'); });
+        document.addEventListener('click', (e) => { if (!dom.menuButton.contains(e.target) && !dom.menuPopup.contains(e.target)) dom.menuPopup.classList.remove('open'); });
+        
+        document.getElementById('searchMenuBtn').addEventListener('click', () => { dom.searchContainer.style.display = 'block'; dom.searchInput.focus(); dom.menuPopup.classList.remove('open'); });
+        dom.searchInput.addEventListener('input', e => performSearch(e.target.value));
+        document.getElementById('tvModeMenuBtn').addEventListener('click', () => { toggleTvMode(); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('fullscreenMenuBtn').addEventListener('click', () => { document.documentElement.requestFullscreen(); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('shareMenuBtn').addEventListener('click', () => { if (navigator.share) navigator.share({ title: 'Rádio Patico IA', text: '🎵 Ouça com IA', url: location.href }); else { navigator.clipboard.writeText(location.href); mostrarNotificacao('Link copiado!', 1500); } dom.menuPopup.classList.remove('open'); });
+        document.getElementById('statsMenuBtn').addEventListener('click', () => {
+            document.getElementById('statTotalPlayed').textContent = state.stats.totalPlayed;
+            const h = Math.floor(state.stats.totalSeconds / 3600), m = Math.floor((state.stats.totalSeconds % 3600) / 60);
+            document.getElementById('statTotalTime').textContent = `${h}h ${m}m`;
+            let top = "Nenhum", max = 0;
+            for (let [g, c] of Object.entries(state.stats.genreCount)) if (c > max) { max = c; top = g; }
+            document.getElementById('statTopGenre').textContent = top;
+            document.getElementById('statStreak').textContent = state.stats.currentStreak;
+            dom.statsModal.classList.add('open');
+            dom.menuPopup.classList.remove('open');
+        });
+        document.getElementById('aiMenuBtn').addEventListener('click', () => { atualizarAIModal(); dom.aiModal.classList.add('open'); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('feedbackMenuBtn').addEventListener('click', () => { dom.feedbackModal.classList.toggle('open'); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('manualMenuBtn').addEventListener('click', () => { dom.manualModal.classList.add('open'); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('pixMenuBtn').addEventListener('click', () => { dom.pixModal.classList.add('open'); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('copyPixBtn').addEventListener('click', () => { navigator.clipboard.writeText(CONFIG.PIX_KEY); mostrarNotificacao('✅ Pix copiado! 12988461978', 2000); });
+        document.getElementById('closePixBtn').addEventListener('click', () => dom.pixModal.classList.remove('open'));
+        document.getElementById('closeStatsBtn').addEventListener('click', () => dom.statsModal.classList.remove('open'));
+        document.getElementById('closeAiBtn').addEventListener('click', () => dom.aiModal.classList.remove('open'));
+        document.getElementById('closeManualBtn').addEventListener('click', () => dom.manualModal.classList.remove('open'));
+        
+        let currentRating = 0;
+        document.querySelectorAll('#ratingStars .star').forEach(star => {
+            star.addEventListener('click', () => {
+                currentRating = parseInt(star.dataset.rating);
+                document.querySelectorAll('#ratingStars .star').forEach((s, i) => {
+                    if (i < currentRating) { s.classList.add('fas', 'active'); s.classList.remove('far'); }
+                    else { s.classList.remove('fas', 'active'); s.classList.add('far'); }
+                });
+            });
+        });
+        document.getElementById('cancelFeedback').addEventListener('click', () => { dom.feedbackModal.classList.remove('open'); document.getElementById('feedbackText').value = ''; currentRating = 0; });
+        document.getElementById('sendFeedback').addEventListener('click', () => {
+            if (currentRating === 0) { mostrarNotificacao('⭐ Selecione uma nota', 2000); return; }
+            let msg = `🎵 *Rádio Patico IA*\n⭐ Nota: ${'★'.repeat(currentRating)}${'☆'.repeat(5 - currentRating)}\n`;
+            const text = document.getElementById('feedbackText').value.trim();
+            if (text) msg += `💬 ${text}\n`;
+            window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+            mostrarNotificacao('✅ WhatsApp aberto!', 2000);
+            dom.feedbackModal.classList.remove('open');
+            document.getElementById('feedbackText').value = '';
+            currentRating = 0;
+        });
+        
+        dom.likeBtn.addEventListener('click', () => PlayerEngine.likeCurrent());
+        dom.dislikeBtn.addEventListener('click', () => PlayerEngine.dislikeCurrent());
+        
+        dom.tapToStart.addEventListener('click', async () => {
+            mostrarNotificacao("🔊 Ativando áudio...", 2000);
+            audioAtivo = true;
+            iniciarManutencao();
+            await setupVisualizer();
+            
+            if ('wakeLock' in navigator) {
+                try {
+                    await navigator.wakeLock.request('screen');
+                } catch(e) {}
+            }
+            
+            await PlayerEngine.play();
+            dom.tapToStart.style.display = 'none';
+            try { await document.documentElement.requestFullscreen(); } catch(e) {}
+            mostrarNotificacao("✅ Rádio ativada! A música continua mesmo com a tela travada! 🔒", 4000);
+        });
+        
+        setupTapToToggle();
+    }
+    
+    // ==================== INICIALIZAÇÃO ====================
+    async function init() {
+        await carregarPlaylist();
+        carregarPrefs();
+        carregarStats();
+        dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
+        
+        state.isAoVivo = true;
+        let musicasAoVivo = PLAYLIST.filter(m => m.tipo === "ao vivo");
+        if (!musicasAoVivo.length) musicasAoVivo = shuffleArray([...PLAYLIST]);
+        state.filteredPlaylist = shuffleArray(musicasAoVivo);
+        state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
+        updateMarquee(state.filteredPlaylist[0]);
+        updateGenreBadge('LIVE');
+        atualizarVideo('LIVE');
+        
+        dom.tapToStart.style.display = 'block';
+        setupEventListeners();
+        
+        // Mostrar app após carregar (já estava escondido)
+        setTimeout(() => {
+            dom.appRoot.style.display = 'block';
+            dom.splash.classList.add('hidden');
+            setTimeout(() => dom.splash.style.display = 'none', 500);
+        }, 1000);
+        
+        setInterval(() => {
+            if (state.isPlaying && !dom.musicPlayer.paused && dom.musicPlayer.currentTime > 0) {
+                state.stats.totalSeconds++;
+                salvarStats();
+            }
+        }, 1000);
+    }
+    
+    init();
 </script>
 </body>
 </html>
-    
-
-   
