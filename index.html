@@ -96,6 +96,7 @@
         .search-input { width: 100%; padding: 10px; border-radius: 40px; background: #111; color: white; border: 1px solid #00f3ff; outline: none; }
         .search-results { max-height: 50vh; overflow-y: auto; margin-top: 8px; }
         .search-item { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; cursor: pointer; }
+        .search-item:active { background: rgba(0, 243, 255, 0.2); }
         
         .ai-modal, .stats-modal, .pix-modal, .manual-modal, .feedback-modal, .bluetooth-modal, .qrcode-modal { 
             position: fixed; 
@@ -196,8 +197,8 @@
     </div>
     
     <div class="feedback-floating" id="feedbackFloating">
-        <button class="feedback-btn like" id="likeBtn"><i class="fas fa-thumbs-up"></i></button>
-        <button class="feedback-btn dislike" id="dislikeBtn"><i class="fas fa-thumbs-down"></i></button>
+        <button class="feedback-btn like" id="likeBtn"><i class="fas fa-thumbs-up"></i> <span style="font-size:0.6rem; margin-left:4px;">Rádio</span></button>
+        <button class="feedback-btn dislike" id="dislikeBtn"><i class="fas fa-thumbs-down"></i> <span style="font-size:0.6rem; margin-left:4px;">Rádio</span></button>
     </div>
     
     <button class="genre-button" id="genreButton"><i class="fas fa-music"></i></button>
@@ -215,8 +216,7 @@
         <button id="pixMenuBtn"><i class="fas fa-hand-holding-heart"></i> Apoiar com Pix</button>
         <button id="manualMenuBtn"><i class="fas fa-book"></i> Manual</button>
         <button id="statsMenuBtn"><i class="fas fa-chart-line"></i> Estatísticas</button>
-        <button id="aiMenuBtn"><i class="fas fa-brain"></i> IA Preferências</button>
-        <button id="feedbackMenuBtn"><i class="fab fa-whatsapp"></i> Feedback</button>
+        <button id="feedbackMenuBtn"><i class="fab fa-whatsapp"></i> Avaliar Rádio</button>
     </div>
 </div>
 
@@ -226,9 +226,8 @@
 <div class="swipe-indicator" id="swipeIndicator">👉 Deslize para próxima música</div>
 
 <!-- Modais -->
-<div class="ai-modal" id="aiModal"><h3><i class="fas fa-brain"></i> IA Preferências</h3><div>Curtidas: <span id="aiLikedCount">0</span></div><div>Não curtidas: <span id="aiDislikedCount">0</span></div><div>Gênero fav: <span id="aiTopGenre">-</span></div><div id="aiTopSongs"></div><button class="close-ai" id="closeAiBtn">Fechar</button></div>
-<div class="stats-modal" id="statsModal"><h3>Estatísticas</h3><div>Músicas ouvidas: <span id="statTotalPlayed">0</span></div><div>Tempo total: <span id="statTotalTime">0h 0m</span></div><div>Gênero fav: <span id="statTopGenre">-</span></div><div>Sequência: <span id="statStreak">0</span></div><button class="close-stats" id="closeStatsBtn">Fechar</button></div>
-<div class="manual-modal" id="manualModal"><h3>📘 Manual Rápido</h3><p>✔️ Dê like/dislike para a IA aprender<br>✔️ Selecione gêneros<br>✔️ Busque músicas<br>✔️ Modo TV para visual imersivo<br>✔️ Toca mesmo com a tela travada!<br>✔️ Bluetooth: conecte caixas de som<br>✔️ QR Code: compartilhe com amigos</p><button id="closeManualBtn" class="close-manual-btn">Fechar</button></div>
+<div class="stats-modal" id="statsModal"><h3>📊 Estatísticas da Rádio</h3><div>Músicas ouvidas: <span id="statTotalPlayed">0</span></div><div>Tempo total: <span id="statTotalTime">0h 0m</span></div><div>Gênero mais tocado: <span id="statTopGenre">-</span></div><button class="close-stats" id="closeStatsBtn">Fechar</button></div>
+<div class="manual-modal" id="manualModal"><h3>📘 Manual da Rádio</h3><p>✔️ Selecione gêneros musicais<br>✔️ Busque músicas<br>✔️ Modo TV para visual imersivo<br>✔️ Toca mesmo com a tela travada!<br>✔️ Bluetooth: conecte caixas de som<br>✔️ QR Code: compartilhe com amigos<br>✔️ Avalie a rádio com 👍 ou 👎</p><button id="closeManualBtn" class="close-manual-btn">Fechar</button></div>
 <div class="genres-modal" id="genresModal"><h3>🎧 ESTILOS MUSICAIS</h3><div class="genres-grid">
     <div class="genre-card" data-genero="SERTANEJO"><i class="fas fa-guitar"></i><span>SERTANEJO</span></div>
     <div class="genre-card" data-genero="FORRÓ"><i class="fas fa-drum"></i><span>FORRÓ</span></div>
@@ -246,7 +245,7 @@
 <div class="pix-modal" id="pixModal"><h3>❤️ Apoio Pix</h3><p>Chave: <strong>12988461978</strong></p><button id="copyPixBtn" class="close-pix" style="background:#25D366;">Copiar chave</button><button id="closePixBtn" class="close-pix">Fechar</button></div>
 <div class="bluetooth-modal" id="bluetoothModal"><h3><i class="fab fa-bluetooth"></i> Bluetooth</h3><p>Conecte seu dispositivo Bluetooth:</p><div id="bluetoothStatus">🔍 Clique em "Buscar" para encontrar dispositivos</div><div id="bluetoothDevices"></div><button id="searchBluetoothBtn" style="background:#00f3ff; border:none; padding:10px; border-radius:40px; margin-top:10px; width:100%; cursor:pointer;"><i class="fas fa-search"></i> Buscar Dispositivos</button><button class="close-bluetooth" id="closeBluetoothBtn">Fechar</button></div>
 <div class="qrcode-modal" id="qrcodeModal"><h3><i class="fas fa-qrcode"></i> QR Code</h3><p>Compartilhe a Rádio com seus amigos!</p><div id="qrcode-container"></div><p style="font-size:0.7rem; text-align:center; margin-top:10px;">Escaneie o QR Code para abrir a rádio</p><button class="close-qrcode" id="closeQrcodeBtn">Fechar</button></div>
-<div class="feedback-modal" id="feedbackModal"><h3>Sua opinião</h3><div class="rating" id="ratingStars"><i class="far fa-star star" data-rating="1"></i><i class="far fa-star star" data-rating="2"></i><i class="far fa-star star" data-rating="3"></i><i class="far fa-star star" data-rating="4"></i><i class="far fa-star star" data-rating="5"></i></div><textarea id="feedbackText" placeholder="Sugestões..."></textarea><div class="modal-buttons"><button class="modal-btn cancel" id="cancelFeedback">Cancelar</button><button class="modal-btn send" id="sendFeedback">Enviar</button></div></div>
+<div class="feedback-modal" id="feedbackModal"><h3>⭐ Avalie a Rádio Patico IA</h3><div class="rating" id="ratingStars"><i class="far fa-star star" data-rating="1"></i><i class="far fa-star star" data-rating="2"></i><i class="far fa-star star" data-rating="3"></i><i class="far fa-star star" data-rating="4"></i><i class="far fa-star star" data-rating="5"></i></div><textarea id="feedbackText" placeholder="Sua opinião sobre a rádio..."></textarea><div class="modal-buttons"><button class="modal-btn cancel" id="cancelFeedback">Cancelar</button><button class="modal-btn send" id="sendFeedback">Enviar Avaliação</button></div></div>
 
 <audio id="musicPlayer" preload="auto" crossorigin></audio>
 <audio id="backgroundAudio" preload="auto" crossorigin style="display: none;"></audio>
@@ -284,9 +283,7 @@
         isLoadingTrack: false,
         isTvMode: false,
         shuffleMode: false,
-        userPreferences: { likedSongs: [], dislikedSongs: [], songPlays: {}, genrePreference: {} },
         stats: { totalPlayed: 0, totalSeconds: 0, genreCount: {}, currentStreak: 0 },
-        audioContext: null,
         progressInterval: null,
         controlsTimer: null
     };
@@ -404,10 +401,14 @@
         return arr;
     }
 
-    function salvarPrefs() { localStorage.setItem('radio_patico_ai_preferences', JSON.stringify(state.userPreferences)); }
-    function carregarPrefs() { const s = localStorage.getItem('radio_patico_ai_preferences'); if(s) Object.assign(state.userPreferences, JSON.parse(s)); }
     function salvarStats() { localStorage.setItem('radio_patico_stats', JSON.stringify(state.stats)); }
     function carregarStats() { const s = localStorage.getItem('radio_patico_stats'); if(s) Object.assign(state.stats, JSON.parse(s)); }
+
+    // ==================== AVALIAÇÃO DA RÁDIO (NÃO AFETA PLAYLIST) ====================
+    let avaliacaoRadio = { nota: 0, feedback: "" };
+    
+    function salvarAvaliacao() { localStorage.setItem('radio_patico_avaliacao', JSON.stringify(avaliacaoRadio)); }
+    function carregarAvaliacao() { const s = localStorage.getItem('radio_patico_avaliacao'); if(s) Object.assign(avaliacaoRadio, JSON.parse(s)); }
 
     // ==================== CARREGAR PLAYLIST JSON ====================
     async function carregarPlaylist() {
@@ -467,7 +468,7 @@
 
     function updateMarquee(track) {
         const g = state.isAoVivo ? '🔴 AO VIVO' : (state.generoAtual === 'MIX' ? 'TODOS' : state.generoAtual);
-        const msg = `🎵 ${track.title} - ${track.artist} [${g}] | RÁDIO PATICO IA | 👍 ${state.userPreferences.likedSongs.length} curtidas | Toca com tela travada 🔒`;
+        const msg = `🎵 ${track.title} - ${track.artist} [${g}] | RÁDIO PATICO IA | Toca com tela travada 🔒`;
         dom.trackMarquee.innerHTML = `<span class="marquee-text">${msg}</span>`;
         
         let nextIdx = state.currentIndex + 1;
@@ -501,54 +502,8 @@
         dom.mainVideo.play().catch(e => console.warn);
     }
 
-    function atualizarAIModal() {
-        document.getElementById('aiLikedCount').textContent = state.userPreferences.likedSongs.length;
-        document.getElementById('aiDislikedCount').textContent = state.userPreferences.dislikedSongs.length;
-        let topG = "Nenhum", maxC = 0;
-        for (let [g, c] of Object.entries(state.userPreferences.genrePreference)) if (c > maxC) { maxC = c; topG = g; }
-        document.getElementById('aiTopGenre').textContent = topG;
-        const container = document.getElementById('aiTopSongs');
-        container.innerHTML = '';
-        const favs = state.userPreferences.likedSongs.map(id => PLAYLIST.find(m => m.id === id)).filter(s => s).slice(0, 5);
-        favs.forEach(song => {
-            const d = document.createElement('div');
-            d.style.margin = '5px 0';
-            d.innerHTML = `<span style="font-size:0.75rem;">🎵 ${song.title} - ${song.artist}</span><button style="background:#ff2d7f; border:none; color:white; margin-left:8px; border-radius:20px; padding:2px 8px;">Remover</button>`;
-            d.querySelector('button').onclick = () => {
-                state.userPreferences.likedSongs = state.userPreferences.likedSongs.filter(id => id !== song.id);
-                salvarPrefs();
-                atualizarAIModal();
-                mostrarNotificacao(`👍 Removido dos favoritos`, 1500);
-                if (!state.isAoVivo) {
-                    state.filteredPlaylist = PlaylistManager.generateSmartPlaylist();
-                    state.currentIndex = Math.floor(Math.random() * state.filteredPlaylist.length);
-                    updateMarquee(state.filteredPlaylist[state.currentIndex]);
-                    if (state.isPlaying) PlayerEngine.play();
-                }
-            };
-            container.appendChild(d);
-        });
-    }
-
-    // ==================== IA PLAYLIST ====================
+    // ==================== PLAYLIST MANAGER ====================
     const PlaylistManager = {
-        generateSmartPlaylist() {
-            let candidates = [...PLAYLIST];
-            const prefs = state.userPreferences;
-            if (prefs.likedSongs.length) {
-                const likedGenres = {};
-                prefs.likedSongs.forEach(id => {
-                    const m = PLAYLIST.find(mus => mus.id === id);
-                    if (m) likedGenres[m.genero] = (likedGenres[m.genero] || 0) + 1;
-                });
-                const top = Object.keys(likedGenres).reduce((a, b) => likedGenres[a] > likedGenres[b] ? a : b, null);
-                if (top) candidates = candidates.filter(m => m.genero === top);
-            }
-            candidates = candidates.filter(m => !prefs.dislikedSongs.includes(m.id));
-            if (!candidates.length) candidates = [...PLAYLIST];
-            return shuffleArray(candidates);
-        },
-        
         filterByGenre(genero) {
             if (genero === 'LIVE') { ativarModoAoVivo(); return; }
             state.isAoVivo = false;
@@ -611,74 +566,50 @@
         }
     }
 
+    // ==================== BUSCA DE MÚSICAS CORRIGIDA ====================
     function performSearch(q) {
         if (!q.trim()) { dom.searchResults.innerHTML = ''; return; }
         const lower = q.toLowerCase();
         const results = PLAYLIST.filter(m => m.title.toLowerCase().includes(lower) || m.artist.toLowerCase().includes(lower)).slice(0, 10);
-        dom.searchResults.innerHTML = results.map(m => `<div class="search-item" data-id="${m.id}" style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.1); color:white; cursor:pointer;">🎵 ${m.title} - ${m.artist} [${m.genero}]</div>`).join('');
+        dom.searchResults.innerHTML = results.map(m => `<div class="search-item" data-id="${m.id}" data-src="${m.src}" data-title="${m.title}" data-artist="${m.artist}" data-genero="${m.genero}" style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.1); color:white; cursor:pointer;">🎵 ${m.title} - ${m.artist} [${m.genero}]</div>`).join('');
+        
         document.querySelectorAll('.search-item').forEach(el => {
-            el.addEventListener('click', () => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const id = parseInt(el.dataset.id);
-                const music = PLAYLIST.find(m => m.id === id);
-                if (music) {
-                    if (state.isAoVivo) ativarModoAoVivo();
-                    state.filteredPlaylist.unshift(music);
-                    state.currentIndex = 0;
-                    updateMarquee(music);
-                    if (!state.isAoVivo) updateGenreBadge(music.genero);
-                    atualizarVideo(music.genero);
-                    PlayerEngine.play();
-                    dom.searchContainer.style.display = 'none';
-                    mostrarNotificacao(`🔍 Tocando: ${music.title}`, 2500);
+                const src = el.dataset.src;
+                const title = el.dataset.title;
+                const artist = el.dataset.artist;
+                const genero = el.dataset.genero;
+                
+                const music = { id, title, artist, src, genero };
+                
+                console.log("🎵 TOCANDO MÚSICA SELECIONADA:", music.title);
+                
+                // Sai do modo Ao Vivo se estiver
+                if (state.isAoVivo) {
+                    state.isAoVivo = false;
+                    state.generoAtual = genero;
+                    updateGenreBadge(genero);
                 }
+                
+                // Coloca a música no topo da playlist
+                const novaPlaylist = [music, ...state.filteredPlaylist.filter(m => m.id !== id)];
+                state.filteredPlaylist = novaPlaylist;
+                state.currentIndex = 0;
+                
+                updateMarquee(music);
+                atualizarVideo(genero);
+                
+                // Toca a música imediatamente
+                PlayerEngine.play();
+                
+                dom.searchContainer.style.display = 'none';
+                dom.searchInput.value = '';
+                dom.searchResults.innerHTML = '';
+                mostrarNotificacao(`🎵 Tocando: ${music.title} - ${music.artist}`, 2500);
             });
         });
-    }
-
-    // ==================== FUNÇÃO QR CODE ====================
-    function gerarQRCode() {
-        const qrcodeContainer = document.getElementById('qrcode-container');
-        qrcodeContainer.innerHTML = '';
-        const url = window.location.href;
-        new QRCode(qrcodeContainer, {
-            text: url,
-            width: 200,
-            height: 200,
-            colorDark: "#00f3ff",
-            colorLight: "#000000",
-            correctLevel: QRCode.CorrectLevel.H
-        });
-    }
-
-    // ==================== FUNÇÃO BLUETOOTH ====================
-    let bluetoothDevice = null;
-    
-    async function buscarDispositivosBluetooth() {
-        const devicesDiv = document.getElementById('bluetoothDevices');
-        const statusDiv = document.getElementById('bluetoothStatus');
-        
-        if (!navigator.bluetooth) {
-            statusDiv.innerHTML = '❌ Bluetooth não suportado neste navegador. Use Chrome/Edge no Android.';
-            return;
-        }
-        
-        statusDiv.innerHTML = '🔍 Procurando dispositivos...';
-        devicesDiv.innerHTML = '';
-        
-        try {
-            const device = await navigator.bluetooth.requestDevice({
-                acceptAllDevices: true,
-                optionalServices: []
-            });
-            
-            bluetoothDevice = device;
-            statusDiv.innerHTML = `✅ Conectado: ${device.name || 'Dispositivo desconhecido'}`;
-            mostrarNotificacao(`📱 Bluetooth conectado: ${device.name || 'Dispositivo'}`, 3000);
-            
-        } catch (error) {
-            console.log('Erro Bluetooth:', error);
-            statusDiv.innerHTML = '❌ Nenhum dispositivo selecionado ou erro na conexão';
-        }
     }
 
     // ==================== PLAYER ENGINE ====================
@@ -783,10 +714,6 @@
                 nextIndex = (state.currentIndex + 1) % state.filteredPlaylist.length;
             } else {
                 nextIndex = (state.currentIndex + 1) % state.filteredPlaylist.length;
-                if (nextIndex === 0 && !state.shuffleMode && state.filteredPlaylist.length > 0) {
-                    state.filteredPlaylist = PlaylistManager.generateSmartPlaylist();
-                    mostrarNotificacao("🔄 IA renovou a playlist!", 2000);
-                }
             }
             state.currentIndex = nextIndex;
             updateMarquee(state.filteredPlaylist[state.currentIndex]);
@@ -859,31 +786,13 @@
             });
         },
         
-        likeCurrent() {
-            const track = state.filteredPlaylist[state.currentIndex];
-            if (!track) return;
-            if (!state.userPreferences.likedSongs.includes(track.id)) {
-                state.userPreferences.likedSongs.push(track.id);
-                state.userPreferences.dislikedSongs = state.userPreferences.dislikedSongs.filter(id => id !== track.id);
-                state.userPreferences.genrePreference[track.genero] = (state.userPreferences.genrePreference[track.genero] || 0) + 1;
-                salvarPrefs();
-                mostrarNotificacao(`👍 Curtiu "${track.title}"`, 2000);
-                atualizarAIModal();
-                updateMarquee(track);
-            } else mostrarNotificacao("❤️ Já curtiu", 1500);
-        },
-        
-        dislikeCurrent() {
-            const track = state.filteredPlaylist[state.currentIndex];
-            if (!track) return;
-            if (!state.userPreferences.dislikedSongs.includes(track.id)) {
-                state.userPreferences.dislikedSongs.push(track.id);
-                state.userPreferences.likedSongs = state.userPreferences.likedSongs.filter(id => id !== track.id);
-                salvarPrefs();
-                mostrarNotificacao(`👎 Não curtiu "${track.title}"`, 2000);
-                atualizarAIModal();
-                this.next();
-            } else mostrarNotificacao("👎 Já marcou", 1500);
+        // AVALIAÇÃO DA RÁDIO (NÃO AFETA A PLAYLIST)
+        avaliarRadio(tipo) {
+            if (tipo === 'like') {
+                mostrarNotificacao("👍 Obrigado por avaliar a Rádio Patico IA positivamente!", 3000);
+            } else {
+                mostrarNotificacao("👎 Agradecemos seu feedback! Vamos melhorar a rádio!", 3000);
+            }
         }
     };
 
@@ -957,6 +866,49 @@
     
     document.addEventListener('click', () => { showControls(); });
 
+    // ==================== FUNÇÃO QR CODE ====================
+    function gerarQRCode() {
+        const qrcodeContainer = document.getElementById('qrcode-container');
+        qrcodeContainer.innerHTML = '';
+        const url = window.location.href;
+        new QRCode(qrcodeContainer, {
+            text: url,
+            width: 200,
+            height: 200,
+            colorDark: "#00f3ff",
+            colorLight: "#000000",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    }
+
+    // ==================== FUNÇÃO BLUETOOTH ====================
+    async function buscarDispositivosBluetooth() {
+        const devicesDiv = document.getElementById('bluetoothDevices');
+        const statusDiv = document.getElementById('bluetoothStatus');
+        
+        if (!navigator.bluetooth) {
+            statusDiv.innerHTML = '❌ Bluetooth não suportado neste navegador. Use Chrome/Edge no Android.';
+            return;
+        }
+        
+        statusDiv.innerHTML = '🔍 Procurando dispositivos...';
+        devicesDiv.innerHTML = '';
+        
+        try {
+            const device = await navigator.bluetooth.requestDevice({
+                acceptAllDevices: true,
+                optionalServices: []
+            });
+            
+            statusDiv.innerHTML = `✅ Conectado: ${device.name || 'Dispositivo desconhecido'}`;
+            mostrarNotificacao(`📱 Bluetooth conectado: ${device.name || 'Dispositivo'}`, 3000);
+            
+        } catch (error) {
+            console.log('Erro Bluetooth:', error);
+            statusDiv.innerHTML = '❌ Nenhum dispositivo selecionado ou erro na conexão';
+        }
+    }
+
     // ==================== EVENTOS ====================
     function setupEventListeners() {
         dom.playBtn.addEventListener('click', () => PlayerEngine.togglePlayPause());
@@ -1015,7 +967,7 @@
         document.getElementById('tvModeMenuBtn').addEventListener('click', () => { toggleTvMode(); dom.menuPopup.classList.remove('open'); });
         document.getElementById('fullscreenMenuBtn').addEventListener('click', () => { document.documentElement.requestFullscreen(); dom.menuPopup.classList.remove('open'); });
         
-        // BOTÃO COMPARTILHAR COM QR CODE
+        // QR CODE
         document.getElementById('shareMenuBtn').addEventListener('click', (e) => {
             e.stopPropagation();
             gerarQRCode();
@@ -1026,7 +978,7 @@
             document.getElementById('qrcodeModal').classList.remove('open');
         });
         
-        // BOTÃO BLUETOOTH
+        // BLUETOOTH
         document.getElementById('bluetoothMenuBtn').addEventListener('click', (e) => {
             e.stopPropagation();
             document.getElementById('bluetoothModal').classList.add('open');
@@ -1037,7 +989,7 @@
             document.getElementById('bluetoothModal').classList.remove('open');
         });
         
-        // BOTÃO PIX
+        // PIX
         document.getElementById('pixMenuBtn').addEventListener('click', (e) => {
             e.stopPropagation();
             document.getElementById('pixModal').classList.add('open');
@@ -1051,7 +1003,7 @@
             document.getElementById('pixModal').classList.remove('open');
         });
         
-        // BOTÃO MANUAL
+        // MANUAL
         document.getElementById('manualMenuBtn').addEventListener('click', (e) => {
             e.stopPropagation();
             document.getElementById('manualModal').classList.add('open');
@@ -1061,7 +1013,7 @@
             document.getElementById('manualModal').classList.remove('open');
         });
         
-        // BOTÃO ESTATÍSTICAS
+        // ESTATÍSTICAS
         document.getElementById('statsMenuBtn').addEventListener('click', (e) => {
             e.stopPropagation();
             document.getElementById('statTotalPlayed').textContent = state.stats.totalPlayed;
@@ -1070,7 +1022,6 @@
             let top = "Nenhum", max = 0;
             for (let [g, c] of Object.entries(state.stats.genreCount)) if (c > max) { max = c; top = g; }
             document.getElementById('statTopGenre').textContent = top;
-            document.getElementById('statStreak').textContent = state.stats.currentStreak;
             document.getElementById('statsModal').classList.add('open');
             dom.menuPopup.classList.remove('open');
         });
@@ -1078,18 +1029,7 @@
             document.getElementById('statsModal').classList.remove('open');
         });
         
-        // BOTÃO IA PREFERÊNCIAS
-        document.getElementById('aiMenuBtn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            atualizarAIModal();
-            document.getElementById('aiModal').classList.add('open');
-            dom.menuPopup.classList.remove('open');
-        });
-        document.getElementById('closeAiBtn').addEventListener('click', () => {
-            document.getElementById('aiModal').classList.remove('open');
-        });
-        
-        // BOTÃO FEEDBACK
+        // AVALIAÇÃO DA RÁDIO (FEEDBACK)
         document.getElementById('feedbackMenuBtn').addEventListener('click', (e) => {
             e.stopPropagation();
             document.getElementById('feedbackModal').classList.add('open');
@@ -1115,20 +1055,21 @@
         });
         
         document.getElementById('sendFeedback').addEventListener('click', () => {
-            if (currentRating === 0) { mostrarNotificacao('⭐ Selecione uma nota', 2000); return; }
-            let msg = `🎵 *Rádio Patico IA*\n⭐ Nota: ${'★'.repeat(currentRating)}${'☆'.repeat(5 - currentRating)}\n`;
+            if (currentRating === 0) { mostrarNotificacao('⭐ Selecione uma nota para a rádio', 2000); return; }
+            let msg = `📻 *AVALIAÇÃO DA RÁDIO PATICO IA*\n⭐ Nota: ${'★'.repeat(currentRating)}${'☆'.repeat(5 - currentRating)}\n`;
             const text = document.getElementById('feedbackText').value.trim();
             if (text) msg += `💬 ${text}\n`;
             window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-            mostrarNotificacao('✅ WhatsApp aberto!', 2000);
+            mostrarNotificacao('✅ Obrigado por avaliar a rádio! WhatsApp aberto.', 3000);
             document.getElementById('feedbackModal').classList.remove('open');
             document.getElementById('feedbackText').value = '';
             currentRating = 0;
             document.querySelectorAll('#ratingStars .star').forEach(s => { s.classList.remove('fas', 'active'); s.classList.add('far'); });
         });
         
-        dom.likeBtn.addEventListener('click', () => PlayerEngine.likeCurrent());
-        dom.dislikeBtn.addEventListener('click', () => PlayerEngine.dislikeCurrent());
+        // BOTÕES DE AVALIAÇÃO DA RÁDIO (LIKE/DISLIKE)
+        dom.likeBtn.addEventListener('click', () => PlayerEngine.avaliarRadio('like'));
+        dom.dislikeBtn.addEventListener('click', () => PlayerEngine.avaliarRadio('dislike'));
         
         dom.tapToStart.addEventListener('click', async () => {
             mostrarNotificacao("🔊 Ativando áudio para tocar com tela travada...", 2000);
@@ -1160,8 +1101,8 @@
     // ==================== INICIALIZAÇÃO ====================
     async function init() {
         await carregarPlaylist();
-        carregarPrefs();
         carregarStats();
+        carregarAvaliacao();
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
         
         state.isAoVivo = true;
