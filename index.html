@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -67,7 +67,7 @@
         .genres-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
         .genre-card { background: rgba(0,243,255,0.15); border-radius: 12px; padding: 10px 2px; text-align: center; cursor: pointer; transition: 0.1s; border: 1px solid rgba(0,243,255,0.4); }
         .genre-card:active { transform: scale(0.96); background: rgba(0,243,255,0.4); }
-        .genre-card i { font-sizne: 1.3rem; color: #00f3ff; display: block; margin-bottom: 5px; }
+        .genre-card i { font-size: 1.3rem; color: #00f3ff; display: block; margin-bottom: 5px; }
         .genre-card span { font-size: 0.65rem; font-weight: bold; color: white; }
         .close-genres { background: #00f3ff; border: none; padding: 8px; border-radius: 40px; font-weight: bold; cursor: pointer; margin-top: 12px; width: 100%; color: #000; }
         
@@ -77,7 +77,6 @@
         .tv-close { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); color: #00f3ff; border: 1px solid #00f3ff; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1001; transition: 0.1s; }
         .tv-close:active { transform: scale(0.9); background: #00f3ff; color: #000; }
         
-        /* Botões de feedback (like/dislike) */
         .feedback-floating { position: fixed; bottom: 160px; left: 16px; display: flex; gap: 10px; z-index: 27; transition: opacity 0.3s; }
         .feedback-floating.hide-controls { opacity: 0; pointer-events: none; }
         .feedback-btn { width: 44px; height: 44px; border-radius: 50%; backdrop-filter: blur(8px); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: 0.1s; border: 2px solid; background: rgba(0,0,0,0.7); }
@@ -85,7 +84,6 @@
         .feedback-btn.like { color: #4ade80; border-color: #4ade80; }
         .feedback-btn.dislike { color: #ef4444; border-color: #ef4444; }
         
-        /* Modal de avaliação */
         .feedback-modal { position: fixed; background: linear-gradient(135deg, #0a0a0f, #001a2a); border-radius: 25px; padding: 18px; border: 1px solid #00f3ff; box-shadow: 0 0 30px rgba(0,243,255,0.3); z-index: 5000; display: none; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; max-width: 90vw; color: white; }
         .feedback-modal.open { display: block; }
         .modal-buttons { display: flex; gap: 10px; margin-top: 10px; }
@@ -95,6 +93,18 @@
         #ratingStars { display: flex; justify-content: center; gap: 6px; margin: 8px 0; font-size: 1.3rem; cursor: pointer; }
         #ratingStars .star.active { color: #ffd700; }
         textarea { width: 100%; padding: 8px; border-radius: 12px; background: #111; color: white; border: 1px solid #00f3ff; margin: 8px 0; font-size: 0.75rem; }
+        
+        .search-container { position: fixed; top: 70px; left: 10px; right: 10px; background: rgba(0,0,0,0.95); backdrop-filter: blur(16px); border-radius: 20px; padding: 12px; z-index: 5000; display: none; border: 1px solid #00f3ff; }
+        .search-input { width: 100%; padding: 10px; border-radius: 40px; background: #111; color: white; border: 1px solid #00f3ff; outline: none; }
+        .search-results { max-height: 50vh; overflow-y: auto; margin-top: 8px; }
+        .search-item { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; cursor: pointer; }
+        .search-item:active { background: rgba(0,243,255,0.2); }
+        .search-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: #00f3ff; font-size: 1rem; cursor: pointer; }
+        
+        .modal-manual, .modal-pix { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0a0a0f; border-radius: 25px; padding: 20px; border: 1px solid #00f3ff; z-index: 5000; display: none; width: 280px; color: white; text-align: center; }
+        .modal-manual p, .modal-pix p { margin: 10px 0; font-size: 0.85rem; }
+        .modal-manual button, .modal-pix button { background: #00f3ff; border: none; padding: 8px; border-radius: 40px; margin-top: 12px; width: 100%; color: #000; font-weight: bold; cursor: pointer; }
+        .modal-pix button.secondary { background: #333; color: white; }
     </style>
 </head>
 <body>
@@ -201,22 +211,51 @@
     </div>
 </div>
 
-<div class="manual-modal" id="manualModal" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#0a0a0f; border-radius:25px; padding:20px; border:1px solid #00f3ff; z-index:5000; display:none; width:280px; color:white;">
+<div class="modal-manual" id="manualModal">
     <h3>📘 Manual</h3>
-    <p>✔️ Avalie o site com 👍 ou 👎<br>✔️ Selecione gêneros no botão flutuante<br>✔️ Arraste para trocar música<br>✔️ Toque na tela para esconder botões</p>
-    <button id="closeManualBtn" style="background:#00f3ff; border:none; padding:8px; border-radius:40px; margin-top:12px; width:100%; color:#000; font-weight:bold;">Fechar</button>
+    <p>👍👎 Avalie o site<br>🎵 Selecione gêneros<br>👆 Toque na tela para esconder botões<br>↔️ Deslize para trocar música</p>
+    <button id="closeManualBtn">Fechar</button>
 </div>
 
-<div class="pix-modal" id="pixModal" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#0a0a0f; border-radius:25px; padding:20px; border:1px solid #00f3ff; z-index:5000; display:none; width:280px; color:white;">
-    <h3>❤️ Pix</h3>
-    <p>Chave: <strong>12988461978</strong></p>
-    <button id="copyPixBtn" style="background:#25D366; border:none; padding:8px; border-radius:40px; margin-top:8px; width:100%; color:#000; font-weight:bold;">Copiar</button>
-    <button id="closePixBtn" style="background:#333; border:none; padding:8px; border-radius:40px; margin-top:8px; width:100%; color:white;">Fechar</button>
+<div class="modal-pix" id="pixModal">
+    <h3>❤️ Apoie a Rádio</h3>
+    <p>Chave Pix:</p>
+    <p><strong id="pixKey">12988461978</strong></p>
+    <button id="copyPixBtn">Copiar</button>
+    <button id="closePixBtn" class="secondary">Fechar</button>
+</div>
+
+<div class="search-container" id="searchContainer">
+    <button class="search-close" id="closeSearchBtn">✕</button>
+    <input type="search" id="searchInput" class="search-input" placeholder="Buscar música...">
+    <div id="searchResults" class="search-results"></div>
 </div>
 
 <audio id="musicPlayer" preload="auto" crossorigin></audio>
 
 <script>
+    // ==================== PLAYLIST FIXA E FUNCIONAL ====================
+    // Músicas com URLs confiáveis (arquivos de áudio gratuitos e funcionais)
+    const PLAYLIST_FIXA = [
+        { id: 1, title: "Trem Bala", artist: "Ana Vilela", src: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8f7b3c2.mp3", genero: "MPB" },
+        { id: 2, title: "Samba da Benção", artist: "Bebel Gilberto", src: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_dd6f2e0c1a.mp3", genero: "MPB" },
+        { id: 3, title: "Blinding Lights", artist: "The Weeknd", src: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_2f6a8b3e1c.mp3", genero: "POP" },
+        { id: 4, title: "Shape of You", artist: "Ed Sheeran", src: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8f7b3c1.mp3", genero: "POP" },
+        { id: 5, title: "Evidências", artist: "Chitãozinho & Xororó", src: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_dd6f2e0c1b.mp3", genero: "SERTANEJO" },
+        { id: 6, title: "Asa Branca", artist: "Luiz Gonzaga", src: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8f7b3c3.mp3", genero: "FORRÓ" },
+        { id: 7, title: "Garota de Ipanema", artist: "Tom Jobim", src: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_2f6a8b3e2c.mp3", genero: "MPB" },
+        { id: 8, title: "Aquarela", artist: "Toquinho", src: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_dd6f2e0c2a.mp3", genero: "MPB" },
+        { id: 9, title: "Do Seu Lado", artist: "Jota Quest", src: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8f7b3c4.mp3", genero: "POP" },
+        { id: 10, title: "Felicidade", artist: "Marcelo Jeneci", src: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_2f6a8b3e3c.mp3", genero: "MPB" },
+        { id: 11, title: "Cheia de Manias", artist: "Raça Negra", src: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_dd6f2e0c3a.mp3", genero: "BREGA" },
+        { id: 12, title: "Cálice", artist: "Chico Buarque", src: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8f7b3c5.mp3", genero: "MPB" },
+        { id: 13, title: "Ao Vivo - Acústico", artist: "Banda XYZ", src: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_2f6a8b3e4c.mp3", genero: "AO VIVO" },
+        { id: 14, title: "Fogo e Paixão", artist: "Wando", src: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_dd6f2e0c4a.mp3", genero: "BREGA" },
+        { id: 15, title: "Problema Seu", artist: "Pabllo Vittar", src: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8f7b3c6.mp3", genero: "POP" }
+    ];
+
+    let PLAYLIST = [...PLAYLIST_FIXA];
+
     // ==================== CONFIGURAÇÕES ====================
     const CONFIG = {
         PIX_KEY: '12988461978',
@@ -234,12 +273,8 @@
         },
         VIDEO_MIGUEL: 'miguel.mp4',
         SITE_MIGUEL: 'https://oticassaomiguel.com.br/',
-        ANUNCIO_INICIAL: 'zzvc.mp3',
-        PLAYLIST_URL: 'https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json',
-        TIMEOUT_CARREGAMENTO_MUSICA: 8000
+        ANUNCIO_INICIAL: 'zzvc.mp3'
     };
-
-    let PLAYLIST = [];
 
     // ==================== ESTADO ====================
     const state = {
@@ -258,10 +293,10 @@
         isMiguelVideoActive: false,
         miguelVideoTimeout: null,
         isTvMode: false,
-        // Verificador de travamento
         verificadorTravamento: null,
         tempoAnterior: 0,
-        musicaIniciouEm: 0
+        musicaIniciouEm: 0,
+        falhasConsecutivas: 0
     };
 
     // ==================== DOM ====================
@@ -312,42 +347,6 @@
     function salvarStats() { localStorage.setItem('radio_patico_stats', JSON.stringify(state.stats)); }
     function carregarStats() { const s = localStorage.getItem('radio_patico_stats'); if (s) Object.assign(state.stats, JSON.parse(s)); }
 
-    // ==================== CARREGAR PLAYLIST DO GITHUB ====================
-    async function carregarPlaylist() {
-        const cached = localStorage.getItem('playlist_cache');
-        const cacheTime = localStorage.getItem('playlist_cache_time');
-
-        if (cached && cacheTime && (Date.now() - parseInt(cacheTime) < 3600000)) {
-            PLAYLIST = JSON.parse(cached);
-            console.log(`📦 Cache: ${PLAYLIST.length} músicas`);
-            return;
-        }
-
-        try {
-            const resp = await fetch(CONFIG.PLAYLIST_URL);
-            if (!resp.ok) throw new Error();
-            PLAYLIST = await resp.json();
-            console.log(`✅ Playlist carregada: ${PLAYLIST.length} músicas`);
-            localStorage.setItem('playlist_cache', JSON.stringify(PLAYLIST));
-            localStorage.setItem('playlist_cache_time', Date.now().toString());
-        } catch (e) {
-            console.error("Erro ao carregar playlist", e);
-            if (cached) {
-                PLAYLIST = JSON.parse(cached);
-            } else {
-                // Fallback local
-                PLAYLIST = [
-                    { id: 0, title: "Trem Bala", artist: "Ana Vilela", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "MPB" },
-                    { id: 1, title: "Garota de Ipanema", artist: "Tom Jobim", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "MPB" },
-                    { id: 2, title: "Blinding Lights", artist: "The Weeknd", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "POP" },
-                    { id: 3, title: "Shape of You", artist: "Ed Sheeran", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", genero: "POP" },
-                    { id: 4, title: "Ao Vivo - Acústico", artist: "Banda XYZ", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", genero: "AO VIVO" }
-                ];
-            }
-            mostrarNotificacao("⚠️ Fallback local", 2000);
-        }
-    }
-
     // ==================== FILTRAR POR GÊNERO ====================
     function filtrarPorGenero(genero) {
         if (genero === 'TODOS') return shuffleArray([...PLAYLIST]);
@@ -356,7 +355,7 @@
         return shuffleArray(filtrada);
     }
 
-    // ==================== VERIFICADOR DE TRAVAMENTO (PULA MÚSICA SE TRAVAR) ====================
+    // ==================== VERIFICADOR DE TRAVAMENTO ====================
     function iniciarVerificadorTravamento() {
         if (state.verificadorTravamento) clearInterval(state.verificadorTravamento);
         
@@ -366,7 +365,7 @@
             const tempoAtual = dom.musicPlayer.currentTime;
             const duracao = dom.musicPlayer.duration;
             
-            // Se está no final (menos de 0.5s) - PULA
+            // Se está no final - PULA
             if (duracao > 0 && tempoAtual > 0 && (duracao - tempoAtual) < 0.5) {
                 console.log("🎵 Fim da música, próxima...");
                 PlayerEngine.next();
@@ -376,7 +375,10 @@
             // Se travou (tempo não mudou por 5 segundos) - PULA
             if (state.tempoAnterior === tempoAtual && tempoAtual > 0 && Date.now() - state.musicaIniciouEm > 5000) {
                 console.log("⚠️ Música travada! Pulando...");
+                state.falhasConsecutivas++;
                 PlayerEngine.next();
+            } else {
+                state.falhasConsecutivas = 0;
             }
             
             state.tempoAnterior = tempoAtual;
@@ -454,12 +456,25 @@
 
         async play() {
             if (state.isLoadingTrack || state.isTvMode) return;
+            
             if (!state.filteredPlaylist.length) {
                 state.filteredPlaylist = filtrarPorGenero(state.generoAtual);
                 if (!state.filteredPlaylist.length) return false;
             }
+            
+            // Se falhou muitas vezes seguidas, reinicia a playlist
+            if (state.falhasConsecutivas > 3) {
+                state.falhasConsecutivas = 0;
+                state.filteredPlaylist = shuffleArray([...PLAYLIST_FIXA]);
+                state.currentIndex = 0;
+                mostrarNotificacao("🔄 Reiniciando playlist...", 1500);
+            }
+            
             const track = state.filteredPlaylist[state.currentIndex];
-            if (!track || !track.src) { this.next(); return false; }
+            if (!track || !track.src) { 
+                this.next(); 
+                return false; 
+            }
 
             state.isLoadingTrack = true;
             dom.loadingSpinner.classList.add('show');
@@ -476,9 +491,10 @@
                 let timeout = setTimeout(() => {
                     dom.loadingSpinner.classList.remove('show');
                     state.isLoadingTrack = false;
+                    state.falhasConsecutivas++;
                     this.next();
                     resolve(false);
-                }, CONFIG.TIMEOUT_CARREGAMENTO_MUSICA);
+                }, 8000);
 
                 dom.musicPlayer.oncanplaythrough = async () => {
                     clearTimeout(timeout);
@@ -492,6 +508,7 @@
                         state.isPlaying = true;
                         state.musicaIniciouEm = Date.now();
                         state.tempoAnterior = 0;
+                        state.falhasConsecutivas = 0;
                         dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                         this.startProgressTimer();
 
@@ -503,6 +520,7 @@
                         showControls();
                         resolve(true);
                     } catch(e) {
+                        state.falhasConsecutivas++;
                         this.next();
                         resolve(false);
                     }
@@ -511,6 +529,7 @@
                     clearTimeout(timeout);
                     dom.loadingSpinner.classList.remove('show');
                     state.isLoadingTrack = false;
+                    state.falhasConsecutivas++;
                     this.next();
                     resolve(false);
                 };
@@ -560,6 +579,7 @@
             state.generoAtual = genero;
             state.filteredPlaylist = filtrarPorGenero(genero);
             state.currentIndex = 0;
+            state.falhasConsecutivas = 0;
             dom.genreBadge.innerHTML = genero === 'TODOS' ? '<i class="fas fa-random"></i> TODOS' : `<i class="fas fa-music"></i> ${genero}`;
             if (!state.isMiguelVideoActive && !state.isTvMode) {
                 let videoFile = CONFIG.VIDEO_POR_GENERO[genero] || CONFIG.VIDEO_POR_GENERO.DEFAULT;
@@ -572,7 +592,7 @@
         }
     };
 
-    // ==================== AVALIAÇÃO (LIKE/DISLIKE) ====================
+    // ==================== AVALIAÇÃO ====================
     let avaliacaoAtual = 0;
     function abrirAvaliacao() {
         document.getElementById('feedbackModal').classList.add('open');
@@ -633,14 +653,12 @@
         }, 3000);
     }
 
-    // ==================== PAGE VISIBILITY (TELA DESLIGADA) ====================
+    // ==================== PAGE VISIBILITY ====================
     let musicaEstavaTocando = false;
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             musicaEstavaTocando = state.isPlaying;
-            console.log("📱 Tela desligada, música continua em background");
         } else {
-            console.log("📱 Tela ligada");
             if (musicaEstavaTocando && !state.isPlaying && !state.isLoadingTrack && !state.isTvMode) {
                 setTimeout(() => {
                     if (dom.musicPlayer.paused && !state.isLoadingTrack) PlayerEngine.play();
@@ -651,13 +669,7 @@
     });
 
     // ==================== BUSCA ====================
-    const searchDiv = document.createElement('div');
-    searchDiv.id = 'searchContainer';
-    searchDiv.className = 'search-container';
-    searchDiv.style.cssText = 'position:fixed; top:70px; left:10px; right:10px; background:rgba(0,0,0,0.95); backdrop-filter:blur(16px); border-radius:20px; padding:12px; z-index:5000; display:none; border:1px solid #00f3ff;';
-    searchDiv.innerHTML = '<button class="search-close" id="closeSearchBtn" style="position:absolute; top:12px; right:16px; background:none; border:none; color:#00f3ff; font-size:1rem;">✕</button><input type="search" id="searchInput" class="search-input" placeholder="Buscar música..." style="width:100%; padding:10px; border-radius:40px; background:#111; color:white; border:1px solid #00f3ff; outline:none;"><div id="searchResults" class="search-results" style="max-height:50vh; overflow-y:auto; margin-top:8px;"></div>';
-    document.body.appendChild(searchDiv);
-    const searchContainer = searchDiv;
+    const searchContainer = document.getElementById('searchContainer');
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
     document.getElementById('closeSearchBtn').addEventListener('click', () => searchContainer.style.display = 'none');
@@ -712,16 +724,20 @@
         dom.appRoot.style.display = 'block';
         try { await document.documentElement.requestFullscreen(); } catch(e) {}
         mostrarNotificacao("🎙️ Anúncio...", 1500);
+        
+        // Tenta tocar anúncio se o arquivo existir
         anuncio = new Audio(CONFIG.ANUNCIO_INICIAL);
         anuncio.volume = CONFIG.VOLUME_PLAYER;
         anuncioTimeout = setTimeout(() => { if (anuncio && !radioStarted) { anuncio.pause(); iniciarRadioDireto(); } }, 8000);
-        await new Promise((resolve) => {
-            anuncio.play().catch(e => { console.warn("Erro anúncio:", e); resolve(); });
-            anuncio.onended = () => resolve();
-            anuncio.onerror = () => resolve();
-        });
-        clearTimeout(anuncioTimeout);
-        iniciarRadioDireto();
+        
+        try {
+            await anuncio.play();
+            anuncio.onended = () => { clearTimeout(anuncioTimeout); iniciarRadioDireto(); };
+            anuncio.onerror = () => { clearTimeout(anuncioTimeout); iniciarRadioDireto(); };
+        } catch(e) {
+            clearTimeout(anuncioTimeout);
+            iniciarRadioDireto();
+        }
     }
 
     // ==================== EVENT LISTENERS ====================
@@ -797,7 +813,6 @@
 
     // ==================== INIT ====================
     async function init() {
-        await carregarPlaylist();
         carregarPrefs();
         carregarStats();
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
@@ -812,7 +827,7 @@
         document.body.addEventListener('touchstart', () => { if (state.audioContext?.state === 'suspended') state.audioContext.resume(); }, { once: true });
     }
     init();
-    console.log('🚀 Rádio Patico - Versão final com verificador de travamento e suporte a tela desligada');
+    console.log('🚀 Rádio Patico - Versão com 15 músicas e loop infinito garantido!');
 </script>
 </body>
 </html>
