@@ -1,9 +1,11 @@
-      
-                <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0a0f">
     <title>Rádio Patico - Óticas São Miguel</title>
     <link rel="icon" type="image/png" href="falcon.png">
     <link rel="shortcut icon" href="favicon.ico">
@@ -16,349 +18,64 @@
         :root { --bg-primary: #0a0a0f; --accent: #00f3ff; --secondary: #ff2d7f; }
         body { min-height: 100vh; background: var(--bg-primary); overflow: hidden; position: fixed; width: 100%; height: 100%; font-family: 'Rajdhani', sans-serif; }
         
-        .gesture-hand {
-            position: fixed;
-            z-index: 10002;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.8));
-        }
+        .gesture-hand { position: fixed; z-index: 10002; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.8)); }
+        .gesture-hand.show { opacity: 1; animation: handWave 0.8s ease-in-out infinite; }
+        .gesture-hand.swipe-left { left: 70%; top: 50%; transform: translate(-50%, -50%); }
+        .gesture-hand.swipe-right { left: 30%; top: 50%; transform: translate(-50%, -50%) scaleX(-1); }
+        .gesture-hand .hand-icon { font-size: 3.5rem; color: #00f3ff; text-shadow: 0 0 20px #00f3ff; display: block; }
+        .gesture-hand .arrow-icon { font-size: 1.8rem; color: #ff2d7f; margin-left: 15px; display: inline-block; animation: arrowMove 0.5s ease-in-out infinite alternate; }
+        .gesture-hand .gesture-text { background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 40px; color: #FFFFFF; font-size: 0.75rem; font-weight: bold; margin-top: 8px; white-space: nowrap; border: 1px solid #00f3ff; text-shadow: 0 0 2px black; }
         
-        .gesture-hand.show {
-            opacity: 1;
-            animation: handWave 0.8s ease-in-out infinite;
-        }
+        @keyframes handWave { 0%, 100% { transform: translate(-50%, -50%) rotate(0deg); } 25% { transform: translate(-50%, -50%) rotate(-15deg); } 75% { transform: translate(-50%, -50%) rotate(15deg); } }
+        @keyframes arrowMove { 0% { transform: translateX(0); opacity: 0.5; } 100% { transform: translateX(15px); opacity: 1; } }
         
-        .gesture-hand.swipe-left {
-            left: 70%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
+        .genre-button { position: fixed; bottom: 160px; right: 16px; width: 44px; height: 44px; background: linear-gradient(135deg, #00f3ff, #ff2d7f); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 27; border: none; box-shadow: 0 0 12px rgba(0, 243, 255, 0.7); transition: 0.1s; }
+        .genre-button:active { transform: scale(0.9); }
+        .genre-button i { font-size: 1.2rem; color: #000; }
         
-        .gesture-hand.swipe-right {
-            left: 30%;
-            top: 50%;
-            transform: translate(-50%, -50%) scaleX(-1);
-        }
+        .genre-tip { position: fixed; bottom: 215px; right: 20px; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: 30px; color: #FFFFFF; font-size: 0.7rem; font-weight: bold; z-index: 10003; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; border: 1px solid #ff2d7f; white-space: nowrap; text-shadow: 0 0 2px black; }
+        .genre-tip.show { opacity: 1; animation: tipPulse 0.5s ease-out; }
+        @keyframes tipPulse { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .genre-tip i { margin-right: 5px; color: #00f3ff; }
         
-        .gesture-hand .hand-icon {
-            font-size: 3.5rem;
-            color: #00f3ff;
-            text-shadow: 0 0 20px #00f3ff;
-            display: block;
-        }
+        .swipe-tip { position: fixed; bottom: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); backdrop-filter: blur(16px); padding: 12px 25px; border-radius: 50px; color: #FFFFFF; z-index: 10003; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; border: 2px solid #00f3ff; box-shadow: 0 0 30px rgba(0, 243, 255, 0.5); text-align: center; white-space: nowrap; }
+        .swipe-tip.show { opacity: 1; animation: tipPulse 0.5s ease-out; }
+        .swipe-tip i { font-size: 1.3rem; margin: 0 8px; color: #00f3ff; }
+        .swipe-tip .fa-arrow-left { color: #ff2d7f; }
+        .swipe-tip .fa-arrow-right { color: #00f3ff; }
+        .swipe-tip span { margin: 0 10px; font-weight: bold; font-size: 0.9rem; color: #FFFFFF; }
         
-        .gesture-hand .arrow-icon {
-            font-size: 1.8rem;
-            color: #ff2d7f;
-            margin-left: 15px;
-            display: inline-block;
-            animation: arrowMove 0.5s ease-in-out infinite alternate;
-        }
-        
-        .gesture-hand .gesture-text {
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
-            padding: 6px 12px;
-            border-radius: 40px;
-            color: #FFFFFF !important;
-            font-size: 0.75rem;
-            font-weight: bold;
-            margin-top: 8px;
-            white-space: nowrap;
-            border: 1px solid #00f3ff;
-            text-shadow: 0 0 2px black;
-        }
-        
-        @keyframes handWave {
-            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-            25% { transform: translate(-50%, -50%) rotate(-15deg); }
-            75% { transform: translate(-50%, -50%) rotate(15deg); }
-        }
-        
-        @keyframes arrowMove {
-            0% { transform: translateX(0); opacity: 0.5; }
-            100% { transform: translateX(15px); opacity: 1; }
-        }
-        
-        .genre-button {
-            position: fixed;
-            bottom: 160px;
-            right: 16px;
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, #00f3ff, #ff2d7f);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 27;
-            border: none;
-            box-shadow: 0 0 12px rgba(0, 243, 255, 0.7);
-            transition: 0.1s, opacity 0.3s ease, transform 0.3s ease;
-        }
-        
-        .genre-button:active {
-            transform: scale(0.9);
-        }
-        
-        .genre-button i {
-            font-size: 1.2rem;
-            color: #000;
-        }
-        
-        .genre-tip {
-            position: fixed;
-            bottom: 215px;
-            right: 20px;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(8px);
-            padding: 6px 12px;
-            border-radius: 30px;
-            color: #FFFFFF !important;
-            font-size: 0.7rem;
-            font-weight: bold;
-            z-index: 10003;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            border: 1px solid #ff2d7f;
-            white-space: nowrap;
-            text-shadow: 0 0 2px black;
-        }
-        
-        .genre-tip.show {
-            opacity: 1;
-            animation: tipPulse 0.5s ease-out;
-        }
-        
-        @keyframes tipPulse {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        
-        .genre-tip i {
-            margin-right: 5px;
-            color: #00f3ff;
-        }
-        
-        .swipe-tip {
-            position: fixed;
-            bottom: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(16px);
-            padding: 12px 25px;
-            border-radius: 50px;
-            color: #FFFFFF !important;
-            z-index: 10003;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            border: 2px solid #00f3ff;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.5);
-            text-align: center;
-            white-space: nowrap;
-            text-shadow: 0 0 2px black;
-        }
-        
-        .swipe-tip.show {
-            opacity: 1;
-            animation: tipPulse 0.5s ease-out;
-        }
-        
-        .swipe-tip i {
-            font-size: 1.3rem;
-            margin: 0 8px;
-            color: #00f3ff;
-        }
-        
-        .swipe-tip .fa-arrow-left {
-            color: #ff2d7f;
-        }
-        
-        .swipe-tip .fa-arrow-right {
-            color: #00f3ff;
-        }
-        
-        .swipe-tip span {
-            margin: 0 10px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            color: #FFFFFF;
-        }
-        
-        .tutorial-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(8px);
-            z-index: 10004;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .tutorial-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .tutorial-card {
-            background: linear-gradient(135deg, #0a0a0f, #001a2a);
-            border-radius: 25px;
-            padding: 20px;
-            border: 2px solid #00f3ff;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
-            text-align: center;
-            max-width: 280px;
-            animation: cardPop 0.4s ease-out;
-        }
-        
-        @keyframes cardPop {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        
-        .tutorial-card h3 {
-            color: #00f3ff;
-            font-family: 'Orbitron', monospace;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-        
-        .tutorial-card .tutorial-swipe {
-            background: rgba(0, 243, 255, 0.15);
-            border-radius: 15px;
-            padding: 12px;
-            margin: 12px 0;
-        }
-        
-        .tutorial-card .tutorial-swipe i {
-            font-size: 1.8rem;
-            margin: 0 12px;
-        }
-        
+        .tutorial-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px); z-index: 10004; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .tutorial-overlay.show { opacity: 1; visibility: visible; }
+        .tutorial-card { background: linear-gradient(135deg, #0a0a0f, #001a2a); border-radius: 25px; padding: 20px; border: 2px solid #00f3ff; box-shadow: 0 0 30px rgba(0, 243, 255, 0.3); text-align: center; max-width: 280px; animation: cardPop 0.4s ease-out; }
+        @keyframes cardPop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .tutorial-card h3 { color: #00f3ff; font-family: 'Orbitron', monospace; margin-bottom: 15px; font-size: 1.1rem; }
+        .tutorial-card .tutorial-swipe { background: rgba(0, 243, 255, 0.15); border-radius: 15px; padding: 12px; margin: 12px 0; }
+        .tutorial-card .tutorial-swipe i { font-size: 1.8rem; margin: 0 12px; }
         .tutorial-card .fa-arrow-left { color: #ff2d7f; }
         .tutorial-card .fa-arrow-right { color: #00f3ff; }
         .tutorial-card .fa-hand-peace { color: #00f3ff; }
+        .tutorial-card .tutorial-swipe p { color: #FFFFFF; font-size: 0.8rem; margin-top: 8px; font-weight: bold; }
+        .tutorial-card .tutorial-genre { background: linear-gradient(135deg, #00f3ff, #ff2d7f); width: 45px; height: 45px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin: 10px 0; }
+        .tutorial-card .tutorial-genre i { font-size: 1.3rem; color: #000; }
+        .tutorial-card p { font-size: 0.75rem; margin: 8px 0; color: #FFFFFF; }
+        .tutorial-card button { background: linear-gradient(135deg, #00f3ff, #ff2d7f); border: none; padding: 8px 25px; border-radius: 40px; font-weight: bold; font-size: 0.85rem; cursor: pointer; margin-top: 12px; color: #000; }
         
-        .tutorial-card .tutorial-swipe p {
-            color: #FFFFFF;
-            font-size: 0.8rem;
-            margin-top: 8px;
-            font-weight: bold;
-        }
+        #splashStartBtn { position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #00f3ff, #ff2d7f); color: #000; padding: 10px 24px; border-radius: 40px; font-weight: bold; font-family: 'Orbitron', monospace; font-size: 0.9rem; border: none; cursor: pointer; z-index: 100; box-shadow: 0 0 15px #00f3ff; transition: transform 0.2s; }
+        #skipAdBtn { position: absolute; bottom: 12%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); color: #00f3ff; padding: 5px 15px; border-radius: 30px; font-size: 0.65rem; font-weight: bold; border: 1px solid #00f3ff; cursor: pointer; z-index: 100; transition: 0.2s; }
         
-        .tutorial-card .tutorial-genre {
-            background: linear-gradient(135deg, #00f3ff, #ff2d7f);
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin: 10px 0;
-        }
-        
-        .tutorial-card .tutorial-genre i {
-            font-size: 1.3rem;
-            color: #000;
-        }
-        
-        .tutorial-card p {
-            font-size: 0.75rem;
-            margin: 8px 0;
-            color: #FFFFFF;
-        }
-        
-        .tutorial-card button {
-            background: linear-gradient(135deg, #00f3ff, #ff2d7f);
-            border: none;
-            padding: 8px 25px;
-            border-radius: 40px;
-            font-weight: bold;
-            font-size: 0.85rem;
-            cursor: pointer;
-            margin-top: 12px;
-            color: #000;
-        }
-        
-        #splashStartBtn {
-            position: absolute;
-            bottom: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #00f3ff, #ff2d7f);
-            color: #000;
-            padding: 10px 24px;
-            border-radius: 40px;
-            font-weight: bold;
-            font-family: 'Orbitron', monospace;
-            font-size: 0.9rem;
-            border: none;
-            cursor: pointer;
-            z-index: 100;
-            box-shadow: 0 0 15px #00f3ff;
-            transition: transform 0.2s;
-        }
-        
-        #skipAdBtn {
-            position: absolute;
-            bottom: 12%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
-            color: #00f3ff;
-            padding: 5px 15px;
-            border-radius: 30px;
-            font-size: 0.65rem;
-            font-weight: bold;
-            border: 1px solid #00f3ff;
-            cursor: pointer;
-            z-index: 100;
-            transition: 0.2s;
-        }
-        
-        .notification-top {
-            position: absolute;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(12px);
-            padding: 6px 16px;
-            border-radius: 40px;
-            color: #00f3ff;
-            font-size: 0.7rem;
-            z-index: 30;
-            opacity: 0;
-            transition: 0.2s;
-            pointer-events: none;
-            white-space: nowrap;
-            border-left: 3px solid #00f3ff;
-        }
+        .notification-top { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(12px); padding: 6px 16px; border-radius: 40px; color: #00f3ff; font-size: 0.7rem; z-index: 30; opacity: 0; transition: 0.2s; pointer-events: none; white-space: nowrap; border-left: 3px solid #00f3ff; }
+        .notification-top.show { opacity: 1; }
         
         #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), visibility 0.8s; overflow: hidden; }
         #splash-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
         .splash-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2; display: flex; align-items: center; justify-content: center; flex-direction: column; }
         .splash-content { text-align: center; z-index: 3; animation: fadeInUp 1s ease-out; }
         .splash-content h1 { font-family: 'Orbitron', monospace; font-size: 2.5rem; letter-spacing: 4px; background: linear-gradient(135deg, #fff, #00f3ff, #ff2d7f); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 20px rgba(0, 243, 255, 0.5); margin-bottom: 15px; animation: glitch 3s infinite; }
-        
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes glitch { 0%, 100% { text-shadow: 2px 0 #ff2d7f, -2px 0 #00f3ff; } 25% { text-shadow: -2px 0 #ff2d7f, 2px 0 #00f3ff; } 50% { text-shadow: 2px 2px #ff2d7f, -2px -2px #00f3ff; } 75% { text-shadow: -2px -2px #ff2d7f, 2px 2px #00f3ff; } }
-        
         #splash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        
         .app { width: 100%; height: 100vh; background: var(--bg-primary); position: relative; overflow: hidden; display: none; }
         .fullscreen-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1; cursor: pointer; }
         .fullscreen-video-container video { width: 100%; height: 100%; object-fit: cover; }
@@ -366,6 +83,7 @@
         .track-info { margin-bottom: 4px; }
         .marquee-wrap { width: 100%; overflow: hidden; white-space: nowrap; }
         .marquee-text { display: inline-block; animation: marquee 40s linear infinite; color: #00f3ff; font-weight: 700; font-size: 1rem; letter-spacing: 1px; text-shadow: 0 0 3px rgba(0,243,255,0.5); }
+        
         .bottom-controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(0, 243, 255, 0.3); padding: 10px 20px 20px; z-index: 20; transition: transform 0.3s ease, opacity 0.3s ease; border-radius: 24px 24px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
         .bottom-controls.hide-controls { transform: translateY(100%); opacity: 0; pointer-events: none; }
         .progress-area { margin-bottom: 10px; }
@@ -378,14 +96,14 @@
         .play-btn { width: 50px; height: 50px; background: linear-gradient(135deg, #00f3ff, #ff2d7f); color: #000; border: none; box-shadow: 0 0 15px rgba(0, 243, 255, 0.6); }
         .genre-badge { position: absolute; top: 16px; left: 16px; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(12px); padding: 5px 12px; border-radius: 40px; font-size: 0.65rem; font-weight: bold; color: #00f3ff; z-index: 31; border-left: 3px solid #00f3ff; font-family: 'Orbitron', monospace; letter-spacing: 1px; }
         .genre-badge.live { border-left-color: #ff2d7f; animation: pulseRed 1s infinite; }
+        
         .feedback-floating { position: fixed; bottom: 160px; left: 16px; display: flex; gap: 10px; z-index: 27; transition: opacity 0.3s ease, transform 0.3s ease; }
         .feedback-floating.hide-controls { opacity: 0; transform: translateX(-20px); pointer-events: none; }
         .feedback-btn { width: 42px; height: 42px; border-radius: 50%; backdrop-filter: blur(8px); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: 0.1s; border: 2px solid; background: rgba(0, 0, 0, 0.7); }
         .feedback-btn:active { transform: scale(0.9); }
         .feedback-btn.like { color: #4ade80; border-color: #4ade80; box-shadow: 0 0 8px #4ade80; background: linear-gradient(145deg, #0a2f1a, #000); }
         .feedback-btn.dislike { color: #ef4444; border-color: #ef4444; box-shadow: 0 0 8px #ef4444; background: linear-gradient(145deg, #2f0a0a, #000); }
-        .menu-button { position: absolute; top: 16px; right: 16px; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); color: #00f3ff; border: 1px solid #00f3ff; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; z-index: 31; transition: 0.2s, opacity 0.3s ease; }
-        .menu-button.hide-controls { opacity: 0; pointer-events: none; }
+        .menu-button { position: absolute; top: 16px; right: 16px; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); color: #00f3ff; border: 1px solid #00f3ff; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; z-index: 31; transition: 0.2s; }
         .menu-popup { position: absolute; top: 70px; right: 16px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(16px); border-radius: 20px; padding: 10px; z-index: 32; display: none; flex-direction: column; gap: 8px; border: 1px solid #00f3ff; box-shadow: 0 0 20px rgba(0, 243, 255, 0.3); }
         .menu-popup.open { display: flex; }
         .menu-popup button { background: rgba(255, 255, 255, 0.05); border: none; color: white; padding: 6px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; font-family: 'Rajdhani', sans-serif; }
@@ -399,6 +117,7 @@
         
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         @keyframes pulseRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        
         .search-container { position: fixed; top: 70px; left: 10px; right: 10px; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(16px); border-radius: 20px; padding: 12px; z-index: 5000; display: none; border: 1px solid #00f3ff; }
         .search-input { width: 100%; padding: 8px; border-radius: 40px; background: #111; color: white; border: 1px solid #00f3ff; outline: none; font-size: 0.8rem; }
         .search-results { max-height: 50vh; overflow-y: auto; margin-top: 8px; }
@@ -471,9 +190,7 @@
     </div>
     
     <button class="genre-button" id="genreButton"><i class="fas fa-music"></i></button>
-    
     <div class="genre-badge" id="genreBadge"><i class="fas fa-heart"></i> LIVE</div>
-    
     <div class="menu-button" id="menuButton"><i class="fas fa-bolt"></i></div>
     <div class="menu-popup" id="menuPopup">
         <button id="searchMenuBtn"><i class="fas fa-search"></i> Buscar</button>
@@ -501,39 +218,14 @@
     <i class="fas fa-arrow-left arrow-icon"></i>
     <div class="gesture-text">← ARRASTE PARA TROCAR →</div>
 </div>
-
 <div class="gesture-hand swipe-right" id="gestureHandRight">
     <i class="fas fa-hand-peace hand-icon"></i>
     <i class="fas fa-arrow-right arrow-icon"></i>
     <div class="gesture-text">← ARRASTE PARA TROCAR →</div>
 </div>
-
-<div class="genre-tip" id="genreTip">
-    <i class="fas fa-fingerprint"></i> TOQUE AQUI PARA TROCAR GÊNERO MUSICAL
-</div>
-
-<div class="swipe-tip" id="swipeTip">
-    <i class="fas fa-arrow-left"></i>
-    <span>ARRASTE PARA TROCAR MÚSICA</span>
-    <i class="fas fa-arrow-right"></i>
-</div>
-
-<div class="tutorial-overlay" id="tutorialOverlay">
-    <div class="tutorial-card">
-        <h3><i class="fas fa-magic"></i> DICAS RÁPIDAS</h3>
-        <div class="tutorial-swipe">
-            <i class="fas fa-arrow-left"></i>
-            <i class="fas fa-hand-peace"></i>
-            <i class="fas fa-arrow-right"></i>
-            <p>← ARRASTE PARA TROCAR MÚSICA →</p>
-        </div>
-        <div class="tutorial-genre">
-            <i class="fas fa-music"></i>
-        </div>
-        <p>TOQUE NO BOTÃO FLUTUANTE PARA TROCAR O ESTILO MUSICAL</p>
-        <button id="closeTutorialBtn">ENTENDI! 🚀</button>
-    </div>
-</div>
+<div class="genre-tip" id="genreTip"><i class="fas fa-fingerprint"></i> TOQUE AQUI PARA TROCAR GÊNERO MUSICAL</div>
+<div class="swipe-tip" id="swipeTip"><i class="fas fa-arrow-left"></i><span>ARRASTE PARA TROCAR MÚSICA</span><i class="fas fa-arrow-right"></i></div>
+<div class="tutorial-overlay" id="tutorialOverlay"><div class="tutorial-card"><h3><i class="fas fa-magic"></i> DICAS RÁPIDAS</h3><div class="tutorial-swipe"><i class="fas fa-arrow-left"></i><i class="fas fa-hand-peace"></i><i class="fas fa-arrow-right"></i><p>← ARRASTE PARA TROCAR MÚSICA →</p></div><div class="tutorial-genre"><i class="fas fa-music"></i></div><p>TOQUE NO BOTÃO FLUTUANTE PARA TROCAR O ESTILO MUSICAL</p><button id="closeTutorialBtn">ENTENDI! 🚀</button></div></div>
 
 <div class="ai-modal" id="aiModal"><h3><i class="fas fa-brain"></i> IA</h3><div>Curtidas: <span id="aiLikedCount">0</span></div><div>Não curtidas: <span id="aiDislikedCount">0</span></div><div>Gênero fav: <span id="aiTopGenre">-</span></div><div id="aiTopSongs"></div><button class="close-ai" id="closeAiBtn">Fechar</button></div>
 <div class="stats-modal" id="statsModal"><h3>📊 Estatísticas</h3><div>Músicas ouvidas: <span id="statTotalPlayed">0</span></div><div>Tempo total: <span id="statTotalTime">0h 0m</span></div><div>Gênero fav: <span id="statTopGenre">-</span></div><div>Sequência: <span id="statStreak">0</span></div><button class="close-stats" id="closeStatsBtn">Fechar</button></div>
@@ -573,7 +265,8 @@
         SITE_MIGUEL: 'https://oticassaomiguel.com.br/',
         ANUNCIO_INICIAL: 'o.mp3',
         PLAYLIST_URL: 'https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json',
-        TIMEOUT_CARREGAMENTO_MUSICA: 8000
+        TIMEOUT_CARREGAMENTO_MUSICA: 8000,
+        FALLBACK_MUSICA: { id: 0, title: "Rádio Patico", artist: "Ao Vivo", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "BREGA", tipo: "normal" }
     };
 
     let PLAYLIST = [];
@@ -590,7 +283,7 @@
         contadorMusicasVinheta: 0,
         isLoadingTrack: false,
         controlsVisible: true,
-        userPreferences: { likedSongs: [], dislikedSongs: [], songPlays: {}, songComplete: {}, genrePreference: {}, lastPlayed: null },
+        userPreferences: { likedSongs: [], dislikedSongs: [], songPlays: {}, genrePreference: {}, lastPlayed: null },
         stats: { totalPlayed: 0, totalSeconds: 0, genreCount: {}, currentStreak: 0 },
         audioContext: null,
         progressInterval: null,
@@ -598,302 +291,114 @@
         lastClickTime: 0,
         isMiguelVideoActive: false,
         miguelVideoTimeout: null,
-        // NOVO: Verificador de travamento
-        verificadorTravamento: null,
-        tempoAnterior: 0,
-        musicaIniciouEm: 0
+        playlistCarregada: false,
+        tentativasFalhas: 0
     };
-
-    // ==================== FUNÇÕES DE TUTORIAL E DICAS ====================
-    function showGestureHand() {
-        const leftHand = document.getElementById('gestureHandLeft');
-        const rightHand = document.getElementById('gestureHandRight');
-        const swipeTip = document.getElementById('swipeTip');
-        const genreTip = document.getElementById('genreTip');
-        
-        if(leftHand) leftHand.classList.add('show');
-        if(rightHand) rightHand.classList.add('show');
-        if(swipeTip) swipeTip.classList.add('show');
-        if(genreTip) genreTip.classList.add('show');
-        
-        setTimeout(() => {
-            if(leftHand) leftHand.classList.remove('show');
-            if(rightHand) rightHand.classList.remove('show');
-            if(swipeTip) swipeTip.classList.remove('show');
-            if(genreTip) genreTip.classList.remove('show');
-        }, 5000);
-    }
-    
-    function startPeriodicGesture() {
-        setTimeout(() => {
-            if (radioStarted) {
-                showGestureHand();
-            }
-        }, 3000);
-        
-        setInterval(() => {
-            if (radioStarted && state.isPlaying && !document.hidden) {
-                showGestureHand();
-            }
-        }, 300000);
-    }
-    
-    function showTutorial() {
-        const tutorial = document.getElementById('tutorialOverlay');
-        if(tutorial) tutorial.classList.add('show');
-        
-        const closeBtn = document.getElementById('closeTutorialBtn');
-        if(closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                tutorial.classList.remove('show');
-            });
-        }
-    }
 
     // ==================== FUNÇÕES AUXILIARES ====================
     function mostrarNotificacao(msg, dur=1500) {
         const n = document.getElementById('notificationTop');
-        if(n) {
-            n.textContent = msg;
-            n.classList.add('show');
-            setTimeout(() => n.classList.remove('show'), dur);
-        }
+        if(n) { n.textContent = msg; n.classList.add('show'); setTimeout(() => n.classList.remove('show'), dur); }
     }
 
-    function shuffleArray(arr) { 
-        for (let i = arr.length - 1; i > 0; i--) { 
-            const j = Math.floor(Math.random() * (i + 1)); 
-            [arr[i], arr[j]] = [arr[j], arr[i]]; 
-        } 
-        return arr; 
-    }
-
+    function shuffleArray(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
     function salvarPrefs() { localStorage.setItem('radio_patico_ai_preferences', JSON.stringify(state.userPreferences)); }
     function carregarPrefs() { const s = localStorage.getItem('radio_patico_ai_preferences'); if(s) Object.assign(state.userPreferences, JSON.parse(s)); }
     function salvarStats() { localStorage.setItem('radio_patico_stats', JSON.stringify(state.stats)); }
     function carregarStats() { const s = localStorage.getItem('radio_patico_stats'); if(s) Object.assign(state.stats, JSON.parse(s)); }
 
-    // ==================== NOVO: VERIFICADOR DE MÚSICA TRAVADA ====================
-    function iniciarVerificadorTravamento() {
-        if (state.verificadorTravamento) clearInterval(state.verificadorTravamento);
-        
-        state.verificadorTravamento = setInterval(() => {
-            if (!state.isPlaying || state.isLoadingTrack || state.tocandoVinheta) return;
-            
-            const tempoAtual = dom.musicPlayer.currentTime;
-            const duracao = dom.musicPlayer.duration;
-            
-            // Se está no final (menos de 0.5 segundos) - PULA
-            if (duracao > 0 && tempoAtual > 0 && (duracao - tempoAtual) < 0.5) {
-                console.log("🎵 Música no final, pulando...");
-                PlayerEngine.next();
-                return;
-            }
-            
-            // Se travou (tempo não mudou por mais de 5 segundos) - PULA
-            if (state.tempoAnterior === tempoAtual && tempoAtual > 0) {
-                const tempoTravado = Date.now() - state.musicaIniciouEm;
-                if (tempoTravado > 5000 && tempoTravado < (duracao * 1000 - 1000)) {
-                    console.log("⚠️ Música travada! Pulando...");
-                    PlayerEngine.next();
-                    return;
-                }
-            }
-            
-            state.tempoAnterior = tempoAtual;
-        }, 2000);
+    // ==================== MEDIA SESSION (TELA BLOQUEADA) ====================
+    function setupMediaSession(track) {
+        if (!track || !('mediaSession' in navigator)) return;
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: track.title || "Rádio Patico",
+            artist: track.artist || "Rádio Patico",
+            album: state.isAoVivo ? "Ao Vivo" : (track.genero || "Música"),
+            artwork: [{ src: "falcon.png", sizes: "512x512", type: "image/png" }]
+        });
+        navigator.mediaSession.setActionHandler('play', () => PlayerEngine.play());
+        navigator.mediaSession.setActionHandler('pause', () => PlayerEngine.pause());
+        navigator.mediaSession.setActionHandler('previoustrack', () => PlayerEngine.prev());
+        navigator.mediaSession.setActionHandler('nexttrack', () => PlayerEngine.next());
     }
 
+    // ==================== CARREGAR PLAYLIST (COM FALLBACK) ====================
     async function carregarPlaylist() {
         const cached = localStorage.getItem('playlist_cache');
         const cacheTime = localStorage.getItem('playlist_cache_time');
-        
         if (cached && cacheTime && (Date.now() - parseInt(cacheTime) < 3600000)) {
             PLAYLIST = JSON.parse(cached);
-            console.log(`📦 Playlist do cache: ${PLAYLIST.length} músicas`);
-            PLAYLIST = PLAYLIST.map((m, idx) => { if (!m.id) m.id = idx; if (!m.artist) m.artist = "Desconhecido"; if (!m.tipo) m.tipo = "normal"; return m; });
+            PLAYLIST = PLAYLIST.map((m, idx) => { if (!m.id) m.id = idx; if (!m.artist) m.artist = "Desconhecido"; return m; });
+            state.playlistCarregada = true;
+            console.log(`📦 Cache: ${PLAYLIST.length} músicas`);
             return;
         }
-        
         try {
             const resp = await fetch(CONFIG.PLAYLIST_URL);
             if (!resp.ok) throw new Error();
             PLAYLIST = await resp.json();
-            console.log(`✅ Playlist carregada: ${PLAYLIST.length} músicas`);
-            PLAYLIST = PLAYLIST.map((m, idx) => { if (!m.id) m.id = idx; if (!m.artist) m.artist = "Desconhecido"; if (!m.tipo) m.tipo = "normal"; return m; });
+            PLAYLIST = PLAYLIST.map((m, idx) => { if (!m.id) m.id = idx; if (!m.artist) m.artist = "Desconhecido"; return m; });
             localStorage.setItem('playlist_cache', JSON.stringify(PLAYLIST));
             localStorage.setItem('playlist_cache_time', Date.now().toString());
+            state.playlistCarregada = true;
+            console.log(`✅ Playlist: ${PLAYLIST.length}`);
         } catch(e) {
-            console.error("Erro ao carregar playlist", e);
-            if (cached) {
-                PLAYLIST = JSON.parse(cached);
-                console.log("⚠️ Usando cache antigo");
-            } else {
+            console.error("Erro playlist", e);
+            if (cached) PLAYLIST = JSON.parse(cached);
+            else {
                 PLAYLIST = [
                     { id: 0, title: "Amor de Verdade", artist: "Banda Sayonara", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero: "BREGA", tipo: "normal" },
                     { id: 1, title: "Coração Cigano", artist: "Banda Ravelly", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero: "BREGA", tipo: "normal" },
-                    { id: 2, title: "Evidências", artist: "Chitãozinho & Xororó", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "SERTANEJO", tipo: "normal" },
-                    { id: 3, title: "Garota de Ipanema", artist: "Tom Jobim", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", genero: "MPB", tipo: "normal" },
-                    { id: 4, title: "Trem Bala", artist: "Ana Vilela", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", genero: "MPB", tipo: "normal" },
-                    { id: 5, title: "Blinding Lights", artist: "The Weeknd", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", genero: "POP", tipo: "normal" },
-                    { id: 6, title: "Ao Vivo - Show", artist: "Banda Ao Vivo", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3", genero: "AO VIVO", tipo: "normal" }
+                    { id: 2, title: "Evidências", artist: "Chitãozinho & Xororó", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero: "SERTANEJO", tipo: "normal" }
                 ];
             }
-            mostrarNotificacao("⚠️ Fallback", 2000);
+            state.playlistCarregada = true;
         }
+        if (PLAYLIST.length === 0) PLAYLIST = [CONFIG.FALLBACK_MUSICA];
     }
 
-    // ==================== GERENCIAMENTO DO VÍDEO MIGUEL ====================
+    // ==================== VÍDEO MIGUEL ====================
     function ativarVideoMiguel() {
         if (state.isMiguelVideoActive) return;
-        
         const videoElement = document.getElementById('mainVideo');
         if(!videoElement) return;
-        
         videoElement.pause();
         videoElement.src = CONFIG.VIDEO_MIGUEL;
         videoElement.load();
-        videoElement.play().catch(e => console.warn("Erro ao tocar vídeo Miguel:", e));
-        
+        videoElement.play().catch(e => console.warn);
         state.isMiguelVideoActive = true;
         mostrarNotificacao("🎥 Óticas São Miguel", 2000);
-        
         if (state.miguelVideoTimeout) clearTimeout(state.miguelVideoTimeout);
-        state.miguelVideoTimeout = setTimeout(() => {
-            desativarVideoMiguel();
-        }, 30000);
+        state.miguelVideoTimeout = setTimeout(() => desativarVideoMiguel(), 30000);
     }
-    
     function desativarVideoMiguel() {
         if (!state.isMiguelVideoActive) return;
-        
         const videoElement = document.getElementById('mainVideo');
         if(!videoElement) return;
-        
         let videoPadrao = CONFIG.VIDEO_POR_GENERO[state.generoAtual] || CONFIG.VIDEO_POR_GENERO.DEFAULT;
         if (state.isAoVivo) videoPadrao = CONFIG.VIDEO_POR_GENERO.LIVE;
-        
         videoElement.pause();
         videoElement.src = videoPadrao;
         videoElement.load();
-        videoElement.play().catch(e => console.warn("Erro ao voltar para vídeo padrão:", e));
-        
+        videoElement.play().catch(e => console.warn);
         state.isMiguelVideoActive = false;
         if (state.miguelVideoTimeout) clearTimeout(state.miguelVideoTimeout);
     }
-    
-    function abrirSiteMiguel() {
-        window.open(CONFIG.SITE_MIGUEL, '_blank');
-        mostrarNotificacao("🌐 Abrindo site", 1200);
-    }
-    
-    // ==================== BLUETOOTH ====================
-    async function conectarBluetooth() {
-        mostrarNotificacao("🔵 Procurando...", 1200);
-        
-        if ('bluetooth' in navigator) {
-            try {
-                const device = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true,
-                    optionalServices: ['battery_service']
-                });
-                mostrarNotificacao(`✅ Conectado: ${device.name || 'Dispositivo'}`, 2000);
-            } catch(error) {
-                mostrarNotificacao("❌ Cancelado", 1200);
-            }
-        } else {
-            mostrarNotificacao("⚠️ Chrome/Edge", 1500);
-        }
-    }
+    function abrirSiteMiguel() { window.open(CONFIG.SITE_MIGUEL, '_blank'); mostrarNotificacao("🌐 Abrindo site", 1200); }
 
-    // ==================== COMPARTILHAR ====================
-    function abrirCompartilhar() {
-        if (navigator.share) {
-            navigator.share({
-                title: 'Rádio Patico',
-                text: '🎵 Ouça a melhor música!',
-                url: window.location.href
-            });
-        } else {
-            navigator.clipboard.writeText(window.location.href);
-            mostrarNotificacao("🔗 Link copiado!", 1000);
-        }
-    }
-
-    // ==================== DOM ELEMENTS ====================
-    const dom = {
-        musicPlayer: document.getElementById('musicPlayer'),
-        playBtn: document.getElementById('playPauseBtn'), prevBtn: document.getElementById('prevBtn'), nextBtn: document.getElementById('nextBtn'),
-        shuffleBtn: document.getElementById('shuffleBtn'), progressFill: document.getElementById('progressFill'), currentTimeEl: document.getElementById('currentTime'),
-        totalTimeEl: document.getElementById('totalTime'), trackMarquee: document.getElementById('trackMarquee'),
-        splash: document.getElementById('splash'), appRoot: document.getElementById('appRoot'), loadingSpinner: document.getElementById('loadingSpinner'),
-        genreBadge: document.getElementById('genreBadge'), bottomControls: document.getElementById('bottomControls'),
-        genreButton: document.getElementById('genreButton'), menuButton: document.getElementById('menuButton'), menuPopup: document.getElementById('menuPopup'),
-        mainVideo: document.getElementById('mainVideo'), videoContainer: document.getElementById('videoContainer'),
-        feedbackModal: document.getElementById('feedbackModal'), aiModal: document.getElementById('aiModal'), statsModal: document.getElementById('statsModal'),
-        genresModal: document.getElementById('genresModal'), manualModal: document.getElementById('manualModal'), pixModal: document.getElementById('pixModal'),
-        copyPixBtn: document.getElementById('copyPixBtn'), closePixBtn: document.getElementById('closePixBtn'),
-        likeBtn: document.getElementById('likeBtn'), dislikeBtn: document.getElementById('dislikeBtn'),
-        feedbackFloating: document.getElementById('feedbackFloating'), volumeSlider: document.getElementById('volumeSlider')
-    };
-
-    // ==================== CONTROLES DE VISIBILIDADE ====================
-    function hideControls() {
-        if(dom.bottomControls) dom.bottomControls.classList.add('hide-controls');
-        if(dom.feedbackFloating) dom.feedbackFloating.classList.add('hide-controls');
-        if(dom.genreButton) dom.genreButton.classList.add('hide-controls');
-        if(dom.menuButton) dom.menuButton.classList.add('hide-controls');
-        const volControl = document.getElementById('volumeControl');
-        if(volControl) {
-            volControl.style.opacity = '0';
-            volControl.style.pointerEvents = 'none';
-        }
-        state.controlsVisible = false;
-    }
-    
-    function showControls() {
-        if(dom.bottomControls) dom.bottomControls.classList.remove('hide-controls');
-        if(dom.feedbackFloating) dom.feedbackFloating.classList.remove('hide-controls');
-        if(dom.genreButton) dom.genreButton.classList.remove('hide-controls');
-        if(dom.menuButton) dom.menuButton.classList.remove('hide-controls');
-        const volControl = document.getElementById('volumeControl');
-        if(volControl) {
-            volControl.style.opacity = '1';
-            volControl.style.pointerEvents = 'auto';
-        }
-        state.controlsVisible = true;
-        
-        if (state.controlsTimer) clearTimeout(state.controlsTimer);
-        state.controlsTimer = setTimeout(() => {
-            if (state.isPlaying && !state.isLoadingTrack) hideControls();
-        }, 3000);
-    }
-    
-    function setupTapToToggle() {
-        if(!dom.appRoot) return;
-        dom.appRoot.addEventListener('click', (e) => {
-            if (e.target.closest('.control-btn') || e.target.closest('.feedback-btn') || e.target.closest('.genre-button') || e.target.closest('.menu-button') || e.target.closest('.volume-control')) {
-                showControls();
-                return;
-            }
-            if (dom.bottomControls && dom.bottomControls.classList.contains('hide-controls')) {
-                showControls();
-            } else {
-                hideControls();
-            }
-        });
-    }
-
-    // ==================== PLAYER ENGINE ====================
+    // ==================== PLAYER ENGINE CORRIGIDA ====================
     const PlayerEngine = {
         formatTime(sec) { if (isNaN(sec)) return '0:00'; const m = Math.floor(sec/60); const s = Math.floor(sec%60); return `${m}:${s<10?'0':''}${s}`; },
         
         async play() {
             if (state.isLoadingTrack || state.tocandoVinheta) return;
-            if (!state.filteredPlaylist.length) { 
-                state.filteredPlaylist = shuffleArray([...PLAYLIST]);
-                if (!state.filteredPlaylist.length) { mostrarNotificacao("Nenhuma música", 1200); return false; }
+            if (!PLAYLIST.length) { await carregarPlaylist(); }
+            if (!state.filteredPlaylist.length) {
+                if (state.isAoVivo) state.filteredPlaylist = shuffleArray([...PLAYLIST]);
+                else state.filteredPlaylist = shuffleArray([...PLAYLIST]);
+                if (!state.filteredPlaylist.length) { mostrarNotificacao("Erro: sem músicas", 2000); return false; }
             }
+            if (state.currentIndex >= state.filteredPlaylist.length) state.currentIndex = 0;
             const track = state.filteredPlaylist[state.currentIndex];
             if (!track || !track.src) { 
                 this.next();
@@ -905,20 +410,23 @@
             dom.musicPlayer.pause();
             dom.musicPlayer.src = track.src;
             dom.musicPlayer.load();
-            
+            setupMediaSession(track);
             this.atualizarTrackInfo(track);
             if (!state.isAoVivo) this.updateGenreBadge(track.genero);
-            if (!state.isMiguelVideoActive) {
-                this.atualizarVideo(state.isAoVivo ? 'LIVE' : track.genero);
-            }
+            if (!state.isMiguelVideoActive) this.atualizarVideo(state.isAoVivo ? 'LIVE' : track.genero);
             
             let musicLoaded = false;
-            
             return new Promise((resolve) => {
                 let timeout = setTimeout(() => {
                     if (!musicLoaded) {
                         if(dom.loadingSpinner) dom.loadingSpinner.classList.remove('show');
                         state.isLoadingTrack = false;
+                        state.tentativasFalhas++;
+                        if (state.tentativasFalhas > 2) {
+                            const fallback = CONFIG.FALLBACK_MUSICA;
+                            state.filteredPlaylist[state.currentIndex] = fallback;
+                            state.tentativasFalhas = 0;
+                        }
                         this.next();
                         resolve(false);
                     }
@@ -930,30 +438,21 @@
                     clearTimeout(timeout);
                     if(dom.loadingSpinner) dom.loadingSpinner.classList.remove('show');
                     state.isLoadingTrack = false;
+                    state.tentativasFalhas = 0;
                     try {
-                        if (state.audioContext && state.audioContext.state === 'suspended') {
-                            await state.audioContext.resume();
-                        }
+                        if (state.audioContext && state.audioContext.state === 'suspended') await state.audioContext.resume();
                         await dom.musicPlayer.play();
                         state.isPlaying = true;
-                        state.musicaIniciouEm = Date.now();
-                        state.tempoAnterior = 0;
                         dom.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                         this.startProgressTimer();
-                        
                         state.stats.totalPlayed++;
                         if (!state.stats.genreCount[track.genero]) state.stats.genreCount[track.genero] = 0;
                         state.stats.genreCount[track.genero]++;
                         state.stats.currentStreak++;
                         salvarStats();
-                        
                         if (!state.userPreferences.songPlays[track.id]) state.userPreferences.songPlays[track.id] = 0;
                         state.userPreferences.songPlays[track.id]++;
                         salvarPrefs();
-                        
-                        // INICIA O VERIFICADOR DE TRAVAMENTO
-                        iniciarVerificadorTravamento();
-                        
                         showControls();
                         resolve(true);
                     } catch(e) {
@@ -972,6 +471,7 @@
                     clearTimeout(timeout);
                     if(dom.loadingSpinner) dom.loadingSpinner.classList.remove('show');
                     state.isLoadingTrack = false;
+                    state.tentativasFalhas++;
                     setTimeout(() => this.next(), 500);
                     resolve(false);
                 };
@@ -981,22 +481,21 @@
         atualizarTrackInfo(track) {
             if (!track) return;
             const g = state.isAoVivo ? '🔴 LIVE' : track.genero;
-            if(dom.trackMarquee) dom.trackMarquee.innerHTML = `<span class="marquee-text">🎵 ${track.title} - ${track.artist} [${g}] | RÁDIO PATICO - LUIS GOMES RN</span>`;
-            if(dom.currentTimeEl) dom.currentTimeEl.textContent = '0:00';
-            if(dom.totalTimeEl) dom.totalTimeEl.textContent = '0:00';
-            if(dom.progressFill) dom.progressFill.style.width = '0%';
+            const marquee = document.getElementById('trackMarquee');
+            if(marquee) marquee.innerHTML = `<span class="marquee-text">🎵 ${track.title} - ${track.artist} [${g}] | RÁDIO PATICO - LUIS GOMES RN</span>`;
+            const currentTimeEl = document.getElementById('currentTime');
+            const totalTimeEl = document.getElementById('totalTime');
+            if(currentTimeEl) currentTimeEl.textContent = '0:00';
+            if(totalTimeEl) totalTimeEl.textContent = '0:00';
+            const progressFill = document.getElementById('progressFill');
+            if(progressFill) progressFill.style.width = '0%';
         },
         
         updateGenreBadge(genero) {
-            const g = genero === 'MIX' ? 'TODOS' : genero;
-            if(dom.genreBadge) {
-                dom.genreBadge.innerHTML = `<i class="fas fa-music"></i> ${g}`;
-                if (state.isAoVivo) {
-                    dom.genreBadge.innerHTML = '<i class="fas fa-broadcast-tower"></i> LIVE';
-                    dom.genreBadge.classList.add('live');
-                } else {
-                    dom.genreBadge.classList.remove('live');
-                }
+            const badge = document.getElementById('genreBadge');
+            if(badge) {
+                if (state.isAoVivo) { badge.innerHTML = '<i class="fas fa-broadcast-tower"></i> LIVE'; badge.classList.add('live'); }
+                else { badge.innerHTML = `<i class="fas fa-music"></i> ${genero || 'MIX'}`; badge.classList.remove('live'); }
             }
             this.updateMarquee();
         },
@@ -1005,12 +504,12 @@
             if (state.isMiguelVideoActive) return;
             let file = CONFIG.VIDEO_POR_GENERO[genero] || CONFIG.VIDEO_POR_GENERO.DEFAULT;
             if (state.isAoVivo) file = CONFIG.VIDEO_POR_GENERO.LIVE;
-            if (dom.mainVideo && dom.mainVideo.src.endsWith(file)) return;
-            if(dom.mainVideo) {
-                dom.mainVideo.pause();
-                dom.mainVideo.src = file;
-                dom.mainVideo.load();
-                setTimeout(() => { dom.mainVideo.play().catch(e => console.warn); }, 100);
+            const video = document.getElementById('mainVideo');
+            if (video && !video.src.endsWith(file)) {
+                video.pause();
+                video.src = file;
+                video.load();
+                setTimeout(() => video.play().catch(()=>{}), 100);
             }
         },
         
@@ -1018,7 +517,8 @@
             const liked = state.userPreferences.likedSongs.length;
             const g = state.isAoVivo ? '🔴 AO VIVO' : (state.generoAtual === 'MIX' ? 'TODOS' : state.generoAtual);
             const msg = `🎵 RÁDIO PATICO | MODO: ${g} | 👍 ${liked} curtidas | 📻 24h`;
-            if(dom.trackMarquee) dom.trackMarquee.innerHTML = `<span class="marquee-text">${msg}</span>`;
+            const marquee = document.getElementById('trackMarquee');
+            if(marquee) marquee.innerHTML = `<span class="marquee-text">${msg}</span>`;
         },
         
         pause() {
@@ -1037,36 +537,25 @@
             state.lastClickTime = now;
             if (state.isLoadingTrack || state.tocandoVinheta) return;
             if (state.progressInterval) clearInterval(state.progressInterval);
-            
             if (state.isAoVivo) {
-                const proxima = this.getNextLiveMusic();
-                if (proxima) {
-                    state.filteredPlaylist.push(proxima);
-                    state.currentIndex = state.filteredPlaylist.length - 1;
-                    await this.play();
-                } else {
-                    state.historicoMusicasLive = [];
-                    let novas = PLAYLIST.filter(m => m.tipo === "ao vivo");
-                    if (!novas.length) novas = shuffleArray([...PLAYLIST]);
-                    state.filteredPlaylist = shuffleArray(novas);
+                const disponiveis = PLAYLIST.filter(m => m.tipo === "ao vivo" || m.genero === "AO VIVO");
+                if (disponiveis.length === 0) {
+                    state.filteredPlaylist = shuffleArray([...PLAYLIST]);
                     state.currentIndex = 0;
-                    await this.play();
+                } else {
+                    const naoRepetidas = disponiveis.filter(m => !state.historicoMusicasLive.includes(m.id));
+                    if (naoRepetidas.length === 0) {
+                        state.historicoMusicasLive = [];
+                        state.filteredPlaylist = shuffleArray(disponiveis);
+                    } else state.filteredPlaylist = shuffleArray(naoRepetidas);
+                    state.currentIndex = 0;
                 }
             } else {
                 let nextIndex = state.currentIndex + 1;
                 if (nextIndex >= state.filteredPlaylist.length) nextIndex = 0;
                 state.currentIndex = nextIndex;
-                await this.play();
             }
-        },
-        
-        getNextLiveMusic() {
-            const disponiveis = state.filteredPlaylist.filter(m => !state.historicoMusicasLive.includes(m.id));
-            if (disponiveis.length === 0) return null;
-            const prox = disponiveis[Math.floor(Math.random() * disponiveis.length)];
-            state.historicoMusicasLive.push(prox.id);
-            if (state.historicoMusicasLive.length > 5) state.historicoMusicasLive.shift();
-            return prox;
+            await this.play();
         },
         
         async prev() {
@@ -1075,7 +564,6 @@
             state.lastClickTime = now;
             if (state.isLoadingTrack || state.tocandoVinheta) return;
             if (state.progressInterval) clearInterval(state.progressInterval);
-            
             let prevIndex = state.currentIndex - 1;
             if (prevIndex < 0) prevIndex = state.filteredPlaylist.length - 1;
             state.currentIndex = prevIndex;
@@ -1087,16 +575,15 @@
             state.progressInterval = setInterval(() => {
                 if (state.isPlaying && dom.musicPlayer.duration && !dom.musicPlayer.paused) {
                     const percent = (dom.musicPlayer.currentTime / dom.musicPlayer.duration) * 100;
-                    if(dom.progressFill) dom.progressFill.style.width = percent + '%';
-                    if(dom.currentTimeEl) dom.currentTimeEl.textContent = this.formatTime(dom.musicPlayer.currentTime);
-                    if(dom.totalTimeEl) dom.totalTimeEl.textContent = this.formatTime(dom.musicPlayer.duration);
+                    const progressFill = document.getElementById('progressFill');
+                    const currentTimeEl = document.getElementById('currentTime');
+                    const totalTimeEl = document.getElementById('totalTime');
+                    if(progressFill) progressFill.style.width = percent + '%';
+                    if(currentTimeEl) currentTimeEl.textContent = this.formatTime(dom.musicPlayer.currentTime);
+                    if(totalTimeEl) totalTimeEl.textContent = this.formatTime(dom.musicPlayer.duration);
                 }
             }, 200);
-            
-            dom.musicPlayer.onended = () => {
-                if (state.tocandoVinheta) return;
-                this.next();
-            };
+            dom.musicPlayer.onended = () => { this.next(); };
         },
         
         likeCurrent() {
@@ -1132,55 +619,35 @@
             const dislikedSpan = document.getElementById('aiDislikedCount');
             if(dislikedSpan) dislikedSpan.textContent = state.userPreferences.dislikedSongs.length;
             let topG = "Nenhum", maxC=0;
-            for(let [g,c] of Object.entries(state.userPreferences.genrePreference)) if(c>maxC) {maxC=c; topG=g;}
+            for(let [g,c] of Object.entries(state.userPreferences.genrePreference)) if(c>maxC){maxC=c; topG=g;}
             const topSpan = document.getElementById('aiTopGenre');
             if(topSpan) topSpan.textContent = topG;
             const container = document.getElementById('aiTopSongs');
-            if(!container) return;
-            container.innerHTML = '';
+            if(container) container.innerHTML = '';
             const favs = state.userPreferences.likedSongs.map(id => PLAYLIST.find(m=>m.id===id)).filter(s=>s).slice(0,5);
             favs.forEach(song=>{
-                const d = document.createElement('div');
-                d.style.margin = '5px 0';
-                d.innerHTML = `<span style="font-size:0.7rem; color:white;">🎵 ${song.title}</span><button style="background:#ff2d7f; border:none; color:white; margin-left:8px; border-radius:20px; padding:2px 6px; font-size:0.6rem;">X</button>`;
-                d.querySelector('button').onclick = ()=>{
+                const div = document.createElement('div');
+                div.style.margin = '5px 0';
+                div.innerHTML = `<span style="font-size:0.7rem; color:white;">🎵 ${song.title}</span><button style="background:#ff2d7f; border:none; color:white; margin-left:8px; border-radius:20px; padding:2px 6px; font-size:0.6rem;">X</button>`;
+                div.querySelector('button').onclick = ()=>{
                     state.userPreferences.likedSongs = state.userPreferences.likedSongs.filter(id=>id!==song.id);
                     salvarPrefs();
                     this.atualizarAIModal();
                     mostrarNotificacao(`👍 Removido`, 800);
                     if(!state.isAoVivo){
-                        state.filteredPlaylist = PlaylistManager.generateSmartPlaylist();
+                        state.filteredPlaylist = shuffleArray([...PLAYLIST]);
                         state.currentIndex = Math.floor(Math.random()*state.filteredPlaylist.length);
-                        this.atualizarTrackInfo(state.filteredPlaylist[state.currentIndex]);
                         if(state.isPlaying) this.play();
                     }
                 };
-                container.appendChild(d);
+                container.appendChild(div);
             });
         }
     };
 
-    // ==================== PLAYLIST MANAGER ====================
     const PlaylistManager = {
-        generateSmartPlaylist() {
-            let candidates = [...PLAYLIST];
-            const prefs = state.userPreferences;
-            if(prefs.likedSongs.length){
-                const likedGenres = {};
-                prefs.likedSongs.forEach(id=>{ const m=PLAYLIST.find(mus=>mus.id===id); if(m) likedGenres[m.genero] = (likedGenres[m.genero]||0)+1; });
-                const top = Object.keys(likedGenres).reduce((a,b)=> likedGenres[a]>likedGenres[b] ? a:b, null);
-                if(top) candidates = candidates.filter(m=>m.genero===top);
-            }
-            candidates = candidates.filter(m=>!prefs.dislikedSongs.includes(m.id));
-            if(!candidates.length) candidates = [...PLAYLIST];
-            return shuffleArray(candidates);
-        },
-        
         filterByGenre(genero) {
-            if(genero === 'AO VIVO' || genero === 'LIVE') { 
-                this.ativarModoAoVivo(); 
-                return; 
-            }
+            if(genero === 'AO VIVO' || genero === 'LIVE') { this.ativarModoAoVivo(); return; }
             state.isAoVivo = false;
             let nova = [];
             if(genero === 'TODOS') {
@@ -1189,129 +656,127 @@
                 PlayerEngine.updateGenreBadge("MIX");
             } else {
                 nova = PLAYLIST.filter(m=>m.genero === genero);
-                if(!nova.length) { 
-                    nova = shuffleArray([...PLAYLIST]); 
-                    mostrarNotificacao(`⚠️ Fallback`, 1200); 
-                    state.generoAtual = "MIX"; 
-                    PlayerEngine.updateGenreBadge("MIX"); 
-                } else { 
-                    state.generoAtual = genero; 
-                    PlayerEngine.updateGenreBadge(genero); 
-                }
+                if(!nova.length) { nova = shuffleArray([...PLAYLIST]); mostrarNotificacao(`⚠️ Fallback`, 1200); state.generoAtual = "MIX"; PlayerEngine.updateGenreBadge("MIX"); }
+                else { state.generoAtual = genero; PlayerEngine.updateGenreBadge(genero); }
             }
             state.filteredPlaylist = nova;
             state.currentIndex = Math.floor(Math.random()*state.filteredPlaylist.length);
             PlayerEngine.atualizarTrackInfo(state.filteredPlaylist[state.currentIndex]);
-            if (!state.isMiguelVideoActive) {
-                PlayerEngine.atualizarVideo(state.generoAtual === "MIX" ? "VARIADAS" : state.generoAtual);
-            }
+            if (!state.isMiguelVideoActive) PlayerEngine.atualizarVideo(state.generoAtual === "MIX" ? "VARIADAS" : state.generoAtual);
             if(state.isPlaying) PlayerEngine.play();
             mostrarNotificacao(`🎵 ${genero}`, 1000);
         },
         
         ativarModoAoVivo() {
             state.isAoVivo = true;
-            if(dom.genreBadge) {
-                dom.genreBadge.innerHTML = '<i class="fas fa-broadcast-tower"></i> LIVE';
-                dom.genreBadge.classList.add('live');
-            }
+            const badge = document.getElementById('genreBadge');
+            if(badge) { badge.innerHTML = '<i class="fas fa-broadcast-tower"></i> LIVE'; badge.classList.add('live'); }
             let musicas = PLAYLIST.filter(m=>m.tipo === "ao vivo" || m.genero === "AO VIVO");
-            if(!musicas.length) { musicas = shuffleArray([...PLAYLIST]); }
+            if(!musicas.length) musicas = shuffleArray([...PLAYLIST]);
             state.filteredPlaylist = shuffleArray(musicas);
             state.currentIndex = Math.floor(Math.random()*state.filteredPlaylist.length);
             state.historicoMusicasLive = [];
             PlayerEngine.atualizarTrackInfo(state.filteredPlaylist[0]);
-            if (!state.isMiguelVideoActive) {
-                PlayerEngine.atualizarVideo('LIVE');
-            }
+            if (!state.isMiguelVideoActive) PlayerEngine.atualizarVideo('LIVE');
             PlayerEngine.updateMarquee();
             mostrarNotificacao('🔴 AO VIVO', 1000);
             if(state.isPlaying) PlayerEngine.play();
         }
     };
 
-    // ==================== SEARCH ====================
-    const searchDiv = document.createElement('div'); 
-    searchDiv.id = 'searchContainer'; 
-    searchDiv.className = 'search-container';
-    searchDiv.innerHTML = '<button class="search-close" id="closeSearchBtn" style="position:absolute; top:12px; right:16px; background:none; border:none; color:#00f3ff; font-size:1rem;">✕</button><input type="search" id="searchInput" class="search-input" placeholder="Buscar..."><div id="searchResults" class="search-results"></div>';
-    document.body.appendChild(searchDiv);
-    const searchContainer = searchDiv;
-    const searchInput = document.getElementById('searchInput');
-    const searchResults = document.getElementById('searchResults');
-    const closeSearch = document.getElementById('closeSearchBtn');
-    if(closeSearch) closeSearch.addEventListener('click', () => searchContainer.style.display = 'none');
+    // ==================== DOM E FUNÇÕES DE UI ====================
+    const dom = {
+        musicPlayer: document.getElementById('musicPlayer'),
+        playBtn: document.getElementById('playPauseBtn'), prevBtn: document.getElementById('prevBtn'), nextBtn: document.getElementById('nextBtn'),
+        shuffleBtn: document.getElementById('shuffleBtn'), splash: document.getElementById('splash'), appRoot: document.getElementById('appRoot'),
+        loadingSpinner: document.getElementById('loadingSpinner'), genreButton: document.getElementById('genreButton'), menuButton: document.getElementById('menuButton'), menuPopup: document.getElementById('menuPopup'),
+        mainVideo: document.getElementById('mainVideo'), videoContainer: document.getElementById('videoContainer'), volumeSlider: document.getElementById('volumeSlider')
+    };
 
-    function performSearch(q){
-        if(!q.trim()){ if(searchResults) searchResults.innerHTML=''; return; }
-        const lower = q.toLowerCase();
-        const results = PLAYLIST.filter(m=> m.title.toLowerCase().includes(lower) || m.artist.toLowerCase().includes(lower)).slice(0,10);
-        if(searchResults) {
-            searchResults.innerHTML = results.map(m=> `<div class="search-item" data-id="${m.id}" style="padding:6px;">🎵 ${m.title} - ${m.artist}</div>`).join('');
-            document.querySelectorAll('.search-item').forEach(el=>{
-                el.addEventListener('click',()=>{
-                    const id = parseInt(el.dataset.id);
-                    const music = PLAYLIST.find(m=>m.id===id);
-                    if(music){
-                        if(state.isAoVivo) PlaylistManager.ativarModoAoVivo();
-                        state.filteredPlaylist.unshift(music);
-                        state.currentIndex = 0;
-                        PlayerEngine.atualizarTrackInfo(music);
-                        if(!state.isAoVivo) PlayerEngine.updateGenreBadge(music.genero);
-                        if (!state.isMiguelVideoActive) {
-                            PlayerEngine.atualizarVideo(music.genero);
-                        }
-                        PlayerEngine.play();
-                        searchContainer.style.display = 'none';
-                        mostrarNotificacao(`🔍 ${music.title}`, 1200);
-                    }
-                });
-            });
-        }
+    function hideControls() {
+        const bottom = document.getElementById('bottomControls');
+        const feedback = document.getElementById('feedbackFloating');
+        const genreBtn = document.getElementById('genreButton');
+        const menuBtn = document.getElementById('menuButton');
+        const vol = document.getElementById('volumeControl');
+        if(bottom) bottom.classList.add('hide-controls');
+        if(feedback) feedback.classList.add('hide-controls');
+        if(genreBtn) genreBtn.classList.add('hide-controls');
+        if(menuBtn) menuBtn.classList.add('hide-controls');
+        if(vol) { vol.style.opacity = '0'; vol.style.pointerEvents = 'none'; }
+        state.controlsVisible = false;
     }
     
-    if(searchInput) searchInput.addEventListener('input', e=> performSearch(e.target.value));
+    function showControls() {
+        const bottom = document.getElementById('bottomControls');
+        const feedback = document.getElementById('feedbackFloating');
+        const genreBtn = document.getElementById('genreButton');
+        const menuBtn = document.getElementById('menuButton');
+        const vol = document.getElementById('volumeControl');
+        if(bottom) bottom.classList.remove('hide-controls');
+        if(feedback) feedback.classList.remove('hide-controls');
+        if(genreBtn) genreBtn.classList.remove('hide-controls');
+        if(menuBtn) menuBtn.classList.remove('hide-controls');
+        if(vol) { vol.style.opacity = '1'; vol.style.pointerEvents = 'auto'; }
+        state.controlsVisible = true;
+        if (state.controlsTimer) clearTimeout(state.controlsTimer);
+        state.controlsTimer = setTimeout(() => { if (state.isPlaying && !state.isLoadingTrack) hideControls(); }, 3000);
+    }
+    
+    function setupTapToToggle() {
+        dom.appRoot.addEventListener('click', (e) => {
+            if (e.target.closest('.control-btn') || e.target.closest('.feedback-btn') || e.target.closest('.genre-button') || e.target.closest('.menu-button') || e.target.closest('.volume-control')) { showControls(); return; }
+            const bottom = document.getElementById('bottomControls');
+            if (bottom && bottom.classList.contains('hide-controls')) showControls();
+            else hideControls();
+        });
+    }
 
-    // ==================== INICIALIZAÇÃO ====================
+    function showGestureHand() {
+        const leftHand = document.getElementById('gestureHandLeft');
+        const rightHand = document.getElementById('gestureHandRight');
+        const swipeTip = document.getElementById('swipeTip');
+        const genreTip = document.getElementById('genreTip');
+        if(leftHand) leftHand.classList.add('show');
+        if(rightHand) rightHand.classList.add('show');
+        if(swipeTip) swipeTip.classList.add('show');
+        if(genreTip) genreTip.classList.add('show');
+        setTimeout(() => {
+            if(leftHand) leftHand.classList.remove('show');
+            if(rightHand) rightHand.classList.remove('show');
+            if(swipeTip) swipeTip.classList.remove('show');
+            if(genreTip) genreTip.classList.remove('show');
+        }, 5000);
+    }
+    
+    function startPeriodicGesture() {
+        setTimeout(() => { if (radioStarted) showGestureHand(); }, 3000);
+        setInterval(() => { if (radioStarted && state.isPlaying && !document.hidden) showGestureHand(); }, 300000);
+    }
+    
+    function showTutorial() {
+        const tutorial = document.getElementById('tutorialOverlay');
+        if(tutorial) tutorial.classList.add('show');
+        document.getElementById('closeTutorialBtn')?.addEventListener('click', () => tutorial.classList.remove('show'));
+    }
+
+    // ==================== INICIALIZAÇÃO DA RÁDIO ====================
     let radioStarted = false;
     let anuncio = null;
     let anuncioTimeout = null;
-
-    function iniciarRadioDireto() {
+    
+    async function iniciarRadioDireto() {
         if (radioStarted) return;
-        if (anuncio) {
-            anuncio.pause();
-            anuncio.currentTime = 0;
-            if (anuncioTimeout) clearTimeout(anuncioTimeout);
-        }
+        if (anuncio) { anuncio.pause(); anuncio.currentTime = 0; if (anuncioTimeout) clearTimeout(anuncioTimeout); }
         radioStarted = true;
-        
-        if(dom.splash) {
-            dom.splash.classList.add('hidden');
-            setTimeout(() => { if(dom.splash) dom.splash.style.display = 'none'; }, 800);
-        }
-        if(dom.appRoot) dom.appRoot.style.display = 'block';
-        
-        try { document.documentElement.requestFullscreen(); } catch(e) { console.warn("Erro fullscreen", e); }
-        
+        dom.splash.classList.add('hidden');
+        setTimeout(() => { dom.splash.style.display = 'none'; }, 800);
+        dom.appRoot.style.display = 'block';
+        try { await document.documentElement.requestFullscreen(); } catch(e) {}
         PlaylistManager.ativarModoAoVivo();
-        
-        if(dom.videoContainer) {
-            dom.videoContainer.addEventListener('click', () => {
-                if (state.isMiguelVideoActive) {
-                    abrirSiteMiguel();
-                } else {
-                    ativarVideoMiguel();
-                }
-            });
-        }
-        
+        dom.videoContainer.addEventListener('click', () => { state.isMiguelVideoActive ? abrirSiteMiguel() : ativarVideoMiguel(); });
         startPeriodicGesture();
-        
-        setTimeout(() => {
-            showTutorial();
-        }, 2000);
-        
+        setTimeout(() => showTutorial(), 2000);
         mostrarNotificacao(`✅ Rádio iniciada`, 2500);
         PlayerEngine.play();
         showControls();
@@ -1319,247 +784,98 @@
 
     async function tocarAnuncioEDepoisRadio() {
         if (radioStarted) return;
-        
-        if(dom.splash) dom.splash.classList.add('hidden');
-        setTimeout(() => { if(dom.splash) dom.splash.style.display = 'none'; }, 800);
-        if(dom.appRoot) dom.appRoot.style.display = 'block';
-        
-        try { await document.documentElement.requestFullscreen(); } catch(e) { console.warn("Erro fullscreen", e); }
-        
+        dom.splash.classList.add('hidden');
+        setTimeout(() => { dom.splash.style.display = 'none'; }, 800);
+        dom.appRoot.style.display = 'block';
+        try { await document.documentElement.requestFullscreen(); } catch(e) {}
         mostrarNotificacao("🎙️ Anúncio...", 1500);
         anuncio = new Audio(CONFIG.ANUNCIO_INICIAL);
         anuncio.volume = CONFIG.VOLUME_PLAYER;
-        
-        anuncioTimeout = setTimeout(() => {
-            if (anuncio && !radioStarted) {
-                anuncio.pause();
-                iniciarRadioDireto();
-            }
-        }, 8000);
-        
+        anuncioTimeout = setTimeout(() => { if (anuncio && !radioStarted) { anuncio.pause(); iniciarRadioDireto(); } }, 8000);
         await new Promise((resolve) => {
             anuncio.play().catch(e => { console.warn("Erro anúncio:", e); resolve(); });
             anuncio.onended = () => resolve();
             anuncio.onerror = () => resolve();
         });
-        
         clearTimeout(anuncioTimeout);
         iniciarRadioDireto();
     }
 
     // ==================== EVENT LISTENERS ====================
     function setupEventListeners() {
-        const splashBtn = document.getElementById('splashStartBtn');
-        if(splashBtn) splashBtn.addEventListener('click', tocarAnuncioEDepoisRadio);
-        
-        const skipBtn = document.getElementById('skipAdBtn');
-        if(skipBtn) skipBtn.addEventListener('click', iniciarRadioDireto);
-        
-        if(dom.playBtn) dom.playBtn.addEventListener('click', () => PlayerEngine.togglePlayPause());
-        if(dom.prevBtn) dom.prevBtn.addEventListener('click', () => PlayerEngine.prev());
-        if(dom.nextBtn) dom.nextBtn.addEventListener('click', () => PlayerEngine.next());
-        
-        if(dom.shuffleBtn) {
-            dom.shuffleBtn.addEventListener('click', () => {
-                if(state.isAoVivo) { mostrarNotificacao('🔀 Aleatório', 800); return; }
-                state.filteredPlaylist = shuffleArray(state.filteredPlaylist);
-                state.currentIndex = 0;
-                mostrarNotificacao('🔀 Aleatório', 800);
-                if(state.isPlaying) PlayerEngine.play();
-            });
-        }
-        
-        const progressBar = document.getElementById('progressBar');
-        if(progressBar) {
-            progressBar.addEventListener('click', e => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                if(dom.musicPlayer.duration) dom.musicPlayer.currentTime = percent * dom.musicPlayer.duration;
-            });
-        }
-        
-        if(dom.genreButton) dom.genreButton.addEventListener('click', () => {
-            if(dom.genresModal) dom.genresModal.classList.add('open');
-        });
-        
-        document.querySelectorAll('.genre-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const genero = card.getAttribute('data-genero');
-                PlaylistManager.filterByGenre(genero);
-                if(dom.genresModal) dom.genresModal.classList.remove('open');
-            });
-        });
-        
-        const closeGenres = document.getElementById('closeGenresBtn');
-        if(closeGenres) closeGenres.addEventListener('click', () => {
-            if(dom.genresModal) dom.genresModal.classList.remove('open');
-        });
-        
-        if(dom.menuButton) {
-            dom.menuButton.addEventListener('click', (e) => { e.stopPropagation(); if(dom.menuPopup) dom.menuPopup.classList.toggle('open'); });
-        }
-        document.addEventListener('click', (e) => { if(dom.menuButton && dom.menuPopup && !dom.menuButton.contains(e.target) && !dom.menuPopup.contains(e.target)) { if(dom.menuPopup) dom.menuPopup.classList.remove('open'); } });
-        
-        const searchMenu = document.getElementById('searchMenuBtn');
-        if(searchMenu) searchMenu.addEventListener('click', () => { searchContainer.style.display = 'block'; if(searchInput) searchInput.focus(); if(dom.menuPopup) dom.menuPopup.classList.remove('open'); });
-        
-        const fullscreenMenu = document.getElementById('fullscreenMenuBtn');
-        if(fullscreenMenu) fullscreenMenu.addEventListener('click', () => { document.documentElement.requestFullscreen(); if(dom.menuPopup) dom.menuPopup.classList.remove('open'); });
-        
-        const shareMenu = document.getElementById('shareMenuBtn');
-        if(shareMenu) shareMenu.addEventListener('click', () => { abrirCompartilhar(); if(dom.menuPopup) dom.menuPopup.classList.remove('open'); });
-        
-        const bluetoothMenu = document.getElementById('bluetoothMenuBtn');
-        if(bluetoothMenu) bluetoothMenu.addEventListener('click', () => { conectarBluetooth(); if(dom.menuPopup) dom.menuPopup.classList.remove('open'); });
-        
-        const statsMenu = document.getElementById('statsMenuBtn');
-        if(statsMenu) {
-            statsMenu.addEventListener('click', () => {
-                const totalPlayedSpan = document.getElementById('statTotalPlayed');
-                if(totalPlayedSpan) totalPlayedSpan.textContent = state.stats.totalPlayed;
-                const h = Math.floor(state.stats.totalSeconds/3600), m = Math.floor((state.stats.totalSeconds%3600)/60);
-                const totalTimeSpan = document.getElementById('statTotalTime');
-                if(totalTimeSpan) totalTimeSpan.textContent = `${h}h ${m}m`;
-                let top="Nenhum", max=0;
-                for(let [g,c] of Object.entries(state.stats.genreCount)) if(c>max){max=c; top=g;}
-                const topGenreSpan = document.getElementById('statTopGenre');
-                if(topGenreSpan) topGenreSpan.textContent = top;
-                const streakSpan = document.getElementById('statStreak');
-                if(streakSpan) streakSpan.textContent = state.stats.currentStreak;
-                if(dom.statsModal) dom.statsModal.classList.add('open');
-                if(dom.menuPopup) dom.menuPopup.classList.remove('open');
-            });
-        }
-        
-        const aiMenu = document.getElementById('aiMenuBtn');
-        if(aiMenu) aiMenu.addEventListener('click', () => { PlayerEngine.atualizarAIModal(); if(dom.aiModal) dom.aiModal.classList.add('open'); if(dom.menuPopup) dom.menuPopup.classList.remove('open'); });
-        
-        const feedbackMenu = document.getElementById('feedbackMenuBtn');
-        if(feedbackMenu) feedbackMenu.addEventListener('click', () => { if(dom.feedbackModal) dom.feedbackModal.classList.toggle('open'); if(dom.menuPopup) dom.menuPopup.classList.remove('open'); });
-        
-        const manualMenu = document.getElementById('manualMenuBtn');
-        if(manualMenu) manualMenu.addEventListener('click', () => { if(dom.manualModal) dom.manualModal.classList.add('open'); if(dom.menuPopup) dom.menuPopup.classList.remove('open'); });
-        
-        const pixMenu = document.getElementById('pixMenuBtn');
-        if(pixMenu) pixMenu.addEventListener('click', () => { if(dom.pixModal) dom.pixModal.classList.add('open'); if(dom.menuPopup) dom.menuPopup.classList.remove('open'); });
-        
-        if(dom.copyPixBtn) dom.copyPixBtn.addEventListener('click', () => { navigator.clipboard.writeText(CONFIG.PIX_KEY); mostrarNotificacao('✅ Copiado!', 1000); });
-        if(dom.closePixBtn) dom.closePixBtn.addEventListener('click', () => { if(dom.pixModal) dom.pixModal.classList.remove('open'); });
-        
-        const closeStats = document.getElementById('closeStatsBtn');
-        if(closeStats) closeStats.addEventListener('click', () => { if(dom.statsModal) dom.statsModal.classList.remove('open'); });
-        
-        const closeAi = document.getElementById('closeAiBtn');
-        if(closeAi) closeAi.addEventListener('click', () => { if(dom.aiModal) dom.aiModal.classList.remove('open'); });
-        
-        const closeManual = document.getElementById('closeManualBtn');
-        if(closeManual) closeManual.addEventListener('click', () => { if(dom.manualModal) dom.manualModal.classList.remove('open'); });
-        
-        if(dom.volumeSlider) {
-            dom.volumeSlider.addEventListener('input', (e) => {
-                const vol = parseFloat(e.target.value);
-                dom.musicPlayer.volume = vol;
-                localStorage.setItem('radio_volume', vol);
-            });
-        }
-        
-        const savedVolume = localStorage.getItem('radio_volume');
-        if (savedVolume) {
-            dom.musicPlayer.volume = parseFloat(savedVolume);
-            if(dom.volumeSlider) dom.volumeSlider.value = savedVolume;
-        }
-        
+        document.getElementById('splashStartBtn')?.addEventListener('click', tocarAnuncioEDepoisRadio);
+        document.getElementById('skipAdBtn')?.addEventListener('click', iniciarRadioDireto);
+        dom.playBtn?.addEventListener('click', () => PlayerEngine.togglePlayPause());
+        dom.prevBtn?.addEventListener('click', () => PlayerEngine.prev());
+        dom.nextBtn?.addEventListener('click', () => PlayerEngine.next());
+        dom.shuffleBtn?.addEventListener('click', () => { if(!state.isAoVivo) { state.filteredPlaylist = shuffleArray(state.filteredPlaylist); state.currentIndex = 0; mostrarNotificacao('🔀 Aleatório', 800); if(state.isPlaying) PlayerEngine.play(); } else mostrarNotificacao('🔀 Aleatório LIVE', 800); });
+        document.getElementById('progressBar')?.addEventListener('click', (e) => { if(dom.musicPlayer.duration) dom.musicPlayer.currentTime = (e.clientX - e.currentTarget.getBoundingClientRect().left) / e.currentTarget.clientWidth * dom.musicPlayer.duration; });
+        dom.genreButton?.addEventListener('click', () => document.getElementById('genresModal')?.classList.add('open'));
+        document.querySelectorAll('.genre-card').forEach(card => card.addEventListener('click', () => { PlaylistManager.filterByGenre(card.getAttribute('data-genero')); document.getElementById('genresModal')?.classList.remove('open'); }));
+        document.getElementById('closeGenresBtn')?.addEventListener('click', () => document.getElementById('genresModal')?.classList.remove('open'));
+        dom.menuButton?.addEventListener('click', (e) => { e.stopPropagation(); dom.menuPopup.classList.toggle('open'); });
+        document.addEventListener('click', (e) => { if(dom.menuButton && dom.menuPopup && !dom.menuButton.contains(e.target) && !dom.menuPopup.contains(e.target)) dom.menuPopup.classList.remove('open'); });
+        document.getElementById('searchMenuBtn')?.addEventListener('click', () => { document.getElementById('searchContainer').style.display = 'block'; dom.menuPopup.classList.remove('open'); });
+        document.getElementById('fullscreenMenuBtn')?.addEventListener('click', () => { document.documentElement.requestFullscreen(); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('shareMenuBtn')?.addEventListener('click', () => { if(navigator.share) navigator.share({title:'Rádio Patico'}); else { navigator.clipboard.writeText(window.location.href); mostrarNotificacao("Link copiado!"); } dom.menuPopup.classList.remove('open'); });
+        document.getElementById('bluetoothMenuBtn')?.addEventListener('click', () => { if('bluetooth' in navigator) navigator.bluetooth.requestDevice({acceptAllDevices:true}); mostrarNotificacao("🔵 Bluetooth", 1000); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('statsMenuBtn')?.addEventListener('click', () => { document.getElementById('statTotalPlayed').textContent = state.stats.totalPlayed; const h = Math.floor(state.stats.totalSeconds/3600), m = Math.floor((state.stats.totalSeconds%3600)/60); document.getElementById('statTotalTime').textContent = `${h}h ${m}m`; let top="Nenhum", max=0; for(let [g,c] of Object.entries(state.stats.genreCount)) if(c>max){max=c; top=g;} document.getElementById('statTopGenre').textContent = top; document.getElementById('statStreak').textContent = state.stats.currentStreak; document.getElementById('statsModal').classList.add('open'); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('aiMenuBtn')?.addEventListener('click', () => { PlayerEngine.atualizarAIModal(); document.getElementById('aiModal').classList.add('open'); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('feedbackMenuBtn')?.addEventListener('click', () => { document.getElementById('feedbackModal').classList.toggle('open'); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('manualMenuBtn')?.addEventListener('click', () => { document.getElementById('manualModal').classList.add('open'); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('pixMenuBtn')?.addEventListener('click', () => { document.getElementById('pixModal').classList.add('open'); dom.menuPopup.classList.remove('open'); });
+        document.getElementById('copyPixBtn')?.addEventListener('click', () => { navigator.clipboard.writeText(CONFIG.PIX_KEY); mostrarNotificacao('✅ Copiado!', 1000); });
+        document.getElementById('closePixBtn')?.addEventListener('click', () => document.getElementById('pixModal').classList.remove('open'));
+        document.getElementById('closeStatsBtn')?.addEventListener('click', () => document.getElementById('statsModal').classList.remove('open'));
+        document.getElementById('closeAiBtn')?.addEventListener('click', () => document.getElementById('aiModal').classList.remove('open'));
+        document.getElementById('closeManualBtn')?.addEventListener('click', () => document.getElementById('manualModal').classList.remove('open'));
+        dom.volumeSlider?.addEventListener('input', (e) => { dom.musicPlayer.volume = parseFloat(e.target.value); localStorage.setItem('radio_volume', e.target.value); });
+        const savedVol = localStorage.getItem('radio_volume'); if(savedVol) { dom.musicPlayer.volume = parseFloat(savedVol); dom.volumeSlider.value = savedVol; }
         let currentRating = 0;
-        document.querySelectorAll('#ratingStars .star').forEach(star => {
-            star.addEventListener('click', () => {
-                currentRating = parseInt(star.dataset.rating);
-                document.querySelectorAll('#ratingStars .star').forEach((s, i) => { 
-                    if(i < currentRating){ s.classList.add('fas','active'); s.classList.remove('far'); } 
-                    else { s.classList.remove('fas','active'); s.classList.add('far'); } 
-                });
-            });
-        });
-        
-        const cancelFeedback = document.getElementById('cancelFeedback');
-        if(cancelFeedback) {
-            cancelFeedback.addEventListener('click', () => { 
-                if(dom.feedbackModal) dom.feedbackModal.classList.remove('open'); 
-                const feedbackText = document.getElementById('feedbackText');
-                if(feedbackText) feedbackText.value = ''; 
-                currentRating = 0; 
-            });
-        }
-        
-        const sendFeedback = document.getElementById('sendFeedback');
-        if(sendFeedback) {
-            sendFeedback.addEventListener('click', () => {
-                if(currentRating === 0){ mostrarNotificacao('⭐ Dê nota', 1000); return; }
-                let msg = `🎵 *Rádio Patico*\n⭐ Nota: ${'★'.repeat(currentRating)}${'☆'.repeat(5-currentRating)}\n`;
-                const text = document.getElementById('feedbackText');
-                if(text && text.value.trim()) msg += `💬 ${text.value.trim()}\n`;
-                window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-                mostrarNotificacao('✅ WhatsApp', 1000);
-                if(dom.feedbackModal) dom.feedbackModal.classList.remove('open');
-                if(text) text.value = '';
-                currentRating = 0;
-            });
-        }
-        
-        if(dom.likeBtn) dom.likeBtn.addEventListener('click', () => PlayerEngine.likeCurrent());
-        if(dom.dislikeBtn) dom.dislikeBtn.addEventListener('click', () => PlayerEngine.dislikeCurrent());
-        
+        document.querySelectorAll('#ratingStars .star').forEach(star => { star.addEventListener('click', () => { currentRating = parseInt(star.dataset.rating); document.querySelectorAll('#ratingStars .star').forEach((s,i) => { if(i<currentRating){ s.classList.add('fas','active'); s.classList.remove('far'); } else { s.classList.remove('fas','active'); s.classList.add('far'); } }); }); });
+        document.getElementById('cancelFeedback')?.addEventListener('click', () => { document.getElementById('feedbackModal').classList.remove('open'); document.getElementById('feedbackText').value = ''; currentRating = 0; });
+        document.getElementById('sendFeedback')?.addEventListener('click', () => { if(currentRating === 0){ mostrarNotificacao('⭐ Dê nota', 1000); return; } let msg = `🎵 *Rádio Patico*\n⭐ Nota: ${'★'.repeat(currentRating)}${'☆'.repeat(5-currentRating)}\n`; const text = document.getElementById('feedbackText'); if(text.value.trim()) msg += `💬 ${text.value.trim()}\n`; window.open(`https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank'); mostrarNotificacao('✅ WhatsApp', 1000); document.getElementById('feedbackModal').classList.remove('open'); text.value = ''; currentRating = 0; });
+        document.getElementById('likeBtn')?.addEventListener('click', () => PlayerEngine.likeCurrent());
+        document.getElementById('dislikeBtn')?.addEventListener('click', () => PlayerEngine.dislikeCurrent());
         setupTapToToggle();
+        let touchStartX = 0;
+        dom.appRoot?.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+        dom.appRoot?.addEventListener('touchend', (e) => { const diff = e.changedTouches[0].screenX - touchStartX; if (Math.abs(diff) > 100) diff > 0 ? PlayerEngine.prev() : PlayerEngine.next(); });
     }
 
-    // ==================== SWIPE GESTURES ====================
-    let touchStartX = 0;
-    if(dom.appRoot) {
-        dom.appRoot.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
-        dom.appRoot.addEventListener('touchend', (e) => {
-            const diff = e.changedTouches[0].screenX - touchStartX;
-            if (Math.abs(diff) > 100) {
-                if (diff > 0) PlayerEngine.prev();
-                else PlayerEngine.next();
-            }
+    // ==================== SEARCH ====================
+    const searchContainer = document.createElement('div'); searchContainer.id = 'searchContainer'; searchContainer.className = 'search-container';
+    searchContainer.innerHTML = '<button class="search-close" id="closeSearchBtn" style="position:absolute; top:12px; right:16px; background:none; border:none; color:#00f3ff; font-size:1rem;">✕</button><input type="search" id="searchInput" class="search-input" placeholder="Buscar..."><div id="searchResults" class="search-results"></div>';
+    document.body.appendChild(searchContainer);
+    document.getElementById('closeSearchBtn')?.addEventListener('click', () => searchContainer.style.display = 'none');
+    document.getElementById('searchInput')?.addEventListener('input', (e) => {
+        const q = e.target.value.trim().toLowerCase();
+        const resultsDiv = document.getElementById('searchResults');
+        if(!q){ resultsDiv.innerHTML = ''; return; }
+        const results = PLAYLIST.filter(m=> m.title.toLowerCase().includes(q) || m.artist.toLowerCase().includes(q)).slice(0,10);
+        resultsDiv.innerHTML = results.map(m=> `<div class="search-item" data-id="${m.id}" style="padding:6px;">🎵 ${m.title} - ${m.artist}</div>`).join('');
+        document.querySelectorAll('.search-item').forEach(el=>{
+            el.addEventListener('click',()=>{
+                const music = PLAYLIST.find(m=>m.id===parseInt(el.dataset.id));
+                if(music){ if(state.isAoVivo) PlaylistManager.ativarModoAoVivo(); state.filteredPlaylist.unshift(music); state.currentIndex = 0; PlayerEngine.atualizarTrackInfo(music); if(!state.isAoVivo) PlayerEngine.updateGenreBadge(music.genero); PlayerEngine.play(); searchContainer.style.display = 'none'; mostrarNotificacao(`🔍 ${music.title}`, 1200); }
+            });
         });
-    }
+    });
 
     // ==================== INIT ====================
     async function init() {
         await carregarPlaylist();
-        carregarPrefs(); 
-        carregarStats();
+        carregarPrefs(); carregarStats();
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
-        
         setupEventListeners();
-        
-        setInterval(() => {
-            if (state.isPlaying && !dom.musicPlayer.paused && dom.musicPlayer.currentTime > 0) {
-                state.stats.totalSeconds++;
-                salvarStats();
-            }
-        }, 1000);
-        
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        state.audioContext = new AudioContext();
-        
-        // Resume áudio no primeiro toque
-        document.body.addEventListener('touchstart', function ativarAudio() {
-            if (state.audioContext && state.audioContext.state === 'suspended') {
-                state.audioContext.resume();
-            }
-            document.body.removeEventListener('touchstart', ativarAudio);
-        }, { once: true });
+        setInterval(() => { if (state.isPlaying && !dom.musicPlayer.paused && dom.musicPlayer.currentTime > 0) { state.stats.totalSeconds++; salvarStats(); } }, 1000);
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        state.audioContext = new AudioContextClass();
+        document.body.addEventListener('touchstart', function ativarAudio() { if (state.audioContext?.state === 'suspended') state.audioContext.resume(); document.body.removeEventListener('touchstart', ativarAudio); }, { once: true });
     }
-    
     init();
-    
-    if('serviceWorker' in navigator){
-        navigator.serviceWorker.register('/sw.js').catch(e=>console.log("SW não registrado", e));
-    }
-    
-    console.log('🚀 Rádio Patico - COM VERIFICADOR DE TRAVAMENTO ATIVO!');
-    console.log('🎵 Gêneros: SERTANEJO, FORRÓ, MPB, POP, AO VIVO e mais!');
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(e=>console.log);
+    console.log('🚀 Rádio Patico - Corrigida | Toca em segundo plano e tela bloqueada!');
 </script>
 </body>
 </html>
