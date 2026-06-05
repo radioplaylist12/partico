@@ -1,349 +1,636 @@
-                  <!DOCTYPE html>
+                
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rádio Pático • Toca com tela bloqueada</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MUTV Playlist • Toca com tela bloqueada</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-        }
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0b1120 0%, #19233c 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .radio-card {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(20px);
-            border-radius: 48px;
-            padding: 30px 24px;
-            max-width: 500px;
-            width: 100%;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { min-height: 100vh; background-color: #000000; overflow: hidden; position: fixed; width: 100%; height: 100%; }
+        body.theme-red { --primary-color: #e63946; --primary-dark: #b71c1c; }
+        body.theme-lilac { --primary-color: #b380ff; --primary-dark: #7a4db3; }
+        body.theme-blue { --primary-color: #00a8ff; --primary-dark: #0077be; }
+        body.theme-green { --primary-color: #00ff88; --primary-dark: #00cc6a; }
+        body.theme-orange { --primary-color: #ff7700; --primary-dark: #cc5500; }
+        body.theme-pink { --primary-color: #ff44aa; --primary-dark: #cc0088; }
+        body.theme-purple { --primary-color: #aa44ff; --primary-dark: #7700cc; }
+        body.theme-yellow { --primary-color: #ffdd44; --primary-dark: #ccaa00; }
+        body.theme-white { --primary-color: #ffffff; --primary-dark: #cccccc; }
+        body.theme-pure-black { --primary-color: #000000; --primary-dark: #000000; }
+        body { --primary-color: #e63946; --primary-dark: #b71c1c; --text-primary: #ffffff; --text-secondary: #cccccc; --border-color: #333333; }
+        
+        .app { width: 100%; height: 100vh; background: #000000; position: relative; overflow: hidden; }
+        .fullscreen-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1; }
+        .fullscreen-video-container video { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+        .controls-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+        
+        /* Área de notificações no topo (substitui o ticker) */
+        .notification-top {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
             text-align: center;
-            box-shadow: 0 25px 40px rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.2);
+            z-index: 30;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            opacity: 0;
         }
-        .logo {
-            width: 100px;
-            height: 100px;
-            background: #ff5500;
+        .notification-top.show {
+            opacity: 1;
+        }
+        .notification-top .message {
+            display: inline-block;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            color: #fff;
+            border-left: 3px solid var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            pointer-events: none;
+        }
+        
+        .menu-button {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            margin: 0 auto 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
-            box-shadow: 0 0 0 4px rgba(255,85,0,0.3);
-        }
-        h1 {
-            color: white;
-            font-size: 2rem;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-        }
-        .status {
-            color: #ccc;
-            margin-bottom: 30px;
-            font-size: 0.9rem;
-        }
-        .play-btn {
-            background: #ff5500;
-            border: none;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            font-size: 2.5rem;
-            color: white;
+            font-size: 1.4rem;
             cursor: pointer;
+            z-index: 31;
+            pointer-events: auto;
             transition: 0.2s;
-            box-shadow: 0 8px 20px rgba(255,85,0,0.4);
-            margin-bottom: 20px;
         }
-        .play-btn:active {
-            transform: scale(0.92);
-        }
-        .info {
-            background: rgba(255,255,255,0.1);
-            border-radius: 60px;
-            padding: 12px 20px;
-            color: white;
-            font-weight: bold;
-        }
-        .small-note {
-            font-size: 0.7rem;
-            color: #aaa;
-            margin-top: 20px;
-        }
-        #activateBtn {
-            background: #25D366;
-            color: black;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 60px;
-            font-weight: bold;
-            margin-top: 16px;
-            cursor: pointer;
-            width: 100%;
-        }
-        .hidden {
+        .menu-button:active { transform: scale(0.9); background: var(--primary-color); color: #000; }
+        
+        .menu-popup {
+            position: absolute;
+            top: 65px;
+            right: 12px;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 10px;
+            z-index: 32;
             display: none;
+            flex-direction: column;
+            gap: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            pointer-events: auto;
+        }
+        .menu-popup.open { display: flex; }
+        .menu-popup button {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.1s;
+        }
+        .menu-popup button:active {
+            background: var(--primary-color);
+            color: #000;
+        }
+        .menu-popup i { width: 24px; text-align: center; }
+        
+        .cta-button { position: absolute; bottom: 25%; right: 15px; background: linear-gradient(135deg, #ff6600, #ff3300); color: white; border: none; border-radius: 50px; padding: 8px 16px; font-size: 0.8rem; font-weight: bold; cursor: pointer; z-index: 25; box-shadow: 0 4px 15px rgba(0,0,0,0.4); animation: pulse-cta 1.5s infinite; display: flex; align-items: center; gap: 6px; pointer-events: auto; }
+        @keyframes pulse-cta { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        
+        .bottom-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 16px;
+            z-index: 20;
+            pointer-events: auto;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .bottom-controls.hide {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .track-info { text-align: center; margin-bottom: 8px; }
+        .track-info p { font-size: 0.85rem; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        .progress-area { margin-bottom: 8px; }
+        .progress-time { display: flex; justify-content: space-between; font-size: 0.7rem; color: #ccc; margin-bottom: 4px; }
+        .progress-bar { height: 3px; background: rgba(255,255,255,0.3); cursor: pointer; border-radius: 3px; }
+        .progress-fill { height: 100%; background: var(--primary-color); width: 0%; border-radius: 3px; box-shadow: 0 0 5px var(--primary-color); }
+        .control-buttons { display: flex; align-items: center; justify-content: center; gap: 20px; }
+        .control-btn { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 1.2rem; width: 44px; height: 44px; cursor: pointer; border-radius: 50%; transition: 0.1s; display: flex; align-items: center; justify-content: center; }
+        .control-btn:active { transform: scale(0.9); background: var(--primary-color); color: #000; }
+        .play-btn { font-size: 1.6rem; width: 54px; height: 54px; background: var(--primary-color); color: #000; border: none; }
+        
+        .feedback-modal { position: fixed; bottom: 80px; right: 20px; width: 260px; background: rgba(26,26,26,0.95); backdrop-filter: blur(12px); border: 1px solid var(--primary-color); border-radius: 16px; padding: 15px; z-index: 2001; display: none; }
+        .feedback-modal.open { display: block; }
+        .feedback-modal h3 { color: #fff; margin-bottom: 8px; }
+        .rating { display: flex; gap: 6px; margin: 8px 0; justify-content: center; }
+        .star { color: #555; font-size: 1.3rem; cursor: pointer; }
+        .star.active, .star.fas { color: #ffd700; }
+        .feedback-modal textarea { width: 100%; height: 60px; background: #2a2a2a; border: 1px solid #444; border-radius: 8px; padding: 8px; color: #fff; margin-bottom: 8px; resize: none; }
+        .modal-btn { padding: 6px 12px; border-radius: 20px; cursor: pointer; background: #333; color: white; border: none; margin: 2px; }
+        .modal-btn.send { background: #25D366; color: #000; font-weight: bold; }
+        
+        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
+        #splash.hidden { opacity: 0; pointer-events: none; }
+        .splash-content { text-align: center; color: #fff; }
+        .splash-content i { font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.6; transform: scale(1); } }
+        
+        #tap-to-start {
+            position: fixed;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff6600, #ff3300);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            z-index: 10000;
+            cursor: pointer;
+            display: none;
+            animation: btnPulse 1.5s infinite;
+            white-space: nowrap;
+            pointer-events: auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border: none;
+        }
+        @keyframes btnPulse {
+            0% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+            100% { transform: translateX(-50%) scale(1); }
         }
     </style>
 </head>
-<body>
-<div class="radio-card">
-    <div class="logo">📻</div>
-    <h1>Rádio Pático</h1>
-    <div class="status" id="statusText">🔇 Clique em "ATIVAR ÁUDIO"</div>
-    <button class="play-btn" id="playPauseBtn" disabled>▶️</button>
-    <div class="info" id="nowPlaying">🎙️ Ao vivo 24h</div>
-    <button id="activateBtn">🔊 ATIVAR ÁUDIO (toca com tela bloqueada)</button>
-    <div class="small-note">✔️ Funciona com tela bloqueada | Stream contínuo</div>
-</div>
-
-<!-- Elementos de áudio -->
-<audio id="radioStream" preload="none" crossorigin="anonymous"></audio>
-<audio id="silentAudio" loop style="display: none;"></audio>
-
-<script>
-    // ========= CONFIGURAÇÃO =========
-    // ⚠️ SUBSTITUIR PELA URL REAL DO RÁDIO PÁTICO (ex: .mp3, .m3u8, .aac)
-    const STREAM_URL = "https://exemplo.com/radio-patico-stream.mp3";  // <-- TROQUE AQUI!
+<body class="theme-red">
+    <div id="splash"><div class="splash-content"><i class="fas fa-headphones-alt"></i><h1>MUTV Playlist</h1><p>Clique no botão para ativar áudio</p></div></div>
+    <div id="tap-to-start"><i class="fas fa-play-circle"></i> 🎵 ATIVAR ÁUDIO (Toca com tela bloqueada)</div>
     
-    // ========= ELEMENTOS =========
-    const radioPlayer = document.getElementById('radioStream');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const statusDiv = document.getElementById('statusText');
-    const activateBtn = document.getElementById('activateBtn');
-    
-    let audioCtx = null;
-    let silentSource = null;
-    let streamSource = null;
-    let gainNode = null;
-    let isAudioActive = false;
-    let isPlaying = false;
-    let keepAliveInterval = null;
-    
-    // ========= 1. INICIALIZAÇÃO DO AUDIO CONTEXT (Web Audio) =========
-    async function initAudioContext() {
-        if (isAudioActive && audioCtx && audioCtx.state === 'running') return true;
+    <div class="app">
+        <div class="fullscreen-video-container">
+            <video id="mainVideo" autoplay loop muted playsinline>
+                <source src="pizza.mp4" type="video/mp4">
+            </video>
+        </div>
+        <button class="cta-button" id="ctaButton"><i class="fas fa-shopping-cart"></i> PEÇA AGORA!</button>
         
-        try {
-            // Criar ou retomar contexto
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        <!-- Área de notificações no topo (substitui o ticker) -->
+        <div id="notificationTop" class="notification-top">
+            <div class="message" id="notificationMessage"></div>
+        </div>
+        
+        <div class="controls-overlay">
+            <div class="bottom-controls" id="bottomControls">
+                <div class="track-info"><p id="trackArtist">🎵 Clique em "ATIVAR ÁUDIO"</p></div>
+                <div class="progress-area">
+                    <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
+                    <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+                </div>
+                <div class="control-buttons">
+                    <button class="control-btn" id="prevBtn"><i class="fas fa-step-backward"></i></button>
+                    <button class="control-btn play-btn" id="playPauseBtn"><i class="fas fa-play"></i></button>
+                    <button class="control-btn" id="shuffleBtn"><i class="fas fa-random"></i></button>
+                    <button class="control-btn" id="nextBtn"><i class="fas fa-step-forward"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botão de menu flutuante -->
+    <div class="menu-button" id="menuButton">
+        <i class="fas fa-ellipsis-v"></i>
+    </div>
+    <div class="menu-popup" id="menuPopup">
+        <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela cheia</button>
+        <button id="shareMenuBtn"><i class="fas fa-share-alt"></i> Compartilhar</button>
+        <button id="feedbackMenuBtn"><i class="fab fa-whatsapp"></i> Feedback</button>
+    </div>
+    
+    <audio id="musicPlayer" preload="auto" crossorigin="anonymous"></audio>
+    <audio id="adPlayer" preload="auto" crossorigin="anonymous"></audio>
+    <audio id="silentAudio" loop crossorigin="anonymous" style="display: none;"></audio>
+    
+    <div class="feedback-modal" id="feedbackModal">
+        <h3>Sua opinião</h3>
+        <div class="rating" id="ratingStars"><i class="far fa-star star" data-rating="1"></i><i class="far fa-star star" data-rating="2"></i><i class="far fa-star star" data-rating="3"></i><i class="far fa-star star" data-rating="4"></i><i class="far fa-star star" data-rating="5"></i></div>
+        <textarea id="feedbackText" placeholder="Escreva sua sugestão..."></textarea>
+        <div class="modal-buttons"><button class="modal-btn cancel" id="cancelFeedback">Cancelar</button><button class="modal-btn send" id="sendFeedback"><i class="fab fa-whatsapp"></i> Enviar</button></div>
+    </div>
+    
+    <script>
+        // ==================== PLAYLIST & CONFIG ====================
+        // URL da playlist JSON hospedada no GitHub (raw)
+        const PLAYLIST_URL = 'https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json';
+        
+        let musicas = []; // Será preenchido dinamicamente via fetch
+        const anunciosAudio = [{ src: "zzcv.mp3", nome: "Oferta Especial" }, { src: "zzcv.mp3", nome: "Promoção Relâmpago" }];
+        const videosList = [
+            { src: "pizza.mp4", nome: "Principal", link: "https://wa.me/5512988461978" },
+            { src: "lançamento.mp4", nome: "MUTV", link: "https://wa.me/5512988461978" },
+            { src: "copos.mp4", nome: "AlugueCopos", link: "https://www.aluguecopos.com.br/" }
+        ];
+        
+        // DOM elements
+        const musicPlayer = document.getElementById('musicPlayer');
+        const adPlayer = document.getElementById('adPlayer');
+        const playBtn = document.getElementById('playPauseBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeEl = document.getElementById('currentTime');
+        const totalTimeEl = document.getElementById('totalTime');
+        const trackArtist = document.getElementById('trackArtist');
+        const splash = document.getElementById('splash');
+        const tapToStart = document.getElementById('tap-to-start');
+        const menuButton = document.getElementById('menuButton');
+        const menuPopup = document.getElementById('menuPopup');
+        const notificationTop = document.getElementById('notificationTop');
+        const notificationMessage = document.getElementById('notificationMessage');
+        
+        let currentIndex = 0, isPlaying = false, shuffle = false;
+        let timerInterval = null, isAdPlaying = false, adsEnabled = true, adInterval = 30, currentAdIndex = 0, shouldResumeMusic = false, musicPausedTime = 0;
+        let filteredPlaylist = [];
+        let notificationTimeout = null;
+        
+        // ==================== NOTIFICAÇÕES NO TOPO ====================
+        function showNotification(msg, duration = 3000) {
+            if (notificationTimeout) clearTimeout(notificationTimeout);
+            notificationMessage.innerText = msg;
+            notificationTop.classList.add('show');
+            notificationTimeout = setTimeout(() => {
+                notificationTop.classList.remove('show');
+            }, duration);
+        }
+        
+        // ==================== CARREGAR PLAYLIST DO GITHUB ====================
+        async function carregarPlaylistDoGitHub() {
+            try {
+                showNotification('📥 Carregando playlist...', 1500);
+                const response = await fetch(PLAYLIST_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    musicas = data;
+                    // Adiciona IDs se não existirem
+                    musicas.forEach((m, idx) => {
+                        if (!m.id) m.id = idx;
+                        if (!m.artist) m.artist = "Desconhecido";
+                        if (!m.genero) m.genero = "SERTANEJO";
+                        if (!m.tipo) m.tipo = "normal";
+                    });
+                    filteredPlaylist = [...musicas];
+                    // Seleciona uma música aleatória
+                    const randomIndex = Math.floor(Math.random() * musicas.length);
+                    currentIndex = randomIndex;
+                    loadTrackUI(currentIndex);
+                    console.log(`✅ Playlist carregada com ${musicas.length} músicas`);
+                    showNotification(`✅ ${musicas.length} músicas carregadas!`, 2000);
+                    return true;
+                } else {
+                    throw new Error('Playlist vazia ou formato inválido');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar playlist:', error);
+                // Fallback: música padrão de emergência
+                musicas = [{
+                    id: 0,
+                    title: "Música Padrão",
+                    artist: "Rádio MUTV",
+                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+                    genero: "SERTANEJO",
+                    tipo: "normal"
+                }];
+                filteredPlaylist = [...musicas];
+                currentIndex = 0;
+                loadTrackUI(currentIndex);
+                showNotification('⚠️ Usando música padrão (fallback)', 3000);
+                return false;
             }
-            if (audioCtx.state === 'suspended') {
-                await audioCtx.resume();
+        }
+        
+        // ==================== AUDIO CONTEXT (BACKGROUND LOCK) ====================
+        let audioCtx = null;
+        let silentSourceNode = null;
+        let musicSourceNode = null;
+        let adSourceNode = null;
+        let musicGain = null;
+        let adGain = null;
+        let audioActive = false;
+        let keepAliveInterval = null;
+        
+        async function initAudioContext() {
+            if (audioActive && audioCtx && audioCtx.state === 'running') return true;
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') await audioCtx.resume();
+                
+                const sampleRate = audioCtx.sampleRate;
+                const bufferLen = sampleRate * 4;
+                const silentBuffer = audioCtx.createBuffer(1, bufferLen, sampleRate);
+                const data = silentBuffer.getChannelData(0);
+                for (let i = 0; i < bufferLen; i++) data[i] = 0;
+                
+                if (silentSourceNode) {
+                    try { silentSourceNode.stop(); silentSourceNode.disconnect(); } catch(e) {}
+                }
+                silentSourceNode = audioCtx.createBufferSource();
+                silentSourceNode.buffer = silentBuffer;
+                silentSourceNode.loop = true;
+                silentSourceNode.connect(audioCtx.destination);
+                silentSourceNode.start();
+                
+                if (musicSourceNode) {
+                    try { musicSourceNode.disconnect(); } catch(e) {}
+                    musicSourceNode = null;
+                }
+                musicSourceNode = audioCtx.createMediaElementSource(musicPlayer);
+                musicGain = audioCtx.createGain();
+                musicGain.gain.value = 0.9;
+                musicSourceNode.connect(musicGain);
+                musicGain.connect(audioCtx.destination);
+                
+                if (adSourceNode) {
+                    try { adSourceNode.disconnect(); } catch(e) {}
+                }
+                adSourceNode = audioCtx.createMediaElementSource(adPlayer);
+                adGain = audioCtx.createGain();
+                adGain.gain.value = 0.9;
+                adSourceNode.connect(adGain);
+                adGain.connect(audioCtx.destination);
+                
+                audioActive = true;
+                console.log('✅ AudioContext ativo - Background playback OK');
+                return true;
+            } catch (err) {
+                console.error('Erro AudioContext:', err);
+                return false;
             }
+        }
+        
+        function startKeepAliveService() {
+            if (keepAliveInterval) clearInterval(keepAliveInterval);
+            keepAliveInterval = setInterval(async () => {
+                if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
+                if (audioCtx && silentSourceNode && silentSourceNode.buffer && silentSourceNode.playbackState === 'finished') {
+                    try { silentSourceNode.start(); } catch(e) {}
+                }
+                if (isPlaying && !isAdPlaying && musicPlayer.paused && audioActive) {
+                    console.log('🔄 KeepAlive: retomando música pausada');
+                    await musicPlayer.play().catch(e => console.log);
+                }
+            }, 4000);
+        }
+        
+        function setupVisibilityHandler() {
+            document.addEventListener('visibilitychange', async () => {
+                if (!document.hidden && isPlaying && !isAdPlaying) {
+                    setTimeout(() => {
+                        if (musicPlayer.paused && isPlaying) {
+                            musicPlayer.play().catch(e => console.log('Retomada automática:', e));
+                        }
+                    }, 100);
+                }
+                if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
+            });
+        }
+        
+        function setupSilentAudioWorkaround() {
+            const silentAudio = document.getElementById('silentAudio');
+            if (!silentAudio) return;
+            const createSilentWAV = () => {
+                const sampleRate = 44100;
+                const duration = 2;
+                const numSamples = sampleRate * duration;
+                const buffer = new ArrayBuffer(44 + numSamples * 2);
+                const view = new DataView(buffer);
+                function writeString(view, offset, str) {
+                    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+                }
+                writeString(view, 0, 'RIFF');
+                view.setUint32(4, 36 + numSamples * 2, true);
+                writeString(view, 8, 'WAVE');
+                writeString(view, 12, 'fmt ');
+                view.setUint32(16, 16, true);
+                view.setUint16(20, 1, true);
+                view.setUint16(22, 1, true);
+                view.setUint32(24, sampleRate, true);
+                view.setUint32(28, sampleRate * 2, true);
+                view.setUint16(32, 2, true);
+                view.setUint16(34, 16, true);
+                writeString(view, 36, 'data');
+                view.setUint32(40, numSamples * 2, true);
+                let offset = 44;
+                for (let i = 0; i < numSamples; i++) {
+                    view.setInt16(offset, 0, true);
+                    offset += 2;
+                }
+                return new Blob([buffer], { type: 'audio/wav' });
+            };
+            try {
+                const silentBlob = createSilentWAV();
+                const silentUrl = URL.createObjectURL(silentBlob);
+                silentAudio.src = silentUrl;
+                silentAudio.loop = true;
+                silentAudio.volume = 0.001;
+                silentAudio.play().catch(e => console.log('Silent audio workaround:', e));
+            } catch (e) {
+                console.log('Erro no workaround de áudio:', e);
+            }
+        }
+        
+        // ==================== MUSIC LOGIC ====================
+        function formatTime(sec) { if (isNaN(sec)) return "0:00"; const m = Math.floor(sec / 60), s = Math.floor(sec % 60); return `${m}:${s<10?'0':''}${s}`; }
+        function stopTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = null; }
+        function startTimer() { stopTimer(); timerInterval = setInterval(() => { if (isPlaying && !isAdPlaying && musicPlayer.duration && !musicPlayer.paused) { progressFill.style.width = (musicPlayer.currentTime/musicPlayer.duration)*100+'%'; currentTimeEl.textContent = formatTime(musicPlayer.currentTime); } }, 200); }
+        
+        async function playMusic() {
+            if (!audioActive) { showNotification('⚠️ Clique no botão "ATIVAR ÁUDIO" primeiro!', 3000); return false; }
+            if (isAdPlaying) { showNotification('Aguarde o anúncio terminar', 2000); return false; }
+            if (musicas.length === 0) {
+                showNotification('⏳ Aguarde, playlist ainda carregando...', 2000);
+                return false;
+            }
+            if (currentIndex >= musicas.length) currentIndex = 0;
+            const track = musicas[currentIndex];
+            if (!track || !track.src) {
+                showNotification(`⚠️ Erro: música não encontrada, pulando...`, 2000);
+                nextTrack();
+                return false;
+            }
+            musicPlayer.pause();
+            musicPlayer.src = track.src;
+            musicPlayer.load();
+            musicPlayer.oncanplaythrough = null; musicPlayer.onended = null; musicPlayer.onerror = null; musicPlayer.ontimeupdate = null;
             
-            // Criar buffer de silêncio (4 segundos)
-            const sampleRate = audioCtx.sampleRate;
-            const bufferLength = sampleRate * 4;
-            const silentBuffer = audioCtx.createBuffer(1, bufferLength, sampleRate);
-            const channelData = silentBuffer.getChannelData(0);
-            for (let i = 0; i < bufferLength; i++) channelData[i] = 0;  // silêncio total
-            
-            // Criar fonte de silêncio e tocar em loop
-            if (silentSource) {
-                try { silentSource.stop(); silentSource.disconnect(); } catch(e) {}
-            }
-            silentSource = audioCtx.createBufferSource();
-            silentSource.buffer = silentBuffer;
-            silentSource.loop = true;
-            silentSource.connect(audioCtx.destination);
-            silentSource.start();
-            
-            // Conectar o elemento <audio> do stream ao AudioContext
-            if (streamSource) {
-                try { streamSource.disconnect(); } catch(e) {}
-            }
-            streamSource = audioCtx.createMediaElementSource(radioPlayer);
-            gainNode = audioCtx.createGain();
-            gainNode.gain.value = 1;
-            streamSource.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            isAudioActive = true;
-            console.log('✅ AudioContext ativo - reprodução em segundo plano OK');
-            return true;
-        } catch (err) {
-            console.error('Erro ao ativar AudioContext:', err);
-            statusDiv.innerText = '❌ Erro ao ativar áudio. Tente novamente.';
-            return false;
+            return new Promise((resolve) => {
+                musicPlayer.oncanplaythrough = async () => {
+                    try {
+                        if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
+                        await musicPlayer.play();
+                        isPlaying = true;
+                        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        startTimer();
+                        if (musicPlayer.duration) totalTimeEl.textContent = formatTime(musicPlayer.duration);
+                        else musicPlayer.addEventListener('loadedmetadata', () => { totalTimeEl.textContent = formatTime(musicPlayer.duration); }, { once: true });
+                        splash.classList.add('hidden'); setTimeout(() => splash.style.display = 'none', 500);
+                        tapToStart.style.display = 'none';
+                        if ('mediaSession' in navigator) {
+                            navigator.mediaSession.metadata = new MediaMetadata({ title: track.title, artist: track.artist, album: 'MUTV' });
+                            navigator.mediaSession.setActionHandler('play', () => playMusic());
+                            navigator.mediaSession.setActionHandler('pause', () => pauseMusic());
+                            navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
+                            navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
+                        }
+                        resolve(true);
+                    } catch(e) { console.error(e); isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; resolve(false); }
+                };
+                musicPlayer.onended = () => {
+                    stopTimer();
+                    let nextFiltered;
+                    if (shuffle && filteredPlaylist.length > 1) {
+                        do { nextFiltered = Math.floor(Math.random() * filteredPlaylist.length); } while (nextFiltered === currentIndex);
+                    } else {
+                        nextFiltered = (currentIndex + 1) % filteredPlaylist.length;
+                    }
+                    currentIndex = nextFiltered;
+                    loadTrackUI(currentIndex);
+                    setTimeout(async () => { if (!isAdPlaying) await playMusic(); }, 80);
+                };
+                musicPlayer.onerror = () => {
+                    showNotification(`⚠️ Erro ao carregar: ${track.title}`, 3000);
+                    setTimeout(() => { if (!isAdPlaying) nextTrack(); }, 1000);
+                    resolve(false);
+                };
+                musicPlayer.ontimeupdate = () => { if (musicPlayer.duration) { progressFill.style.width = (musicPlayer.currentTime/musicPlayer.duration)*100+'%'; currentTimeEl.textContent = formatTime(musicPlayer.currentTime); } };
+            });
         }
-    }
-    
-    // ========= 2. KEEP-ALIVE (evita suspensão) =========
-    function startKeepAlive() {
-        if (keepAliveInterval) clearInterval(keepAliveInterval);
-        keepAliveInterval = setInterval(async () => {
-            // Se o contexto foi suspenso, resumir
-            if (audioCtx && audioCtx.state === 'suspended') {
-                await audioCtx.resume();
-                console.log('🔄 KeepAlive: AudioContext resumido');
-            }
-            // Se o silentSource parou por algum motivo, reiniciar
-            if (silentSource && silentSource.buffer && silentSource.playbackState === 'finished') {
-                try { silentSource.start(); } catch(e) {}
-            }
-            // Se deveria estar tocando mas o áudio está pausado, retomar
-            if (isPlaying && radioPlayer.paused && isAudioActive) {
-                console.log('🔄 KeepAlive: retomando stream');
-                await radioPlayer.play().catch(e => console.warn);
-            }
-        }, 4000);
-    }
-    
-    // ========= 3. WORKAROUND para iOS/macOS (áudio silencioso adicional) =========
-    function setupSilentAudioWorkaround() {
-        const silent = document.getElementById('silentAudio');
-        if (!silent) return;
-        // Criar um pequeno WAV silencioso em memória
-        const createSilentWAV = () => {
-            const sampleRate = 44100;
-            const duration = 2;
-            const numSamples = sampleRate * duration;
-            const buffer = new ArrayBuffer(44 + numSamples * 2);
-            const view = new DataView(buffer);
-            function writeString(view, offset, str) {
-                for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
-            }
-            writeString(view, 0, 'RIFF');
-            view.setUint32(4, 36 + numSamples * 2, true);
-            writeString(view, 8, 'WAVE');
-            writeString(view, 12, 'fmt ');
-            view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true);
-            view.setUint16(22, 1, true);
-            view.setUint32(24, sampleRate, true);
-            view.setUint32(28, sampleRate * 2, true);
-            view.setUint16(32, 2, true);
-            view.setUint16(34, 16, true);
-            writeString(view, 36, 'data');
-            view.setUint32(40, numSamples * 2, true);
-            let offset = 44;
-            for (let i = 0; i < numSamples; i++) {
-                view.setInt16(offset, 0, true);
-                offset += 2;
-            }
-            return new Blob([buffer], { type: 'audio/wav' });
-        };
-        try {
-            const blob = createSilentWAV();
-            const url = URL.createObjectURL(blob);
-            silent.src = url;
-            silent.loop = true;
-            silent.volume = 0.001;
-            silent.play().catch(e => console.log('silent workaround:', e));
-        } catch(e) {}
-    }
-    
-    // ========= 4. FUNÇÕES DE PLAY/PAUSE DO RÁDIO =========
-    async function startRadio() {
-        if (!isAudioActive) {
-            statusDiv.innerText = '⚠️ Ative o áudio primeiro!';
-            return false;
-        }
-        if (!STREAM_URL || STREAM_URL === "https://exemplo.com/radio-patico-stream.mp3") {
-            statusDiv.innerText = '⚠️ Configure a URL do stream no código!';
-            return false;
-        }
-        try {
-            // Só carrega se o src for diferente
-            if (radioPlayer.src !== STREAM_URL) {
-                radioPlayer.src = STREAM_URL;
-                radioPlayer.load();
-            }
-            await radioPlayer.play();
-            isPlaying = true;
-            playPauseBtn.innerHTML = '⏸️';
-            statusDiv.innerText = '📻 AO VIVO | Tela bloqueada ativa';
-            return true;
-        } catch (err) {
-            console.error('Erro ao iniciar stream:', err);
-            statusDiv.innerText = '❌ Erro no stream. Verifique a URL.';
-            return false;
-        }
-    }
-    
-    function stopRadio() {
-        radioPlayer.pause();
-        isPlaying = false;
-        playPauseBtn.innerHTML = '▶️';
-        statusDiv.innerText = '⏸️ Pausado (clique em play)';
-    }
-    
-    async function togglePlay() {
-        if (!isAudioActive) {
-            statusDiv.innerText = '🔇 Clique em "ATIVAR ÁUDIO" primeiro';
-            return;
-        }
-        if (isPlaying) {
-            stopRadio();
-        } else {
-            await startRadio();
-        }
-    }
-    
-    // ========= 5. VISIBILITY HANDLER (retoma ao voltar) =========
-    function setupVisibilityHandler() {
-        document.addEventListener('visibilitychange', async () => {
-            if (!document.hidden && isPlaying && radioPlayer.paused) {
-                console.log('👁️ Aba visível, retomando stream');
-                await startRadio().catch(e => console.log);
-            }
-            if (audioCtx && audioCtx.state === 'suspended') {
-                await audioCtx.resume();
-            }
+        
+        function pauseMusic() { musicPlayer.pause(); isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; stopTimer(); }
+        function togglePlayPause() { isPlaying ? pauseMusic() : playMusic(); }
+        function loadTrackUI(index) { if (index >= musicas.length) index = 0; if (index < 0) index = musicas.length-1; currentIndex = index; const t = musicas[currentIndex]; trackArtist.textContent = `${t.title} - ${t.artist}`; currentTimeEl.textContent = '0:00'; totalTimeEl.textContent = '0:00'; progressFill.style.width = '0%'; }
+        
+        async function nextTrack() { if (isAdPlaying) return; stopTimer(); let nextFiltered; if (shuffle && filteredPlaylist.length > 1) { do { nextFiltered = Math.floor(Math.random() * filteredPlaylist.length); } while (nextFiltered === currentIndex); } else { nextFiltered = (currentIndex + 1) % filteredPlaylist.length; } currentIndex = nextFiltered; loadTrackUI(currentIndex); if (isPlaying) await playMusic(); }
+        async function prevTrack() { if (isAdPlaying) return; stopTimer(); let prevFiltered; if (shuffle && filteredPlaylist.length > 1) { do { prevFiltered = Math.floor(Math.random() * filteredPlaylist.length); } while (prevFiltered === currentIndex); } else { prevFiltered = (currentIndex - 1 + filteredPlaylist.length) % filteredPlaylist.length; } currentIndex = prevFiltered; loadTrackUI(currentIndex); if (isPlaying) await playMusic(); }
+        
+        // ==================== ADS ====================
+        function finishAudioAd() { isAdPlaying = false; if(shouldResumeMusic) { musicPlayer.currentTime = musicPausedTime; playMusic(); shouldResumeMusic = false; } currentAdIndex++; }
+        function playAudioAd() { if(!adsEnabled || isAdPlaying) return; if(isPlaying) { musicPausedTime = musicPlayer.currentTime; pauseMusic(); shouldResumeMusic = true; } else shouldResumeMusic = false; const ad = anunciosAudio[currentAdIndex % anunciosAudio.length]; adPlayer.src = ad.src; adPlayer.load(); isAdPlaying = true; adPlayer.play().catch(()=>finishAudioAd()); adPlayer.onended = finishAudioAd; adPlayer.onerror = finishAudioAd; }
+        function startAdTimer() { setInterval(() => { if(adsEnabled && !isAdPlaying && isPlaying) playAudioAd(); }, adInterval * 60 * 1000); }
+        
+        // ==================== MENU POPUP ====================
+        function toggleMenu() { menuPopup.classList.toggle('open'); }
+        function closeMenu() { menuPopup.classList.remove('open'); }
+        menuButton.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
+        document.addEventListener('click', (e) => { if (!menuButton.contains(e.target) && !menuPopup.contains(e.target)) closeMenu(); });
+        
+        // Ações do menu
+        document.getElementById('fullscreenMenuBtn').addEventListener('click', () => {
+            if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+            else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
+            else if (document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen();
+            closeMenu();
         });
-    }
-    
-    // ========= 6. BOTÃO DE ATIVAÇÃO PRINCIPAL =========
-    activateBtn.addEventListener('click', async () => {
-        activateBtn.disabled = true;
-        activateBtn.innerText = '🔄 Ativando...';
-        const ok = await initAudioContext();
-        if (ok) {
-            startKeepAlive();
-            setupVisibilityHandler();
-            setupSilentAudioWorkaround();
-            // Após ativar, já começa a tocar
-            const started = await startRadio();
-            if (started) {
-                playPauseBtn.disabled = false;
-                activateBtn.style.display = 'none';  // some depois de ativo
-                statusDiv.innerText = '📻 Tocando com tela bloqueada ✅';
-            } else {
-                activateBtn.disabled = false;
-                activateBtn.innerText = '🔊 ATIVAR ÁUDIO (tenta novamente)';
-            }
-        } else {
-            activateBtn.disabled = false;
-            activateBtn.innerText = '⚠️ Falhou, tente novamente';
-        }
-    });
-    
-    // Play/Pause (só fica habilitado após ativação)
-    playPauseBtn.addEventListener('click', togglePlay);
-    
-    // Pré-carregar UI
-    window.addEventListener('load', () => {
-        playPauseBtn.disabled = true;
-        statusDiv.innerText = '🔇 Pressione "ATIVAR ÁUDIO"';
-        // se a URL não foi substituída, avisar
-        if (STREAM_URL === " https://github.com/radioplaylist12/partico/blob/f2145c46a4c85708ff2fd708ee2ba8f5a3333401/playlist.json
-            ") {
-            statusDiv.innerText = '⚠️ EDITE A URL DO STREAM NO CÓDIGO';
-        }
-    });
-</script>
+        document.getElementById('shareMenuBtn').addEventListener('click', () => {
+            if (navigator.share) navigator.share({ title: 'MUTV Playlist', url: location.href });
+            else { navigator.clipboard.writeText(location.href); showNotification('Link copiado!', 2000); }
+            closeMenu();
+        });
+        document.getElementById('feedbackMenuBtn').addEventListener('click', () => {
+            document.getElementById('feedbackModal').classList.toggle('open');
+            closeMenu();
+        });
+        
+        // ==================== EVENT LISTENERS ====================
+        document.getElementById('progressBar').addEventListener('click', (e) => { if(isAdPlaying) return; const rect = e.currentTarget.getBoundingClientRect(); const percent = (e.clientX - rect.left) / rect.width; if(musicPlayer.duration) musicPlayer.currentTime = percent * musicPlayer.duration; resetHideTimer(); });
+        playBtn.addEventListener('click', () => { if(!audioActive) showNotification('⚠️ Clique no botão "ATIVAR ÁUDIO" primeiro!', 3000); else togglePlayPause(); resetHideTimer(); });
+        prevBtn.addEventListener('click', () => { prevTrack(); resetHideTimer(); });
+        nextBtn.addEventListener('click', () => { nextTrack(); resetHideTimer(); });
+        shuffleBtn.addEventListener('click', () => { shuffle = !shuffle; showNotification(shuffle ? '🔀 Aleatório ON' : '➡️ Sequencial', 1500); resetHideTimer(); });
+        
+        // Feedback modal
+        let currentRating = 0;
+        document.querySelectorAll('#ratingStars .star').forEach(star => { star.addEventListener('click', () => { currentRating = parseInt(star.dataset.rating); document.querySelectorAll('#ratingStars .star').forEach((s,i) => { if(i < currentRating) { s.classList.add('fas','active'); s.classList.remove('far'); } else { s.classList.remove('fas','active'); s.classList.add('far'); } }); }); });
+        document.getElementById('cancelFeedback').addEventListener('click', () => { document.getElementById('feedbackModal').classList.remove('open'); document.getElementById('feedbackText').value = ''; currentRating = 0; document.querySelectorAll('#ratingStars .star').forEach(s => { s.classList.remove('fas','active'); s.classList.add('far'); }); });
+        document.getElementById('sendFeedback').addEventListener('click', () => { if(currentRating === 0) { showNotification('⭐ Selecione uma nota', 2000); return; } let msg = `🎵 *MUTV Playlist*\n⭐ Nota: ${'★'.repeat(currentRating)}${'☆'.repeat(5-currentRating)}\n`; if(document.getElementById('feedbackText').value.trim()) msg += `💬 ${document.getElementById('feedbackText').value.trim()}\n`; window.open(`https://wa.me/5512988461978?text=${encodeURIComponent(msg)}`, '_blank'); showNotification('✅ WhatsApp aberto!', 2000); document.getElementById('feedbackModal').classList.remove('open'); document.getElementById('feedbackText').value = ''; currentRating = 0; document.querySelectorAll('#ratingStars .star').forEach(s => { s.classList.remove('fas','active'); s.classList.add('far'); }); });
+        
+        // Video rotation
+        let currentVideoIndex = 0;
+        setInterval(() => { currentVideoIndex = (currentVideoIndex+1)%videosList.length; const video = videosList[currentVideoIndex]; const vidEl = document.getElementById('mainVideo'); if(vidEl) { vidEl.pause(); vidEl.src = video.src; vidEl.load(); vidEl.play().catch(e=>{}); document.getElementById('ctaButton').onclick = () => window.open(video.link, '_blank'); } }, 20000);
+        document.getElementById('ctaButton').onclick = () => window.open(videosList[0].link, '_blank');
+        
+        // Auto-hide da barra inferior
+        const bottomControls = document.getElementById('bottomControls');
+        let hideTimeout;
+        function showControls() { bottomControls.classList.remove('hide'); clearTimeout(hideTimeout); hideTimeout = setTimeout(() => bottomControls.classList.add('hide'), 3000); }
+        function resetHideTimer() { if (bottomControls.classList.contains('hide')) { showControls(); } else { clearTimeout(hideTimeout); hideTimeout = setTimeout(() => bottomControls.classList.add('hide'), 3000); } }
+        document.addEventListener('touchstart', resetHideTimer);
+        document.addEventListener('click', resetHideTimer);
+        showControls();
+        
+        // Inicialização
+        tapToStart.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const ok = await initAudioContext();
+            if(ok) {
+                startKeepAliveService();
+                setupVisibilityHandler();
+                setupSilentAudioWorkaround();
+                if (musicas.length === 0) {
+                    await carregarPlaylistDoGitHub(); // Carrega a playlist se ainda não estiver carregada
+                }
+                if (musicas.length > 0) {
+                    loadTrackUI(currentIndex);
+                    await playMusic();
+                    tapToStart.style.display = 'none';
+                    // Ativar tela cheia automaticamente
+                    try {
+                        if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+                        else if (document.documentElement.webkitRequestFullscreen) await document.documentElement.webkitRequestFullscreen();
+                        else if (document.documentElement.msRequestFullscreen) await document.documentElement.msRequestFullscreen();
+                    } catch (err) { console.log('Fullscreen não suportado:', err); }
+                } else {
+                    showNotification('❌ Erro ao carregar playlist. Tente recarregar.', 3000);
+                }
+            } else showNotification('❌ Erro ao ativar áudio. Tente novamente.', 3000);
+        });
+        
+        // Carregar a playlist em segundo plano assim que a página carregar
+        window.addEventListener('load', async () => {
+            const savedTheme = localStorage.getItem('radioTheme') || 'theme-red';
+            document.body.className = savedTheme;
+            await carregarPlaylistDoGitHub(); // Carrega a playlist automaticamente
+            startAdTimer();
+            tapToStart.style.display = 'block';
+        });
+    </script>
 </body>
-</html>  
+</html>
