@@ -1,636 +1,536 @@
-                
-<!DOCTYPE html>
+                   <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MUTV Playlist • Toca com tela bloqueada</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Playlist Multigênero | Modo Ao Vivo</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { min-height: 100vh; background-color: #000000; overflow: hidden; position: fixed; width: 100%; height: 100%; }
-        body.theme-red { --primary-color: #e63946; --primary-dark: #b71c1c; }
-        body.theme-lilac { --primary-color: #b380ff; --primary-dark: #7a4db3; }
-        body.theme-blue { --primary-color: #00a8ff; --primary-dark: #0077be; }
-        body.theme-green { --primary-color: #00ff88; --primary-dark: #00cc6a; }
-        body.theme-orange { --primary-color: #ff7700; --primary-dark: #cc5500; }
-        body.theme-pink { --primary-color: #ff44aa; --primary-dark: #cc0088; }
-        body.theme-purple { --primary-color: #aa44ff; --primary-dark: #7700cc; }
-        body.theme-yellow { --primary-color: #ffdd44; --primary-dark: #ccaa00; }
-        body.theme-white { --primary-color: #ffffff; --primary-dark: #cccccc; }
-        body.theme-pure-black { --primary-color: #000000; --primary-dark: #000000; }
-        body { --primary-color: #e63946; --primary-dark: #b71c1c; --text-primary: #ffffff; --text-secondary: #cccccc; --border-color: #333333; }
-        
-        .app { width: 100%; height: 100vh; background: #000000; position: relative; overflow: hidden; }
-        .fullscreen-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1; }
-        .fullscreen-video-container video { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
-        .controls-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
-        
-        /* Área de notificações no topo (substitui o ticker) */
-        .notification-top {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            right: 12px;
-            text-align: center;
-            z-index: 30;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            opacity: 0;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
-        .notification-top.show {
-            opacity: 1;
+
+        body {
+            background: linear-gradient(145deg, #0a0f1e 0%, #0c1222 100%);
+            color: #f0f3fa;
+            padding: 1.5rem;
+            min-height: 100vh;
         }
-        .notification-top .message {
-            display: inline-block;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 8px 20px;
-            font-size: 0.85rem;
-            color: #fff;
-            border-left: 3px solid var(--primary-color);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            pointer-events: none;
+
+        /* container principal */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
         }
-        
-        .menu-button {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
+
+        /* cabeçalho */
+        .header {
+            margin-bottom: 2rem;
             display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            cursor: pointer;
-            z-index: 31;
-            pointer-events: auto;
-            transition: 0.2s;
+            gap: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding-bottom: 1rem;
         }
-        .menu-button:active { transform: scale(0.9); background: var(--primary-color); color: #000; }
-        
-        .menu-popup {
-            position: absolute;
-            top: 65px;
-            right: 12px;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 10px;
-            z-index: 32;
-            display: none;
-            flex-direction: column;
-            gap: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
-            pointer-events: auto;
+
+        h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #FFB347, #FF6B6B);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
         }
-        .menu-popup.open { display: flex; }
-        .menu-popup button {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 30px;
+
+        .live-badge {
+            background: #e31b23;
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-weight: bold;
             font-size: 0.9rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            box-shadow: 0 0 8px #e31b2377;
+        }
+
+        .live-badge::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1);}
+            100% { opacity: 0.3; transform: scale(1.3);}
+        }
+
+        /* video principal */
+        .video-hero {
+            background: #000000aa;
+            border-radius: 28px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        video {
+            width: 100%;
+            max-height: 480px;
+            object-fit: cover;
+            background: black;
+            display: block;
+        }
+
+        .video-caption {
+            padding: 0.8rem 1.2rem;
+            font-size: 0.9rem;
+            background: rgba(0,0,0,0.6);
+            color: #ccc;
+            border-top: 1px solid #2a2f3f;
+        }
+
+        /* modo ao vivo player */
+        .live-mode-panel {
+            background: rgba(20, 25, 40, 0.8);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            border: 1px solid rgba(255, 215, 100, 0.4);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .live-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .toggle-live {
+            background: #ff4d4d;
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 0.6rem 1.8rem;
+            border-radius: 40px;
             cursor: pointer;
-            white-space: nowrap;
+            font-size: 1rem;
+            transition: 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .toggle-live.active {
+            background: #2ecc71;
+            box-shadow: 0 0 12px #2ecc71;
+        }
+
+        .now-playing {
+            background: #00000066;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            min-width: 240px;
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        .now-playing span {
+            color: #ffb347;
+        }
+
+        /* grade de gêneros */
+        .genres-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .genre-card {
+            background: rgba(12, 18, 28, 0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 2rem;
+            border-left: 5px solid #ff914d;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .genre-header {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 0.8rem 1.5rem;
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #2e3a55;
+        }
+
+        .songs-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            padding: 1.2rem 1.5rem;
+        }
+
+        .song-item {
+            background: #1e293b;
+            border-radius: 60px;
+            padding: 0.5rem 1rem 0.5rem 1.2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.1s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
+
+        .song-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .play-song-btn {
+            background: #ff914d;
+            border: none;
+            color: #0a0f1e;
+            font-weight: bold;
+            padding: 0.3rem 0.9rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.7rem;
             transition: 0.1s;
         }
-        .menu-popup button:active {
-            background: var(--primary-color);
-            color: #000;
+
+        .play-song-btn:hover {
+            background: #ffb347;
+            transform: scale(1.02);
         }
-        .menu-popup i { width: 24px; text-align: center; }
-        
-        .cta-button { position: absolute; bottom: 25%; right: 15px; background: linear-gradient(135deg, #ff6600, #ff3300); color: white; border: none; border-radius: 50px; padding: 8px 16px; font-size: 0.8rem; font-weight: bold; cursor: pointer; z-index: 25; box-shadow: 0 4px 15px rgba(0,0,0,0.4); animation: pulse-cta 1.5s infinite; display: flex; align-items: center; gap: 6px; pointer-events: auto; }
-        @keyframes pulse-cta { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
-        
-        .bottom-controls {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(255,255,255,0.2);
-            padding: 10px 16px;
-            z-index: 20;
-            pointer-events: auto;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+
+        .footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #6c7a8e;
+            border-top: 1px solid #1e2a3a;
+            padding-top: 1.5rem;
         }
-        .bottom-controls.hide {
-            transform: translateY(100%);
-            opacity: 0;
-            pointer-events: none;
-        }
-        .track-info { text-align: center; margin-bottom: 8px; }
-        .track-info p { font-size: 0.85rem; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
-        .progress-area { margin-bottom: 8px; }
-        .progress-time { display: flex; justify-content: space-between; font-size: 0.7rem; color: #ccc; margin-bottom: 4px; }
-        .progress-bar { height: 3px; background: rgba(255,255,255,0.3); cursor: pointer; border-radius: 3px; }
-        .progress-fill { height: 100%; background: var(--primary-color); width: 0%; border-radius: 3px; box-shadow: 0 0 5px var(--primary-color); }
-        .control-buttons { display: flex; align-items: center; justify-content: center; gap: 20px; }
-        .control-btn { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 1.2rem; width: 44px; height: 44px; cursor: pointer; border-radius: 50%; transition: 0.1s; display: flex; align-items: center; justify-content: center; }
-        .control-btn:active { transform: scale(0.9); background: var(--primary-color); color: #000; }
-        .play-btn { font-size: 1.6rem; width: 54px; height: 54px; background: var(--primary-color); color: #000; border: none; }
-        
-        .feedback-modal { position: fixed; bottom: 80px; right: 20px; width: 260px; background: rgba(26,26,26,0.95); backdrop-filter: blur(12px); border: 1px solid var(--primary-color); border-radius: 16px; padding: 15px; z-index: 2001; display: none; }
-        .feedback-modal.open { display: block; }
-        .feedback-modal h3 { color: #fff; margin-bottom: 8px; }
-        .rating { display: flex; gap: 6px; margin: 8px 0; justify-content: center; }
-        .star { color: #555; font-size: 1.3rem; cursor: pointer; }
-        .star.active, .star.fas { color: #ffd700; }
-        .feedback-modal textarea { width: 100%; height: 60px; background: #2a2a2a; border: 1px solid #444; border-radius: 8px; padding: 8px; color: #fff; margin-bottom: 8px; resize: none; }
-        .modal-btn { padding: 6px 12px; border-radius: 20px; cursor: pointer; background: #333; color: white; border: none; margin: 2px; }
-        .modal-btn.send { background: #25D366; color: #000; font-weight: bold; }
-        
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; }
-        #splash.hidden { opacity: 0; pointer-events: none; }
-        .splash-content { text-align: center; color: #fff; }
-        .splash-content i { font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.6; transform: scale(1); } }
-        
-        #tap-to-start {
-            position: fixed;
-            bottom: 30%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #ff6600, #ff3300);
-            color: white;
-            padding: 14px 28px;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            z-index: 10000;
-            cursor: pointer;
-            display: none;
-            animation: btnPulse 1.5s infinite;
-            white-space: nowrap;
-            pointer-events: auto;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            border: none;
-        }
-        @keyframes btnPulse {
-            0% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.05); }
-            100% { transform: translateX(-50%) scale(1); }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 1rem;
+            }
+            .genre-header {
+                font-size: 1.3rem;
+            }
+            .songs-list {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
-<body class="theme-red">
-    <div id="splash"><div class="splash-content"><i class="fas fa-headphones-alt"></i><h1>MUTV Playlist</h1><p>Clique no botão para ativar áudio</p></div></div>
-    <div id="tap-to-start"><i class="fas fa-play-circle"></i> 🎵 ATIVAR ÁUDIO (Toca com tela bloqueada)</div>
-    
-    <div class="app">
-        <div class="fullscreen-video-container">
-            <video id="mainVideo" autoplay loop muted playsinline>
-                <source src="pizza.mp4" type="video/mp4">
-            </video>
+<body>
+<div class="app-container">
+    <div class="header">
+        <h1>🎵 Multistream — Gêneros em foco</h1>
+        <div class="live-badge">AO VIVO • POP & MPB</div>
+    </div>
+
+    <!-- Vídeo principal: pak1.Mp4 (coloque o arquivo no mesmo diretório ou ajuste o caminho) -->
+    <div class="video-hero">
+        <video id="mainVideo" controls preload="metadata">
+            <source src="pak1.Mp4" type="video/mp4">
+            Seu navegador não suporta vídeo. Verifique o arquivo pak1.Mp4.
+        </video>
+        <div class="video-caption">
+            📺 Vídeo principal — "pak1.Mp4" | Modo ao vivo toca Pop/MPB em simultâneo.
         </div>
-        <button class="cta-button" id="ctaButton"><i class="fas fa-shopping-cart"></i> PEÇA AGORA!</button>
-        
-        <!-- Área de notificações no topo (substitui o ticker) -->
-        <div id="notificationTop" class="notification-top">
-            <div class="message" id="notificationMessage"></div>
+    </div>
+
+    <!-- Painel Modo Ao Vivo (toca automático pop + mpb) -->
+    <div class="live-mode-panel">
+        <div class="live-control">
+            <button id="liveToggleBtn" class="toggle-live">🔴 ATIVAR MODO AO VIVO</button>
+            <div class="now-playing">
+                🎧 Agora no ar: <span id="liveNowPlaying">Modo inativo</span>
+            </div>
         </div>
-        
-        <div class="controls-overlay">
-            <div class="bottom-controls" id="bottomControls">
-                <div class="track-info"><p id="trackArtist">🎵 Clique em "ATIVAR ÁUDIO"</p></div>
-                <div class="progress-area">
-                    <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
-                    <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
-                </div>
-                <div class="control-buttons">
-                    <button class="control-btn" id="prevBtn"><i class="fas fa-step-backward"></i></button>
-                    <button class="control-btn play-btn" id="playPauseBtn"><i class="fas fa-play"></i></button>
-                    <button class="control-btn" id="shuffleBtn"><i class="fas fa-random"></i></button>
-                    <button class="control-btn" id="nextBtn"><i class="fas fa-step-forward"></i></button>
-                </div>
+        <div style="font-size:0.8rem; opacity:0.7;">⏵ Pop + MPB em sequência | Ciclo automático</div>
+    </div>
+
+    <!-- Lista de músicas por gênero (baseada nas sugestões do assistente + moda top) -->
+    <div class="genres-grid">
+        <!-- Samba -->
+        <div class="genre-card">
+            <div class="genre-header">🎶 SAMBA</div>
+            <div class="songs-list" data-genre="samba">
+                <div class="song-item"><span class="song-name">P do Pecado (Ao Vivo) - Menos é Mais + Simone Mendes</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Coração Partido (Ao Vivo) - Grupo Menos é Mais</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Tão seu - Raça Negra</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Lua de mel (Ao vivo) - Sorriso Maroto</span><button class="play-song-btn">▶ PLAY</button></div>
+            </div>
+        </div>
+        <!-- MPB -->
+        <div class="genre-card">
+            <div class="genre-header">🎵 MPB</div>
+            <div class="songs-list" data-genre="mpb">
+                <div class="song-item"><span class="song-name">Garota de Ipanema - Tom Jobim & Vinicius</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Construção - Chico Buarque</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Águas de Março - Elis Regina & Tom Jobim</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Oceano - Djavan</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Como Nossos Pais - Elis Regina</span><button class="play-song-btn">▶ PLAY</button></div>
+            </div>
+        </div>
+        <!-- Forró (geral) -->
+        <div class="genre-card">
+            <div class="genre-header">🔥 FORRÓ</div>
+            <div class="songs-list">
+                <div class="song-item"><span class="song-name">Eu Me Apaixonei - Vitinho Imperador</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Mentira Estampada - Wesley Safadão</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Recairei (Ao Vivo) - Os Barões da Pisadinha</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Saudade do Caraí - Natanzinho Lima, Mari Fernandez, Grelo</span><button class="play-song-btn">▶ PLAY</button></div>
+            </div>
+        </div>
+        <!-- Forró Antigo -->
+        <div class="genre-card">
+            <div class="genre-header">🕰️ FORRÓ ANTIGO</div>
+            <div class="songs-list">
+                <div class="song-item"><span class="song-name">Me Usa - Banda Magníficos</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Carta Branca - Banda Magníficos</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Aflição - Limão Com Mel</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Anjo Querubim - Limão com Mel</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Fora de Mim - Banda Magia</span><button class="play-song-btn">▶ PLAY</button></div>
+            </div>
+        </div>
+        <!-- Moda Top (estilo modão/raiz) -->
+        <div class="genre-card">
+            <div class="genre-header">🎸 MODA TOP (Modão Sertanejo)</div>
+            <div class="songs-list">
+                <div class="song-item"><span class="song-name">Chalana - Tião Carreiro & Pardinho</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Fio de Cabelo - Chitãozinho & Xororó</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">A Majestade o Sabiá - Roberta Miranda</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Estrada da Vida - Milionário & José Rico</span><button class="play-song-btn">▶ PLAY</button></div>
+            </div>
+        </div>
+        <!-- Pop -->
+        <div class="genre-card">
+            <div class="genre-header">⭐ POP</div>
+            <div class="songs-list">
+                <div class="song-item"><span class="song-name">Numa Ilha - Marina Sena</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">JETSKI - PEDRO SAMPAIO, MC Meno K, Melody</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Desgraça - Anitta</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">O Chá - Gloria Groove</span><button class="play-song-btn">▶ PLAY</button></div>
+            </div>
+        </div>
+        <!-- Brega -->
+        <div class="genre-card">
+            <div class="genre-header">💔 BREGA</div>
+            <div class="songs-list">
+                <div class="song-item"><span class="song-name">Garçom - Reginaldo Rossi</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Princesa - Amado Batista</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Menina Veneno - Ritchie</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">O Vaso - Banda Sedução</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">5 Da Manhã - Natanzinho Lima</span><button class="play-song-btn">▶ PLAY</button></div>
+            </div>
+        </div>
+        <!-- Sertanejo -->
+        <div class="genre-card">
+            <div class="genre-header">🤠 SERTANEJO</div>
+            <div class="songs-list">
+                <div class="song-item"><span class="song-name">Descer Pra BC - Gusttavo Lima</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Última Saudade (Ao Vivo) - Henrique & Juliano</span><button class="play-song-btn">▶ PLAY</button></div>
+                <div class="song-item"><span class="song-name">Apaga Apaga Apaga (Ao Vivo) - Danilo & Davi</span><button class="play-song-btn">▶ PLAY</button></div>
             </div>
         </div>
     </div>
-    
-    <!-- Botão de menu flutuante -->
-    <div class="menu-button" id="menuButton">
-        <i class="fas fa-ellipsis-v"></i>
+    <div class="footer">
+        🎤 Clique em PLAY para tocar a música (simulação de áudio via notificação) <br>
+        📀 Modo ao vivo alterna automaticamente entre músicas POP e MPB — atualizando o display.
     </div>
-    <div class="menu-popup" id="menuPopup">
-        <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela cheia</button>
-        <button id="shareMenuBtn"><i class="fas fa-share-alt"></i> Compartilhar</button>
-        <button id="feedbackMenuBtn"><i class="fab fa-whatsapp"></i> Feedback</button>
-    </div>
+</div>
+
+<script>
+    // ------------------ SIMULADOR DE PLAYER (visual + áudio fake demonstrativo) ------------------
+    // Como não há arquivos de áudio reais para cada música, o player exibe uma notificação e atualiza o "now playing"
+    // Mas o modo ao vivo simula uma rádio real com alternância entre as faixas de POP e MPB.
+    // Para uma experiência completa, substitua os alerts/notificações por URLs de áudio (ex: SoundCloud, MP3 público)
     
-    <audio id="musicPlayer" preload="auto" crossorigin="anonymous"></audio>
-    <audio id="adPlayer" preload="auto" crossorigin="anonymous"></audio>
-    <audio id="silentAudio" loop crossorigin="anonymous" style="display: none;"></audio>
+    const liveNowPlayingSpan = document.getElementById('liveNowPlaying');
+    const liveToggleBtn = document.getElementById('liveToggleBtn');
     
-    <div class="feedback-modal" id="feedbackModal">
-        <h3>Sua opinião</h3>
-        <div class="rating" id="ratingStars"><i class="far fa-star star" data-rating="1"></i><i class="far fa-star star" data-rating="2"></i><i class="far fa-star star" data-rating="3"></i><i class="far fa-star star" data-rating="4"></i><i class="far fa-star star" data-rating="5"></i></div>
-        <textarea id="feedbackText" placeholder="Escreva sua sugestão..."></textarea>
-        <div class="modal-buttons"><button class="modal-btn cancel" id="cancelFeedback">Cancelar</button><button class="modal-btn send" id="sendFeedback"><i class="fab fa-whatsapp"></i> Enviar</button></div>
-    </div>
+    // Coleção de músicas POP e MPB (mesmo texto dos cards)
+    const popSongs = [
+        "Numa Ilha - Marina Sena",
+        "JETSKI - PEDRO SAMPAIO, MC Meno K, Melody",
+        "Desgraça - Anitta",
+        "O Chá - Gloria Groove"
+    ];
     
-    <script>
-        // ==================== PLAYLIST & CONFIG ====================
-        // URL da playlist JSON hospedada no GitHub (raw)
-        const PLAYLIST_URL = 'https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json';
-        
-        let musicas = []; // Será preenchido dinamicamente via fetch
-        const anunciosAudio = [{ src: "zzcv.mp3", nome: "Oferta Especial" }, { src: "zzcv.mp3", nome: "Promoção Relâmpago" }];
-        const videosList = [
-            { src: "pizza.mp4", nome: "Principal", link: "https://wa.me/5512988461978" },
-            { src: "lançamento.mp4", nome: "MUTV", link: "https://wa.me/5512988461978" },
-            { src: "copos.mp4", nome: "AlugueCopos", link: "https://www.aluguecopos.com.br/" }
-        ];
-        
-        // DOM elements
-        const musicPlayer = document.getElementById('musicPlayer');
-        const adPlayer = document.getElementById('adPlayer');
-        const playBtn = document.getElementById('playPauseBtn');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const shuffleBtn = document.getElementById('shuffleBtn');
-        const progressFill = document.getElementById('progressFill');
-        const currentTimeEl = document.getElementById('currentTime');
-        const totalTimeEl = document.getElementById('totalTime');
-        const trackArtist = document.getElementById('trackArtist');
-        const splash = document.getElementById('splash');
-        const tapToStart = document.getElementById('tap-to-start');
-        const menuButton = document.getElementById('menuButton');
-        const menuPopup = document.getElementById('menuPopup');
-        const notificationTop = document.getElementById('notificationTop');
-        const notificationMessage = document.getElementById('notificationMessage');
-        
-        let currentIndex = 0, isPlaying = false, shuffle = false;
-        let timerInterval = null, isAdPlaying = false, adsEnabled = true, adInterval = 30, currentAdIndex = 0, shouldResumeMusic = false, musicPausedTime = 0;
-        let filteredPlaylist = [];
-        let notificationTimeout = null;
-        
-        // ==================== NOTIFICAÇÕES NO TOPO ====================
-        function showNotification(msg, duration = 3000) {
-            if (notificationTimeout) clearTimeout(notificationTimeout);
-            notificationMessage.innerText = msg;
-            notificationTop.classList.add('show');
-            notificationTimeout = setTimeout(() => {
-                notificationTop.classList.remove('show');
-            }, duration);
+    const mpbSongs = [
+        "Garota de Ipanema - Tom Jobim & Vinicius",
+        "Construção - Chico Buarque",
+        "Águas de Março - Elis Regina & Tom Jobim",
+        "Oceano - Djavan",
+        "Como Nossos Pais - Elis Regina"
+    ];
+    
+    // Playlist do modo ao vivo (pop + mpb intercalados)
+    let livePlaylist = [];
+    function buildLivePlaylist() {
+        // cria uma lista combinada: pop e mpb alternada
+        let combined = [];
+        const maxLen = Math.max(popSongs.length, mpbSongs.length);
+        for (let i = 0; i < maxLen; i++) {
+            if (i < popSongs.length) combined.push({ name: popSongs[i], genre: "POP" });
+            if (i < mpbSongs.length) combined.push({ name: mpbSongs[i], genre: "MPB" });
         }
+        return combined;
+    }
+    
+    let liveInterval = null;
+    let liveActive = false;
+    let currentLiveIndex = 0;
+    let livePlaylistData = buildLivePlaylist();
+    
+    // Função chamada ao "tocar" qualquer música (simulação)
+    function playSong(songName, genre = null) {
+        // Exibe uma notificação estilo toast (simples)
+        const nowElement = document.getElementById('liveNowPlaying');
+        if (nowElement) {
+            nowElement.innerHTML = `🎵 ${songName}  <span style="font-size:0.7rem;">(manual)</span>`;
+        }
+        // Opcional: pequeno alerta visual sem interromper
+        const toastMsg = document.createElement('div');
+        toastMsg.innerText = `🎶 TOCANDO AGORA: ${songName}`;
+        toastMsg.style.position = 'fixed';
+        toastMsg.style.bottom = '20px';
+        toastMsg.style.right = '20px';
+        toastMsg.style.backgroundColor = '#1f2937';
+        toastMsg.style.color = '#ffb347';
+        toastMsg.style.padding = '10px 20px';
+        toastMsg.style.borderRadius = '40px';
+        toastMsg.style.fontSize = '0.85rem';
+        toastMsg.style.zIndex = '999';
+        toastMsg.style.boxShadow = '0 4px 12px black';
+        toastMsg.style.backdropFilter = 'blur(8px)';
+        document.body.appendChild(toastMsg);
+        setTimeout(() => toastMsg.remove(), 2200);
         
-        // ==================== CARREGAR PLAYLIST DO GITHUB ====================
-        async function carregarPlaylistDoGitHub() {
-            try {
-                showNotification('📥 Carregando playlist...', 1500);
-                const response = await fetch(PLAYLIST_URL);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-                if (Array.isArray(data) && data.length > 0) {
-                    musicas = data;
-                    // Adiciona IDs se não existirem
-                    musicas.forEach((m, idx) => {
-                        if (!m.id) m.id = idx;
-                        if (!m.artist) m.artist = "Desconhecido";
-                        if (!m.genero) m.genero = "SERTANEJO";
-                        if (!m.tipo) m.tipo = "normal";
-                    });
-                    filteredPlaylist = [...musicas];
-                    // Seleciona uma música aleatória
-                    const randomIndex = Math.floor(Math.random() * musicas.length);
-                    currentIndex = randomIndex;
-                    loadTrackUI(currentIndex);
-                    console.log(`✅ Playlist carregada com ${musicas.length} músicas`);
-                    showNotification(`✅ ${musicas.length} músicas carregadas!`, 2000);
-                    return true;
-                } else {
-                    throw new Error('Playlist vazia ou formato inválido');
-                }
-            } catch (error) {
-                console.error('Erro ao carregar playlist:', error);
-                // Fallback: música padrão de emergência
-                musicas = [{
-                    id: 0,
-                    title: "Música Padrão",
-                    artist: "Rádio MUTV",
-                    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-                    genero: "SERTANEJO",
-                    tipo: "normal"
-                }];
-                filteredPlaylist = [...musicas];
-                currentIndex = 0;
-                loadTrackUI(currentIndex);
-                showNotification('⚠️ Usando música padrão (fallback)', 3000);
-                return false;
+        // Se o modo ao vivo estiver ativo e a música for POP/MPB não quebra a sequência,
+        // mas apenas sincroniza visual (opcional). Não paramos o intervalo.
+        if (liveActive && (genre === 'POP' || genre === 'MPB' || songName.includes('Marina') || songName.includes('JETSKI') || songName.includes('Desgraça') || songName.includes('Chá') || songName.includes('Garota') || songName.includes('Construção') || songName.includes('Águas') || songName.includes('Oceano') || songName.includes('Nossos Pais'))) {
+            // Se o usuário clicou manual em pop/mpb, não atrapalha o ciclo automático
+        }
+    }
+    
+    // Avança para próxima música do modo ao vivo
+    function nextLiveSong() {
+        if (!liveActive) return;
+        const song = livePlaylistData[currentLiveIndex % livePlaylistData.length];
+        if (song) {
+            liveNowPlayingSpan.innerHTML = `${song.name}  <span style="font-size:0.65rem;">[${song.genre}]</span>`;
+            playSong(song.name, song.genre);
+        }
+        currentLiveIndex++;
+    }
+    
+    function startLiveMode() {
+        if (liveInterval) clearInterval(liveInterval);
+        liveActive = true;
+        currentLiveIndex = 0;
+        // toca imediatamente a primeira
+        nextLiveSong();
+        liveInterval = setInterval(() => {
+            if (liveActive) {
+                nextLiveSong();
             }
+        }, 7000); // a cada 7 segundos troca de música
+        liveToggleBtn.classList.add('active');
+        liveToggleBtn.innerText = '🟢 MODO AO VIVO ATIVO';
+        liveNowPlayingSpan.style.background = "#2ecc7122";
+    }
+    
+    function stopLiveMode() {
+        if (liveInterval) {
+            clearInterval(liveInterval);
+            liveInterval = null;
         }
-        
-        // ==================== AUDIO CONTEXT (BACKGROUND LOCK) ====================
-        let audioCtx = null;
-        let silentSourceNode = null;
-        let musicSourceNode = null;
-        let adSourceNode = null;
-        let musicGain = null;
-        let adGain = null;
-        let audioActive = false;
-        let keepAliveInterval = null;
-        
-        async function initAudioContext() {
-            if (audioActive && audioCtx && audioCtx.state === 'running') return true;
-            try {
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                if (audioCtx.state === 'suspended') await audioCtx.resume();
-                
-                const sampleRate = audioCtx.sampleRate;
-                const bufferLen = sampleRate * 4;
-                const silentBuffer = audioCtx.createBuffer(1, bufferLen, sampleRate);
-                const data = silentBuffer.getChannelData(0);
-                for (let i = 0; i < bufferLen; i++) data[i] = 0;
-                
-                if (silentSourceNode) {
-                    try { silentSourceNode.stop(); silentSourceNode.disconnect(); } catch(e) {}
-                }
-                silentSourceNode = audioCtx.createBufferSource();
-                silentSourceNode.buffer = silentBuffer;
-                silentSourceNode.loop = true;
-                silentSourceNode.connect(audioCtx.destination);
-                silentSourceNode.start();
-                
-                if (musicSourceNode) {
-                    try { musicSourceNode.disconnect(); } catch(e) {}
-                    musicSourceNode = null;
-                }
-                musicSourceNode = audioCtx.createMediaElementSource(musicPlayer);
-                musicGain = audioCtx.createGain();
-                musicGain.gain.value = 0.9;
-                musicSourceNode.connect(musicGain);
-                musicGain.connect(audioCtx.destination);
-                
-                if (adSourceNode) {
-                    try { adSourceNode.disconnect(); } catch(e) {}
-                }
-                adSourceNode = audioCtx.createMediaElementSource(adPlayer);
-                adGain = audioCtx.createGain();
-                adGain.gain.value = 0.9;
-                adSourceNode.connect(adGain);
-                adGain.connect(audioCtx.destination);
-                
-                audioActive = true;
-                console.log('✅ AudioContext ativo - Background playback OK');
-                return true;
-            } catch (err) {
-                console.error('Erro AudioContext:', err);
-                return false;
-            }
+        liveActive = false;
+        liveToggleBtn.classList.remove('active');
+        liveToggleBtn.innerText = '🔴 ATIVAR MODO AO VIVO';
+        liveNowPlayingSpan.innerHTML = 'Modo inativo (clique em ativar)';
+        liveNowPlayingSpan.style.background = "";
+    }
+    
+    function toggleLiveMode() {
+        if (liveActive) {
+            stopLiveMode();
+        } else {
+            startLiveMode();
         }
-        
-        function startKeepAliveService() {
-            if (keepAliveInterval) clearInterval(keepAliveInterval);
-            keepAliveInterval = setInterval(async () => {
-                if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
-                if (audioCtx && silentSourceNode && silentSourceNode.buffer && silentSourceNode.playbackState === 'finished') {
-                    try { silentSourceNode.start(); } catch(e) {}
-                }
-                if (isPlaying && !isAdPlaying && musicPlayer.paused && audioActive) {
-                    console.log('🔄 KeepAlive: retomando música pausada');
-                    await musicPlayer.play().catch(e => console.log);
-                }
-            }, 4000);
-        }
-        
-        function setupVisibilityHandler() {
-            document.addEventListener('visibilitychange', async () => {
-                if (!document.hidden && isPlaying && !isAdPlaying) {
-                    setTimeout(() => {
-                        if (musicPlayer.paused && isPlaying) {
-                            musicPlayer.play().catch(e => console.log('Retomada automática:', e));
-                        }
-                    }, 100);
-                }
-                if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
-            });
-        }
-        
-        function setupSilentAudioWorkaround() {
-            const silentAudio = document.getElementById('silentAudio');
-            if (!silentAudio) return;
-            const createSilentWAV = () => {
-                const sampleRate = 44100;
-                const duration = 2;
-                const numSamples = sampleRate * duration;
-                const buffer = new ArrayBuffer(44 + numSamples * 2);
-                const view = new DataView(buffer);
-                function writeString(view, offset, str) {
-                    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
-                }
-                writeString(view, 0, 'RIFF');
-                view.setUint32(4, 36 + numSamples * 2, true);
-                writeString(view, 8, 'WAVE');
-                writeString(view, 12, 'fmt ');
-                view.setUint32(16, 16, true);
-                view.setUint16(20, 1, true);
-                view.setUint16(22, 1, true);
-                view.setUint32(24, sampleRate, true);
-                view.setUint32(28, sampleRate * 2, true);
-                view.setUint16(32, 2, true);
-                view.setUint16(34, 16, true);
-                writeString(view, 36, 'data');
-                view.setUint32(40, numSamples * 2, true);
-                let offset = 44;
-                for (let i = 0; i < numSamples; i++) {
-                    view.setInt16(offset, 0, true);
-                    offset += 2;
-                }
-                return new Blob([buffer], { type: 'audio/wav' });
-            };
-            try {
-                const silentBlob = createSilentWAV();
-                const silentUrl = URL.createObjectURL(silentBlob);
-                silentAudio.src = silentUrl;
-                silentAudio.loop = true;
-                silentAudio.volume = 0.001;
-                silentAudio.play().catch(e => console.log('Silent audio workaround:', e));
-            } catch (e) {
-                console.log('Erro no workaround de áudio:', e);
-            }
-        }
-        
-        // ==================== MUSIC LOGIC ====================
-        function formatTime(sec) { if (isNaN(sec)) return "0:00"; const m = Math.floor(sec / 60), s = Math.floor(sec % 60); return `${m}:${s<10?'0':''}${s}`; }
-        function stopTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = null; }
-        function startTimer() { stopTimer(); timerInterval = setInterval(() => { if (isPlaying && !isAdPlaying && musicPlayer.duration && !musicPlayer.paused) { progressFill.style.width = (musicPlayer.currentTime/musicPlayer.duration)*100+'%'; currentTimeEl.textContent = formatTime(musicPlayer.currentTime); } }, 200); }
-        
-        async function playMusic() {
-            if (!audioActive) { showNotification('⚠️ Clique no botão "ATIVAR ÁUDIO" primeiro!', 3000); return false; }
-            if (isAdPlaying) { showNotification('Aguarde o anúncio terminar', 2000); return false; }
-            if (musicas.length === 0) {
-                showNotification('⏳ Aguarde, playlist ainda carregando...', 2000);
-                return false;
-            }
-            if (currentIndex >= musicas.length) currentIndex = 0;
-            const track = musicas[currentIndex];
-            if (!track || !track.src) {
-                showNotification(`⚠️ Erro: música não encontrada, pulando...`, 2000);
-                nextTrack();
-                return false;
-            }
-            musicPlayer.pause();
-            musicPlayer.src = track.src;
-            musicPlayer.load();
-            musicPlayer.oncanplaythrough = null; musicPlayer.onended = null; musicPlayer.onerror = null; musicPlayer.ontimeupdate = null;
-            
-            return new Promise((resolve) => {
-                musicPlayer.oncanplaythrough = async () => {
-                    try {
-                        if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
-                        await musicPlayer.play();
-                        isPlaying = true;
-                        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                        startTimer();
-                        if (musicPlayer.duration) totalTimeEl.textContent = formatTime(musicPlayer.duration);
-                        else musicPlayer.addEventListener('loadedmetadata', () => { totalTimeEl.textContent = formatTime(musicPlayer.duration); }, { once: true });
-                        splash.classList.add('hidden'); setTimeout(() => splash.style.display = 'none', 500);
-                        tapToStart.style.display = 'none';
-                        if ('mediaSession' in navigator) {
-                            navigator.mediaSession.metadata = new MediaMetadata({ title: track.title, artist: track.artist, album: 'MUTV' });
-                            navigator.mediaSession.setActionHandler('play', () => playMusic());
-                            navigator.mediaSession.setActionHandler('pause', () => pauseMusic());
-                            navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
-                            navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
-                        }
-                        resolve(true);
-                    } catch(e) { console.error(e); isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; resolve(false); }
-                };
-                musicPlayer.onended = () => {
-                    stopTimer();
-                    let nextFiltered;
-                    if (shuffle && filteredPlaylist.length > 1) {
-                        do { nextFiltered = Math.floor(Math.random() * filteredPlaylist.length); } while (nextFiltered === currentIndex);
-                    } else {
-                        nextFiltered = (currentIndex + 1) % filteredPlaylist.length;
-                    }
-                    currentIndex = nextFiltered;
-                    loadTrackUI(currentIndex);
-                    setTimeout(async () => { if (!isAdPlaying) await playMusic(); }, 80);
-                };
-                musicPlayer.onerror = () => {
-                    showNotification(`⚠️ Erro ao carregar: ${track.title}`, 3000);
-                    setTimeout(() => { if (!isAdPlaying) nextTrack(); }, 1000);
-                    resolve(false);
-                };
-                musicPlayer.ontimeupdate = () => { if (musicPlayer.duration) { progressFill.style.width = (musicPlayer.currentTime/musicPlayer.duration)*100+'%'; currentTimeEl.textContent = formatTime(musicPlayer.currentTime); } };
-            });
-        }
-        
-        function pauseMusic() { musicPlayer.pause(); isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; stopTimer(); }
-        function togglePlayPause() { isPlaying ? pauseMusic() : playMusic(); }
-        function loadTrackUI(index) { if (index >= musicas.length) index = 0; if (index < 0) index = musicas.length-1; currentIndex = index; const t = musicas[currentIndex]; trackArtist.textContent = `${t.title} - ${t.artist}`; currentTimeEl.textContent = '0:00'; totalTimeEl.textContent = '0:00'; progressFill.style.width = '0%'; }
-        
-        async function nextTrack() { if (isAdPlaying) return; stopTimer(); let nextFiltered; if (shuffle && filteredPlaylist.length > 1) { do { nextFiltered = Math.floor(Math.random() * filteredPlaylist.length); } while (nextFiltered === currentIndex); } else { nextFiltered = (currentIndex + 1) % filteredPlaylist.length; } currentIndex = nextFiltered; loadTrackUI(currentIndex); if (isPlaying) await playMusic(); }
-        async function prevTrack() { if (isAdPlaying) return; stopTimer(); let prevFiltered; if (shuffle && filteredPlaylist.length > 1) { do { prevFiltered = Math.floor(Math.random() * filteredPlaylist.length); } while (prevFiltered === currentIndex); } else { prevFiltered = (currentIndex - 1 + filteredPlaylist.length) % filteredPlaylist.length; } currentIndex = prevFiltered; loadTrackUI(currentIndex); if (isPlaying) await playMusic(); }
-        
-        // ==================== ADS ====================
-        function finishAudioAd() { isAdPlaying = false; if(shouldResumeMusic) { musicPlayer.currentTime = musicPausedTime; playMusic(); shouldResumeMusic = false; } currentAdIndex++; }
-        function playAudioAd() { if(!adsEnabled || isAdPlaying) return; if(isPlaying) { musicPausedTime = musicPlayer.currentTime; pauseMusic(); shouldResumeMusic = true; } else shouldResumeMusic = false; const ad = anunciosAudio[currentAdIndex % anunciosAudio.length]; adPlayer.src = ad.src; adPlayer.load(); isAdPlaying = true; adPlayer.play().catch(()=>finishAudioAd()); adPlayer.onended = finishAudioAd; adPlayer.onerror = finishAudioAd; }
-        function startAdTimer() { setInterval(() => { if(adsEnabled && !isAdPlaying && isPlaying) playAudioAd(); }, adInterval * 60 * 1000); }
-        
-        // ==================== MENU POPUP ====================
-        function toggleMenu() { menuPopup.classList.toggle('open'); }
-        function closeMenu() { menuPopup.classList.remove('open'); }
-        menuButton.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
-        document.addEventListener('click', (e) => { if (!menuButton.contains(e.target) && !menuPopup.contains(e.target)) closeMenu(); });
-        
-        // Ações do menu
-        document.getElementById('fullscreenMenuBtn').addEventListener('click', () => {
-            if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-            else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
-            else if (document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen();
-            closeMenu();
-        });
-        document.getElementById('shareMenuBtn').addEventListener('click', () => {
-            if (navigator.share) navigator.share({ title: 'MUTV Playlist', url: location.href });
-            else { navigator.clipboard.writeText(location.href); showNotification('Link copiado!', 2000); }
-            closeMenu();
-        });
-        document.getElementById('feedbackMenuBtn').addEventListener('click', () => {
-            document.getElementById('feedbackModal').classList.toggle('open');
-            closeMenu();
-        });
-        
-        // ==================== EVENT LISTENERS ====================
-        document.getElementById('progressBar').addEventListener('click', (e) => { if(isAdPlaying) return; const rect = e.currentTarget.getBoundingClientRect(); const percent = (e.clientX - rect.left) / rect.width; if(musicPlayer.duration) musicPlayer.currentTime = percent * musicPlayer.duration; resetHideTimer(); });
-        playBtn.addEventListener('click', () => { if(!audioActive) showNotification('⚠️ Clique no botão "ATIVAR ÁUDIO" primeiro!', 3000); else togglePlayPause(); resetHideTimer(); });
-        prevBtn.addEventListener('click', () => { prevTrack(); resetHideTimer(); });
-        nextBtn.addEventListener('click', () => { nextTrack(); resetHideTimer(); });
-        shuffleBtn.addEventListener('click', () => { shuffle = !shuffle; showNotification(shuffle ? '🔀 Aleatório ON' : '➡️ Sequencial', 1500); resetHideTimer(); });
-        
-        // Feedback modal
-        let currentRating = 0;
-        document.querySelectorAll('#ratingStars .star').forEach(star => { star.addEventListener('click', () => { currentRating = parseInt(star.dataset.rating); document.querySelectorAll('#ratingStars .star').forEach((s,i) => { if(i < currentRating) { s.classList.add('fas','active'); s.classList.remove('far'); } else { s.classList.remove('fas','active'); s.classList.add('far'); } }); }); });
-        document.getElementById('cancelFeedback').addEventListener('click', () => { document.getElementById('feedbackModal').classList.remove('open'); document.getElementById('feedbackText').value = ''; currentRating = 0; document.querySelectorAll('#ratingStars .star').forEach(s => { s.classList.remove('fas','active'); s.classList.add('far'); }); });
-        document.getElementById('sendFeedback').addEventListener('click', () => { if(currentRating === 0) { showNotification('⭐ Selecione uma nota', 2000); return; } let msg = `🎵 *MUTV Playlist*\n⭐ Nota: ${'★'.repeat(currentRating)}${'☆'.repeat(5-currentRating)}\n`; if(document.getElementById('feedbackText').value.trim()) msg += `💬 ${document.getElementById('feedbackText').value.trim()}\n`; window.open(`https://wa.me/5512988461978?text=${encodeURIComponent(msg)}`, '_blank'); showNotification('✅ WhatsApp aberto!', 2000); document.getElementById('feedbackModal').classList.remove('open'); document.getElementById('feedbackText').value = ''; currentRating = 0; document.querySelectorAll('#ratingStars .star').forEach(s => { s.classList.remove('fas','active'); s.classList.add('far'); }); });
-        
-        // Video rotation
-        let currentVideoIndex = 0;
-        setInterval(() => { currentVideoIndex = (currentVideoIndex+1)%videosList.length; const video = videosList[currentVideoIndex]; const vidEl = document.getElementById('mainVideo'); if(vidEl) { vidEl.pause(); vidEl.src = video.src; vidEl.load(); vidEl.play().catch(e=>{}); document.getElementById('ctaButton').onclick = () => window.open(video.link, '_blank'); } }, 20000);
-        document.getElementById('ctaButton').onclick = () => window.open(videosList[0].link, '_blank');
-        
-        // Auto-hide da barra inferior
-        const bottomControls = document.getElementById('bottomControls');
-        let hideTimeout;
-        function showControls() { bottomControls.classList.remove('hide'); clearTimeout(hideTimeout); hideTimeout = setTimeout(() => bottomControls.classList.add('hide'), 3000); }
-        function resetHideTimer() { if (bottomControls.classList.contains('hide')) { showControls(); } else { clearTimeout(hideTimeout); hideTimeout = setTimeout(() => bottomControls.classList.add('hide'), 3000); } }
-        document.addEventListener('touchstart', resetHideTimer);
-        document.addEventListener('click', resetHideTimer);
-        showControls();
-        
-        // Inicialização
-        tapToStart.addEventListener('click', async (e) => {
+    }
+    
+    liveToggleBtn.addEventListener('click', toggleLiveMode);
+    
+    // Adicionar eventos PLAY em todos os botões de música
+    const allPlayButtons = document.querySelectorAll('.play-song-btn');
+    allPlayButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const ok = await initAudioContext();
-            if(ok) {
-                startKeepAliveService();
-                setupVisibilityHandler();
-                setupSilentAudioWorkaround();
-                if (musicas.length === 0) {
-                    await carregarPlaylistDoGitHub(); // Carrega a playlist se ainda não estiver carregada
-                }
-                if (musicas.length > 0) {
-                    loadTrackUI(currentIndex);
-                    await playMusic();
-                    tapToStart.style.display = 'none';
-                    // Ativar tela cheia automaticamente
-                    try {
-                        if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
-                        else if (document.documentElement.webkitRequestFullscreen) await document.documentElement.webkitRequestFullscreen();
-                        else if (document.documentElement.msRequestFullscreen) await document.documentElement.msRequestFullscreen();
-                    } catch (err) { console.log('Fullscreen não suportado:', err); }
+            // encontra o nome da música: elemento irmão .song-name
+            const songItem = btn.closest('.song-item');
+            if (songItem) {
+                const songNameSpan = songItem.querySelector('.song-name');
+                if (songNameSpan) {
+                    let songText = songNameSpan.innerText;
+                    // Verifica se pertence a algum gênero (para não interferir no modo ao vivo)
+                    const genreCard = btn.closest('.genre-card');
+                    let genreHint = "";
+                    if (genreCard) {
+                        const headerText = genreCard.querySelector('.genre-header')?.innerText || "";
+                        if (headerText.includes("POP")) genreHint = "POP";
+                        else if (headerText.includes("MPB")) genreHint = "MPB";
+                        else genreHint = "other";
+                    }
+                    playSong(songText, genreHint);
                 } else {
-                    showNotification('❌ Erro ao carregar playlist. Tente recarregar.', 3000);
+                    playSong("Música selecionada");
                 }
-            } else showNotification('❌ Erro ao ativar áudio. Tente novamente.', 3000);
+            } else {
+                playSong("Faixa ativada");
+            }
         });
-        
-        // Carregar a playlist em segundo plano assim que a página carregar
-        window.addEventListener('load', async () => {
-            const savedTheme = localStorage.getItem('radioTheme') || 'theme-red';
-            document.body.className = savedTheme;
-            await carregarPlaylistDoGitHub(); // Carrega a playlist automaticamente
-            startAdTimer();
-            tapToStart.style.display = 'block';
+    });
+    
+    // Pequena correção: se o vídeo não for encontrado (pak1.Mp4), exibir mensagem amigável no console
+    const videoEl = document.getElementById('mainVideo');
+    if (videoEl) {
+        videoEl.addEventListener('error', () => {
+            const caption = document.querySelector('.video-caption');
+            if (caption) {
+                caption.innerHTML += `<span style="color:#ffaa66; display:block; margin-top:5px;">⚠️ Arquivo pak1.Mp4 não encontrado. Substitua pelo seu vídeo ou ajuste o caminho.</span>`;
+            }
         });
-    </script>
+    }
+    
+    // Inicialização: nenhum modo ao vivo ativo por padrão. O usuário que decide.
+    // Build inicial da playlist
+    livePlaylistData = buildLivePlaylist();
+    
+    // Extra: para dar um charme, mostra dica interativa.
+    console.log("Player multigênero carregado. Modo ao vivo disponível com POP e MPB.");
+</script>
 </body>
-</html>
+</html>         
