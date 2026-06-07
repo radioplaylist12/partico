@@ -339,7 +339,8 @@
         musicStartedAt: 0,
         stats: { totalPlayed: 0, totalSeconds: 0 },
         isBackgroundActive: false,
-        backgroundInterval: null
+        backgroundInterval: null,
+        wakeLock: null
     };
 
     // DOM
@@ -426,7 +427,7 @@
         return shuffleArray(filtrada);
     }
 
-    // ========== ÁUDIO DE FUNDO SILENCIOSO (MANTÉM TOCANDO COM TELA BLOQUEADA) ==========
+    // ========== ÁUDIO DE FUNDO SILENCIOSO (CRÍTICO PARA SEGUNDO PLANO) ==========
     function criarAudioSilencioso() {
         const sampleRate = 44100, duration = 5, numSamples = sampleRate * duration;
         const buffer = new ArrayBuffer(44 + numSamples * 2);
@@ -453,14 +454,16 @@
             dom.audioIndicator.style.color = '#4ade80';
             iniciarManutencaoConstante();
             
-            // Wake Lock
+            // Wake Lock (mantém tela ligada)
             if ('wakeLock' in navigator) {
                 try {
-                    await navigator.wakeLock.request('screen');
+                    state.wakeLock = await navigator.wakeLock.request('screen');
                     document.addEventListener('visibilitychange', async () => {
-                        if (document.visibilityState === 'visible') await navigator.wakeLock.request('screen');
+                        if (document.visibilityState === 'visible' && !state.wakeLock) {
+                            state.wakeLock = await navigator.wakeLock.request('screen');
+                        }
                     });
-                } catch(e) {}
+                } catch(e) { console.log("WakeLock não suportado"); }
             }
             return true;
         } catch (error) {
@@ -472,13 +475,29 @@
 
     function iniciarManutencaoConstante() {
         if (state.backgroundInterval) clearInterval(state.backgroundInterval);
+        // Verificação a cada 500ms (mais rápido que 1s) para garantir resposta imediata
         state.backgroundInterval = setInterval(async () => {
             try {
-                if (dom.backgroundAudio.paused && state.isBackgroundActive) await dom.backgroundAudio.play().catch(e=>{});
-                if (state.isPlaying && dom.musicPlayer.paused && !dom.musicPlayer.ended) await dom.musicPlayer.play().catch(e=>{});
-                if (dom.musicPlayer.ended && state.isPlaying) nextTrack();
-            } catch(e) {}
-        }, 1000);
+                // 1. Mantém o áudio silencioso rodando
+                if (dom.backgroundAudio.paused && state.isBackgroundActive) {
+                    await dom.backgroundAudio.play().catch(e=>{});
+                }
+                
+                // 2. Se o player principal deveria estar tocando, mas está pausado e não terminou -> retoma
+                if (state.isPlaying && dom.musicPlayer.paused && !dom.musicPlayer.ended) {
+                    await dom.musicPlayer.play().catch(e=>{});
+                    console.log("🎵 Retomada automática do player");
+                }
+                
+                // 3. Se a música terminou (currentTime próximo da duração) e o player ainda está "tocando", força nextTrack
+                const duration = dom.musicPlayer.duration;
+                const current = dom.musicPlayer.currentTime;
+                if (state.isPlaying && duration && !isNaN(duration) && (duration - current) < 0.3 && current > 0) {
+                    console.log("🔁 Música terminada (detectada pelo intervalo), avançando...");
+                    await nextTrack();
+                }
+            } catch(e) { console.warn("Manutenção:", e); }
+        }, 500);
     }
 
     // ========== VÍDEO ==========
@@ -548,8 +567,8 @@
             dom.musicPlayer.onerror = () => { if (!loaded) { loaded = true; clearTimeout(timeout); dom.loadingSpinner.classList.remove('show'); state.isLoadingTrack = false; setTimeout(() => this.next(), 500); } };
         },
         
-        next() { if (Date.now() - state.lastClickTime < 500) return; state.lastClickTime = Date.now(); if (state.isLoadingTrack || state.isTvMode) return; if (state.progressInterval) clearInterval(state.progressInterval); if (state.fallbackTimeout) clearTimeout(state.fallbackTimeout); state.currentIndex = (state.currentIndex + 1) % state.filteredPlaylist.length; this.play(); },
-        prev() { if (Date.now() - state.lastClickTime < 500) return; state.lastClickTime = Date.now(); if (state.isLoadingTrack || state.isTvMode) return; if (state.progressInterval) clearInterval(state.progressInterval); if (state.fallbackTimeout) clearTimeout(state.fallbackTimeout); state.currentIndex = (state.currentIndex - 1 + state.filteredPlaylist.length) % state.filteredPlaylist.length; this.play(); },
+        next: async function() { await nextTrack(); },
+        prev: async function() { await prevTrack(); },
         pause() { dom.musicPlayer.pause(); state.isPlaying = false; dom.playBtn.innerHTML = '<i class="fas fa-play"></i>'; if (state.progressInterval) clearInterval(state.progressInterval); state.progressInterval = null; },
         togglePlayPause() { if (!state.isBackgroundActive) { mostrarNotificacao('Clique em "ATIVAR RÁDIO" primeiro!', 2000); return; } state.isPlaying ? this.pause() : this.play(); },
         
@@ -576,12 +595,33 @@
         }
     };
 
+    async function nextTrack() {
+        if (state.isLoadingTrack || state.isTvMode) return;
+        if (state.progressInterval) clearInterval(state.progressInterval);
+        if (state.fallbackTimeout) clearTimeout(state.fallbackTimeout);
+        let nextIndex = (state.currentIndex + 1) % state.filteredPlaylist.length;
+        state.currentIndex = nextIndex;
+        await PlayerEngine.play();
+    }
+
+    async function prevTrack() {
+        if (state.isLoadingTrack || state.isTvMode) return;
+        if (state.progressInterval) clearInterval(state.progressInterval);
+        if (state.fallbackTimeout) clearTimeout(state.fallbackTimeout);
+        let prevIndex = (state.currentIndex - 1 + state.filteredPlaylist.length) % state.filteredPlaylist.length;
+        state.currentIndex = prevIndex;
+        await PlayerEngine.play();
+    }
+
     function scheduleFallbackNext() {
         if (state.fallbackTimeout) clearTimeout(state.fallbackTimeout);
         const duration = dom.musicPlayer.duration;
         if (duration && isFinite(duration) && duration > 0) {
             state.fallbackTimeout = setTimeout(() => {
-                if (state.isPlaying && !state.isLoadingTrack && !state.isTvMode && (dom.musicPlayer.duration - dom.musicPlayer.currentTime) < 0.5) PlayerEngine.next();
+                if (state.isPlaying && !state.isLoadingTrack && !state.isTvMode && (dom.musicPlayer.duration - dom.musicPlayer.currentTime) < 0.5) {
+                    console.log("Fallback: forçando próxima música");
+                    nextTrack();
+                }
             }, (duration * 1000) + 1000);
         }
     }
@@ -608,6 +648,21 @@
         }
     }
 
+    // ========== EVENTO DE VISIBILIDADE (quando voltar para a aba) ==========
+    let wasPlayingBeforeHidden = false;
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            wasPlayingBeforeHidden = state.isPlaying;
+            console.log("📱 Aba oculta, música continua em segundo plano (manutenção ativa)");
+        } else {
+            console.log("🔓 Aba visível novamente");
+            if (wasPlayingBeforeHidden && !state.isPlaying && !state.isLoadingTrack) {
+                console.log("Retomando reprodução automática ao voltar");
+                PlayerEngine.play();
+            }
+        }
+    });
+
     // ========== GESTOS TOUCH ==========
     let touchStartX = 0, lastTap = 0;
     dom.appRoot.addEventListener('touchstart', (e) => {
@@ -627,8 +682,8 @@
     dom.appRoot.addEventListener('touchend', (e) => {
         const diff = e.changedTouches[0].screenX - touchStartX;
         if (Math.abs(diff) > 50) {
-            if (diff > 0) PlayerEngine.prev();
-            else PlayerEngine.next();
+            if (diff > 0) prevTrack();
+            else nextTrack();
             const indicator = document.getElementById('swipeIndicator');
             indicator.textContent = diff > 0 ? '⏮️ Anterior' : '⏭️ Próxima';
             indicator.style.opacity = '1';
@@ -657,8 +712,8 @@
         });
         
         dom.playBtn.addEventListener('click', () => PlayerEngine.togglePlayPause());
-        dom.prevBtn.addEventListener('click', () => PlayerEngine.prev());
-        dom.nextBtn.addEventListener('click', () => PlayerEngine.next());
+        dom.prevBtn.addEventListener('click', () => prevTrack());
+        dom.nextBtn.addEventListener('click', () => nextTrack());
         dom.shuffleBtn.addEventListener('click', () => { if (!state.isTvMode) { state.filteredPlaylist = shuffleArray(state.filteredPlaylist); state.currentIndex = 0; mostrarNotificacao('🔀 Aleatório', 800); if (state.isPlaying) PlayerEngine.play(); } });
         
         document.getElementById('progressBar').addEventListener('click', e => {
@@ -741,13 +796,12 @@
         carregarStats();
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
         setupEventListeners();
-        // Exibe splash e botão de ativação
         dom.splash.classList.remove('hidden');
         dom.tapToStart.style.display = 'block';
         showControls();
     }
     init();
-    console.log("🚀 Rádio Patico - Agora com áudio em segundo plano (tela bloqueada)!");
+    console.log("🚀 Rádio Patico - Agora com manutenção robusta para tocar com tela bloqueada!");
 </script>
 
 <!-- TV Overlay (necessário para o Modo TV) -->
