@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+                <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +11,7 @@
         :root { --bg-primary: #0a0a0f; --accent: #00f3ff; --secondary: #ff2d7f; }
         body { min-height: 100vh; background: var(--bg-primary); overflow: hidden; position: fixed; width: 100%; height: 100%; font-family: 'Rajdhani', sans-serif; }
         
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; transition: opacity 0.8s; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; }
+        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; transition: opacity 0.8s; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; flex-direction: column; }
         .splash-content { text-align: center; color: #00f3ff; }
         .splash-content i { font-size: 3rem; margin-bottom: 1rem; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.6; transform: scale(1); } }
@@ -210,7 +210,7 @@
             font-size: 1rem;
             z-index: 10000;
             cursor: pointer;
-            display: none;
+            display: block;  /* Forçando a aparecer */
             animation: btnPulse 1.5s infinite;
             white-space: nowrap;
             box-shadow: 0 0 20px rgba(0,243,255,0.5);
@@ -305,6 +305,42 @@
 <audio id="backgroundAudio" preload="auto" crossorigin style="display:none;"></audio>
 
 <script>
+    // ==================== PLAYLIST LOCAL (FALLBACK) ====================
+    const PLAYLIST_LOCAL = [
+        { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO" },
+        { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO" },
+        { id: 3, title: "Esqueci Você", artist: "Bruno & Marrone", src: "Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a", genero: "SERTANEJO" },
+        { id: 4, title: "Ficar por Ficar", artist: "Zé Vaqueiro", src: "Zé-Vaqueiro-Ficar-por-Ficar.m4a", genero: "FORRÓ" },
+        { id: 5, title: "Coração Partido", artist: "Luan Estilizado", src: "16 - Coracao Partido - Luan Estilizado.mp3", genero: "FORRÓ" },
+        { id: 6, title: "Porsche Azul", artist: "Claudio & Ney", src: "Claudio_Ney_e_Juliana_Porsche_Azul_.m4a", genero: "FORRÓ" },
+        { id: 7, title: "Lance Livre", artist: "Kamisa 10", src: "Kamisa 10 - Lance Livre _ NA VIBE DO K10(MP3_160K).mp3", genero: "SAMBA" },
+        { id: 8, title: "Foi Bom Mas Foi Ontem", artist: "Grupo Menos é Mais", src: "Grupo Menos é Mais e João Gomes - Foi Bom_ Mas Foi Ontem (Clipe Oficial)(MP3_160K).mp3", genero: "SAMBA" },
+        { id: 9, title: "Pagode do Kiko", artist: "Kiko no Pagode", src: "KIiko no Pagode.m4a", genero: "SAMBA" },
+        { id: 10, title: "Dona da Minha Cabeça", artist: "Geraldo Azevedo", src: "Geraldo_Azevedo_Dona_da_Minha_Cabe_a_muzzik (1).m4a", genero: "VARIADAS" },
+        { id: 11, title: "Easy", artist: "Commodores", src: "Commodores_Easy_6.m4a", genero: "VARIADAS" },
+        { id: 12, title: "Mordida de Amor", artist: "SPC", src: "Mordida_de_Amor_Dvd_Produto_Nacional_Vol_SPC_muzzik.m4a", genero: "SAMBA" },
+        { id: 13, title: "Retrovisor", artist: "Gusttavo Lima", src: "Gusttavo_Lima_Retrovisor_DVD_muzzik.m4a", genero: "SERTANEJO" },
+        { id: 14, title: "Avião", artist: "Patrick Costa", src: "Patrick_Costa_Henrique_e_Juliano_Xand_Avi_o_Diga_Pra_Mim_Fiquei_Sabendo_FarraDoPatrick_muzzik (1).m4a", genero: "FORRÓ" },
+        { id: 15, title: "Pé na Estrada", artist: "VH e Alexandre", src: "VH_e_Alexandre_Pe_o_Apaixonado_Saudade_Pulou_no_Peito_Mexe_que_Bom_ParadaObrigat_ria_muzzik.m4a", genero: "SERTANEJO" },
+        { id: 16, title: "To Bebendo To Pagando", artist: "Mano Walter", src: "Mano_Walter_Sirano_Sirino_To_Bebendo_To_Pagando_muzzik.m4a", genero: "FORRÓ" },
+        { id: 17, title: "Catedral", artist: "Lauana Prado", src: "LAUANA_PRADO_CATEDRAL_TUDO_DE_NOVO_AMOR_I_LOVE_YOU_muzzik (1).m4a", genero: "SERTANEJO"}, 
+        { id: 18, title: "Primeiro Passo", artist: "Márcia Felipe", src: "Peruanno_M_rcia_Fellipe_Primeiro_Passo_muzzik.m4a", genero: "FORRÓ" },
+        { id: 19, title: "Ainda é Tempo", artist: "Limão com mel", src: "Ainda_Ainda_Tempo__muzzik.m4a", genero: "FORRÓ" },
+        { id: 20, title: "Tarde Demais", artist: "À Vontade", src: "_Vontade_TARDE_DEMAIS_.m4a", genero: "VARIADAS" },
+        { id: 21, title: "De Bar em Bar", artist: "Ao Vivo", src: "02 - Ao Vivo e a Cores - De Bar em Bar 9.mp3", genero: "FORRÓ" },
+        { id: 22, title: "Desejo de Menina", artist: "Moura", src: "Moura-Desejo-de-Menina.mp3", genero: "FORRÓ" },
+        { id: 23, title: "Você Virou Minha Cabeça", artist: "Ferro na Boneca", src: "VOCÊ VIROU MINHA CABEÇA - FERRO NA BONECA.mp3", genero: "FORRÓ" },
+        { id: 24, title: "P do Pecado", artist: "Ferro na Boneca", src: "P DO PECADO - FERRO NA BONECA.mp3", genero: "FORRÓ" },
+        { id: 25, title: "Nova Namorada", artist: "Natãzinho Lima", src: "03 - Nova Namorada - De Bar em Bar 9.mp3", genero: "FORRÓ" },
+        { id: 26, title: "Haven't Met You Yet", artist: "Michael Bublé", src: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", genero: "POP" },
+        { id: 27, title: "Billie Jean", artist: "Michael Jackson", src: "Michael_Jackson_Billie_Jean.m4a", genero: "POP" },
+        { id: 28, title: "Thank You", artist: "Dido", src: "Dido_Thank_You.m4a", genero: "POP" },
+        { id: 29, title: "É Tarde Demais", artist: "Marquinhos Nava", src: "01 - É TARDE DEMAIS - Marquinhos Navais.mp3", genero: "FORRÓ" },
+        { id: 30, title: "Onde Anda Você", artist: "Edimilson Batista", src: "01 onde andara vc.mp3", genero: "FORRÓ" }
+    ];
+
+    let PLAYLIST = [...PLAYLIST_LOCAL]; // Usa a lista local como padrão
+
     // ==================== CONFIGURAÇÕES ====================
     const CONFIG = {
         VOLUME_PLAYER: 0.9,
@@ -312,12 +348,9 @@
         VIDEO_MIGUEL: 'miguel.mp4',
         VIDEO_TV: 'tv.mp4',
         SITE_MIGUEL: 'https://oticassaomiguel.com.br/',
-        PLAYLIST_URL: 'https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json',
         TIMEOUT_CARREGAMENTO_MUSICA: 8000,
         NUMERO_WHATSAPP: '5512988461978'
     };
-
-    let PLAYLIST = [];
 
     // ==================== ESTADO ====================
     const state = {
@@ -388,46 +421,13 @@
 
     function formatTime(sec) { if (isNaN(sec)) return '0:00'; const m = Math.floor(sec/60); const s = Math.floor(sec%60); return `${m}:${s<10?'0':''}${s}`; }
 
-    // ========== CARREGAR PLAYLIST ==========
-    async function carregarPlaylist() {
-        try {
-            const resp = await fetch(CONFIG.PLAYLIST_URL);
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            PLAYLIST = await resp.json();
-            console.log(`✅ Playlist carregada: ${PLAYLIST.length} músicas`);
-            PLAYLIST = PLAYLIST.map((m, idx) => { if (!m.id) m.id = idx; if (!m.artist) m.artist = "Artista"; return m; });
-            localStorage.setItem('playlist_cache', JSON.stringify(PLAYLIST));
-            localStorage.setItem('playlist_cache_time', Date.now().toString());
-        } catch(e) {
-            console.error("Erro ao carregar playlist do GitHub", e);
-            const cached = localStorage.getItem('playlist_cache');
-            if (cached) {
-                PLAYLIST = JSON.parse(cached);
-                console.log("⚠️ Usando cache local");
-            } else {
-                PLAYLIST = [
-                    { id:0, title:"MPB - Exemplo", artist:"Artista1", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", genero:"MPB" },
-                    { id:1, title:"Samba - Exemplo", artist:"Artista2", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", genero:"SAMBA" },
-                    { id:2, title:"Sertanejo - Exemplo", artist:"Artista3", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", genero:"SERTANEJO" },
-                    { id:3, title:"Pop - Exemplo", artist:"Artista4", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", genero:"POP" },
-                    { id:4, title:"Forró - Exemplo", artist:"Artista5", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", genero:"FORRÓ" },
-                    { id:5, title:"Forró Antigo - Exemplo", artist:"Artista6", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", genero:"FORRÓ ANTIGO" },
-                    { id:6, title:"Brega - Exemplo", artist:"Artista7", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3", genero:"BREGA" },
-                    { id:7, title:"Ao Vivo - Exemplo", artist:"Banda AO VIVO", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", genero:"AO VIVO" },
-                    { id:8, title:"Moda Top - Exemplo", artist:"Top Brasil", src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3", genero:"MODA TOP" }
-                ];
-                mostrarNotificacao("⚠️ Usando músicas de exemplo", 2000);
-            }
-        }
-    }
-
     function filtrarPorGenero(genero) {
         let filtrada = PLAYLIST.filter(m => m.genero === genero);
         if (filtrada.length === 0) filtrada = [...PLAYLIST];
         return shuffleArray(filtrada);
     }
 
-    // ========== ÁUDIO DE FUNDO SILENCIOSO (CRÍTICO PARA SEGUNDO PLANO) ==========
+    // ========== ÁUDIO DE FUNDO SILENCIOSO ==========
     function criarAudioSilencioso() {
         const sampleRate = 44100, duration = 5, numSamples = sampleRate * duration;
         const buffer = new ArrayBuffer(44 + numSamples * 2);
@@ -454,7 +454,6 @@
             dom.audioIndicator.style.color = '#4ade80';
             iniciarManutencaoConstante();
             
-            // Wake Lock (mantém tela ligada)
             if ('wakeLock' in navigator) {
                 try {
                     state.wakeLock = await navigator.wakeLock.request('screen');
@@ -463,7 +462,7 @@
                             state.wakeLock = await navigator.wakeLock.request('screen');
                         }
                     });
-                } catch(e) { console.log("WakeLock não suportado"); }
+                } catch(e) {}
             }
             return true;
         } catch (error) {
@@ -475,28 +474,20 @@
 
     function iniciarManutencaoConstante() {
         if (state.backgroundInterval) clearInterval(state.backgroundInterval);
-        // Verificação a cada 500ms (mais rápido que 1s) para garantir resposta imediata
         state.backgroundInterval = setInterval(async () => {
             try {
-                // 1. Mantém o áudio silencioso rodando
                 if (dom.backgroundAudio.paused && state.isBackgroundActive) {
                     await dom.backgroundAudio.play().catch(e=>{});
                 }
-                
-                // 2. Se o player principal deveria estar tocando, mas está pausado e não terminou -> retoma
                 if (state.isPlaying && dom.musicPlayer.paused && !dom.musicPlayer.ended) {
                     await dom.musicPlayer.play().catch(e=>{});
-                    console.log("🎵 Retomada automática do player");
                 }
-                
-                // 3. Se a música terminou (currentTime próximo da duração) e o player ainda está "tocando", força nextTrack
                 const duration = dom.musicPlayer.duration;
                 const current = dom.musicPlayer.currentTime;
                 if (state.isPlaying && duration && !isNaN(duration) && (duration - current) < 0.3 && current > 0) {
-                    console.log("🔁 Música terminada (detectada pelo intervalo), avançando...");
                     await nextTrack();
                 }
-            } catch(e) { console.warn("Manutenção:", e); }
+            } catch(e) {}
         }, 500);
     }
 
@@ -518,6 +509,24 @@
     function abrirSiteMiguel() { window.open(CONFIG.SITE_MIGUEL, '_blank'); mostrarNotificacao("🌐 Abrindo site", 1200); }
 
     // ========== PLAYER ==========
+    async function nextTrack() {
+        if (state.isLoadingTrack || state.isTvMode) return;
+        if (state.progressInterval) clearInterval(state.progressInterval);
+        if (state.fallbackTimeout) clearTimeout(state.fallbackTimeout);
+        let nextIndex = (state.currentIndex + 1) % state.filteredPlaylist.length;
+        state.currentIndex = nextIndex;
+        await PlayerEngine.play();
+    }
+
+    async function prevTrack() {
+        if (state.isLoadingTrack || state.isTvMode) return;
+        if (state.progressInterval) clearInterval(state.progressInterval);
+        if (state.fallbackTimeout) clearTimeout(state.fallbackTimeout);
+        let prevIndex = (state.currentIndex - 1 + state.filteredPlaylist.length) % state.filteredPlaylist.length;
+        state.currentIndex = prevIndex;
+        await PlayerEngine.play();
+    }
+
     const PlayerEngine = {
         async play() {
             if (state.isLoadingTrack || state.isTvMode) return;
@@ -595,38 +604,19 @@
         }
     };
 
-    async function nextTrack() {
-        if (state.isLoadingTrack || state.isTvMode) return;
-        if (state.progressInterval) clearInterval(state.progressInterval);
-        if (state.fallbackTimeout) clearTimeout(state.fallbackTimeout);
-        let nextIndex = (state.currentIndex + 1) % state.filteredPlaylist.length;
-        state.currentIndex = nextIndex;
-        await PlayerEngine.play();
-    }
-
-    async function prevTrack() {
-        if (state.isLoadingTrack || state.isTvMode) return;
-        if (state.progressInterval) clearInterval(state.progressInterval);
-        if (state.fallbackTimeout) clearTimeout(state.fallbackTimeout);
-        let prevIndex = (state.currentIndex - 1 + state.filteredPlaylist.length) % state.filteredPlaylist.length;
-        state.currentIndex = prevIndex;
-        await PlayerEngine.play();
-    }
-
     function scheduleFallbackNext() {
         if (state.fallbackTimeout) clearTimeout(state.fallbackTimeout);
         const duration = dom.musicPlayer.duration;
         if (duration && isFinite(duration) && duration > 0) {
             state.fallbackTimeout = setTimeout(() => {
                 if (state.isPlaying && !state.isLoadingTrack && !state.isTvMode && (dom.musicPlayer.duration - dom.musicPlayer.currentTime) < 0.5) {
-                    console.log("Fallback: forçando próxima música");
                     nextTrack();
                 }
             }, (duration * 1000) + 1000);
         }
     }
 
-    // ========== CONTROLES DE VISIBILIDADE (TOQUE NA TELA) ==========
+    // ========== CONTROLES DE VISIBILIDADE ==========
     function hideControls() {
         if (!state.isTvMode) {
             dom.bottomControls.classList.add('hide-controls');
@@ -647,21 +637,6 @@
             }, 4000);
         }
     }
-
-    // ========== EVENTO DE VISIBILIDADE (quando voltar para a aba) ==========
-    let wasPlayingBeforeHidden = false;
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            wasPlayingBeforeHidden = state.isPlaying;
-            console.log("📱 Aba oculta, música continua em segundo plano (manutenção ativa)");
-        } else {
-            console.log("🔓 Aba visível novamente");
-            if (wasPlayingBeforeHidden && !state.isPlaying && !state.isLoadingTrack) {
-                console.log("Retomando reprodução automática ao voltar");
-                PlayerEngine.play();
-            }
-        }
-    });
 
     // ========== GESTOS TOUCH ==========
     let touchStartX = 0, lastTap = 0;
@@ -756,7 +731,6 @@
         
         dom.videoContainer.addEventListener('click', () => { if (state.isMiguelVideoActive) abrirSiteMiguel(); else ativarVideoMiguel(); });
         
-        // Toque na tela para mostrar/esconder controles
         dom.appRoot.addEventListener('click', (e) => {
             if (!state.isTvMode) {
                 if (e.target.closest('.control-btn') || e.target.closest('.genre-button') || e.target.closest('.menu-button')) {
@@ -792,19 +766,22 @@
 
     // ==================== INICIALIZAÇÃO ====================
     async function init() {
-        await carregarPlaylist();
         carregarStats();
         dom.musicPlayer.volume = CONFIG.VOLUME_PLAYER;
+        state.filteredPlaylist = filtrarPorGenero(state.generoAtual);
+        state.currentIndex = 0;
+        dom.genreBadge.innerHTML = '<i class="fas fa-broadcast-tower"></i> AO VIVO';
         setupEventListeners();
+        // Exibe o botão e o splash
         dom.splash.classList.remove('hidden');
         dom.tapToStart.style.display = 'block';
         showControls();
     }
     init();
-    console.log("🚀 Rádio Patico - Agora com manutenção robusta para tocar com tela bloqueada!");
+    console.log("🚀 Rádio Patico - Playlist local carregada! Botão ATIVAR RÁDIO visível.");
 </script>
 
-<!-- TV Overlay (necessário para o Modo TV) -->
+<!-- TV Overlay -->
 <div id="tvOverlay" class="tv-overlay">
     <button class="tv-close" id="tvCloseBtn"><i class="fas fa-times"></i></button>
     <video id="tvVideo" class="tv-video" autoplay loop muted playsinline src="tv.mp4"></video>
