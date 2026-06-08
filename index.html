@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Rádio Patico • Playlist IA</title>
-    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -36,7 +35,6 @@
         .car-mode-active .car-indicator { display: flex; align-items: center; gap: 5px; }
         .car-mode-active .bottom-controls, .car-mode-active .genre-button, .car-mode-active .cta-button, .car-mode-active .feedback-buttons { display: none; }
         
-        /* Botão Sair do modo carro (RETORNAR TELA PRINCIPAL) */
         .return-main-btn { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #e63946, #ff6b6b); color: white; border: none; padding: 10px 20px; border-radius: 40px; font-size: 0.9rem; font-weight: bold; cursor: pointer; z-index: 103; display: none; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .car-mode-active .return-main-btn { display: flex; }
         .return-main-btn:active { transform: translateX(-50%) scale(0.96); }
@@ -111,7 +109,6 @@
         
         .fullscreen-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 8px 16px; border-radius: 25px; z-index: 10004; opacity: 0; transition: opacity 0.5s; pointer-events: none; font-size: 0.7rem; }
         
-        /* MODAL FEEDBACK ESTRELAS */
         .feedback-star-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 5000; display: none; align-items: center; justify-content: center; }
         .feedback-star-modal.open { display: flex; }
         .feedback-star-content { background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 25px; padding: 20px; width: 85%; max-width: 320px; text-align: center; border: 2px solid #e63946; }
@@ -133,8 +130,8 @@
         <div class="splash-content">
             <i class="fas fa-broadcast-tower"></i>
             <h1>Rádio Patico</h1>
-            <p>🎵 Carregando playlist do servidor...</p>
-            <div class="loading-text"><i class="fas fa-circle-notch fa-spin"></i> Buscando músicas do JSON</div>
+            <p>🎵 Carregando playlists do servidor...</p>
+            <div class="loading-text"><i class="fas fa-circle-notch fa-spin"></i> Buscando músicas dos JSONs</div>
         </div>
     </div>
     <div id="tap-to-start"><i class="fas fa-play-circle"></i> 🎵 ATIVAR ÁUDIO</div>
@@ -210,7 +207,6 @@
         <button class="close-genres" id="closeGenresBtn"><i class="fas fa-check-circle"></i> FECHAR</button>
     </div>
     
-    <!-- MODAL FEEDBACK COM ESTRELAS -->
     <div class="feedback-star-modal" id="feedbackStarModal">
         <div class="feedback-star-content">
             <h3><i class="fas fa-star" style="color: #ffd700;"></i> Sua opinião é importante!</h3>
@@ -236,13 +232,25 @@
 
     <script>
         // ==================== CONFIGURAÇÕES ====================
-        const PLAYLIST_JSON_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/4146336c11162317c986d6ae73cfad4381330e45/playlist.json";
+        // Mapeamento dos gêneros para suas respectivas URLs RAW do GitHub
+        const PLAYLISTS = {
+            "FORRÓ": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/forro.json",
+            "FORRÓ_ANTIGO": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/forroantigo.json",
+            "BREGA": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/brega.json",
+            "MPB": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/mpb.json",
+            "POP": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/pop.json",
+            "SERTANEJO": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/sertanejo.json",
+            "MODÃO_TOP": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/modatop.json",
+            "SAMBA": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/samba.json"
+        };
+        
         const ARQUIVO_ANUNCIO_VIDEO = "anu.mp4";
         const ARQUIVO_ANUNCIO_AUDIO = "zzvc.mp3";
         const INTERVALO_VIDEO_MS = 30000;
         const QUANTIDADE_MUSICAS_AUDIO = 15;
         const NUMERO_WHATSAPP_FEEDBACK = "5512988461978";
         
+        // Variáveis globais
         let musicas = [];
         let filteredPlaylist = [];
         let currentIndex = 0, isPlaying = false, shuffleMode = false, isBackgroundActive = false, isCarMode = false;
@@ -307,7 +315,7 @@
             if (saved) { try { userPreferences = { ...userPreferences, ...JSON.parse(saved) }; } catch(e) {} }
         }
         
-        // TELA CHEIA AUTOMÁTICA
+        // TELA CHEIA
         async function ativarTelaCheia() {
             try {
                 if (document.documentElement.requestFullscreen) {
@@ -356,9 +364,8 @@
             } catch(error) { showNotification('❌ Falha na conexão', 2000); }
         }
         
-        // FEEDBACK COM ESTRELAS
+        // FEEDBACK ESTRELAS
         let currentRating = 0;
-        
         function abrirFeedbackEstrelas() {
             currentRating = 0;
             document.getElementById('feedbackComment').value = '';
@@ -387,11 +394,6 @@
             showNotification('✅ Obrigado pelo feedback!', 2000);
         }
         
-        // INICIAR COM MÚSICAS DIFERENTES (aleatório inteligente)
-        function getRandomStartIndex() {
-            return Math.floor(Math.random() * Math.min(10, filteredPlaylist.length));
-        }
-        
         // IA
         function calculateSongWeight(song) {
             let weight = 1.0;
@@ -405,7 +407,11 @@
         }
         
         function prioritizeLiveSongs(playlist) {
-            return [...playlist].sort((a, b) => (b.isLive ? 1 : 0) - (a.isLive ? 1 : 0));
+            return [...playlist].sort((a, b) => {
+                const aLive = a.tipo === "ao vivo" || a.isLive === true;
+                const bLive = b.tipo === "ao vivo" || b.isLive === true;
+                return (bLive ? 1 : 0) - (aLive ? 1 : 0);
+            });
         }
         
         function generateSmartPlaylist() {
@@ -432,12 +438,17 @@
             else if (currentGenre === "FORRÓ") icon = "fa-drum";
             else if (currentGenre === "FORRÓ_ANTIGO") icon = "fa-accordion";
             else if (currentGenre === "MODÃO_TOP") icon = "fa-hat-cowboy";
-            else if (currentGenre === "BREGA_SERTANEJO") icon = "fa-guitar";
+            else if (currentGenre === "BREGA") icon = "fa-heart-broken";
+            else if (currentGenre === "SERTANEJO") icon = "fa-guitar";
             else icon = "fa-head-side-brain";
             genreBadge.innerHTML = `<i class="fas ${icon}"></i> ${currentGenre.replace('_', ' ')}`;
         }
         
         let currentFilterGenre = "TODOS";
+        
+        function getRandomStartIndex() {
+            return Math.floor(Math.random() * Math.min(10, filteredPlaylist.length));
+        }
         
         function filterByGenre(genero) {
             if (!musicas.length) return;
@@ -463,7 +474,8 @@
             if (!filteredPlaylist.length) return;
             const track = filteredPlaylist[index];
             if (!track) return;
-            trackArtist.innerHTML = `${track.title} - ${track.artist} [${track.genero.replace('_', ' ')}]${track.isLive ? ' 🔴 AO VIVO' : ''}`;
+            const aoVivo = (track.tipo === "ao vivo" || track.isLive === true) ? ' 🔴 AO VIVO' : '';
+            trackArtist.innerHTML = `${track.title} - ${track.artist} [${track.genero.replace('_', ' ')}]${aoVivo}`;
             currentTimeEl.textContent = '0:00';
             totalTimeEl.textContent = '0:00';
             progressFill.style.width = '0%';
@@ -725,33 +737,44 @@
             if (Math.abs(diff) > 50) { if (diff > 0) prevTrack(); else nextTrack(); }
         });
         
-        // CARREGAR PLAYLIST DO JSON
-        async function carregarPlaylistDoJson() {
+        // CARREGAR TODOS OS JSONS
+        async function carregarTodasPlaylists() {
             try {
-                splash.querySelector('.loading-text').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlist...';
-                const response = await fetch(PLAYLIST_JSON_URL);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                if (!Array.isArray(data) || data.length === 0) throw new Error('JSON vazio');
-                musicas = data.map((item, idx) => ({
-                    id: item.id || idx + 1,
-                    title: item.title || "Sem título",
-                    artist: item.artist || "Desconhecido",
-                    src: item.src || "",
-                    genero: item.genero || "VARIADAS",
-                    isLive: item.isLive === true || (item.title && (item.title.toLowerCase().includes("ao vivo") || item.title.toLowerCase().includes("live")))
-                }));
-                console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
+                splash.querySelector('.loading-text').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlists do GitHub...';
+                const promises = Object.entries(PLAYLISTS).map(async ([genero, url]) => {
+                    try {
+                        const response = await fetch(url);
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        const data = await response.json();
+                        const musicasComGenero = data.map(musica => ({
+                            ...musica,
+                            genero: musica.genero || genero,
+                            isLive: musica.tipo === "ao vivo" || musica.isLive === true
+                        }));
+                        musicas = [...musicas, ...musicasComGenero];
+                        console.log(`✅ ${genero}: ${musicasComGenero.length} músicas`);
+                    } catch(error) {
+                        console.error(`❌ Erro ao carregar ${genero}:`, error);
+                        showError(`Erro ao carregar ${genero}: ${error.message}`);
+                    }
+                });
+                
+                await Promise.all(promises);
+                console.log(`🎉 TOTAL: ${musicas.length} músicas carregadas!`);
                 splash.querySelector('.loading-text').innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
+                
+                if (musicas.length === 0) throw new Error("Nenhuma música foi carregada");
+                
                 filteredPlaylist = prioritizeLiveSongs([...musicas]);
                 currentFilterGenre = "TODOS";
                 updateGenreBadge();
                 currentIndex = getRandomStartIndex();
                 loadTrackUI(currentIndex);
                 
-                const generosUnicos = [...new Set(musicas.map(m => m.genero))];
+                // Construir grid de gêneros
                 const grid = document.getElementById('genresGrid');
                 grid.innerHTML = '';
+                
                 const todosBtn = document.createElement('div');
                 todosBtn.className = 'genre-card';
                 todosBtn.style.background = "linear-gradient(135deg,#00b4db,#0083b0)";
@@ -759,19 +782,29 @@
                 todosBtn.onclick = () => { filterByGenre("TODOS"); document.getElementById('genresModal').classList.remove('open'); };
                 grid.appendChild(todosBtn);
                 
-                const iconesPorGenero = { "SAMBA": "fa-drumstick-bite", "POP": "fa-microphone-alt", "MPB": "fa-guitar", "FORRÓ": "fa-drum", "FORRÓ_ANTIGO": "fa-accordion", "MODÃO_TOP": "fa-hat-cowboy", "BREGA_SERTANEJO": "fa-guitar" };
-                const cores = ["linear-gradient(135deg,#f2994a,#f2c94c)", "linear-gradient(135deg,#2193b0,#6dd5ed)", "linear-gradient(135deg,#134e5e,#71b280)", "linear-gradient(135deg,#f12711,#f5af19)", "linear-gradient(135deg,#8E2DE2,#4A00E0)", "linear-gradient(135deg,#cc2b5e,#753a88)", "linear-gradient(135deg,#e63946,#ff6b6b)"];
-                let corIndex = 0;
-                generosUnicos.forEach(genero => {
-                    if (genero === "VARIADAS") return;
+                const generosOrdenados = ["SAMBA", "POP", "MPB", "FORRÓ", "FORRÓ_ANTIGO", "SERTANEJO", "MODÃO_TOP", "BREGA"];
+                const icones = {
+                    "SAMBA": "fa-drumstick-bite", "POP": "fa-microphone-alt", "MPB": "fa-guitar",
+                    "FORRÓ": "fa-drum", "FORRÓ_ANTIGO": "fa-accordion", "SERTANEJO": "fa-guitar",
+                    "MODÃO_TOP": "fa-hat-cowboy", "BREGA": "fa-heart-broken"
+                };
+                const cores = [
+                    "linear-gradient(135deg,#f2994a,#f2c94c)", "linear-gradient(135deg,#2193b0,#6dd5ed)",
+                    "linear-gradient(135deg,#134e5e,#71b280)", "linear-gradient(135deg,#f12711,#f5af19)",
+                    "linear-gradient(135deg,#8E2DE2,#4A00E0)", "linear-gradient(135deg,#e63946,#ff6b6b)",
+                    "linear-gradient(135deg,#cc2b5e,#753a88)", "linear-gradient(135deg,#ff6b6b,#ee5a24)"
+                ];
+                
+                generosOrdenados.forEach((genero, idx) => {
+                    if (!PLAYLISTS[genero]) return;
                     const card = document.createElement('div');
                     card.className = 'genre-card';
-                    card.style.background = cores[corIndex % cores.length];
-                    const icon = iconesPorGenero[genero] || "fa-music";
-                    card.innerHTML = `<i class="fas ${icon}"></i><span>${genero.replace('_', ' ')}</span>`;
+                    card.style.background = cores[idx % cores.length];
+                    const icon = icones[genero] || "fa-music";
+                    const nomeExibicao = genero === "FORRÓ_ANTIGO" ? "Forró Antigo" : genero === "MODÃO_TOP" ? "Modão Top" : genero;
+                    card.innerHTML = `<i class="fas ${icon}"></i><span>${nomeExibicao}</span>`;
                     card.onclick = () => { filterByGenre(genero); document.getElementById('genresModal').classList.remove('open'); };
                     grid.appendChild(card);
-                    corIndex++;
                 });
                 
                 setTimeout(() => {
@@ -779,9 +812,9 @@
                     setTimeout(() => { splash.style.display = 'none'; appContainer.style.display = 'block'; menuButton.style.display = 'flex'; tapToStart.style.display = 'block'; }, 500);
                 }, 1000);
             } catch (error) {
-                console.error("Erro:", error);
+                console.error("Erro crítico:", error);
                 splash.querySelector('.loading-text').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro: ${error.message}`;
-                setTimeout(() => { splash.classList.add('hidden'); appContainer.style.display = 'block'; menuButton.style.display = 'flex'; tapToStart.style.display = 'block'; }, 3000);
+                setTimeout(() => { splash.classList.add('hidden'); appContainer.style.display = 'block'; menuButton.style.display = 'flex'; tapToStart.style.display = 'block'; showError('Falha ao carregar playlists'); }, 3000);
             }
         }
         
@@ -847,7 +880,7 @@
         setInterval(() => { const mainVideo = document.getElementById('mainVideo'); if (mainVideo && mainVideo.paused && !isCarMode) mainVideo.play().catch(e => console.log); }, 5000);
         
         loadPrefs();
-        carregarPlaylistDoJson();
+        carregarTodasPlaylists();
         
         if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
             navigator.mediaDevices.enumerateDevices().then(devices => { if (devices.filter(d => d.kind === 'audiooutput').length > 0) atualizarStatusBluetooth(true); }).catch(() => {});
