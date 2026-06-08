@@ -9,23 +9,19 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { min-height: 100vh; background-color: #000000; overflow: hidden; position: fixed; width: 100%; height: 100%; }
         
-        /* Container Principal e Vídeo de Fundo */
         .app { width: 100%; height: 100vh; background: #000000; position: relative; overflow: hidden; }
         .fullscreen-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1; }
         .fullscreen-video-container video { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
-        
-        /* Overlay principal para centralizar elementos */
         .controls-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
         
         /* Controles e Botões (aparecem apenas com toque na tela) */
         .bottom-controls, .feedback-buttons, .genre-button, .cta-button {
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
         }
         
-        /* Classe para mostrar os controles */
         .controls-visible .bottom-controls,
         .controls-visible .feedback-buttons,
         .controls-visible .genre-button,
@@ -35,14 +31,11 @@
             pointer-events: auto;
         }
         
-        /* Botão de Gênero */
         .genre-button { position: fixed; bottom: 130px; right: 20px; background: linear-gradient(135deg, #8E2DE2, #4A00E0); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 1.3rem; cursor: pointer; z-index: 26; box-shadow: 0 4px 12px rgba(0,0,0,0.3); animation: floatGenre 3s ease-in-out infinite; }
         @keyframes floatGenre { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
         
-        /* Botão CTA (WhatsApp) */
         .cta-button { position: fixed; bottom: 195px; right: 20px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255,255,255,0.4); border-radius: 40px; padding: 8px 15px; font-size: 0.7rem; font-weight: bold; cursor: pointer; z-index: 26; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
         
-        /* Botões de Feedback (Like, Dislike, Estrela) */
         .feedback-buttons { position: fixed; bottom: 130px; left: 20px; display: flex; gap: 8px; z-index: 27; }
         .feedback-btn { width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: transform 0.1s; }
         .feedback-btn:active { transform: scale(0.9); background: #e63946; color: #000; }
@@ -50,8 +43,7 @@
         .feedback-btn.dislike { color: #ef4444; }
         .feedback-btn.star { color: #ffd700; }
         
-        /* Barra Inferior (Player) */
-        .bottom-controls { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.2); padding: 8px 12px; z-index: 20; transition: transform 0.3s, opacity 0.3s; }
+        .bottom-controls { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.2); padding: 8px 12px; z-index: 20; }
         .track-info { text-align: center; margin-bottom: 5px; color: #fff; font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .progress-area { margin-bottom: 6px; }
         .progress-time { display: flex; justify-content: space-between; font-size: 0.6rem; color: #ccc; }
@@ -62,11 +54,7 @@
         .control-btn:active { transform: scale(0.9); background: #e63946; color: #000; }
         .play-btn { font-size: 1.3rem; width: 48px; height: 48px; background: #e63946; color: #000; border: none; }
         
-        /* Demais elementos (notificações, badges, modais) permanecem visíveis */
-        .notification-top, .genre-badge, .audio-indicator, .bluetooth-indicator, .loading-spinner, .error-banner, .fullscreen-msg {
-            pointer-events: none;
-        }
-        .notification-top { position: absolute; top: 12px; left: 12px; right: 12px; text-align: center; z-index: 30; opacity: 0; transition: opacity 0.3s; }
+        .notification-top { position: absolute; top: 12px; left: 12px; right: 12px; text-align: center; z-index: 30; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .notification-top.show { opacity: 1; }
         .notification-top .message { display: inline-block; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); border-radius: 30px; padding: 6px 16px; font-size: 0.75rem; color: #fff; border-left: 3px solid #e63946; }
         
@@ -105,7 +93,6 @@
         .error-banner.show { display: block; }
         .fullscreen-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 8px 16px; border-radius: 25px; z-index: 10004; opacity: 0; transition: opacity 0.5s; pointer-events: none; font-size: 0.7rem; }
         
-        /* Modal de Feedback */
         .feedback-star-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 5000; display: none; align-items: center; justify-content: center; }
         .feedback-star-modal.open { display: flex; }
         .feedback-star-content { background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 25px; padding: 20px; width: 85%; max-width: 320px; text-align: center; border: 2px solid #e63946; }
@@ -136,7 +123,6 @@
     <div class="fullscreen-msg" id="fullscreenMsg">🎬 Tela cheia ativada</div>
     
     <div class="app" style="display: none;" id="appContainer">
-        <!-- Vídeo de Fundo Principal -->
         <div class="fullscreen-video-container"><video id="mainVideo" autoplay loop muted playsinline><source src="pak1.mp4" type="video/mp4"></video></div>
         
         <div class="controls-overlay">
@@ -152,7 +138,6 @@
             </div>
         </div>
         
-        <!-- Botões que aparecem com toque na tela -->
         <div class="feedback-buttons">
             <button class="feedback-btn like" id="likeBtn"><i class="fas fa-thumbs-up"></i></button>
             <button class="feedback-btn dislike" id="dislikeBtn"><i class="fas fa-thumbs-down"></i></button>
@@ -161,14 +146,12 @@
         <button class="cta-button" id="ctaButton"><i class="fas fa-headset"></i> <span>PEÇA PLAYLIST</span></button>
         <button class="genre-button" id="genreButton"><i class="fas fa-guitar"></i></button>
         
-        <!-- Elementos sempre visíveis -->
         <div class="genre-badge" id="genreBadge"><i class="fas fa-music"></i> CARREGANDO</div>
         <div class="audio-indicator" id="audioIndicator"><i class="fas fa-circle"></i> Aguardando</div>
         <div class="bluetooth-indicator" id="bluetoothIndicator"><i class="fas fa-bluetooth-b"></i> <span id="btStatus">Desconectado</span></div>
         
         <div class="notification-top" id="notificationTop"><div class="message" id="notificationMessage"></div></div>
         
-        <!-- Modais e Menus -->
         <div class="menu-button" id="menuButton" style="display: none;"><i class="fas fa-ellipsis-v"></i></div>
         <div class="menu-popup" id="menuPopup">
             <button id="shareMenuBtn"><i class="fas fa-share-alt"></i> Compartilhar</button>
@@ -211,16 +194,51 @@
         // ==================== URLs DAS PLAYLISTS ATUALIZADAS ====================
         const PLAYLISTS = {
             "FORRÓ": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/forro.json",
-            "FORRÓ DAS ANTIGAS": "https://raw.githubusercontent.com/radioplaylist12/partico/146f58c17b71bfa4880f66761f8528213b69eda9/forrodasantiga.json",
+            "FORRÓ ANTIGO": "https://raw.githubusercontent.com/radioplaylist12/partico/146f58c17b71bfa4880f66761f8528213b69eda9/forrodasantiga.json",
             "BREGA": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/brega.json",
             "MPB": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/mpb.json",
             "POP": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/pop.json",
             "SERTANEJO": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/sertanejo.json",
-            "MODA RAIZ": "https://raw.githubusercontent.com/radioplaylist12/partico/146f58c17b71bfa4880f66761f8528213b69eda9/modaraiz.json",
+            "MODARAIZ": "https://raw.githubusercontent.com/radioplaylist12/partico/146f58c17b71bfa4880f66761f8528213b69eda9/modaraiz.json",
             "SAMBA": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/samba.json"
         };
         
-        // Configurações Gerais (SEM ANÚNCIOS)
+        // Mapeamento para exibição (nomes bonitos nos botões)
+        const NOMES_EXIBICAO = {
+            "FORRÓ": "Forró",
+            "FORRÓ ANTIGO": "Forró Antigo",
+            "BREGA": "Brega",
+            "MPB": "MPB",
+            "POP": "Pop",
+            "SERTANEJO": "Sertanejo",
+            "MODARAIZ": "Moda Raiz",
+            "SAMBA": "Samba"
+        };
+        
+        // Ícones para cada gênero
+        const ICONES_GENEROS = {
+            "FORRÓ": "fa-drum",
+            "FORRÓ ANTIGO": "fa-accordion",
+            "BREGA": "fa-heart-broken",
+            "MPB": "fa-guitar",
+            "POP": "fa-microphone-alt",
+            "SERTANEJO": "fa-guitar",
+            "MODARAIZ": "fa-hat-cowboy",
+            "SAMBA": "fa-drumstick-bite"
+        };
+        
+        // Cores para cada gênero
+        const CORES_GENEROS = {
+            "FORRÓ": "linear-gradient(135deg,#f12711,#f5af19)",
+            "FORRÓ ANTIGO": "linear-gradient(135deg,#8E2DE2,#4A00E0)",
+            "BREGA": "linear-gradient(135deg,#ff6b6b,#ee5a24)",
+            "MPB": "linear-gradient(135deg,#134e5e,#71b280)",
+            "POP": "linear-gradient(135deg,#2193b0,#6dd5ed)",
+            "SERTANEJO": "linear-gradient(135deg,#e63946,#ff6b6b)",
+            "MODARAIZ": "linear-gradient(135deg,#cc2b5e,#753a88)",
+            "SAMBA": "linear-gradient(135deg,#f2994a,#f2c94c)"
+        };
+        
         const NUMERO_WHATSAPP_FEEDBACK = "5512988461978";
         
         let musicas = [];
@@ -236,7 +254,6 @@
             songPlays: {}
         };
         
-        // Elementos DOM
         const musicPlayer = document.getElementById('musicPlayer');
         const playBtn = document.getElementById('playPauseBtn');
         const progressFill = document.getElementById('progressFill');
@@ -253,7 +270,6 @@
         
         musicPlayer.volume = 0.9;
         
-        // Funções Auxiliares
         function formatTime(sec) {
             if (!sec || isNaN(sec)) return "0:00";
             const m = Math.floor(sec / 60);
@@ -289,7 +305,6 @@
             if (saved) { try { userPreferences = { ...userPreferences, ...JSON.parse(saved) }; } catch(e) {} }
         }
         
-        // Tela Cheia Automática
         async function ativarTelaCheia() {
             try {
                 if (document.documentElement.requestFullscreen) {
@@ -308,7 +323,6 @@
             if (!document.fullscreenElement) setTimeout(() => ativarTelaCheia(), 500);
         });
         
-        // Bluetooth (Mantido)
         function atualizarStatusBluetooth(connected) {
             const btStatus = document.getElementById('btStatus');
             if (connected) {
@@ -338,7 +352,6 @@
             } catch(error) { showNotification('❌ Falha na conexão', 2000); }
         }
         
-        // Feedback com Estrelas (WhatsApp)
         let currentRating = 0;
         function abrirFeedbackEstrelas() {
             currentRating = 0;
@@ -368,7 +381,6 @@
             showNotification('✅ Obrigado pelo feedback!', 2000);
         }
         
-        // IA e Lógica do Player (sem grandes alterações)
         function calculateSongWeight(song) {
             let weight = 1.0;
             if (userPreferences.likedSongs.includes(song.id)) weight += 10;
@@ -403,22 +415,24 @@
             return prioritizeLiveSongs(topSongs);
         }
         
+        let currentFilterGenre = "TODOS";
+        
         function updateGenreBadge() {
             let icon = "fa-music";
-            const currentGenre = currentFilterGenre || "TODOS";
-            if (currentGenre === "SAMBA") icon = "fa-drumstick-bite";
-            else if (currentGenre === "POP") icon = "fa-microphone-alt";
-            else if (currentGenre === "MPB") icon = "fa-guitar";
-            else if (currentGenre === "FORRÓ") icon = "fa-drum";
-            else if (currentGenre === "FORRÓ DAS ANTIGAS") icon = "fa-accordion";
-            else if (currentGenre === "MODA RAIZ") icon = "fa-hat-cowboy";
-            else if (currentGenre === "BREGA") icon = "fa-heart-broken";
-            else if (currentGenre === "SERTANEJO") icon = "fa-guitar";
-            else icon = "fa-head-side-brain";
-            genreBadge.innerHTML = `<i class="fas ${icon}"></i> ${currentGenre}`;
+            let displayName = currentFilterGenre;
+            
+            if (currentFilterGenre === "FORRÓ") { icon = "fa-drum"; displayName = "Forró"; }
+            else if (currentFilterGenre === "FORRÓ ANTIGO") { icon = "fa-accordion"; displayName = "Forró Antigo"; }
+            else if (currentFilterGenre === "BREGA") { icon = "fa-heart-broken"; displayName = "Brega"; }
+            else if (currentFilterGenre === "MPB") { icon = "fa-guitar"; displayName = "MPB"; }
+            else if (currentFilterGenre === "POP") { icon = "fa-microphone-alt"; displayName = "Pop"; }
+            else if (currentFilterGenre === "SERTANEJO") { icon = "fa-guitar"; displayName = "Sertanejo"; }
+            else if (currentFilterGenre === "MODARAIZ") { icon = "fa-hat-cowboy"; displayName = "Moda Raiz"; }
+            else if (currentFilterGenre === "SAMBA") { icon = "fa-drumstick-bite"; displayName = "Samba"; }
+            else if (currentFilterGenre === "TODOS") { icon = "fa-head-side-brain"; displayName = "Todos"; }
+            
+            genreBadge.innerHTML = `<i class="fas ${icon}"></i> ${displayName}`;
         }
-        
-        let currentFilterGenre = "TODOS";
         
         function getRandomStartIndex() {
             return Math.floor(Math.random() * Math.min(10, filteredPlaylist.length));
@@ -432,10 +446,14 @@
                 showNotification("🎵 Modo TODOS - IA escolhendo as melhores!", 2000);
             } else {
                 const filtered = musicas.filter(m => m.genero === genero);
-                if (filtered.length === 0) { showNotification(`⚠️ Nenhuma música para ${genero}`, 1500); return; }
+                if (filtered.length === 0) { 
+                    showNotification(`⚠️ Nenhuma música para ${genero}`, 1500); 
+                    return; 
+                }
                 filteredPlaylist = prioritizeLiveSongs(filtered);
                 currentFilterGenre = genero;
-                showNotification(`🎵 ${genero} ativado!`, 2000);
+                const nomeExibicao = NOMES_EXIBICAO[genero] || genero;
+                showNotification(`🎵 ${nomeExibicao} ativado!`, 2000);
             }
             updateGenreBadge();
             currentIndex = getRandomStartIndex();
@@ -449,7 +467,8 @@
             const track = filteredPlaylist[index];
             if (!track) return;
             const aoVivo = (track.tipo === "ao vivo" || track.isLive === true) ? ' 🔴 AO VIVO' : '';
-            trackArtist.innerHTML = `${track.title} - ${track.artist} [${track.genero}]${aoVivo}`;
+            const nomeGenero = NOMES_EXIBICAO[track.genero] || track.genero;
+            trackArtist.innerHTML = `${track.title} - ${track.artist} [${nomeGenero}]${aoVivo}`;
             currentTimeEl.textContent = '0:00';
             totalTimeEl.textContent = '0:00';
             progressFill.style.width = '0%';
@@ -574,7 +593,6 @@
         
         function stopTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = null; }
         
-        // Áudio Background (para tocar com tela bloqueada)
         function createSilentAudio() {
             const sampleRate = 44100, duration = 2, numSamples = sampleRate * duration;
             const buffer = new ArrayBuffer(44 + numSamples * 2);
@@ -608,8 +626,7 @@
             } catch (error) { document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'; return false; }
         }
         
-        // ==================== GESTOS E INTERAÇÃO ====================
-        // Função para mostrar/ocultar controles ao tocar na tela
+        // Mostrar controles temporariamente ao tocar na tela
         let hideControlsTimeout;
         function showControlsTemporarily() {
             if (!appDiv) return;
@@ -620,11 +637,10 @@
             }, 3000);
         }
         
-        // Detectar toque na tela para mostrar controles
         appDiv?.addEventListener('touchstart', showControlsTemporarily);
         appDiv?.addEventListener('click', showControlsTemporarily);
         
-        // Gestos de deslizar para próxima/anterior
+        // Gestos de toque
         let touchStartX = 0, lastTap = 0;
         document.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
@@ -652,11 +668,11 @@
                 const ind = document.getElementById('swipeIndicator');
                 ind.style.opacity = '1';
                 setTimeout(() => ind.style.opacity = '0', 800);
-                showControlsTemporarily(); // Mostra controles ao trocar música também
+                showControlsTemporarily();
             }
         });
         
-        // ==================== CARREGAR TODAS AS PLAYLISTS ====================
+        // Carregar todas as playlists
         async function carregarTodasPlaylists() {
             try {
                 splash.querySelector('.loading-text').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlists do GitHub...';
@@ -701,26 +717,16 @@
                 todosBtn.onclick = () => { filterByGenre("TODOS"); document.getElementById('genresModal').classList.remove('open'); };
                 grid.appendChild(todosBtn);
                 
-                const generosOrdenados = ["SAMBA", "POP", "MPB", "FORRÓ", "FORRÓ DAS ANTIGAS", "SERTANEJO", "MODA RAIZ", "BREGA"];
-                const icones = {
-                    "SAMBA": "fa-drumstick-bite", "POP": "fa-microphone-alt", "MPB": "fa-guitar",
-                    "FORRÓ": "fa-drum", "FORRÓ DAS ANTIGAS": "fa-accordion", "SERTANEJO": "fa-guitar",
-                    "MODA RAIZ": "fa-hat-cowboy", "BREGA": "fa-heart-broken"
-                };
-                const cores = [
-                    "linear-gradient(135deg,#f2994a,#f2c94c)", "linear-gradient(135deg,#2193b0,#6dd5ed)",
-                    "linear-gradient(135deg,#134e5e,#71b280)", "linear-gradient(135deg,#f12711,#f5af19)",
-                    "linear-gradient(135deg,#8E2DE2,#4A00E0)", "linear-gradient(135deg,#e63946,#ff6b6b)",
-                    "linear-gradient(135deg,#cc2b5e,#753a88)", "linear-gradient(135deg,#ff6b6b,#ee5a24)"
-                ];
+                const generosOrdenados = ["FORRÓ", "FORRÓ ANTIGO", "SERTANEJO", "MODARAIZ", "BREGA", "MPB", "POP", "SAMBA"];
                 
-                generosOrdenados.forEach((genero, idx) => {
+                generosOrdenados.forEach((genero) => {
                     if (!PLAYLISTS[genero]) return;
                     const card = document.createElement('div');
                     card.className = 'genre-card';
-                    card.style.background = cores[idx % cores.length];
-                    const icon = icones[genero] || "fa-music";
-                    card.innerHTML = `<i class="fas ${icon}"></i><span>${genero}</span>`;
+                    card.style.background = CORES_GENEROS[genero] || "linear-gradient(135deg,#666,#333)";
+                    const icon = ICONES_GENEROS[genero] || "fa-music";
+                    const nomeExibicao = NOMES_EXIBICAO[genero] || genero;
+                    card.innerHTML = `<i class="fas ${icon}"></i><span>${nomeExibicao}</span>`;
                     card.onclick = () => { filterByGenre(genero); document.getElementById('genresModal').classList.remove('open'); };
                     grid.appendChild(card);
                 });
@@ -736,7 +742,7 @@
             }
         }
         
-        // ==================== EVENTOS E INICIALIZAÇÃO ====================
+        // Eventos
         document.getElementById('progressBar').addEventListener('click', (e) => {
             if (musicPlayer.duration) { const rect = e.currentTarget.getBoundingClientRect(); musicPlayer.currentTime = ((e.clientX - rect.left) / rect.width) * musicPlayer.duration; }
             showControlsTemporarily();
