@@ -14,7 +14,7 @@
         .fullscreen-video-container video { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
         .controls-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
         
-        .bottom-controls, .search-button, .genre-button, .cta-button {
+        .bottom-controls, .search-button, .genre-button, .cta-button, .report-button {
             transition: opacity 0.3s ease, visibility 0.3s ease;
             opacity: 0;
             visibility: hidden;
@@ -24,7 +24,8 @@
         .controls-visible .bottom-controls,
         .controls-visible .search-button,
         .controls-visible .genre-button,
-        .controls-visible .cta-button {
+        .controls-visible .cta-button,
+        .controls-visible .report-button {
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
@@ -35,6 +36,9 @@
         
         .search-button { position: fixed; bottom: 130px; left: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; border: 1px solid rgba(255,255,255,0.3); width: 50px; height: 50px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 27; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .search-button:active { transform: scale(0.9); background: #e63946; color: #000; }
+        
+        .report-button { position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; border: 1px solid rgba(255,255,255,0.3); width: 40px; height: 40px; border-radius: 50%; font-size: 0.9rem; cursor: pointer; z-index: 28; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .report-button:active { transform: scale(0.9); background: #e63946; color: #000; }
         
         .cta-button { position: fixed; bottom: 195px; right: 20px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255,255,255,0.4); border-radius: 40px; padding: 8px 15px; font-size: 0.7rem; font-weight: bold; cursor: pointer; z-index: 26; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
         
@@ -69,7 +73,6 @@
         .genre-card span { font-size: 0.7rem; font-weight: 800; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
         .close-genres { width: 100%; padding: 10px; background: #e63946; border: none; border-radius: 25px; color: white; font-size: 0.85rem; cursor: pointer; font-weight: bold; }
         
-        /* Modal de Busca */
         .search-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 5000; display: none; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
         .search-modal.open { display: flex; }
         .search-container { background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 25px; padding: 20px; width: 90%; max-width: 400px; border: 2px solid #e63946; }
@@ -82,6 +85,14 @@
         .search-result-item .title { font-weight: bold; color: white; }
         .search-result-item .artist { font-size: 0.7rem; color: #aaa; }
         .close-search { width: 100%; padding: 10px; background: #e63946; border: none; border-radius: 25px; color: white; margin-top: 15px; cursor: pointer; }
+        
+        .report-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 5001; display: none; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
+        .report-modal.open { display: flex; }
+        .report-container { background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 25px; padding: 20px; width: 90%; max-width: 400px; border: 2px solid #e63946; max-height: 80vh; overflow-y: auto; }
+        .report-container h3 { color: #e63946; text-align: center; margin-bottom: 15px; }
+        .report-content { color: #fff; font-size: 0.7rem; font-family: monospace; white-space: pre-wrap; word-break: break-word; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 12px; margin-top: 10px; max-height: 400px; overflow-y: auto; }
+        .close-report { width: 100%; padding: 10px; background: #e63946; border: none; border-radius: 25px; color: white; margin-top: 15px; cursor: pointer; }
+        .download-report { width: 100%; padding: 10px; background: #25D366; border: none; border-radius: 25px; color: white; margin-top: 10px; cursor: pointer; }
         
         .genre-badge { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 20px; font-size: 0.6rem; color: white; z-index: 31; border-left: 3px solid #e63946; font-weight: bold; pointer-events: none; }
         .audio-indicator { position: absolute; top: 12px; right: 60px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 3px 8px; border-radius: 20px; font-size: 0.55rem; color: #ffaa00; z-index: 31; display: flex; align-items: center; gap: 4px; }
@@ -132,8 +143,8 @@
             </div>
         </div>
         
-        <!-- Botão de Busca (LUPA) -->
         <button class="search-button" id="searchButton"><i class="fas fa-search"></i></button>
+        <button class="report-button" id="reportButton"><i class="fas fa-chart-simple"></i></button>
         <button class="cta-button" id="ctaButton"><i class="fas fa-headset"></i> <span>PEÇA PLAYLIST</span></button>
         <button class="genre-button" id="genreButton"><i class="fas fa-guitar"></i></button>
         
@@ -148,6 +159,7 @@
             <button id="shareMenuBtn"><i class="fas fa-share-alt"></i> Compartilhar</button>
             <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela Cheia</button>
             <button id="bluetoothMenuBtn"><i class="fas fa-bluetooth"></i> Bluetooth</button>
+            <button id="reportMenuBtn"><i class="fas fa-chart-simple"></i> Relatório de Erros</button>
         </div>
         
         <div class="genres-modal" id="genresModal">
@@ -156,13 +168,21 @@
             <button class="close-genres" id="closeGenresBtn"><i class="fas fa-check-circle"></i> FECHAR</button>
         </div>
         
-        <!-- Modal de Busca -->
         <div class="search-modal" id="searchModal">
             <div class="search-container">
                 <h3><i class="fas fa-search"></i> Buscar Música</h3>
                 <input type="text" class="search-input" id="searchInput" placeholder="Digite o nome da música ou artista..." autocomplete="off">
                 <div class="search-results" id="searchResults"></div>
                 <button class="close-search" id="closeSearchBtn">FECHAR</button>
+            </div>
+        </div>
+        
+        <div class="report-modal" id="reportModal">
+            <div class="report-container">
+                <h3><i class="fas fa-chart-simple"></i> RELATÓRIO DE ERROS</h3>
+                <div class="report-content" id="reportContent"></div>
+                <button class="download-report" id="downloadReportBtn">📥 BAIXAR RELATÓRIO</button>
+                <button class="close-report" id="closeReportBtn">FECHAR</button>
             </div>
         </div>
     </div>
@@ -220,6 +240,130 @@
         
         const NUMERO_WHATSAPP_FEEDBACK = "5512988461978";
         
+        // ==================== RELATÓRIO DE ERROS ====================
+        let musicasComErro = [];
+        
+        function registrarErro(musica, erro) {
+            const erroRegistro = {
+                id: musica?.id || "ID desconhecido",
+                titulo: musica?.title || "Título desconhecido",
+                artista: musica?.artist || "Artista desconhecido",
+                genero: musica?.genero || "Gênero desconhecido",
+                src: musica?.src || "URL não disponível",
+                erro: erro,
+                data: new Date().toLocaleString()
+            };
+            musicasComErro.push(erroRegistro);
+            console.warn(`❌ ERRO: ID ${erroRegistro.id} | ${erroRegistro.genero} | ${erroRegistro.titulo} - ${erroRegistro.artista} - Erro: ${erro}`);
+            
+            // Salvar no localStorage
+            try {
+                const errosSalvos = localStorage.getItem('rogerplaylist_erros');
+                const errosAnteriores = errosSalvos ? JSON.parse(errosSalvos) : [];
+                errosAnteriores.push(erroRegistro);
+                if (errosAnteriores.length > 200) errosAnteriores.shift();
+                localStorage.setItem('rogerplaylist_erros', JSON.stringify(errosAnteriores));
+            } catch(e) {}
+        }
+        
+        function carregarErrosSalvos() {
+            try {
+                const errosSalvos = localStorage.getItem('rogerplaylist_erros');
+                if (errosSalvos) {
+                    musicasComErro = JSON.parse(errosSalvos);
+                    console.log(`📋 Carregados ${musicasComErro.length} erros salvos`);
+                }
+            } catch(e) {}
+        }
+        
+        function gerarRelatorioErros() {
+            if (musicasComErro.length === 0) {
+                document.getElementById('reportContent').innerHTML = '<div style="text-align:center; padding:20px;">✅ Nenhum erro registrado até o momento!</div>';
+                document.getElementById('reportModal').classList.add('open');
+                return;
+            }
+            
+            let relatorio = "═".repeat(50) + "\n";
+            relatorio += "📊 RELATÓRIO DE MÚSICAS COM ERRO 📊\n";
+            relatorio += "═".repeat(50) + "\n";
+            relatorio += `📅 Gerado em: ${new Date().toLocaleString()}\n`;
+            relatorio += `📊 Total de erros: ${musicasComErro.length}\n`;
+            relatorio += "═".repeat(50) + "\n\n";
+            
+            const porGenero = {};
+            musicasComErro.forEach(e => {
+                if (!porGenero[e.genero]) porGenero[e.genero] = [];
+                porGenero[e.genero].push(e);
+            });
+            
+            for (const [genero, erros] of Object.entries(porGenero)) {
+                relatorio += `\n🎵 GÊNERO: ${genero}\n`;
+                relatorio += "─".repeat(40) + "\n";
+                erros.forEach((e, idx) => {
+                    relatorio += `${idx + 1}. 🆔 ID: ${e.id}\n`;
+                    relatorio += `   🎧 Título: ${e.titulo}\n`;
+                    relatorio += `   👤 Artista: ${e.artista}\n`;
+                    relatorio += `   ❌ Erro: ${e.erro}\n`;
+                    relatorio += `   📅 Data: ${e.data}\n`;
+                    relatorio += `   📁 Arquivo: ${e.src.split('/').pop()}\n\n`;
+                });
+            }
+            
+            relatorio += "\n" + "═".repeat(50) + "\n";
+            relatorio += "🏁 FIM DO RELATÓRIO\n";
+            
+            document.getElementById('reportContent').innerHTML = `<pre style="white-space:pre-wrap; font-family:monospace; font-size:0.7rem;">${relatorio}</pre>`;
+            document.getElementById('reportModal').classList.add('open');
+            
+            return relatorio;
+        }
+        
+        function baixarRelatorio() {
+            let relatorio = "═".repeat(50) + "\n";
+            relatorio += "📊 RELATÓRIO DE MÚSICAS COM ERRO 📊\n";
+            relatorio += "═".repeat(50) + "\n";
+            relatorio += `📅 Gerado em: ${new Date().toLocaleString()}\n`;
+            relatorio += `📊 Total de erros: ${musicasComErro.length}\n`;
+            relatorio += "═".repeat(50) + "\n\n";
+            
+            const porGenero = {};
+            musicasComErro.forEach(e => {
+                if (!porGenero[e.genero]) porGenero[e.genero] = [];
+                porGenero[e.genero].push(e);
+            });
+            
+            for (const [genero, erros] of Object.entries(porGenero)) {
+                relatorio += `\n🎵 GÊNERO: ${genero}\n`;
+                relatorio += "─".repeat(40) + "\n";
+                erros.forEach((e, idx) => {
+                    relatorio += `${idx + 1}. 🆔 ID: ${e.id}\n`;
+                    relatorio += `   🎧 Título: ${e.titulo}\n`;
+                    relatorio += `   👤 Artista: ${e.artista}\n`;
+                    relatorio += `   ❌ Erro: ${e.erro}\n`;
+                    relatorio += `   📅 Data: ${e.data}\n`;
+                    relatorio += `   📁 Arquivo: ${e.src.split('/').pop()}\n\n`;
+                });
+            }
+            
+            const blob = new Blob([relatorio], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.download = `relatorio_erros_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showNotification("📄 Relatório baixado!", 2000);
+        }
+        
+        // ==================== PRIORIDADE PARA MÚSICAS AO VIVO ====================
+        function isLiveSong(musica) {
+            if (musica.tipo === "ao vivo" || musica.isLive === true) return true;
+            if (musica.title && (musica.title.toLowerCase().includes("ao vivo") || musica.title.toLowerCase().includes("live"))) return true;
+            return false;
+        }
+        
         // ==================== VARIÁVEIS GLOBAIS ====================
         let musicas = [];
         let playlistAtual = [];
@@ -231,7 +375,6 @@
         let playlistHistorico = [];
         let musicasMPB = [], musicasPOP = [], todasMusicas = [];
         
-        // Elementos DOM
         const musicPlayer = document.getElementById('musicPlayer');
         const playBtn = document.getElementById('playPauseBtn');
         const progressFill = document.getElementById('progressFill');
@@ -248,7 +391,6 @@
         
         musicPlayer.volume = 0.9;
         
-        // ==================== FUNÇÕES AUXILIARES ====================
         function formatTime(sec) {
             if (!sec || isNaN(sec)) return "0:00";
             const m = Math.floor(sec / 60);
@@ -264,12 +406,13 @@
             setTimeout(() => notiTop.classList.remove('show'), duration);
         }
         
-        function showError(msg) {
+        function showError(msg, musica = null) {
             const banner = document.getElementById('errorBanner');
             const errorMsg = document.getElementById('errorMsg');
             errorMsg.innerText = msg;
             banner.classList.add('show');
             setTimeout(() => banner.classList.remove('show'), 4000);
+            if (musica) registrarErro(musica, msg);
         }
         
         function showFullscreenMessage() {
@@ -278,7 +421,6 @@
             setTimeout(() => msg.style.opacity = '0', 2000);
         }
         
-        // ==================== TELA CHEIA AUTOMÁTICA ====================
         async function ativarTelaCheia() {
             try {
                 if (document.documentElement.requestFullscreen) {
@@ -297,7 +439,6 @@
             if (!document.fullscreenElement) setTimeout(() => ativarTelaCheia(), 500);
         });
         
-        // ==================== BLUETOOTH ====================
         function atualizarStatusBluetooth(connected) {
             const btStatus = document.getElementById('btStatus');
             if (connected) {
@@ -327,7 +468,6 @@
             } catch(error) { showNotification('❌ Falha na conexão', 2000); }
         }
         
-        // ==================== BUSCA DE MÚSICAS (LUPA) ====================
         function buscarMusicas(query) {
             if (!query.trim()) return [];
             const termo = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -361,131 +501,104 @@
             });
         }
         
-        function abrirBusca() {
-            document.getElementById('searchModal').classList.add('open');
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchResults').innerHTML = '';
-            document.getElementById('searchInput').focus();
-        }
-        
-        // ==================== PRIORIDADE PARA MÚSICAS AO VIVO ====================
-        function isLiveSong(musica) {
-            if (musica.tipo === "ao vivo" || musica.isLive === true) return true;
-            if (musica.title && (musica.title.toLowerCase().includes("ao vivo") || musica.title.toLowerCase().includes("live"))) return true;
-            return false;
-        }
-        
-        // ==================== GERENCIAMENTO DE PLAYLIST ====================
         function getGeneroInicial() {
-            const ultimoGeneroSalvo = localStorage.getItem('radio_patico_ultimo_genero_inicial');
+            const ultimoGeneroSalvo = localStorage.getItem('rogerplaylist_ultimo_genero');
             let novoGenero;
             if (ultimoGeneroSalvo === "MPB") novoGenero = "POP";
             else if (ultimoGeneroSalvo === "POP") novoGenero = "MPB";
             else novoGenero = Math.random() < 0.5 ? "MPB" : "POP";
-            localStorage.setItem('radio_patico_ultimo_genero_inicial', novoGenero);
+            localStorage.setItem('rogerplaylist_ultimo_genero', novoGenero);
             return novoGenero;
         }
         
-        function getMusicaDiferente(musicasDisponiveis, ultimoId = null) {
-            if (musicasDisponiveis.length === 0) return null;
-            let candidatas = musicasDisponiveis;
-            if (ultimoId && musicasDisponiveis.length > 1) {
-                candidatas = musicasDisponiveis.filter(m => m.id !== ultimoId);
-                if (candidatas.length === 0) candidatas = musicasDisponiveis;
+        function getMusicaAleatoria(lista, evitarId = null) {
+            if (!lista || lista.length === 0) return null;
+            let candidatas = lista;
+            if (evitarId && lista.length > 1) {
+                candidatas = lista.filter(m => m.id !== evitarId);
+                if (candidatas.length === 0) candidatas = lista;
             }
-            return candidatas[Math.floor(Math.random() * candidatas.length)];
+            const aoVivo = candidatas.filter(m => isLiveSong(m));
+            let finalCandidatas = candidatas;
+            if (aoVivo.length > 0 && Math.random() < 0.4) {
+                finalCandidatas = aoVivo;
+            }
+            return finalCandidatas[Math.floor(Math.random() * finalCandidatas.length)];
         }
         
-        function getNextSongMPBPOP() {
+        function getProximaMusicaMPBPOP() {
             if (musicasMPB.length === 0 && musicasPOP.length === 0) return null;
             
             if (playlistHistorico.length === 0) {
                 const generoInicial = getGeneroInicial();
-                const musicasDoGenero = generoInicial === "MPB" ? musicasMPB : musicasPOP;
-                if (musicasDoGenero.length === 0) {
-                    const outroGenero = generoInicial === "MPB" ? musicasPOP : musicasMPB;
-                    if (outroGenero.length === 0) return null;
-                    const selecionada = getMusicaDiferente(outroGenero);
-                    if (selecionada) playlistHistorico.push(selecionada.id);
-                    return selecionada;
+                const listaGenero = generoInicial === "MPB" ? musicasMPB : musicasPOP;
+                if (listaGenero.length === 0) {
+                    const outraLista = generoInicial === "MPB" ? musicasPOP : musicasMPB;
+                    const musica = getMusicaAleatoria(outraLista);
+                    if (musica) playlistHistorico.push(musica.id);
+                    return musica;
                 }
-                const liveSongs = musicasDoGenero.filter(m => isLiveSong(m));
-                const candidatas = liveSongs.length > 0 ? liveSongs : musicasDoGenero;
-                const selecionada = getMusicaDiferente(candidatas);
-                if (selecionada) playlistHistorico.push(selecionada.id);
-                return selecionada;
+                const musica = getMusicaAleatoria(listaGenero);
+                if (musica) playlistHistorico.push(musica.id);
+                return musica;
             }
             
-            const ultimaMusica = todasMusicas.find(m => m.id === playlistHistorico[playlistHistorico.length - 1]);
+            const ultimoId = playlistHistorico[playlistHistorico.length - 1];
+            const ultimaMusica = todasMusicas.find(m => m.id === ultimoId);
             const novoGenero = ultimaMusica?.genero === "MPB" ? "POP" : "MPB";
-            const musicasDoNovoGenero = novoGenero === "MPB" ? musicasMPB : musicasPOP;
-            if (musicasDoNovoGenero.length === 0) {
-                const outroGenero = novoGenero === "MPB" ? musicasPOP : musicasMPB;
-                if (outroGenero.length === 0) return null;
-                const selecionada = getMusicaDiferente(outroGenero, playlistHistorico[playlistHistorico.length - 1]);
-                if (selecionada) playlistHistorico.push(selecionada.id);
-                return selecionada;
+            const listaNovoGenero = novoGenero === "MPB" ? musicasMPB : musicasPOP;
+            
+            if (listaNovoGenero.length === 0) {
+                const outraLista = novoGenero === "MPB" ? musicasPOP : musicasMPB;
+                const musica = getMusicaAleatoria(outraLista, ultimoId);
+                if (musica) playlistHistorico.push(musica.id);
+                return musica;
             }
             
-            let candidatas = musicasDoNovoGenero;
-            const liveCandidatas = musicasDoNovoGenero.filter(m => isLiveSong(m));
-            if (liveCandidatas.length > 0 && Math.random() < 0.5) candidatas = liveCandidatas;
-            
-            const selecionada = getMusicaDiferente(candidatas, playlistHistorico[playlistHistorico.length - 1]);
-            if (selecionada) {
-                playlistHistorico.push(selecionada.id);
+            const musica = getMusicaAleatoria(listaNovoGenero, ultimoId);
+            if (musica) {
+                playlistHistorico.push(musica.id);
                 if (playlistHistorico.length > 50) playlistHistorico.shift();
             }
-            return selecionada;
+            return musica;
         }
         
-        function getNextSongGeneroEspecifico() {
+        function getProximaMusicaGeneroEspecifico() {
             if (!generoEspecificoSelecionado) return null;
             const musicasDoGenero = todasMusicas.filter(m => m.genero === generoEspecificoSelecionado);
             if (musicasDoGenero.length === 0) return null;
-            
             const ultimoId = playlistHistorico.length > 0 ? playlistHistorico[playlistHistorico.length - 1] : null;
-            const liveCandidatas = musicasDoGenero.filter(m => isLiveSong(m));
-            let candidatas = musicasDoGenero;
-            if (liveCandidatas.length > 0 && Math.random() < 0.5) candidatas = liveCandidatas;
-            
-            const selecionada = getMusicaDiferente(candidatas, ultimoId);
-            if (selecionada) {
-                playlistHistorico.push(selecionada.id);
+            const musica = getMusicaAleatoria(musicasDoGenero, ultimoId);
+            if (musica) {
+                playlistHistorico.push(musica.id);
                 if (playlistHistorico.length > 50) playlistHistorico.shift();
             }
-            return selecionada;
+            return musica;
         }
         
-        function getNextSongTodos() {
+        function getProximaMusicaTodos() {
             if (todasMusicas.length === 0) return null;
-            
+            const ultimoId = playlistHistorico.length > 0 ? playlistHistorico[playlistHistorico.length - 1] : null;
             let musicasDisponiveis = todasMusicas;
-            if (playlistHistorico.length > 0) {
-                musicasDisponiveis = todasMusicas.filter(m => m.id !== playlistHistorico[playlistHistorico.length - 1]);
+            if (ultimoId && todasMusicas.length > 1) {
+                musicasDisponiveis = todasMusicas.filter(m => m.id !== ultimoId);
                 if (musicasDisponiveis.length === 0) musicasDisponiveis = todasMusicas;
             }
-            
-            if (playlistHistorico.length > 0 && Math.random() < 0.7) {
-                const ultimaMusica = todasMusicas.find(m => m.id === playlistHistorico[playlistHistorico.length - 1]);
+            if (ultimoId && Math.random() < 0.7) {
+                const ultimaMusica = todasMusicas.find(m => m.id === ultimoId);
                 if (ultimaMusica) {
                     const outrosGeneros = musicasDisponiveis.filter(m => m.genero !== ultimaMusica.genero);
                     if (outrosGeneros.length > 0) musicasDisponiveis = outrosGeneros;
                 }
             }
-            
-            const liveCandidatas = musicasDisponiveis.filter(m => isLiveSong(m));
-            if (liveCandidatas.length > 0 && Math.random() < 0.4) musicasDisponiveis = liveCandidatas;
-            
-            const selecionada = getMusicaDiferente(musicasDisponiveis, playlistHistorico[playlistHistorico.length - 1]);
-            if (selecionada) {
-                playlistHistorico.push(selecionada.id);
+            const musica = getMusicaAleatoria(musicasDisponiveis);
+            if (musica) {
+                playlistHistorico.push(musica.id);
                 if (playlistHistorico.length > 50) playlistHistorico.shift();
             }
-            return selecionada;
+            return musica;
         }
         
-        // ==================== ATUALIZAÇÃO DA INTERFACE ====================
         function updateGenreBadge(genero) {
             let icon = "fa-music";
             let displayName = genero;
@@ -513,7 +626,6 @@
             progressFill.style.width = '0%';
         }
         
-        // ==================== PLAYER PRINCIPAL ====================
         async function playMusic() {
             if (!isBackgroundActive) { showNotification('⚠️ Clique em "ATIVAR ÁUDIO" primeiro!', 2000); return false; }
             if (!playlistAtual.length) return false;
@@ -522,7 +634,7 @@
             const track = playlistAtual[currentIndex];
             if (!track || !track.src) {
                 loadingSpinner.classList.remove('show');
-                showError(`Arquivo não encontrado: ${track?.title || "Desconhecido"}`);
+                showError(`Arquivo não encontrado: ${track?.title || "Desconhecido"}`, track);
                 nextTrack();
                 return false;
             }
@@ -533,7 +645,7 @@
             return new Promise((resolve) => {
                 const timeout = setTimeout(() => {
                     loadingSpinner.classList.remove('show');
-                    showError(`Falha ao carregar: ${track.title}`);
+                    showError(`Timeout/Falha ao carregar: ${track.title}`, track);
                     nextTrack();
                     resolve(false);
                 }, 10000);
@@ -557,7 +669,7 @@
                     } catch(e) { 
                         clearTimeout(timeout); 
                         loadingSpinner.classList.remove('show');
-                        showError(`Erro ao reproduzir: ${track.title}`);
+                        showError(`Erro ao reproduzir: ${track.title}`, track);
                         nextTrack();
                         resolve(false); 
                     }
@@ -566,7 +678,7 @@
                 musicPlayer.onerror = () => {
                     clearTimeout(timeout);
                     loadingSpinner.classList.remove('show');
-                    showError(`Erro no arquivo: ${track.title}`);
+                    showError(`Erro no arquivo: ${track.title} (código: ${musicPlayer.error?.code || '?'})`, track);
                     nextTrack();
                     resolve(false);
                 };
@@ -588,52 +700,41 @@
         }
         
         function nextTrack() {
-            let nextSong = null;
-            if (modoAtual === "MPB_POP") nextSong = getNextSongMPBPOP();
-            else if (modoAtual === "GENERO_ESPECIFICO") nextSong = getNextSongGeneroEspecifico();
-            else if (modoAtual === "TODOS") nextSong = getNextSongTodos();
+            let proxima = null;
+            if (modoAtual === "MPB_POP") proxima = getProximaMusicaMPBPOP();
+            else if (modoAtual === "GENERO_ESPECIFICO") proxima = getProximaMusicaGeneroEspecifico();
+            else if (modoAtual === "TODOS") proxima = getProximaMusicaTodos();
             
-            if (nextSong) {
-                playlistAtual = [nextSong];
+            if (proxima) {
+                playlistAtual = [proxima];
                 currentIndex = 0;
                 loadTrackUI(currentIndex);
                 if (isPlaying) playMusic();
             } else if (todasMusicas.length > 0) {
-                const fallback = todasMusicas[Math.floor(Math.random() * todasMusicas.length)];
-                playlistAtual = [fallback];
-                currentIndex = 0;
-                loadTrackUI(currentIndex);
-                if (isPlaying) playMusic();
+                const fallback = getMusicaAleatoria(todasMusicas);
+                if (fallback) {
+                    playlistAtual = [fallback];
+                    currentIndex = 0;
+                    loadTrackUI(currentIndex);
+                    if (isPlaying) playMusic();
+                }
             }
         }
         
         function prevTrack() {
-            if (modoAtual === "MPB_POP") {
-                const todasMPBPOP = [...musicasMPB, ...musicasPOP];
-                const outras = todasMPBPOP.filter(m => m.id !== playlistAtual[0]?.id);
-                if (outras.length > 0) {
-                    playlistAtual = [outras[Math.floor(Math.random() * outras.length)]];
-                    currentIndex = 0;
-                    loadTrackUI(currentIndex);
-                    if (isPlaying) playMusic();
-                }
-            } else if (modoAtual === "GENERO_ESPECIFICO" && generoEspecificoSelecionado) {
-                const musicasDoGenero = todasMusicas.filter(m => m.genero === generoEspecificoSelecionado);
-                const outras = musicasDoGenero.filter(m => m.id !== playlistAtual[0]?.id);
-                if (outras.length > 0) {
-                    playlistAtual = [outras[Math.floor(Math.random() * outras.length)]];
-                    currentIndex = 0;
-                    loadTrackUI(currentIndex);
-                    if (isPlaying) playMusic();
-                }
-            } else if (modoAtual === "TODOS") {
-                const outras = todasMusicas.filter(m => m.id !== playlistAtual[0]?.id);
-                if (outras.length > 0) {
-                    playlistAtual = [outras[Math.floor(Math.random() * outras.length)]];
-                    currentIndex = 0;
-                    loadTrackUI(currentIndex);
-                    if (isPlaying) playMusic();
-                }
+            let musicasDisponiveis = [];
+            if (modoAtual === "MPB_POP") musicasDisponiveis = [...musicasMPB, ...musicasPOP];
+            else if (modoAtual === "GENERO_ESPECIFICO" && generoEspecificoSelecionado) {
+                musicasDisponiveis = todasMusicas.filter(m => m.genero === generoEspecificoSelecionado);
+            }
+            else if (modoAtual === "TODOS") musicasDisponiveis = todasMusicas;
+            
+            const outras = musicasDisponiveis.filter(m => m.id !== playlistAtual[0]?.id);
+            if (outras.length > 0) {
+                playlistAtual = [getMusicaAleatoria(outras)];
+                currentIndex = 0;
+                loadTrackUI(currentIndex);
+                if (isPlaying) playMusic();
             }
         }
         
@@ -650,7 +751,6 @@
         
         function stopTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = null; }
         
-        // ==================== ÁUDIO BACKGROUND ====================
         function createSilentAudio() {
             const sampleRate = 44100, duration = 2, numSamples = sampleRate * duration;
             const buffer = new ArrayBuffer(44 + numSamples * 2);
@@ -675,7 +775,7 @@
                 backgroundAudio.volume = 0.001;
                 await backgroundAudio.play();
                 isBackgroundActive = true;
-                document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-brain"></i> IA Ativa';
+                document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-check-circle"></i> Áudio Ativo';
                 document.getElementById('audioIndicator').style.color = '#4ade80';
                 if ('wakeLock' in navigator) { try { await navigator.wakeLock.request('screen'); } catch(e) {} }
                 await ativarTelaCheia();
@@ -684,7 +784,6 @@
             } catch (error) { document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'; return false; }
         }
         
-        // ==================== INTERFACE E GESTOS ====================
         let hideControlsTimeout;
         function showControlsTemporarily() {
             if (!appDiv) return;
@@ -712,23 +811,23 @@
             }
             lastTap = now;
         });
+        
         document.addEventListener('touchend', (e) => {
             const diff = e.changedTouches[0].screenX - touchStartX;
             if (Math.abs(diff) > 50) {
                 if (diff > 0) prevTrack();
                 else nextTrack();
                 const ind = document.getElementById('swipeIndicator');
-                ind.textContent = diff > 0 ? '⏮️ Música anterior' : '⏭️ Próxima música';
+                ind.textContent = diff > 0 ? '⏮️ Anterior' : '⏭️ Próxima';
                 ind.style.opacity = '1';
                 setTimeout(() => ind.style.opacity = '0', 800);
                 showControlsTemporarily();
             }
         });
         
-        // ==================== CARREGAR PLAYLISTS ====================
         async function carregarTodasPlaylists() {
             try {
-                splash.querySelector('.loading-text').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlists do GitHub...';
+                splash.querySelector('.loading-text').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlists...';
                 const promises = Object.entries(PLAYLISTS).map(async ([genero, url]) => {
                     try {
                         const response = await fetch(url);
@@ -755,10 +854,12 @@
                 musicasPOP = musicas.filter(m => m.genero === "POP");
                 todasMusicas = [...musicas];
                 
+                console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | Outros: ${todasMusicas.length - musicasMPB.length - musicasPOP.length}`);
+                
                 if (musicas.length === 0) throw new Error("Nenhuma música foi carregada");
                 
                 modoAtual = "MPB_POP";
-                const primeiraMusica = getNextSongMPBPOP();
+                const primeiraMusica = getProximaMusicaMPBPOP();
                 if (primeiraMusica) {
                     playlistAtual = [primeiraMusica];
                     currentIndex = 0;
@@ -776,7 +877,7 @@
                     modoAtual = "TODOS";
                     generoEspecificoSelecionado = null;
                     playlistHistorico = [];
-                    const novaMusica = getNextSongTodos();
+                    const novaMusica = getProximaMusicaTodos();
                     if (novaMusica) {
                         playlistAtual = [novaMusica];
                         currentIndex = 0;
@@ -804,14 +905,14 @@
                         playlistHistorico = [];
                         const musicasFiltradas = musicas.filter(m => m.genero === genero);
                         if (musicasFiltradas.length > 0) {
-                            const liveDoGenero = musicasFiltradas.filter(m => isLiveSong(m));
-                            const selecionadas = liveDoGenero.length > 0 ? liveDoGenero : musicasFiltradas;
-                            const musicaEscolhida = selecionadas[Math.floor(Math.random() * selecionadas.length)];
-                            playlistAtual = [musicaEscolhida];
-                            currentIndex = 0;
-                            loadTrackUI(currentIndex);
-                            if (isPlaying) playMusic();
-                            showNotification(`🎵 ${nomeExibicao} ativado!`, 2000);
+                            const musicaEscolhida = getMusicaAleatoria(musicasFiltradas);
+                            if (musicaEscolhida) {
+                                playlistAtual = [musicaEscolhida];
+                                currentIndex = 0;
+                                loadTrackUI(currentIndex);
+                                if (isPlaying) playMusic();
+                                showNotification(`🎵 ${nomeExibicao} ativado!`, 2000);
+                            }
                         } else {
                             showNotification(`⚠️ Nenhuma música para ${nomeExibicao}`, 1500);
                         }
@@ -828,7 +929,7 @@
                     modoAtual = "MPB_POP";
                     generoEspecificoSelecionado = null;
                     playlistHistorico = [];
-                    const novaMusica = getNextSongMPBPOP();
+                    const novaMusica = getProximaMusicaMPBPOP();
                     if (novaMusica) {
                         playlistAtual = [novaMusica];
                         currentIndex = 0;
@@ -836,7 +937,7 @@
                         if (isPlaying) playMusic();
                     }
                     document.getElementById('genresModal').classList.remove('open');
-                    showNotification("🎵 Modo MPB/POP - Alternando entre os dois estilos!", 2000);
+                    showNotification("🎵 Modo MPB/POP - Alternando!", 2000);
                 };
                 grid.appendChild(mpbPopBtn);
                 
@@ -851,7 +952,6 @@
             }
         }
         
-        // ==================== EVENTOS ====================
         document.getElementById('progressBar').addEventListener('click', (e) => {
             if (musicPlayer.duration) { const rect = e.currentTarget.getBoundingClientRect(); musicPlayer.currentTime = ((e.clientX - rect.left) / rect.width) * musicPlayer.duration; }
             showControlsTemporarily();
@@ -862,8 +962,12 @@
         document.getElementById('shuffleBtn').addEventListener('click', () => { shuffleMode = !shuffleMode; showNotification(shuffleMode ? '🔀 Aleatório ON' : '➡️ Sequencial', 1500); showControlsTemporarily(); });
         document.getElementById('genreButton').addEventListener('click', () => { document.getElementById('genresModal').classList.add('open'); showControlsTemporarily(); });
         document.getElementById('closeGenresBtn').addEventListener('click', () => document.getElementById('genresModal').classList.remove('open'));
-        document.getElementById('searchButton').addEventListener('click', () => { abrirBusca(); showControlsTemporarily(); });
+        document.getElementById('searchButton').addEventListener('click', () => { document.getElementById('searchModal').classList.add('open'); showControlsTemporarily(); });
         document.getElementById('closeSearchBtn').addEventListener('click', () => document.getElementById('searchModal').classList.remove('open'));
+        document.getElementById('reportButton').addEventListener('click', () => gerarRelatorioErros());
+        document.getElementById('reportMenuBtn').addEventListener('click', () => { gerarRelatorioErros(); document.getElementById('menuPopup').classList.remove('open'); });
+        document.getElementById('closeReportBtn').addEventListener('click', () => document.getElementById('reportModal').classList.remove('open'));
+        document.getElementById('downloadReportBtn').addEventListener('click', () => baixarRelatorio());
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const resultados = buscarMusicas(e.target.value);
             mostrarResultadosBusca(resultados);
@@ -886,6 +990,7 @@
         
         setInterval(() => { const mainVideo = document.getElementById('mainVideo'); if (mainVideo && mainVideo.paused) mainVideo.play().catch(e => console.log); }, 5000);
         
+        carregarErrosSalvos();
         carregarTodasPlaylists();
         
         if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
