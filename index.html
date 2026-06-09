@@ -333,26 +333,14 @@
             return false;
         }
         
-        function prioritizeLiveSongs(playlist) {
-            const liveSongs = playlist.filter(song => isLiveSong(song));
-            const normalSongs = playlist.filter(song => !isLiveSong(song));
-            console.log(`🎤 Músicas AO VIVO encontradas: ${liveSongs.length} | Normais: ${normalSongs.length}`);
-            return [...liveSongs, ...normalSongs];
-        }
-        
-        function getDifferentRandomIndex(playlist, previousIndex) {
-            if (playlist.length <= 1) return 0;
-            let newIndex;
-            do {
-                newIndex = Math.floor(Math.random() * playlist.length);
-            } while (newIndex === previousIndex);
-            return newIndex;
-        }
-        
         // ==================== PLAYLIST INFINITA ====================
         let playlistHistorico = [];
-        let ultimoGenero = null;
-        let ultimoIndice = -1;
+        let generoAtual = null;
+        let modoAtual = "MPB_POP"; // "MPB_POP" = alterna entre MPB e POP, "GENERO_ESPECIFICO" = toca só um gênero
+        
+        let musicasMPB = [];
+        let musicasPOP = [];
+        let todasMusicas = [];
         
         // Sorteia gênero inicial entre MPB e POP (alternando a cada sessão)
         function getGeneroInicial() {
@@ -372,72 +360,111 @@
             return novoGenero;
         }
         
-        // Busca próxima música de forma inteligente (playlist infinita)
-        function getNextSongInfinito() {
-            if (!musicas.length) return null;
+        // Busca próxima música no modo MPB/POP alternado
+        function getNextSongMPBPOP() {
+            if (musicasMPB.length === 0 && musicasPOP.length === 0) return null;
             
-            // Se não tem histórico ou estamos no início, busca uma música AO VIVO do gênero atual
+            // Se não tem histórico, começa com o gênero inicial
             if (playlistHistorico.length === 0) {
                 const generoInicial = getGeneroInicial();
-                const musicasDoGenero = musicas.filter(m => m.genero === generoInicial);
-                if (musicasDoGenero.length > 0) {
-                    const liveSongs = musicasDoGenero.filter(m => isLiveSong(m));
-                    const candidatas = liveSongs.length > 0 ? liveSongs : musicasDoGenero;
-                    const randomIndex = Math.floor(Math.random() * candidatas.length);
-                    const selected = candidatas[randomIndex];
-                    playlistHistorico.push(selected.id);
-                    ultimoGenero = selected.genero;
-                    ultimoIndice = musicas.findIndex(m => m.id === selected.id);
-                    showNotification(`🎵 Iniciando com ${NOMES_EXIBICAO[selected.genero] || selected.genero}`, 2000);
-                    return selected;
+                const musicasDoGenero = generoInicial === "MPB" ? musicasMPB : musicasPOP;
+                if (musicasDoGenero.length === 0) {
+                    // Fallback para o outro gênero
+                    const outroGenero = generoInicial === "MPB" ? musicasPOP : musicasMPB;
+                    if (outroGenero.length > 0) {
+                        const selecionada = outroGenero[Math.floor(Math.random() * outroGenero.length)];
+                        playlistHistorico.push(selecionada.id);
+                        generoAtual = selecionada.genero;
+                        showNotification(`🎵 Iniciando com ${NOMES_EXIBICAO[selecionada.genero] || selecionada.genero}`, 2000);
+                        return selecionada;
+                    }
+                    return null;
+                }
+                // Priorizar AO VIVO na primeira música
+                const liveSongs = musicasDoGenero.filter(m => isLiveSong(m));
+                const candidatas = liveSongs.length > 0 ? liveSongs : musicasDoGenero;
+                const selecionada = candidatas[Math.floor(Math.random() * candidatas.length)];
+                playlistHistorico.push(selecionada.id);
+                generoAtual = selecionada.genero;
+                showNotification(`🎵 Iniciando com ${NOMES_EXIBICAO[selecionada.genero] || selecionada.genero}`, 2000);
+                return selecionada;
+            }
+            
+            // Alterna entre MPB e POP
+            const ultimaMusica = todasMusicas.find(m => m.id === playlistHistorico[playlistHistorico.length - 1]);
+            const novoGenero = ultimaMusica?.genero === "MPB" ? "POP" : "MPB";
+            const musicasDoNovoGenero = novoGenero === "MPB" ? musicasMPB : musicasPOP;
+            
+            if (musicasDoNovoGenero.length === 0) {
+                // Se o gênero não tem músicas, tenta o outro
+                const outroGenero = novoGenero === "MPB" ? musicasPOP : musicasMPB;
+                if (outroGenero.length === 0) return null;
+                const selecionada = outroGenero[Math.floor(Math.random() * outroGenero.length)];
+                playlistHistorico.push(selecionada.id);
+                if (playlistHistorico.length > 50) playlistHistorico.shift();
+                generoAtual = selecionada.genero;
+                return selecionada;
+            }
+            
+            // Priorizar AO VIVO (50% de chance)
+            let candidatas = musicasDoNovoGenero;
+            const liveCandidatas = musicasDoNovoGenero.filter(m => isLiveSong(m));
+            if (liveCandidatas.length > 0 && Math.random() < 0.5) {
+                candidatas = liveCandidatas;
+            }
+            
+            const selecionada = candidatas[Math.floor(Math.random() * candidatas.length)];
+            playlistHistorico.push(selecionada.id);
+            if (playlistHistorico.length > 50) playlistHistorico.shift();
+            generoAtual = selecionada.genero;
+            
+            return selecionada;
+        }
+        
+        // Busca próxima música no modo TODOS (todos os gêneros)
+        function getNextSongTodos() {
+            if (todasMusicas.length === 0) return null;
+            
+            // Exclui a última música tocada para não repetir consecutivamente
+            let musicasDisponiveis = todasMusicas;
+            if (playlistHistorico.length > 0) {
+                musicasDisponiveis = todasMusicas.filter(m => m.id !== playlistHistorico[playlistHistorico.length - 1]);
+            }
+            
+            if (musicasDisponiveis.length === 0) musicasDisponiveis = todasMusicas;
+            
+            // Priorizar mudança de gênero (70% de chance)
+            if (playlistHistorico.length > 0) {
+                const ultimaMusica = todasMusicas.find(m => m.id === playlistHistorico[playlistHistorico.length - 1]);
+                if (ultimaMusica && Math.random() < 0.7) {
+                    const outrosGeneros = musicasDisponiveis.filter(m => m.genero !== ultimaMusica.genero);
+                    if (outrosGeneros.length > 0) {
+                        musicasDisponiveis = outrosGeneros;
+                    }
                 }
             }
             
-            // Pega uma música aleatória diferente da última e de preferência de gênero diferente
-            const ultimaMusica = musicas.find(m => m.id === playlistHistorico[playlistHistorico.length - 1]);
-            const musicasDisponiveis = musicas.filter(m => m.id !== playlistHistorico[playlistHistorico.length - 1]);
-            
-            if (musicasDisponiveis.length === 0) {
-                playlistHistorico = [];
-                return getNextSongInfinito();
-            }
-            
-            // 70% chance de mudar de gênero, 30% chance de continuar no mesmo gênero
-            let candidatas;
-            if (Math.random() < 0.7 && ultimaMusica) {
-                // Mudar de gênero
-                candidatas = musicasDisponiveis.filter(m => m.genero !== ultimaMusica.genero);
-                if (candidatas.length === 0) candidatas = musicasDisponiveis;
-            } else {
-                candidatas = musicasDisponiveis;
-            }
-            
-            // Priorizar músicas AO VIVO (50% de chance)
-            const liveCandidatas = candidatas.filter(m => isLiveSong(m));
-            let finalCandidatas = candidatas;
-            if (liveCandidatas.length > 0 && Math.random() < 0.5) {
+            // Priorizar AO VIVO (40% de chance)
+            const liveCandidatas = musicasDisponiveis.filter(m => isLiveSong(m));
+            let finalCandidatas = musicasDisponiveis;
+            if (liveCandidatas.length > 0 && Math.random() < 0.4) {
                 finalCandidatas = liveCandidatas;
             }
             
-            const randomIndex = Math.floor(Math.random() * finalCandidatas.length);
-            const selected = finalCandidatas[randomIndex];
-            
-            // Manter histórico (últimas 50 músicas)
-            playlistHistorico.push(selected.id);
+            const selecionada = finalCandidatas[Math.floor(Math.random() * finalCandidatas.length)];
+            playlistHistorico.push(selecionada.id);
             if (playlistHistorico.length > 50) playlistHistorico.shift();
+            generoAtual = selecionada.genero;
             
-            ultimoGenero = selected.genero;
-            ultimoIndice = musicas.findIndex(m => m.id === selected.id);
-            
-            return selected;
+            return selecionada;
         }
         
         // ==================== CONFIGURAÇÕES ====================
         let musicas = [];
+        let playlistAtual = [];
         let currentIndex = 0, isPlaying = false, shuffleMode = false, isBackgroundActive = false;
         let timerInterval = null;
         let fullscreenAttempts = 0;
-        let playlistAtual = [];
         
         let userPreferences = {
             likedSongs: [],
@@ -577,17 +604,6 @@
             showNotification('✅ Obrigado pelo feedback!', 2000);
         }
         
-        function calculateSongWeight(song) {
-            let weight = 1.0;
-            if (userPreferences.likedSongs.includes(song.id)) weight += 10;
-            if (userPreferences.dislikedSongs.includes(song.id)) weight -= 20;
-            const playCount = userPreferences.songPlays[song.id] || 0;
-            weight -= playCount * 0.3;
-            const genreScore = userPreferences.genrePreference[song.genero] || 0;
-            weight += genreScore * 0.5;
-            return Math.max(0.1, weight);
-        }
-        
         function updateGenreBadge(genero) {
             let icon = "fa-music";
             let displayName = genero;
@@ -600,7 +616,6 @@
             else if (genero === "SERTANEJO") { icon = "fa-guitar"; displayName = "Sertanejo"; }
             else if (genero === "MODARAIZ") { icon = "fa-hat-cowboy"; displayName = "Moda Raiz"; }
             else if (genero === "SAMBA") { icon = "fa-drumstick-bite"; displayName = "Samba"; }
-            else if (genero === "TODOS") { icon = "fa-head-side-brain"; displayName = "Todos"; }
             
             genreBadge.innerHTML = `<i class="fas ${icon}"></i> ${displayName}`;
         }
@@ -696,35 +711,49 @@
         }
         
         function nextTrack() {
-            if (!playlistAtual.length) return;
-            
-            // Busca próxima música da playlist infinita
-            const nextSong = getNextSongInfinito();
-            if (nextSong) {
-                playlistAtual = [nextSong];
-                currentIndex = 0;
-                loadTrackUI(currentIndex);
-                if (isPlaying) playMusic();
-            } else if (musicas.length > 0) {
-                // Fallback: pega uma música aleatória
-                const randomSong = musicas[Math.floor(Math.random() * musicas.length)];
-                playlistAtual = [randomSong];
-                currentIndex = 0;
-                loadTrackUI(currentIndex);
-                if (isPlaying) playMusic();
+            if (modoAtual === "MPB_POP") {
+                const nextSong = getNextSongMPBPOP();
+                if (nextSong) {
+                    playlistAtual = [nextSong];
+                    currentIndex = 0;
+                    loadTrackUI(currentIndex);
+                    if (isPlaying) playMusic();
+                }
+            } else {
+                // Modo TODOS ou gênero específico
+                if (modoAtual === "TODOS") {
+                    const nextSong = getNextSongTodos();
+                    if (nextSong) {
+                        playlistAtual = [nextSong];
+                        currentIndex = 0;
+                        loadTrackUI(currentIndex);
+                        if (isPlaying) playMusic();
+                    }
+                }
             }
         }
         
         function prevTrack() {
-            if (!playlistAtual.length) return;
-            // Para música anterior, pega uma música aleatória diferente da atual
-            const otherSongs = musicas.filter(m => m.id !== playlistAtual[currentIndex]?.id);
-            if (otherSongs.length > 0) {
-                const prevSong = otherSongs[Math.floor(Math.random() * otherSongs.length)];
-                playlistAtual = [prevSong];
-                currentIndex = 0;
-                loadTrackUI(currentIndex);
-                if (isPlaying) playMusic();
+            // Para música anterior, busca uma música aleatória diferente da atual
+            if (modoAtual === "MPB_POP") {
+                const todasMPBPOP = [...musicasMPB, ...musicasPOP];
+                const outras = todasMPBPOP.filter(m => m.id !== playlistAtual[0]?.id);
+                if (outras.length > 0) {
+                    const prevSong = outras[Math.floor(Math.random() * outras.length)];
+                    playlistAtual = [prevSong];
+                    currentIndex = 0;
+                    loadTrackUI(currentIndex);
+                    if (isPlaying) playMusic();
+                }
+            } else if (modoAtual === "TODOS") {
+                const outras = todasMusicas.filter(m => m.id !== playlistAtual[0]?.id);
+                if (outras.length > 0) {
+                    const prevSong = outras[Math.floor(Math.random() * outras.length)];
+                    playlistAtual = [prevSong];
+                    currentIndex = 0;
+                    loadTrackUI(currentIndex);
+                    if (isPlaying) playMusic();
+                }
             }
         }
         
@@ -866,13 +895,18 @@
                 console.log(`🎉 TOTAL: ${musicas.length} músicas carregadas!`);
                 splash.querySelector('.loading-text').innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
                 
-                const liveCount = musicas.filter(m => isLiveSong(m)).length;
-                console.log(`🎤 Músicas AO VIVO na biblioteca: ${liveCount}`);
+                // Separar músicas por gênero
+                musicasMPB = musicas.filter(m => m.genero === "MPB");
+                musicasPOP = musicas.filter(m => m.genero === "POP");
+                todasMusicas = [...musicas];
+                
+                console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | Outros: ${todasMusicas.length - musicasMPB.length - musicasPOP.length}`);
                 
                 if (musicas.length === 0) throw new Error("Nenhuma música foi carregada");
                 
-                // Iniciar playlist infinita com música AO VIVO de MPB ou POP
-                const primeiraMusica = getNextSongInfinito();
+                // Iniciar no modo MPB/POP alternado
+                modoAtual = "MPB_POP";
+                const primeiraMusica = getNextSongMPBPOP();
                 if (primeiraMusica) {
                     playlistAtual = [primeiraMusica];
                     currentIndex = 0;
@@ -882,14 +916,15 @@
                 const grid = document.getElementById('genresGrid');
                 grid.innerHTML = '';
                 
+                // Botão TODOS (toca todos os gêneros)
                 const todosBtn = document.createElement('div');
                 todosBtn.className = 'genre-card';
                 todosBtn.style.background = "linear-gradient(135deg,#00b4db,#0083b0)";
                 todosBtn.innerHTML = '<i class="fas fa-list-ul"></i><span>TODOS</span>';
                 todosBtn.onclick = () => { 
-                    // Modo TODOS: reinicia a playlist infinita
+                    modoAtual = "TODOS";
                     playlistHistorico = [];
-                    const novaMusica = getNextSongInfinito();
+                    const novaMusica = getNextSongTodos();
                     if (novaMusica) {
                         playlistAtual = [novaMusica];
                         currentIndex = 0;
@@ -897,7 +932,7 @@
                         if (isPlaying) playMusic();
                     }
                     document.getElementById('genresModal').classList.remove('open');
-                    showNotification("🎵 Modo TODOS - Músicas variadas!", 2000);
+                    showNotification("🎵 Modo TODOS - Todos os estilos musicais!", 2000);
                 };
                 grid.appendChild(todosBtn);
                 
@@ -912,7 +947,8 @@
                     const nomeExibicao = NOMES_EXIBICAO[genero] || genero;
                     card.innerHTML = `<i class="fas ${icon}"></i><span>${nomeExibicao}</span>`;
                     card.onclick = () => { 
-                        // Filtrar por gênero específico
+                        // Tocar apenas o gênero selecionado
+                        modoAtual = "GENERO_ESPECIFICO";
                         const musicasFiltradas = musicas.filter(m => m.genero === genero);
                         if (musicasFiltradas.length > 0) {
                             // Priorizar músicas AO VIVO
@@ -931,6 +967,26 @@
                     };
                     grid.appendChild(card);
                 });
+                
+                // Botão para voltar ao modo MPB/POP alternado
+                const mpbPopBtn = document.createElement('div');
+                mpbPopBtn.className = 'genre-card';
+                mpbPopBtn.style.background = "linear-gradient(135deg,#e63946,#ff6b6b)";
+                mpbPopBtn.innerHTML = '<i class="fas fa-exchange-alt"></i><span>MPB/POP</span>';
+                mpbPopBtn.onclick = () => {
+                    modoAtual = "MPB_POP";
+                    playlistHistorico = [];
+                    const novaMusica = getNextSongMPBPOP();
+                    if (novaMusica) {
+                        playlistAtual = [novaMusica];
+                        currentIndex = 0;
+                        loadTrackUI(currentIndex);
+                        if (isPlaying) playMusic();
+                    }
+                    document.getElementById('genresModal').classList.remove('open');
+                    showNotification("🎵 Modo MPB/POP - Alternando entre os dois estilos!", 2000);
+                };
+                grid.appendChild(mpbPopBtn);
                 
                 setTimeout(() => {
                     splash.classList.add('hidden');
