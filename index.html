@@ -3,569 +3,783 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rádio Patico • Playlist IA</title>
+    <title>Rádio Patico • POP & MPB • IA Total</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { min-height: 100vh; background-color: #000000; overflow: hidden; position: fixed; width: 100%; height: 100%; }
-        .app { width: 100%; height: 100vh; background: #000000; position: relative; overflow: hidden; }
-        .fullscreen-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1; }
-        .fullscreen-video-container video { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
-        .controls-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
-        
-        .genre-button { position: fixed; bottom: 140px; right: 20px; background: linear-gradient(135deg, #8E2DE2, #4A00E0); color: white; border: none; width: 55px; height: 55px; border-radius: 50%; font-size: 1.4rem; cursor: pointer; z-index: 26; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .cta-button { position: fixed; bottom: 210px; right: 20px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255,255,255,0.4); border-radius: 50px; padding: 10px 18px; font-size: 0.8rem; font-weight: bold; cursor: pointer; z-index: 26; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-        
-        /* Botão de feedback via WhatsApp */
-        .feedback-whatsapp { position: fixed; bottom: 140px; left: 20px; background: #25D366; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 27; border: none; font-size: 1.5rem; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-        .feedback-whatsapp:active { transform: scale(0.95); }
-        
-        .notification-top { position: absolute; top: 12px; left: 12px; right: 12px; text-align: center; z-index: 30; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-        .notification-top.show { opacity: 1; }
-        .notification-top .message { display: inline-block; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); border-radius: 30px; padding: 8px 20px; font-size: 0.85rem; color: #fff; border-left: 3px solid #e63946; }
-        
-        .menu-button { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; cursor: pointer; z-index: 31; }
-        .menu-popup { position: absolute; top: 65px; right: 12px; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); border-radius: 16px; padding: 10px; z-index: 32; display: none; flex-direction: column; gap: 8px; border: 1px solid rgba(255,255,255,0.2); }
-        .menu-popup.open { display: flex; }
-        .menu-popup button { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 16px; border-radius: 30px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .menu-popup button:active { background: #e63946; color: #000; }
-        
-        /* MODAL DE GÊNEROS - MENOR */
-        .genres-modal { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 25px 25px 0 0; padding: 18px 16px 22px; z-index: 2000; transform: translateY(100%); transition: transform 0.3s ease; max-height: 70vh; overflow-y: auto; }
-        .genres-modal.open { transform: translateY(0); }
-        .genres-modal h3 { text-align: center; margin-bottom: 15px; font-size: 1.2rem; color: #e63946; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .genres-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
-        .genre-card { border-radius: 16px; padding: 12px 10px; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); }
-        .genre-card:active { transform: scale(0.96); }
-        .genre-card i { font-size: 1.8rem; display: block; margin-bottom: 6px; color: white; }
-        .genre-card span { font-size: 0.75rem; font-weight: 800; color: white; }
-        .close-genres { width: 100%; padding: 10px; background: #e63946; border: none; border-radius: 25px; color: white; font-size: 0.85rem; cursor: pointer; font-weight: bold; }
-        
-        .bottom-controls { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.2); padding: 10px 16px; z-index: 20; pointer-events: auto; }
-        .track-info { text-align: center; margin-bottom: 8px; color: #fff; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .progress-area { margin-bottom: 8px; }
-        .progress-time { display: flex; justify-content: space-between; font-size: 0.7rem; color: #ccc; }
-        .progress-bar { height: 3px; background: rgba(255,255,255,0.3); cursor: pointer; border-radius: 3px; }
-        .progress-fill { height: 100%; background: #e63946; width: 0%; border-radius: 3px; }
-        .control-buttons { display: flex; align-items: center; justify-content: center; gap: 20px; }
-        .control-btn { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 1.2rem; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; transition: transform 0.1s; }
-        .control-btn:active { transform: scale(0.9); }
-        .play-btn { font-size: 1.6rem; width: 54px; height: 54px; background: #e63946; color: #000; border: none; }
-        
-        .genre-badge { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 6px 14px; border-radius: 20px; font-size: 0.7rem; color: white; z-index: 31; border-left: 3px solid #e63946; font-weight: bold; }
-        .audio-indicator { position: absolute; top: 12px; right: 70px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 20px; font-size: 0.6rem; color: #ffaa00; z-index: 31; display: flex; align-items: center; gap: 5px; }
-        .loading-spinner { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); backdrop-filter: blur(12px); padding: 15px 25px; border-radius: 50px; z-index: 10001; display: none; align-items: center; gap: 12px; color: white; }
-        .loading-spinner.show { display: flex; }
-        #tap-to-start { position: fixed; bottom: 20%; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #ff6600, #ff3300); color: white; padding: 10px 20px; border-radius: 40px; font-weight: bold; font-size: 0.85rem; z-index: 10000; cursor: pointer; display: none; animation: btnPulse 1.5s infinite; white-space: nowrap; }
-        @keyframes btnPulse { 0% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.03); } 100% { transform: translateX(-50%) scale(1); } }
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; flex-direction: column; }
-        #splash.hidden { opacity: 0; pointer-events: none; }
-        .splash-content { text-align: center; color: #fff; }
-        .splash-content i { font-size: 3rem; color: #e63946; margin-bottom: 1rem; animation: pulse 1.5s infinite; }
-        .splash-content .loading-text { font-size: 0.8rem; margin-top: 15px; color: #aaa; }
-        @keyframes pulse { 0% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.6; transform: scale(1); } }
-        .swipe-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; z-index: 10002; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
-        .error-banner { position: fixed; bottom: 100px; left: 20px; right: 20px; background: #e63946; color: white; padding: 12px; border-radius: 12px; text-align: center; z-index: 10003; display: none; font-size: 0.75rem; }
-        .error-banner.show { display: block; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #000;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* VÍDEO BACKGROUND FULLSCREEN */
+        .video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            filter: brightness(0.55) saturate(1.05);
+        }
+
+        /* OVERLAY PRINCIPAL */
+        .app {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.8) 100%);
+            backdrop-filter: blur(1.5px);
+        }
+
+        /* TOPO */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .genre-badge {
+            background: rgba(230,57,70,0.9);
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bt-status {
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(8px);
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            color: #ddd;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .bt-status.connected { color: #4ade80; }
+
+        /* CARD DA MÚSICA (COMPACTO) */
+        .music-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .track-card {
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(16px);
+            padding: 14px 28px;
+            border-radius: 60px;
+            border-left: 4px solid #e63946;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .track-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist {
+            font-size: 0.8rem;
+            color: #ccc;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .live-badge {
+            font-size: 0.6rem;
+            color: #e63946;
+            margin-top: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        /* FEEDBACK WHATSAPP */
+        .feedback-zap {
+            margin-top: 25px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .feedback-zap:active { transform: scale(0.96); }
+
+        /* CONTROLES INFERIORES */
+        .bottom-controls {
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding: 12px 20px 24px;
+            border-radius: 30px 30px 0 0;
+        }
+
+        .progress-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #bbb;
+            margin-bottom: 4px;
+        }
+        .progress-bar-bg {
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #e63946;
+            border-radius: 4px;
+        }
+
+        .buttons-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            margin-top: 12px;
+        }
+        .ctrl-btn {
+            background: rgba(255,255,255,0.12);
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .ctrl-btn:active { transform: scale(0.92); background: #e63946; color: #000; }
+        .play-big {
+            background: #e63946;
+            width: 64px;
+            height: 64px;
+            font-size: 1.7rem;
+            color: #000;
+            box-shadow: 0 4px 14px rgba(230,57,70,0.4);
+        }
+
+        /* MENU 3 PONTOS */
+        .menu-dot {
+            position: relative;
+        }
+        .dot-btn {
+            background: rgba(0,0,0,0.65);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2rem;
+        }
+        .menu-drop {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            background: rgba(0,0,0,0.94);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 10px 0;
+            width: 180px;
+            display: none;
+            flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.2);
+            z-index: 50;
+        }
+        .menu-drop.open { display: flex; }
+        .menu-item {
+            padding: 10px 16px;
+            color: white;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        .menu-item:active { background: #e63946; color: #000; }
+
+        /* MODAL GÊNERO MINI */
+        .genre-fab {
+            position: fixed;
+            bottom: 100px;
+            right: 16px;
+            z-index: 40;
+        }
+        .genre-fab-btn {
+            background: linear-gradient(135deg, #1e1e2f, #2a2a3b);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 1.4rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .genre-panel-mini {
+            position: absolute;
+            bottom: 65px;
+            right: 0;
+            background: rgba(10,10,20,0.97);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 12px;
+            width: 210px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .genre-panel-mini.open { display: flex; }
+        .genre-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 40px;
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .genre-item:active { background: #e63946; color: black; }
+
+        /* WHATSAPP FIXO */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 100px;
+            left: 16px;
+            background: #25D366;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.6rem;
+            color: white;
+            z-index: 40;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        .whatsapp-float:active { transform: scale(0.94); }
+
+        /* TOAST E LOADER */
+        .toast-msg {
+            position: fixed;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(12px);
+            padding: 8px 20px;
+            border-radius: 50px;
+            color: white;
+            font-size: 0.75rem;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000000cc;
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 40px;
+            color: white;
+            display: none;
+            gap: 10px;
+            z-index: 300;
+            font-size: 0.8rem;
+        }
+        #splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.6s;
+            flex-direction: column;
+            text-align: center;
+            color: white;
+        }
+        .splash-content i { font-size: 3rem; color: #e63946; animation: pulse 1.2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; transform: scale(1); } 100% { opacity: 1; transform: scale(1.05); } }
+        .error-retry { margin-top: 20px; background: #e63946; border: none; padding: 8px 18px; border-radius: 30px; color: white; font-weight: bold; cursor: pointer; }
+
+        .swipe-hint {
+            position: fixed;
+            bottom: 180px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.65);
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            color: white;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 45;
+        }
     </style>
 </head>
 <body>
-    <div id="splash">
-        <div class="splash-content">
-            <i class="fas fa-broadcast-tower"></i>
-            <h1>Rádio Patico</h1>
-            <p>🎵 Carregando playlist do servidor...</p>
-            <div class="loading-text"><i class="fas fa-circle-notch fa-spin"></i> Buscando músicas do JSON</div>
-        </div>
+
+<video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
+    <source src="pak1.mp4" type="video/mp4">
+</video>
+
+<div id="splash">
+    <div class="splash-content">
+        <i class="fas fa-broadcast-tower"></i>
+        <h2>Rádio Patico</h2>
+        <p id="splashText">Carregando playlist inteligente...</p>
+        <div id="splashStatus"><i class="fas fa-circle-notch fa-spin"></i> Buscando músicas</div>
     </div>
-    <div id="tap-to-start"><i class="fas fa-play-circle"></i> 🎵 ATIVAR ÁUDIO</div>
-    <div class="error-banner" id="errorBanner"><i class="fas fa-exclamation-triangle"></i> <span id="errorMsg">Erro ao carregar playlist</span></div>
-    
-    <div class="app" style="display: none;" id="appContainer">
-        <div class="fullscreen-video-container"><video id="mainVideo" autoplay loop muted playsinline><source src="pak1.mp4" type="video/mp4"></video></div>
-        
-        <div class="genre-badge" id="genreBadge"><i class="fas fa-music"></i> CARREGANDO</div>
-        <div class="audio-indicator" id="audioIndicator"><i class="fas fa-circle"></i> Aguardando</div>
-        
-        <!-- Feedback via WhatsApp -->
-        <button class="feedback-whatsapp" id="feedbackWhatsappBtn"><i class="fab fa-whatsapp"></i></button>
-        
-        <button class="cta-button" id="ctaButton"><i class="fas fa-headset"></i> <span>PEÇA SUA PLAYLIST</span></button>
-        <button class="genre-button" id="genreButton"><i class="fas fa-guitar"></i></button>
-        
-        <div class="notification-top" id="notificationTop"><div class="message" id="notificationMessage"></div></div>
-        
-        <div class="controls-overlay">
-            <div class="bottom-controls" id="bottomControls">
-                <div class="track-info"><p id="trackArtist">🎵 Rádio Patico - Carregando playlist...</p></div>
-                <div class="progress-area"><div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div><div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div></div>
-                <div class="control-buttons"><button class="control-btn" id="prevBtn"><i class="fas fa-step-backward"></i></button><button class="control-btn play-btn" id="playPauseBtn"><i class="fas fa-play"></i></button><button class="control-btn" id="shuffleBtn"><i class="fas fa-random"></i></button><button class="control-btn" id="nextBtn"><i class="fas fa-step-forward"></i></button></div>
+</div>
+
+<div class="app" id="app" style="display: none;">
+    <div class="top-bar">
+        <div class="genre-badge" id="genreBadge"><i class="fas fa-head-side-brain"></i> POP</div>
+        <div style="display: flex; gap: 8px;">
+            <div class="bt-status" id="btDiv"><i class="fab fa-bluetooth-b"></i> <span id="btText">--</span></div>
+            <div class="menu-dot">
+                <div class="dot-btn" id="menuDotBtn"><i class="fas fa-ellipsis-v"></i></div>
+                <div class="menu-drop" id="menuDrop">
+                    <div class="menu-item" id="fullscreenItem"><i class="fas fa-expand"></i> Tela cheia</div>
+                    <div class="menu-item" id="shareItem"><i class="fas fa-share-alt"></i> Compartilhar</div>
+                    <div class="menu-item" id="btStatusItem"><i class="fab fa-bluetooth"></i> Status Bluetooth</div>
+                </div>
             </div>
         </div>
     </div>
-    
-    <div class="menu-button" id="menuButton" style="display: none;"><i class="fas fa-ellipsis-v"></i></div>
-    <div class="menu-popup" id="menuPopup">
-        <button id="shareMenuBtn"><i class="fas fa-share-alt"></i> Compartilhar</button>
-        <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela Cheia</button>
-    </div>
-    
-    <div class="genres-modal" id="genresModal">
-        <h3><i class="fas fa-head-side-brain"></i> ESCOLHA SEU ESTILO</h3>
-        <div class="genres-grid" id="genresGrid"></div>
-        <button class="close-genres" id="closeGenresBtn"><i class="fas fa-check-circle"></i> FECHAR</button>
-    </div>
-    
-    <audio id="musicPlayer" preload="auto"></audio>
-    <audio id="backgroundAudio" preload="auto" style="display: none;"></audio>
-    <div class="loading-spinner" id="loadingSpinner"><i class="fas fa-circle-notch fa-spin"></i><span>Carregando música...</span></div>
-    <div class="swipe-indicator" id="swipeIndicator">👉 Deslize para trocar música</div>
 
-    <script>
-        // ==================== CONFIGURAÇÕES ====================
-        const PLAYLIST_JSON_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/4146336c11162317c986d6ae73cfad4381330e45/playlist.json";
-        const NUMERO_WHATSAPP = "5512988461978";
-        
-        let musicas = [];
-        let filteredPlaylist = [];
-        let currentIndex = 0, isPlaying = false, shuffleMode = false, isBackgroundActive = false;
-        let timerInterval = null;
-        
-        const musicPlayer = document.getElementById('musicPlayer');
-        const playBtn = document.getElementById('playPauseBtn');
-        const progressFill = document.getElementById('progressFill');
-        const currentTimeEl = document.getElementById('currentTime');
-        const totalTimeEl = document.getElementById('totalTime');
-        const trackArtist = document.getElementById('trackArtist');
-        const genreBadge = document.getElementById('genreBadge');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const splash = document.getElementById('splash');
-        const tapToStart = document.getElementById('tap-to-start');
-        const appContainer = document.getElementById('appContainer');
-        const menuButton = document.getElementById('menuButton');
-        
-        musicPlayer.volume = 0.9;
-        
-        function formatTime(sec) {
-            if (!sec || isNaN(sec)) return "0:00";
-            const m = Math.floor(sec / 60);
-            const s = Math.floor(sec % 60);
-            return `${m}:${s < 10 ? '0' : ''}${s}`;
+    <div class="music-center">
+        <div class="track-card">
+            <div class="track-title" id="trackTitle">🎵 Carregando...</div>
+            <div class="track-artist" id="trackArtist">Rádio Patico</div>
+            <div class="live-badge" id="liveTag"></div>
+        </div>
+        <button class="feedback-zap" id="feedbackBtn"><i class="fab fa-whatsapp"></i> Enviar feedback</button>
+    </div>
+
+    <div class="bottom-controls">
+        <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
+        <div class="progress-bar-bg" id="progressBarBg"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="buttons-row">
+            <button class="ctrl-btn" id="prevBtn"><i class="fas fa-backward-step"></i></button>
+            <button class="ctrl-btn play-big" id="playBtn"><i class="fas fa-play"></i></button>
+            <button class="ctrl-btn" id="nextBtn"><i class="fas fa-forward-step"></i></button>
+        </div>
+    </div>
+
+    <div class="genre-fab">
+        <div class="genre-fab-btn" id="genreFab"><i class="fas fa-music"></i></div>
+        <div class="genre-panel-mini" id="genrePanel">
+            <div class="genre-item" data-genre="POP"><i class="fas fa-microphone-alt"></i> POP</div>
+            <div class="genre-item" data-genre="MPB"><i class="fas fa-guitar"></i> MPB</div>
+            <div class="genre-item" data-genre="SERTANEJO"><i class="fas fa-hat-cowboy"></i> Sertanejo</div>
+            <div class="genre-item" data-genre="FORRÓ"><i class="fas fa-drum"></i> Forró</div>
+            <div class="genre-item" data-genre="FORRÓ ANTIGO"><i class="fas fa-accordion"></i> Forró Antigo</div>
+            <div class="genre-item" data-genre="BREGA"><i class="fas fa-heart"></i> Brega</div>
+            <div class="genre-item" data-genre="SAMBA"><i class="fas fa-drumstick-bite"></i> Samba</div>
+            <div class="genre-item" data-genre="MODA TOP"><i class="fas fa-guitar"></i> Moda Top</div>
+        </div>
+    </div>
+
+    <div class="whatsapp-float" id="whatsappFloat">
+        <i class="fab fa-whatsapp"></i>
+    </div>
+    <div class="swipe-hint" id="swipeHint">👆 Duplo toque: play/pause | 👉 Deslize: trocar música</div>
+</div>
+
+<div class="loader" id="loader"><i class="fas fa-circle-notch fa-spin"></i><span>Carregando...</span></div>
+<div class="toast-msg" id="toastMsg"></div>
+<audio id="audioPlayer" preload="auto"></audio>
+
+<script>
+    // ==================== CONFIG GLOBAL ====================
+    const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/4146336c11162317c986d6ae73cfad4381330e45/playlist.json";
+    const WHATSAPP_NUMBER = "5512988461978";
+    let musicLibrary = [];          // todas as musicas do JSON
+    let currentPlaylist = [];       // filtrada por genero
+    let currentIndex = 0;
+    let isPlaying = false;
+    let currentGenre = "POP";       // inicia no POP (alternância com MPB)
+    let genreInterval = null;
+    let player = document.getElementById("audioPlayer");
+    let progressInterval = null;
+
+    // DOM elements
+    const appDiv = document.getElementById("app");
+    const splashDiv = document.getElementById("splash");
+    const trackTitleSpan = document.getElementById("trackTitle");
+    const trackArtistSpan = document.getElementById("trackArtist");
+    const liveTagSpan = document.getElementById("liveTag");
+    const genreBadgeSpan = document.getElementById("genreBadge");
+    const playBtn = document.getElementById("playBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const progressFill = document.getElementById("progressFill");
+    const currentTimeSpan = document.getElementById("currentTime");
+    const totalTimeSpan = document.getElementById("totalTime");
+    const progressBg = document.getElementById("progressBarBg");
+    const loaderDiv = document.getElementById("loader");
+    const toastMsg = document.getElementById("toastMsg");
+    const btTextSpan = document.getElementById("btText");
+    const btDiv = document.getElementById("btDiv");
+
+    // helpers
+    function formatTime(sec) { if(isNaN(sec)) return "0:00"; const m = Math.floor(sec/60); const s = Math.floor(sec%60); return `${m}:${s<10?'0':''}${s}`; }
+    function showToast(msg, duration=1700) { toastMsg.innerText = msg; toastMsg.style.opacity = "1"; setTimeout(()=> toastMsg.style.opacity = "0", duration); }
+
+    // Bluetooth fake / status
+    async function checkBluetooth() {
+        if(navigator.bluetooth && navigator.bluetooth.getAvailability) {
+            const avail = await navigator.bluetooth.getAvailability();
+            if(avail) { btTextSpan.innerText = "Conectado"; btDiv.classList.add("connected"); }
+            else { btTextSpan.innerText = "Offline"; btDiv.classList.remove("connected"); }
+        } else { btTextSpan.innerText = "N/D"; }
+    }
+    setInterval(checkBluetooth, 5000);
+    checkBluetooth();
+
+    // Carregar JSON com suporte a novos campos
+    async function fetchSongs() {
+        try {
+            const res = await fetch(PLAYLIST_URL);
+            if(!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            if(!Array.isArray(data) || data.length===0) throw new Error("JSON vazio");
+            musicLibrary = data.map((item, idx) => ({
+                id: item.id || idx,
+                title: item.title || "Música",
+                artist: item.artist || "Artista",
+                src: item.src || "",
+                genero: item.genero || "POP",
+                tipo: item.tipo || "normal"
+            })).filter(song => song.src && song.src.trim() !== "");
+            if(musicLibrary.length === 0) throw new Error("Nenhuma música com src válido");
+            return true;
+        } catch(err) {
+            console.error(err);
+            return false;
         }
-        
-        function showNotification(msg, duration = 2500) {
-            const notiMsg = document.getElementById('notificationMessage');
-            const notiTop = document.getElementById('notificationTop');
-            notiMsg.innerText = msg;
-            notiTop.classList.add('show');
-            setTimeout(() => notiTop.classList.remove('show'), duration);
+    }
+
+    // Embaralhar playlist (garante musicas diferentes ao trocar genero)
+    function shuffleArray(arr) {
+        for(let i=arr.length-1; i>0; i--) {
+            const j = Math.floor(Math.random()*(i+1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
         }
-        
-        function showError(msg) {
-            const banner = document.getElementById('errorBanner');
-            const errorMsg = document.getElementById('errorMsg');
-            errorMsg.innerText = msg;
-            banner.classList.add('show');
-            setTimeout(() => banner.classList.remove('show'), 4000);
+        return arr;
+    }
+
+    function filterByGenre(genre) {
+        if(!musicLibrary.length) return false;
+        let filtered = musicLibrary.filter(s => s.genero === genre);
+        if(filtered.length === 0) {
+            showToast(`⚠️ Nenhuma música de ${genre}`, 1500);
+            return false;
         }
-        
-        function updateGenreBadge() {
-            let icon = "fa-music";
-            const currentGenre = currentFilterGenre || "TODOS";
-            if (currentGenre === "SAMBA") icon = "fa-drumstick-bite";
-            else if (currentGenre === "POP") icon = "fa-microphone-alt";
-            else if (currentGenre === "MPB") icon = "fa-guitar";
-            else if (currentGenre === "FORRÓ") icon = "fa-drum";
-            else if (currentGenre === "FORRÓ_ANTIGO") icon = "fa-accordion";
-            else if (currentGenre === "MODÃO_TOP") icon = "fa-hat-cowboy";
-            else if (currentGenre === "BREGA_SERTANEJO") icon = "fa-guitar";
-            else icon = "fa-head-side-brain";
-            genreBadge.innerHTML = `<i class="fas ${icon}"></i> ${currentGenre.replace('_', ' ')}`;
+        // SEMPRE EMBARALHAR para músicas diferentes a cada troca
+        currentPlaylist = shuffleArray([...filtered]);
+        currentIndex = 0;
+        currentGenre = genre;
+        updateGenreUI();
+        loadCurrentTrackInfo();
+        if(isPlaying) playCurrentSong();
+        showToast(`🎸 Gênero: ${genre} • ${currentPlaylist.length} músicas`, 1500);
+        return true;
+    }
+
+    function updateGenreUI() {
+        let icon = "fa-microphone-alt";
+        if(currentGenre === "MPB") icon = "fa-guitar";
+        else if(currentGenre === "SERTANEJO") icon = "fa-hat-cowboy";
+        else if(currentGenre === "FORRÓ") icon = "fa-drum";
+        else if(currentGenre === "FORRÓ ANTIGO") icon = "fa-accordion";
+        else if(currentGenre === "BREGA") icon = "fa-heart";
+        else if(currentGenre === "SAMBA") icon = "fa-drumstick-bite";
+        else if(currentGenre === "MODA TOP") icon = "fa-guitar";
+        else icon = "fa-head-side-brain";
+        genreBadgeSpan.innerHTML = `<i class="fas ${icon}"></i> ${currentGenre}`;
+    }
+
+    function loadCurrentTrackInfo() {
+        if(!currentPlaylist.length) return;
+        const track = currentPlaylist[currentIndex];
+        trackTitleSpan.innerText = track.title;
+        trackArtistSpan.innerText = track.artist;
+        if(track.tipo === "ao vivo") liveTagSpan.innerHTML = "🔴 AO VIVO";
+        else liveTagSpan.innerHTML = "🎵 Estúdio";
+        totalTimeSpan.innerText = "0:00";
+        currentTimeSpan.innerText = "0:00";
+        progressFill.style.width = "0%";
+    }
+
+    async function playCurrentSong() {
+        if(!currentPlaylist.length) return;
+        const track = currentPlaylist[currentIndex];
+        if(!track.src) {
+            showToast(`🔇 Sem fonte: ${track.title}`, 1200);
+            setTimeout(()=> nextTrack(), 800);
+            return;
         }
-        
-        let currentFilterGenre = "TODOS";
-        
-        function filterByGenre(genero) {
-            if (!musicas.length) return;
-            if (genero === "TODOS") {
-                filteredPlaylist = [...musicas];
-                currentFilterGenre = "TODOS";
-                showNotification("🎵 Modo TODOS ativado!", 2000);
-            } else {
-                const filtered = musicas.filter(m => m.genero === genero);
-                if (filtered.length === 0) {
-                    showNotification(`⚠️ Nenhuma música para ${genero}`, 1500);
-                    return;
-                }
-                filteredPlaylist = [...filtered];
-                currentFilterGenre = genero;
-                showNotification(`🎵 ${genero.replace('_', ' ')} ativado!`, 2000);
-            }
-            updateGenreBadge();
-            currentIndex = 0;
-            loadTrackUI(currentIndex);
-            if (isPlaying) playMusic();
-        }
-        
-        function loadTrackUI(index) {
-            if (!filteredPlaylist.length) return;
-            const track = filteredPlaylist[index];
-            if (!track) return;
-            trackArtist.innerHTML = `${track.title} - ${track.artist} [${track.genero.replace('_', ' ')}]`;
-            currentTimeEl.textContent = '0:00';
-            totalTimeEl.textContent = '0:00';
-            progressFill.style.width = '0%';
-        }
-        
-        async function playMusic() {
-            if (!isBackgroundActive) {
-                showNotification('⚠️ Clique em "ATIVAR ÁUDIO" primeiro!', 2000);
-                return false;
-            }
-            if (!filteredPlaylist.length) return false;
-            
-            loadingSpinner.classList.add('show');
-            const track = filteredPlaylist[currentIndex];
-            if (!track || !track.src) {
-                loadingSpinner.classList.remove('show');
-                showError(`Arquivo não encontrado: ${track?.title}`);
-                nextTrack();
-                return false;
-            }
-            
-            musicPlayer.src = track.src;
-            musicPlayer.load();
-            
-            return new Promise((resolve) => {
-                const timeout = setTimeout(() => {
-                    loadingSpinner.classList.remove('show');
-                    showError(`Timeout: ${track.title}`);
-                    nextTrack();
-                    resolve(false);
-                }, 10000);
-                
-                musicPlayer.oncanplaythrough = async () => {
-                    clearTimeout(timeout);
-                    loadingSpinner.classList.remove('show');
-                    try {
-                        await musicPlayer.play();
-                        isPlaying = true;
-                        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                        startTimer();
-                        
-                        if (musicPlayer.duration) {
-                            totalTimeEl.textContent = formatTime(musicPlayer.duration);
-                        } else {
-                            musicPlayer.addEventListener('loadedmetadata', () => {
-                                totalTimeEl.textContent = formatTime(musicPlayer.duration);
-                            }, { once: true });
-                        }
-                        resolve(true);
-                    } catch(e) {
-                        clearTimeout(timeout);
-                        loadingSpinner.classList.remove('show');
-                        console.error(e);
-                        resolve(false);
-                    }
-                };
-                
-                musicPlayer.onerror = () => {
-                    clearTimeout(timeout);
-                    loadingSpinner.classList.remove('show');
-                    showError(`Erro ao carregar: ${track.title}`);
-                    setTimeout(() => nextTrack(), 1000);
-                    resolve(false);
-                };
-                
-                musicPlayer.onended = () => {
-                    nextTrack();
-                };
-            });
-        }
-        
-        function pauseMusic() {
-            musicPlayer.pause();
+        loaderDiv.style.display = "flex";
+        player.src = track.src;
+        player.load();
+        try {
+            await player.play();
+            isPlaying = true;
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            loaderDiv.style.display = "none";
+            startProgress();
+            player.onended = () => { nextTrack(); };
+        } catch(err) {
+            loaderDiv.style.display = "none";
             isPlaying = false;
             playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            stopTimer();
+            showToast("Toque no play para iniciar", 1500);
         }
-        
-        function togglePlayPause() {
-            if (!isBackgroundActive) {
-                showNotification('Ative o áudio primeiro!', 1500);
-                return;
+    }
+
+    function pauseMusic() {
+        player.pause();
+        isPlaying = false;
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        stopProgress();
+    }
+
+    function togglePlay() { isPlaying ? pauseMusic() : playCurrentSong(); }
+
+    function nextTrack() {
+        if(!currentPlaylist.length) return;
+        currentIndex = (currentIndex + 1) % currentPlaylist.length;
+        loadCurrentTrackInfo();
+        if(isPlaying) playCurrentSong();
+        else showToast("⏭️ Próxima música", 700);
+    }
+
+    function prevTrack() {
+        if(!currentPlaylist.length) return;
+        currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+        loadCurrentTrackInfo();
+        if(isPlaying) playCurrentSong();
+        else showToast("⏮️ Anterior", 700);
+    }
+
+    function startProgress() {
+        if(progressInterval) clearInterval(progressInterval);
+        progressInterval = setInterval(() => {
+            if(player && !player.paused && player.duration) {
+                const percent = (player.currentTime / player.duration) * 100;
+                progressFill.style.width = percent + "%";
+                currentTimeSpan.innerText = formatTime(player.currentTime);
+                totalTimeSpan.innerText = formatTime(player.duration);
             }
-            isPlaying ? pauseMusic() : playMusic();
-        }
-        
-        function nextTrack() {
-            if (!filteredPlaylist.length) return;
-            if (shuffleMode) {
-                const randomIndex = Math.floor(Math.random() * filteredPlaylist.length);
-                currentIndex = randomIndex;
-            } else {
-                currentIndex = (currentIndex + 1) % filteredPlaylist.length;
+        }, 200);
+    }
+    function stopProgress() { if(progressInterval) clearInterval(progressInterval); progressInterval = null; }
+    progressBg.addEventListener("click", (e) => {
+        if(!player.duration) return;
+        const rect = progressBg.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        player.currentTime = pos * player.duration;
+    });
+
+    // Alternância automática entre POP e MPB a cada 25 minutos (músicas nunca param)
+    function startGenreAlternation() {
+        if(genreInterval) clearInterval(genreInterval);
+        genreInterval = setInterval(() => {
+            if(!musicLibrary.length) return;
+            let nextGen = (currentGenre === "POP") ? "MPB" : "POP";
+            const hasSongs = musicLibrary.some(s => s.genero === nextGen);
+            if(hasSongs) {
+                filterByGenre(nextGen);
+                showToast(`🔄 Alternando para ${nextGen} (IA automática)`, 2000);
             }
-            loadTrackUI(currentIndex);
-            if (isPlaying) playMusic();
+        }, 25 * 60 * 1000);
+    }
+
+    // Feedback whatsapp com música atual
+    function sendFeedback() {
+        if(!currentPlaylist.length) return;
+        const track = currentPlaylist[currentIndex];
+        const msg = `🎵 *RÁDIO PATICO - FEEDBACK* 🎵%0A%0AMúsica: ${track.title}%0AArtista: ${track.artist}%0AGênero: ${currentGenre}%0A%0A⭐ Minha avaliação: `;
+        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
+        showToast("📱 WhatsApp para feedback", 1200);
+    }
+
+    // GESTOS TOUCH
+    let touchStartX = 0;
+    let lastTap = 0;
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        const now = Date.now();
+        if(now - lastTap < 300) {
+            e.preventDefault();
+            togglePlay();
+            const hint = document.getElementById('swipeHint');
+            hint.style.opacity = "1";
+            setTimeout(() => hint.style.opacity = "0", 800);
         }
-        
-        function prevTrack() {
-            if (!filteredPlaylist.length) return;
-            currentIndex = (currentIndex - 1 + filteredPlaylist.length) % filteredPlaylist.length;
-            loadTrackUI(currentIndex);
-            if (isPlaying) playMusic();
+        lastTap = now;
+    });
+    document.addEventListener('touchend', (e) => {
+        const diff = e.changedTouches[0].screenX - touchStartX;
+        if(Math.abs(diff) > 50) {
+            if(diff > 0) prevTrack();
+            else nextTrack();
+            const hint = document.getElementById('swipeHint');
+            hint.style.opacity = "1";
+            setTimeout(() => hint.style.opacity = "0", 800);
         }
+    });
+
+    // Inicialização e TELA CHEIA AUTOMÁTICA
+    async function init() {
+        // TELA CHEIA ASSIM QUE CARREGAR
+        document.documentElement.requestFullscreen().catch(e=>console.log);
         
-        function startTimer() {
-            stopTimer();
-            timerInterval = setInterval(() => {
-                if (isPlaying && musicPlayer.duration && !musicPlayer.paused) {
-                    const percent = (musicPlayer.currentTime / musicPlayer.duration) * 100;
-                    progressFill.style.width = percent + '%';
-                    currentTimeEl.textContent = formatTime(musicPlayer.currentTime);
-                }
-            }, 200);
+        const loaded = await fetchSongs();
+        if(!loaded || musicLibrary.length===0) {
+            document.getElementById("splashStatus").innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro no JSON';
+            const retryBtn = document.createElement("button");
+            retryBtn.innerText = "🔄 Tentar novamente";
+            retryBtn.className = "error-retry";
+            retryBtn.onclick = () => location.reload();
+            document.querySelector(".splash-content").appendChild(retryBtn);
+            return;
         }
-        
-        function stopTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = null;
-        }
-        
-        // Feedback via WhatsApp com nome da música atual
-        function enviarFeedbackWhatsApp() {
-            if (!filteredPlaylist.length) return;
-            const track = filteredPlaylist[currentIndex];
-            const mensagem = `🎵 *RÁDIO PATICO - FEEDBACK* 🎵%0A%0AMúsica: ${track.title}%0AArtista: ${track.artist}%0AGênero: ${track.genero}%0A%0A⭐ Minha avaliação: `;
-            window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${mensagem}`, '_blank');
-            showNotification('📱 Abrindo WhatsApp para feedback', 1500);
-        }
-        
-        // Áudio Background
-        function createSilentAudio() {
-            const sampleRate = 44100, duration = 2, numSamples = sampleRate * duration;
-            const buffer = new ArrayBuffer(44 + numSamples * 2);
-            const view = new DataView(buffer);
-            const writeString = (view, offset, str) => {
-                for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
-            };
-            writeString(view, 0, 'RIFF');
-            view.setUint32(4, 36 + numSamples * 2, true);
-            writeString(view, 8, 'WAVE');
-            writeString(view, 12, 'fmt ');
-            view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true);
-            view.setUint16(22, 1, true);
-            view.setUint32(24, sampleRate, true);
-            view.setUint32(28, sampleRate * 2, true);
-            view.setUint16(32, 2, true);
-            view.setUint16(34, 16, true);
-            writeString(view, 36, 'data');
-            view.setUint32(40, numSamples * 2, true);
-            let offset = 44;
-            for (let i = 0; i < numSamples; i++) {
-                view.setInt16(offset, 0, true);
-                offset += 2;
-            }
-            return new Blob([buffer], { type: 'audio/wav' });
-        }
-        
-        const backgroundAudio = document.getElementById('backgroundAudio');
-        
-        async function ativarAudioBackground() {
-            try {
-                const silentUrl = URL.createObjectURL(createSilentAudio());
-                backgroundAudio.src = silentUrl;
-                backgroundAudio.loop = true;
-                backgroundAudio.volume = 0.001;
-                await backgroundAudio.play();
-                isBackgroundActive = true;
-                document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-brain"></i> IA Ativa';
-                document.getElementById('audioIndicator').style.color = '#4ade80';
-                
-                if ('wakeLock' in navigator) {
-                    try {
-                        await navigator.wakeLock.request('screen');
-                    } catch(e) {}
-                }
-                
-                await playMusic();
-                return true;
-            } catch (error) {
-                document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro';
-                return false;
-            }
-        }
-        
-        // GESTOS TOUCH
-        let touchStartX = 0;
-        let lastTap = 0;
-        
-        document.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-            const now = Date.now();
-            if (now - lastTap < 300) {
-                e.preventDefault();
-                togglePlayPause();
-                const indicator = document.getElementById('swipeIndicator');
-                indicator.textContent = isPlaying ? '⏸️ Pausado' : '▶️ Play';
-                indicator.style.opacity = '1';
-                setTimeout(() => indicator.style.opacity = '0', 800);
-            }
-            lastTap = now;
+        document.getElementById("splashStatus").innerHTML = `<i class="fas fa-check-circle"></i> ${musicLibrary.length} músicas`;
+        // Iniciar com POP (primeiro, para alternar com MPB)
+        const hasPop = musicLibrary.some(s => s.genero === "POP");
+        const hasMpb = musicLibrary.some(s => s.genero === "MPB");
+        if(hasPop) filterByGenre("POP");
+        else if(hasMpb) filterByGenre("MPB");
+        else filterByGenre(musicLibrary[0].genero);
+
+        // Esconde splash
+        setTimeout(() => {
+            splashDiv.style.opacity = "0";
+            setTimeout(() => {
+                splashDiv.style.display = "none";
+                appDiv.style.display = "flex";
+                // Ativar áudio com primeiro toque
+                const startAudio = async () => {
+                    await playCurrentSong();
+                    document.removeEventListener("click", startAudio);
+                    document.removeEventListener("touchstart", startAudio);
+                };
+                document.addEventListener("click", startAudio);
+                document.addEventListener("touchstart", startAudio);
+                showToast("🎵 Toque na tela para ouvir", 1800);
+            }, 500);
+        }, 1000);
+
+        startGenreAlternation();
+
+        // Eventos UI
+        playBtn.addEventListener("click", togglePlay);
+        nextBtn.addEventListener("click", nextTrack);
+        prevBtn.addEventListener("click", prevTrack);
+        document.getElementById("feedbackBtn").addEventListener("click", sendFeedback);
+        document.getElementById("whatsappFloat").addEventListener("click", () => window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Quero minha playlist personalizada!`, "_blank"));
+        document.getElementById("fullscreenItem").addEventListener("click", () => document.documentElement.requestFullscreen());
+        document.getElementById("shareItem").addEventListener("click", () => {
+            if(navigator.share) navigator.share({title:"Rádio Patico", text:"Rádio com IA"});
+            else { navigator.clipboard.writeText(location.href); showToast("Link copiado!"); }
         });
-        
-        document.addEventListener('touchend', (e) => {
-            const diff = e.changedTouches[0].screenX - touchStartX;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) {
-                    prevTrack();
-                    document.getElementById('swipeIndicator').textContent = '⏮️ Música anterior';
-                } else {
-                    nextTrack();
-                    document.getElementById('swipeIndicator').textContent = '⏭️ Próxima música';
-                }
-                const ind = document.getElementById('swipeIndicator');
-                ind.style.opacity = '1';
-                setTimeout(() => ind.style.opacity = '0', 800);
-            }
+        document.getElementById("btStatusItem").addEventListener("click", () => { checkBluetooth(); showToast(`Bluetooth: ${btTextSpan.innerText}`, 1500); });
+
+        // Menu três pontos
+        const menuBtn = document.getElementById("menuDotBtn");
+        const menuDrop = document.getElementById("menuDrop");
+        menuBtn.addEventListener("click", (e) => { e.stopPropagation(); menuDrop.classList.toggle("open"); });
+        document.addEventListener("click", (e) => { if(!menuBtn.contains(e.target)) menuDrop.classList.remove("open"); });
+
+        // Gênero mini painel
+        const fabBtn = document.getElementById("genreFab");
+        const genrePanel = document.getElementById("genrePanel");
+        fabBtn.addEventListener("click", (e) => { e.stopPropagation(); genrePanel.classList.toggle("open"); });
+        document.querySelectorAll(".genre-item").forEach(item => {
+            item.addEventListener("click", (e) => {
+                const gen = item.getAttribute("data-genre");
+                genrePanel.classList.remove("open");
+                if(gen) filterByGenre(gen);
+            });
         });
-        
-        // CARREGAR PLAYLIST DO JSON
-        async function carregarPlaylistDoJson() {
-            try {
-                splash.querySelector('.loading-text').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlist do GitHub...';
-                const response = await fetch(PLAYLIST_JSON_URL);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                
-                if (!Array.isArray(data) || data.length === 0) {
-                    throw new Error('JSON vazio ou formato inválido');
-                }
-                
-                musicas = data.map((item, idx) => ({
-                    id: item.id || idx + 1,
-                    title: item.title || "Sem título",
-                    artist: item.artist || "Desconhecido",
-                    src: item.src || "",
-                    genero: item.genero || "VARIADAS",
-                    isLive: item.isLive === true
-                }));
-                
-                console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
-                splash.querySelector('.loading-text').innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas carregadas!`;
-                
-                filteredPlaylist = [...musicas];
-                currentFilterGenre = "TODOS";
-                updateGenreBadge();
-                currentIndex = 0;
-                loadTrackUI(0);
-                
-                // Construir grid de gêneros (menor)
-                const generosUnicos = [...new Set(musicas.map(m => m.genero))];
-                const grid = document.getElementById('genresGrid');
-                grid.innerHTML = '';
-                
-                const todosBtn = document.createElement('div');
-                todosBtn.className = 'genre-card';
-                todosBtn.style.background = "linear-gradient(135deg,#00b4db,#0083b0)";
-                todosBtn.innerHTML = '<i class="fas fa-list-ul"></i><span>TODOS</span>';
-                todosBtn.onclick = () => { filterByGenre("TODOS"); document.getElementById('genresModal').classList.remove('open'); };
-                grid.appendChild(todosBtn);
-                
-                const cores = [
-                    "linear-gradient(135deg,#f2994a,#f2c94c)",
-                    "linear-gradient(135deg,#2193b0,#6dd5ed)",
-                    "linear-gradient(135deg,#134e5e,#71b280)",
-                    "linear-gradient(135deg,#f12711,#f5af19)",
-                    "linear-gradient(135deg,#8E2DE2,#4A00E0)",
-                    "linear-gradient(135deg,#cc2b5e,#753a88)",
-                    "linear-gradient(135deg,#e63946,#ff6b6b)"
-                ];
-                
-                let corIndex = 0;
-                generosUnicos.forEach(genero => {
-                    if (genero === "VARIADAS") return;
-                    const card = document.createElement('div');
-                    card.className = 'genre-card';
-                    card.style.background = cores[corIndex % cores.length];
-                    card.innerHTML = `<i class="fas fa-music"></i><span>${genero.replace('_', ' ')}</span>`;
-                    card.onclick = () => { filterByGenre(genero); document.getElementById('genresModal').classList.remove('open'); };
-                    grid.appendChild(card);
-                    corIndex++;
-                });
-                
-                setTimeout(() => {
-                    splash.classList.add('hidden');
-                    setTimeout(() => {
-                        splash.style.display = 'none';
-                        appContainer.style.display = 'block';
-                        menuButton.style.display = 'flex';
-                        tapToStart.style.display = 'block';
-                    }, 500);
-                }, 1000);
-                
-            } catch (error) {
-                console.error("Erro ao carregar JSON:", error);
-                splash.querySelector('.loading-text').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro: ${error.message}`;
-                showError(`Falha ao carregar playlist: ${error.message}`);
-                setTimeout(() => {
-                    splash.classList.add('hidden');
-                    appContainer.style.display = 'block';
-                    menuButton.style.display = 'flex';
-                    tapToStart.style.display = 'block';
-                }, 3000);
-            }
-        }
-        
-        // EVENTOS
-        document.getElementById('progressBar').addEventListener('click', (e) => {
-            if (musicPlayer.duration) {
-                const rect = e.currentTarget.getBoundingClientRect();
-                musicPlayer.currentTime = ((e.clientX - rect.left) / rect.width) * musicPlayer.duration;
-            }
-        });
-        
-        playBtn.addEventListener('click', togglePlayPause);
-        document.getElementById('nextBtn').addEventListener('click', nextTrack);
-        document.getElementById('prevBtn').addEventListener('click', prevTrack);
-        document.getElementById('shuffleBtn').addEventListener('click', () => {
-            shuffleMode = !shuffleMode;
-            showNotification(shuffleMode ? '🔀 Aleatório ON' : '➡️ Sequencial', 1500);
-        });
-        document.getElementById('genreButton').addEventListener('click', () => document.getElementById('genresModal').classList.add('open'));
-        document.getElementById('closeGenresBtn').addEventListener('click', () => document.getElementById('genresModal').classList.remove('open'));
-        document.getElementById('shareMenuBtn').addEventListener('click', () => {
-            if (navigator.share) navigator.share({ title: 'Rádio Patico', text: 'Rádio com IA', url: location.href });
-            else { navigator.clipboard.writeText(location.href); showNotification('🔗 Link copiado!', 1500); }
-        });
-        document.getElementById('fullscreenMenuBtn').addEventListener('click', () => document.documentElement.requestFullscreen());
-        document.getElementById('ctaButton').addEventListener('click', () => window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=Olá! Quero minha playlist personalizada!`, '_blank'));
-        document.getElementById('feedbackWhatsappBtn').addEventListener('click', enviarFeedbackWhatsApp);
-        document.getElementById('tap-to-start').addEventListener('click', async () => {
-            showNotification('🔊 Ativando áudio...', 1500);
-            await ativarAudioBackground();
-            tapToStart.style.display = 'none';
-        });
-        
-        document.getElementById('menuButton').addEventListener('click', (e) => {
-            e.stopPropagation();
-            document.getElementById('menuPopup').classList.toggle('open');
-        });
-        document.addEventListener('click', (e) => {
-            if (!document.getElementById('menuButton').contains(e.target))
-                document.getElementById('menuPopup').classList.remove('open');
-        });
-        
-        setInterval(() => {
-            const mainVideo = document.getElementById('mainVideo');
-            if (mainVideo && mainVideo.paused) {
-                mainVideo.play().catch(e => console.log);
-            }
-        }, 5000);
-        
-        carregarPlaylistDoJson();
-    </script>
+        document.addEventListener("click", (e) => { if(!e.target.closest(".genre-fab")) genrePanel.classList.remove("open"); });
+    }
+
+    init();
+</script>
 </body>
 </html>
