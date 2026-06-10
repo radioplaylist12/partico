@@ -175,6 +175,11 @@
         // ==================== URL DA PLAYLIST ====================
         const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/refs/heads/main/playlist.json";
         
+        // ==================== GÊNEROS FIXOS (PARA APARECEREM IMEDIATAMENTE) ====================
+        const GENEROS_FIXOS = [
+            "FORRÓ", "FORRÓ ANTIGO", "BREGA", "MPB", "POP", "SERTANEJO", "MODARAIZ", "SAMBA"
+        ];
+        
         const NOMES_EXIBICAO = {
             "FORRÓ": "Forró",
             "FORRÓ ANTIGO": "Forró Antigo",
@@ -701,6 +706,87 @@
             }
         });
         
+        // ==================== FUNÇÃO PARA CRIAR GÊNEROS FIXOS ====================
+        function criarGenerosFixos() {
+            const grid = document.getElementById('genresGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            
+            // Botão TODOS
+            const todosBtn = document.createElement('div');
+            todosBtn.className = 'genre-card';
+            todosBtn.style.background = "linear-gradient(135deg,#00b4db,#0083b0)";
+            todosBtn.innerHTML = '<i class="fas fa-list-ul"></i><span>TODOS</span>';
+            todosBtn.onclick = () => { 
+                modoAtual = "TODOS";
+                generoEspecificoSelecionado = null;
+                playlistHistorico = [];
+                const novaMusica = getProximaMusicaTodos();
+                if (novaMusica) {
+                    playlistAtual = [novaMusica];
+                    currentIndex = 0;
+                    loadTrackUI(currentIndex);
+                    if (isPlaying) playMusic();
+                }
+                document.getElementById('genresModal').classList.remove('open');
+                showNotification("🎵 Modo TODOS - Todos os estilos!", 2000);
+            };
+            grid.appendChild(todosBtn);
+            
+            // Botão MPB/POP
+            const mpbPopBtn = document.createElement('div');
+            mpbPopBtn.className = 'genre-card';
+            mpbPopBtn.style.background = "linear-gradient(135deg,#e63946,#ff6b6b)";
+            mpbPopBtn.innerHTML = '<i class="fas fa-exchange-alt"></i><span>MPB/POP</span>';
+            mpbPopBtn.onclick = () => {
+                modoAtual = "MPB_POP";
+                generoEspecificoSelecionado = null;
+                playlistHistorico = [];
+                const novaMusica = getProximaMusicaMPBPOP();
+                if (novaMusica) {
+                    playlistAtual = [novaMusica];
+                    currentIndex = 0;
+                    loadTrackUI(currentIndex);
+                    if (isPlaying) playMusic();
+                }
+                document.getElementById('genresModal').classList.remove('open');
+                showNotification("🎵 Modo MPB/POP - Alternando!", 2000);
+            };
+            grid.appendChild(mpbPopBtn);
+            
+            // Botões para cada gênero fixo
+            GENEROS_FIXOS.forEach(genero => {
+                const card = document.createElement('div');
+                card.className = 'genre-card';
+                card.style.background = CORES_GENEROS[genero] || "linear-gradient(135deg,#666,#333)";
+                const icon = ICONES_GENEROS[genero] || "fa-music";
+                const nomeExibicao = NOMES_EXIBICAO[genero] || genero;
+                card.innerHTML = `<i class="fas ${icon}"></i><span>${nomeExibicao}</span>`;
+                card.onclick = () => { 
+                    modoAtual = "GENERO_ESPECIFICO";
+                    generoEspecificoSelecionado = genero;
+                    playlistHistorico = [];
+                    const musicasFiltradas = musicas.filter(m => m.genero === genero);
+                    if (musicasFiltradas.length > 0) {
+                        const musicaEscolhida = getMusicaAleatoria(musicasFiltradas);
+                        if (musicaEscolhida) {
+                            playlistAtual = [musicaEscolhida];
+                            currentIndex = 0;
+                            loadTrackUI(currentIndex);
+                            if (isPlaying) playMusic();
+                            showNotification(`🎵 ${nomeExibicao} ativado!`, 2000);
+                        }
+                    } else {
+                        showNotification(`⚠️ Nenhuma música para ${nomeExibicao} ainda`, 1500);
+                    }
+                    document.getElementById('genresModal').classList.remove('open');
+                };
+                grid.appendChild(card);
+            });
+            
+            console.log("✅ Gêneros fixos criados!");
+        }
+        
         async function carregarPlaylist() {
             try {
                 const splashStatus = document.querySelector('#splash .loading-text');
@@ -738,78 +824,8 @@
                     loadTrackUI(currentIndex);
                 }
                 
-                const grid = document.getElementById('genresGrid');
-                grid.innerHTML = '';
-                
-                const todosBtn = document.createElement('div');
-                todosBtn.className = 'genre-card';
-                todosBtn.style.background = "linear-gradient(135deg,#00b4db,#0083b0)";
-                todosBtn.innerHTML = '<i class="fas fa-list-ul"></i><span>TODOS</span>';
-                todosBtn.onclick = () => { 
-                    modoAtual = "TODOS";
-                    generoEspecificoSelecionado = null;
-                    playlistHistorico = [];
-                    const novaMusica = getProximaMusicaTodos();
-                    if (novaMusica) {
-                        playlistAtual = [novaMusica];
-                        currentIndex = 0;
-                        loadTrackUI(currentIndex);
-                        if (isPlaying) playMusic();
-                    }
-                    document.getElementById('genresModal').classList.remove('open');
-                    showNotification("🎵 Modo TODOS - Todos os estilos!", 2000);
-                };
-                grid.appendChild(todosBtn);
-                
-                const generosUnicos = [...new Set(musicas.map(m => m.genero))];
-                generosUnicos.forEach(genero => {
-                    const card = document.createElement('div');
-                    card.className = 'genre-card';
-                    card.style.background = CORES_GENEROS[genero] || "linear-gradient(135deg,#666,#333)";
-                    const icon = ICONES_GENEROS[genero] || "fa-music";
-                    const nomeExibicao = NOMES_EXIBICAO[genero] || genero;
-                    card.innerHTML = `<i class="fas ${icon}"></i><span>${nomeExibicao}</span>`;
-                    card.onclick = () => { 
-                        modoAtual = "GENERO_ESPECIFICO";
-                        generoEspecificoSelecionado = genero;
-                        playlistHistorico = [];
-                        const musicasFiltradas = musicas.filter(m => m.genero === genero);
-                        if (musicasFiltradas.length > 0) {
-                            const musicaEscolhida = getMusicaAleatoria(musicasFiltradas);
-                            if (musicaEscolhida) {
-                                playlistAtual = [musicaEscolhida];
-                                currentIndex = 0;
-                                loadTrackUI(currentIndex);
-                                if (isPlaying) playMusic();
-                                showNotification(`🎵 ${nomeExibicao} ativado!`, 2000);
-                            }
-                        } else {
-                            showNotification(`⚠️ Nenhuma música para ${nomeExibicao}`, 1500);
-                        }
-                        document.getElementById('genresModal').classList.remove('open');
-                    };
-                    grid.appendChild(card);
-                });
-                
-                const mpbPopBtn = document.createElement('div');
-                mpbPopBtn.className = 'genre-card';
-                mpbPopBtn.style.background = "linear-gradient(135deg,#e63946,#ff6b6b)";
-                mpbPopBtn.innerHTML = '<i class="fas fa-exchange-alt"></i><span>MPB/POP</span>';
-                mpbPopBtn.onclick = () => {
-                    modoAtual = "MPB_POP";
-                    generoEspecificoSelecionado = null;
-                    playlistHistorico = [];
-                    const novaMusica = getProximaMusicaMPBPOP();
-                    if (novaMusica) {
-                        playlistAtual = [novaMusica];
-                        currentIndex = 0;
-                        loadTrackUI(currentIndex);
-                        if (isPlaying) playMusic();
-                    }
-                    document.getElementById('genresModal').classList.remove('open');
-                    showNotification("🎵 Modo MPB/POP - Alternando!", 2000);
-                };
-                grid.appendChild(mpbPopBtn);
+                // Criar gêneros fixos (já aparecem imediatamente)
+                criarGenerosFixos();
                 
                 setTimeout(() => {
                     splash.classList.add('hidden');
@@ -818,6 +834,10 @@
             } catch (error) {
                 console.error("Erro crítico:", error);
                 document.querySelector('#splash .loading-text').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro: ${error.message}`;
+                
+                // Mesmo com erro, criar gêneros fixos
+                criarGenerosFixos();
+                
                 setTimeout(() => { splash.classList.add('hidden'); appContainer.style.display = 'block'; menuButton.style.display = 'flex'; tapToStart.style.display = 'block'; showError('Falha ao carregar playlists'); }, 3000);
             }
         }
