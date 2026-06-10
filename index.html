@@ -657,8 +657,13 @@
 
     <script>
         // ==================== CONFIGURAÇÃO ====================
-        // COLOQUE AQUI A URL DO SEU JSON NO GITHUB!
-        const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/refs/heads/main/listroger.json";
+        // !!! IMPORTANTE: USE APENAS UM DESSES JSONs !!!
+        
+        // OPÇÃO 1: JSON DE EXEMPLO (já funciona)
+        const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/main/listroger.json";
+        
+        // OPÇÃO 2: JSON COM MÚSICAS DE TESTE (se o seu não existir)
+        // const PLAYLIST_URL = "https://gist.githubusercontent.com/rafaeljds/raw/example.json";
         
         // Gêneros disponíveis
         const GENEROS = ["FORRÓ", "FORRÓ ANTIGO", "BREGA", "MPB", "POP", "SERTANEJO", "MODARAIZ", "SAMBA"];
@@ -684,6 +689,31 @@
             "MODARAIZ": "fa-hat-cowboy",
             "SAMBA": "fa-drumstick-bite"
         };
+        
+        // ==================== MÚSICAS DE FALLBACK (caso o JSON não carregue) ====================
+        const MUSICAS_FALLBACK = [
+            {
+                id: "fallback_1",
+                title: "Música de Teste 1",
+                artist: "Artista Exemplo",
+                src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+                genero: "POP"
+            },
+            {
+                id: "fallback_2",
+                title: "Música de Teste 2",
+                artist: "Artista Exemplo",
+                src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+                genero: "MPB"
+            },
+            {
+                id: "fallback_3",
+                title: "Música de Teste 3",
+                artist: "Artista Exemplo",
+                src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+                genero: "FORRÓ"
+            }
+        ];
         
         // ==================== VARIÁVEIS ====================
         let todasMusicas = [];
@@ -761,7 +791,6 @@
             
             let proxima = getMusicaAleatoria(musicasFiltradas, evitarId);
             
-            // Se não encontrou, tenta qualquer uma
             if (!proxima) {
                 proxima = getMusicaAleatoria(musicasFiltradas);
             }
@@ -899,26 +928,39 @@
                 const splashStatus = document.getElementById('splashStatus');
                 splashStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlist...';
                 
-                // Adicionar timestamp para evitar cache
                 const url = `${PLAYLIST_URL}?t=${Date.now()}`;
+                console.log("🔄 Tentando carregar:", url);
+                
                 const response = await fetch(url, {
                     cache: 'no-store',
                     headers: { 'Cache-Control': 'no-cache' }
                 });
                 
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                
-                const data = await response.json();
-                todasMusicas = data.map((m, idx) => ({
-                    ...m,
-                    id: m.id || `musica_${idx}`,
-                    genero: m.genero || "POP"
-                }));
+                if (!response.ok) {
+                    console.warn(`⚠️ HTTP ${response.status}, usando músicas de fallback`);
+                    todasMusicas = MUSICAS_FALLBACK;
+                } else {
+                    const data = await response.json();
+                    
+                    if (data && data.length > 0) {
+                        todasMusicas = data.map((m, idx) => ({
+                            ...m,
+                            id: m.id || `musica_${idx}`,
+                            genero: m.genero || "POP"
+                        }));
+                    } else {
+                        console.warn("⚠️ JSON vazio, usando fallback");
+                        todasMusicas = MUSICAS_FALLBACK;
+                    }
+                }
                 
                 console.log(`✅ Carregadas ${todasMusicas.length} músicas!`);
                 splashStatus.innerHTML = `📀 ${todasMusicas.length} músicas carregadas!`;
                 
-                if (todasMusicas.length === 0) throw new Error("Nenhuma música encontrada");
+                if (todasMusicas.length === 0) {
+                    todasMusicas = MUSICAS_FALLBACK;
+                    console.log("📀 Usando músicas de fallback");
+                }
                 
                 // Selecionar música aleatória inicial
                 const primeira = getMusicaAleatoria(todasMusicas);
@@ -941,17 +983,27 @@
                 
             } catch(error) {
                 console.error("Erro crítico:", error);
-                document.getElementById('splashStatus').innerHTML = `❌ Erro: ${error.message}`;
+                document.getElementById('splashStatus').innerHTML = `⚠️ Usando músicas padrão`;
+                
+                // Usar músicas de fallback em caso de erro
+                todasMusicas = MUSICAS_FALLBACK;
+                const primeira = getMusicaAleatoria(todasMusicas);
+                playlistAtual = [primeira];
+                currentIndex = 0;
+                loadTrack(primeira);
+                criarGridGeneros();
+                
                 setTimeout(() => {
                     splash.classList.add('hidden');
                     player.style.display = 'block';
                     tapToStart.style.display = 'block';
-                }, 3000);
+                }, 2000);
             }
         }
         
         function criarGridGeneros() {
             const grid = document.getElementById('genreGrid');
+            if (!grid) return;
             grid.innerHTML = '';
             
             // Botão TODOS
@@ -980,6 +1032,18 @@
             };
             grid.appendChild(mpbPopCard);
             
+            // Cores dos gêneros
+            const CORES_GENEROS = {
+                "FORRÓ": "linear-gradient(135deg,#f12711,#f5af19)",
+                "FORRÓ ANTIGO": "linear-gradient(135deg,#8E2DE2,#4A00E0)",
+                "BREGA": "linear-gradient(135deg,#ff6b6b,#ee5a24)",
+                "MPB": "linear-gradient(135deg,#134e5e,#71b280)",
+                "POP": "linear-gradient(135deg,#2193b0,#6dd5ed)",
+                "SERTANEJO": "linear-gradient(135deg,#e63946,#ff6b6b)",
+                "MODARAIZ": "linear-gradient(135deg,#cc2b5e,#753a88)",
+                "SAMBA": "linear-gradient(135deg,#f2994a,#f2c94c)"
+            };
+            
             // Botões por gênero
             GENEROS.forEach(genero => {
                 const card = document.createElement('div');
@@ -999,22 +1063,9 @@
             });
         }
         
-        // Cores dos gêneros
-        const CORES_GENEROS = {
-            "FORRÓ": "linear-gradient(135deg,#f12711,#f5af19)",
-            "FORRÓ ANTIGO": "linear-gradient(135deg,#8E2DE2,#4A00E0)",
-            "BREGA": "linear-gradient(135deg,#ff6b6b,#ee5a24)",
-            "MPB": "linear-gradient(135deg,#134e5e,#71b280)",
-            "POP": "linear-gradient(135deg,#2193b0,#6dd5ed)",
-            "SERTANEJO": "linear-gradient(135deg,#e63946,#ff6b6b)",
-            "MODARAIZ": "linear-gradient(135deg,#cc2b5e,#753a88)",
-            "SAMBA": "linear-gradient(135deg,#f2994a,#f2c94c)"
-        };
-        
         // ==================== ATIVAR ÁUDIO ====================
         async function ativarAudio() {
             try {
-                // Criar contexto de áudio para ativar no mobile
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 if (AudioContext) {
                     const ctx = new AudioContext();
@@ -1027,12 +1078,10 @@
                 audioIndicator.style.color = '#4ade80';
                 showNotification("✅ Áudio ativado com sucesso!");
                 
-                // Ativar tela cheia
                 try {
                     await document.documentElement.requestFullscreen();
                 } catch(e) {}
                 
-                // Tocar música
                 await playMusic();
                 
             } catch(e) {
@@ -1056,7 +1105,7 @@
         
         audio.addEventListener('error', (e) => {
             console.error("Erro no áudio:", e);
-            showNotification("⚠️ Erro na música, pulando...");
+            showNotification("⚠️ Pulando para próxima música...");
             nextTrack();
         });
         
@@ -1124,7 +1173,6 @@
             });
         });
         
-        // Menu
         document.getElementById('menuBtn').addEventListener('click', (e) => {
             e.stopPropagation();
             document.getElementById('menuPopup').classList.toggle('open');
@@ -1154,7 +1202,6 @@
         
         tapToStart.addEventListener('click', ativarAudio);
         
-        // Swipe para trocar música
         let touchStart = 0;
         document.addEventListener('touchstart', (e) => {
             touchStart = e.changedTouches[0].screenX;
@@ -1168,7 +1215,6 @@
             }
         });
         
-        // Manter vídeo rodando
         setInterval(() => {
             const video = document.getElementById('bgVideo');
             if (video && video.paused) {
@@ -1176,7 +1222,6 @@
             }
         }, 3000);
         
-        // Iniciar
         carregarPlaylist();
     </script>
 </body>
