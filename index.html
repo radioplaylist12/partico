@@ -172,34 +172,22 @@
     <div class="swipe-indicator" id="swipeIndicator">👉 Deslize para trocar música</div>
 
     <script>
-        // ==================== URL DA PLAYLIST ====================
-        const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/refs/heads/main/playlist.json";
+        // ==================== URL DA PLAYLIST CORRIGIDA ====================
+        const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json";
         
-        // ==================== GÊNEROS FIXOS (PARA APARECEREM IMEDIATAMENTE) ====================
-        const GENEROS_FIXOS = [
-            "FORRÓ", "FORRÓ ANTIGO", "BREGA", "MPB", "POP", "SERTANEJO", "MODARAIZ", "SAMBA"
-        ];
+        // ==================== GÊNEROS FIXOS ====================
+        const GENEROS_FIXOS = ["FORRÓ", "FORRÓ ANTIGO", "BREGA", "MPB", "POP", "SERTANEJO", "MODARAIZ", "SAMBA"];
         
         const NOMES_EXIBICAO = {
-            "FORRÓ": "Forró",
-            "FORRÓ ANTIGO": "Forró Antigo",
-            "BREGA": "Brega",
-            "MPB": "MPB",
-            "POP": "Pop",
-            "SERTANEJO": "Sertanejo",
-            "MODARAIZ": "Moda Raiz",
-            "SAMBA": "Samba"
+            "FORRÓ": "Forró", "FORRÓ ANTIGO": "Forró Antigo", "BREGA": "Brega",
+            "MPB": "MPB", "POP": "Pop", "SERTANEJO": "Sertanejo",
+            "MODARAIZ": "Moda Raiz", "SAMBA": "Samba"
         };
         
         const ICONES_GENEROS = {
-            "FORRÓ": "fa-drum",
-            "FORRÓ ANTIGO": "fa-accordion",
-            "BREGA": "fa-heart-broken",
-            "MPB": "fa-guitar",
-            "POP": "fa-microphone-alt",
-            "SERTANEJO": "fa-guitar",
-            "MODARAIZ": "fa-hat-cowboy",
-            "SAMBA": "fa-drumstick-bite"
+            "FORRÓ": "fa-drum", "FORRÓ ANTIGO": "fa-accordion", "BREGA": "fa-heart-broken",
+            "MPB": "fa-guitar", "POP": "fa-microphone-alt", "SERTANEJO": "fa-guitar",
+            "MODARAIZ": "fa-hat-cowboy", "SAMBA": "fa-drumstick-bite"
         };
         
         const CORES_GENEROS = {
@@ -229,8 +217,6 @@
                 data: new Date().toLocaleString()
             };
             musicasComErro.push(erroRegistro);
-            console.warn(`❌ ERRO: ${erroRegistro.titulo} - ${erro}`);
-            
             try {
                 const errosSalvos = localStorage.getItem('radio_patico_erros');
                 const errosAnteriores = errosSalvos ? JSON.parse(errosSalvos) : [];
@@ -255,19 +241,11 @@
                 alert("✅ Nenhum erro registrado até o momento!");
                 return;
             }
-            
-            let relatorio = "═".repeat(50) + "\n";
-            relatorio += "📊 RELATÓRIO DE ERROS 📊\n";
-            relatorio += "═".repeat(50) + "\n";
-            relatorio += `📅 ${new Date().toLocaleString()}\n`;
-            relatorio += `📊 Total: ${musicasComErro.length}\n\n`;
-            
+            let relatorio = "═".repeat(50) + "\n📊 RELATÓRIO DE ERROS 📊\n" + "═".repeat(50) + "\n";
+            relatorio += `📅 ${new Date().toLocaleString()}\n📊 Total: ${musicasComErro.length}\n\n`;
             musicasComErro.forEach((e, idx) => {
-                relatorio += `${idx + 1}. 🎧 ${e.titulo} - ${e.artista}\n`;
-                relatorio += `   ❌ Erro: ${e.erro}\n`;
-                relatorio += `   📅 ${e.data}\n\n`;
+                relatorio += `${idx + 1}. 🎧 ${e.titulo} - ${e.artista}\n   ❌ Erro: ${e.erro}\n   📅 ${e.data}\n\n`;
             });
-            
             const blob = new Blob([relatorio], { type: 'text/plain' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -408,7 +386,6 @@
         
         function getProximaMusicaMPBPOP() {
             if (musicasMPB.length === 0 && musicasPOP.length === 0) return null;
-            
             if (playlistHistorico.length === 0) {
                 const generoInicial = getGeneroInicial();
                 const listaGenero = generoInicial === "MPB" ? musicasMPB : musicasPOP;
@@ -422,19 +399,16 @@
                 if (musica) playlistHistorico.push(musica.id);
                 return musica;
             }
-            
             const ultimoId = playlistHistorico[playlistHistorico.length - 1];
             const ultimaMusica = todasMusicas.find(m => m.id === ultimoId);
             const novoGenero = ultimaMusica?.genero === "MPB" ? "POP" : "MPB";
             const listaNovoGenero = novoGenero === "MPB" ? musicasMPB : musicasPOP;
-            
             if (listaNovoGenero.length === 0) {
                 const outraLista = novoGenero === "MPB" ? musicasPOP : musicasMPB;
                 const musica = getMusicaAleatoria(outraLista, ultimoId);
                 if (musica) playlistHistorico.push(musica.id);
                 return musica;
             }
-            
             const musica = getMusicaAleatoria(listaNovoGenero, ultimoId);
             if (musica) {
                 playlistHistorico.push(musica.id);
@@ -508,7 +482,6 @@
         async function playMusic() {
             if (!isBackgroundActive) { showNotification('⚠️ Clique em "ATIVAR ÁUDIO" primeiro!', 2000); return false; }
             if (!playlistAtual.length) return false;
-            
             loadingSpinner.classList.add('show');
             const track = playlistAtual[currentIndex];
             if (!track || !track.src) {
@@ -517,10 +490,8 @@
                 nextTrack();
                 return false;
             }
-            
             musicPlayer.src = track.src;
             musicPlayer.load();
-            
             return new Promise((resolve) => {
                 const timeout = setTimeout(() => {
                     loadingSpinner.classList.remove('show');
@@ -528,7 +499,6 @@
                     nextTrack();
                     resolve(false);
                 }, 10000);
-                
                 musicPlayer.oncanplaythrough = async () => {
                     clearTimeout(timeout);
                     loadingSpinner.classList.remove('show');
@@ -553,7 +523,6 @@
                         resolve(false); 
                     }
                 };
-                
                 musicPlayer.onerror = () => {
                     clearTimeout(timeout);
                     loadingSpinner.classList.remove('show');
@@ -561,7 +530,6 @@
                     nextTrack();
                     resolve(false);
                 };
-                
                 musicPlayer.onended = () => { nextTrack(); };
             });
         }
@@ -583,7 +551,6 @@
             if (modoAtual === "MPB_POP") proxima = getProximaMusicaMPBPOP();
             else if (modoAtual === "GENERO_ESPECIFICO") proxima = getProximaMusicaGeneroEspecifico();
             else if (modoAtual === "TODOS") proxima = getProximaMusicaTodos();
-            
             if (proxima) {
                 playlistAtual = [proxima];
                 currentIndex = 0;
@@ -608,7 +575,6 @@
                 musicasDisponiveis = todasMusicas.filter(m => m.genero === generoEspecificoSelecionado);
             }
             else if (modoAtual === "TODOS") musicasDisponiveis = todasMusicas;
-            
             const outras = musicasDisponiveis.filter(m => m.id !== playlistAtual[0]?.id);
             if (outras.length > 0) {
                 playlistAtual = [getMusicaAleatoria(outras)];
@@ -706,13 +672,10 @@
             }
         });
         
-        // ==================== FUNÇÃO PARA CRIAR GÊNEROS FIXOS ====================
         function criarGenerosFixos() {
             const grid = document.getElementById('genresGrid');
             if (!grid) return;
             grid.innerHTML = '';
-            
-            // Botão TODOS
             const todosBtn = document.createElement('div');
             todosBtn.className = 'genre-card';
             todosBtn.style.background = "linear-gradient(135deg,#00b4db,#0083b0)";
@@ -733,7 +696,6 @@
             };
             grid.appendChild(todosBtn);
             
-            // Botão MPB/POP
             const mpbPopBtn = document.createElement('div');
             mpbPopBtn.className = 'genre-card';
             mpbPopBtn.style.background = "linear-gradient(135deg,#e63946,#ff6b6b)";
@@ -754,7 +716,6 @@
             };
             grid.appendChild(mpbPopBtn);
             
-            // Botões para cada gênero fixo
             GENEROS_FIXOS.forEach(genero => {
                 const card = document.createElement('div');
                 card.className = 'genre-card';
@@ -783,7 +744,6 @@
                 };
                 grid.appendChild(card);
             });
-            
             console.log("✅ Gêneros fixos criados!");
         }
         
@@ -791,31 +751,21 @@
             try {
                 const splashStatus = document.querySelector('#splash .loading-text');
                 splashStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlist...';
-                
                 const url = `${PLAYLIST_URL}?t=${Date.now()}`;
-                const response = await fetch(url, {
-                    cache: 'no-store',
-                    headers: { 'Cache-Control': 'no-cache' }
-                });
-                
+                const response = await fetch(url, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                
                 const data = await response.json();
                 musicas = data.map(musica => ({
                     ...musica,
                     genero: musica.genero || "POP",
                     isLive: musica.tipo === "ao vivo" || musica.isLive === true
                 }));
-                
                 console.log(`🎉 TOTAL: ${musicas.length} músicas carregadas!`);
                 splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
-                
                 musicasMPB = musicas.filter(m => m.genero === "MPB");
                 musicasPOP = musicas.filter(m => m.genero === "POP");
                 todasMusicas = [...musicas];
-                
                 if (musicas.length === 0) throw new Error("Nenhuma música foi carregada");
-                
                 modoAtual = "MPB_POP";
                 const primeiraMusica = getProximaMusicaMPBPOP();
                 if (primeiraMusica) {
@@ -823,10 +773,7 @@
                     currentIndex = 0;
                     loadTrackUI(currentIndex);
                 }
-                
-                // Criar gêneros fixos (já aparecem imediatamente)
                 criarGenerosFixos();
-                
                 setTimeout(() => {
                     splash.classList.add('hidden');
                     setTimeout(() => { splash.style.display = 'none'; appContainer.style.display = 'block'; menuButton.style.display = 'flex'; tapToStart.style.display = 'block'; }, 500);
@@ -834,10 +781,7 @@
             } catch (error) {
                 console.error("Erro crítico:", error);
                 document.querySelector('#splash .loading-text').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro: ${error.message}`;
-                
-                // Mesmo com erro, criar gêneros fixos
                 criarGenerosFixos();
-                
                 setTimeout(() => { splash.classList.add('hidden'); appContainer.style.display = 'block'; menuButton.style.display = 'flex'; tapToStart.style.display = 'block'; showError('Falha ao carregar playlists'); }, 3000);
             }
         }
