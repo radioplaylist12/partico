@@ -3,874 +3,856 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rádio Patico • Playlist IA</title>
+    <title>Rádio Patico • Modão & MPB AI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { min-height: 100vh; background-color: #000000; overflow: hidden; position: fixed; width: 100%; height: 100%; }
-        .app { width: 100%; height: 100vh; background: #000000; position: relative; overflow: hidden; }
-        .fullscreen-video-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1; }
-        .fullscreen-video-container video { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
-        .controls-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #000;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            filter: brightness(0.65) saturate(1.1);
+        }
+
+        .app {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.75) 100%);
+            backdrop-filter: blur(2px);
+        }
+
+        .top-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 20px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .genre-tag {
+            background: rgba(230,57,70,0.85);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .genre-tag i {
+            margin-right: 6px;
+        }
+
+        .bluetooth-status {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            color: #ddd;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bluetooth-status i {
+            font-size: 0.9rem;
+        }
+
+        .bluetooth-status.connected {
+            color: #4ade80;
+        }
+
+        .music-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .track-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 2px 15px rgba(0,0,0,0.5);
+            margin-bottom: 8px;
+            max-width: 90%;
+        }
+
+        .track-artist {
+            font-size: 1rem;
+            color: #e0e0e0;
+            opacity: 0.9;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .stars-feedback {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(20px);
+            padding: 8px 20px;
+            border-radius: 60px;
+            margin-top: 15px;
+            display: inline-flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .stars-feedback span {
+            color: #ffc107;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .star {
+            font-size: 1.6rem;
+            color: rgba(255,215,0,0.4);
+            cursor: pointer;
+            transition: transform 0.1s, color 0.2s;
+        }
+
+        .star.active, .star:hover {
+            color: #ffc107;
+            text-shadow: 0 0 8px #ffb347;
+            transform: scale(1.05);
+        }
+
+        .bottom-panel {
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding: 16px 20px 28px;
+            border-radius: 30px 30px 0 0;
+        }
+
+        .progress-area {
+            margin-bottom: 16px;
+        }
+
+        .progress-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #bbb;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar-bg {
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: #e63946;
+            border-radius: 4px;
+        }
+
+        .control-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 8px;
+        }
+
+        .ctrl {
+            background: rgba(255,255,255,0.12);
+            border: none;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: 0.1s;
+            backdrop-filter: blur(4px);
+        }
+
+        .ctrl:active {
+            transform: scale(0.92);
+            background: #e63946;
+            color: #000;
+        }
+
+        .play-large {
+            background: #e63946;
+            width: 70px;
+            height: 70px;
+            font-size: 1.9rem;
+            color: #000;
+            box-shadow: 0 4px 14px rgba(230,57,70,0.4);
+        }
+
+        .genre-selector {
+            position: fixed;
+            bottom: 100px;
+            right: 16px;
+            z-index: 35;
+        }
+
+        .genre-trigger {
+            background: linear-gradient(135deg, #1e1e2f, #2a2a3b);
+            backdrop-filter: blur(12px);
+            width: 48px;
+            height: 48px;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.25);
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .genre-trigger:active {
+            transform: scale(0.92);
+        }
+
+        .genre-mini-panel {
+            position: absolute;
+            bottom: 60px;
+            right: 0;
+            background: rgba(10,10,20,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 12px 14px;
+            width: 220px;
+            border: 1px solid rgba(255,255,255,0.2);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .genre-mini-panel.open {
+            display: flex;
+        }
+
+        .genre-option {
+            background: rgba(255,255,255,0.1);
+            border-radius: 40px;
+            padding: 10px 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.85rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .genre-option i {
+            width: 24px;
+            font-size: 1rem;
+        }
+
+        .genre-option:active {
+            background: #e63946;
+            color: black;
+        }
+
+        .whatsapp-fixed {
+            position: fixed;
+            bottom: 100px;
+            left: 16px;
+            background: #25D366;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            cursor: pointer;
+            z-index: 35;
+            border: none;
+            font-size: 1.6rem;
+            color: white;
+        }
+
+        .whatsapp-fixed:active {
+            transform: scale(0.92);
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            padding: 10px 22px;
+            border-radius: 50px;
+            color: white;
+            font-size: 0.8rem;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .loading-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000000cc;
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 40px;
+            color: white;
+            display: none;
+            gap: 12px;
+            z-index: 300;
+        }
+
+        #splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.6s;
+            flex-direction: column;
+        }
+
+        .splash-content {
+            text-align: center;
+            color: white;
+        }
+
+        .splash-content i {
+            font-size: 3rem;
+            color: #e63946;
+            animation: pulse 1.5s infinite;
+        }
         
-        .car-mode-active .fullscreen-video-container { display: none; }
-        .car-mode-video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; background: #000; display: none; }
-        .car-mode-active .car-mode-video { display: block; }
-        .car-mode-video video { width: 100%; height: 100%; object-fit: cover; }
-        .car-overlay-controls { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); }
-        .car-overlay-controls.visible { opacity: 1; pointer-events: auto; }
-        .car-buttons-container { display: flex; gap: 40px; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); padding: 25px 40px; border-radius: 80px; border: 1px solid rgba(255,255,255,0.2); }
-        .car-overlay-btn { width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); color: white; font-size: 1.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.1s; }
-        .car-overlay-btn:active { transform: scale(0.92); background: #e63946; color: #000; }
-        .car-overlay-play { background: #e63946; width: 85px; height: 85px; font-size: 2.2rem; border: none; }
-        .car-track-overlay { position: fixed; bottom: 25%; left: 50%; transform: translateX(-50%); text-align: center; z-index: 201; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); padding: 12px 20px; width: 85%; border-radius: 50px; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
-        .car-track-overlay.visible { opacity: 1; }
-        .car-track-overlay p { color: white; font-size: 0.9rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .car-progress-bar-overlay { height: 3px; background: rgba(255,255,255,0.3); border-radius: 3px; cursor: pointer; margin-top: 8px; }
-        .car-progress-fill-overlay { height: 100%; background: #e63946; width: 0%; border-radius: 3px; }
-        .car-time-overlay { display: flex; justify-content: space-between; font-size: 0.65rem; color: #ccc; margin-top: 4px; }
-        .exit-car-btn { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); color: white; border: 2px solid #e63946; padding: 15px 25px; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; z-index: 102; display: none; }
-        .car-indicator { position: absolute; top: 12px; right: 130px; background: rgba(230,57,70,0.8); backdrop-filter: blur(8px); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; color: white; z-index: 31; display: none; font-weight: bold; }
-        .car-mode-active .car-indicator { display: flex; align-items: center; gap: 5px; }
-        .car-mode-active .bottom-controls, .car-mode-active .genre-button, .car-mode-active .cta-button, .car-mode-active .feedback-buttons { display: none; }
+        .splash-status {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(1);}
+            100% { opacity: 1; transform: scale(1.05);}
+        }
         
-        .genre-button { position: fixed; bottom: 140px; right: 20px; background: linear-gradient(135deg, #8E2DE2, #4A00E0); color: white; border: none; width: 55px; height: 55px; border-radius: 50%; font-size: 1.4rem; cursor: pointer; z-index: 26; box-shadow: 0 4px 12px rgba(0,0,0,0.3); animation: floatGenre 3s ease-in-out infinite; }
-        @keyframes floatGenre { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-        .cta-button { position: fixed; bottom: 210px; right: 20px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255,255,255,0.4); border-radius: 50px; padding: 10px 18px; font-size: 0.8rem; font-weight: bold; cursor: pointer; z-index: 26; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-        .feedback-buttons { position: fixed; bottom: 140px; left: 20px; display: flex; gap: 10px; z-index: 27; }
-        .feedback-btn { width: 45px; height: 45px; border-radius: 50%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: transform 0.1s; }
-        .feedback-btn:active { transform: scale(0.9); }
-        .feedback-btn.like { color: #4ade80; }
-        .feedback-btn.dislike { color: #ef4444; }
-        
-        .notification-top { position: absolute; top: 12px; left: 12px; right: 12px; text-align: center; z-index: 30; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-        .notification-top.show { opacity: 1; }
-        .notification-top .message { display: inline-block; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); border-radius: 30px; padding: 8px 20px; font-size: 0.85rem; color: #fff; border-left: 3px solid #e63946; }
-        
-        .menu-button { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; cursor: pointer; z-index: 31; }
-        .menu-popup { position: absolute; top: 65px; right: 12px; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); border-radius: 16px; padding: 10px; z-index: 32; display: none; flex-direction: column; gap: 8px; border: 1px solid rgba(255,255,255,0.2); }
-        .menu-popup.open { display: flex; }
-        .menu-popup button { background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 16px; border-radius: 30px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .menu-popup button:active { background: #e63946; color: #000; }
-        
-        .genres-modal { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 30px 30px 0 0; padding: 25px 20px 30px; z-index: 2000; transform: translateY(100%); transition: transform 0.3s ease; }
-        .genres-modal.open { transform: translateY(0); }
-        .genres-modal h3 { text-align: center; margin-bottom: 20px; font-size: 1.5rem; color: #e63946; }
-        .genres-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
-        .genre-card { border-radius: 20px; padding: 20px 15px; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 8px 20px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); }
-        .genre-card:active { transform: scale(0.96); }
-        .genre-card i { font-size: 2.5rem; display: block; margin-bottom: 12px; color: white; }
-        .genre-card span { font-size: 0.9rem; font-weight: 800; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
-        .close-genres { width: 100%; padding: 14px; background: #e63946; border: none; border-radius: 30px; color: white; font-size: 1rem; cursor: pointer; font-weight: bold; }
-        
-        .bottom-controls { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.2); padding: 10px 16px; z-index: 20; pointer-events: auto; transition: transform 0.3s; }
-        .track-info { text-align: center; margin-bottom: 8px; color: #fff; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .progress-area { margin-bottom: 8px; }
-        .progress-time { display: flex; justify-content: space-between; font-size: 0.7rem; color: #ccc; }
-        .progress-bar { height: 3px; background: rgba(255,255,255,0.3); cursor: pointer; border-radius: 3px; }
-        .progress-fill { height: 100%; background: #e63946; width: 0%; border-radius: 3px; }
-        .control-buttons { display: flex; align-items: center; justify-content: center; gap: 20px; }
-        .control-btn { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 1.2rem; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; transition: transform 0.1s; }
-        .control-btn:active { transform: scale(0.9); }
-        .play-btn { font-size: 1.6rem; width: 54px; height: 54px; background: #e63946; color: #000; border: none; }
-        
-        .video-ad-overlay { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 280px; max-width: 85vw; z-index: 1000; cursor: pointer; border-radius: 16px; overflow: hidden; display: none; border: 2px solid #e63946; opacity: 0.95; }
-        .video-ad-overlay video { width: 100%; height: auto; display: block; }
-        .car-mode-active .video-ad-overlay { display: none !important; }
-        
-        .audio-ad-container { position: fixed; bottom: 30%; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #e63946, #ff6b6b); color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.9rem; font-weight: bold; z-index: 1002; display: none; align-items: center; gap: 12px; white-space: nowrap; animation: slideUp 0.3s ease; }
-        .audio-ad-container.show { display: flex; }
-        @keyframes slideUp { from { transform: translateX(-50%) translateY(20px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
-        
-        .genre-badge { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 6px 14px; border-radius: 20px; font-size: 0.7rem; color: white; z-index: 31; border-left: 3px solid #e63946; font-weight: bold; }
-        .audio-indicator { position: absolute; top: 12px; right: 70px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 20px; font-size: 0.6rem; color: #ffaa00; z-index: 31; display: flex; align-items: center; gap: 5px; }
-        .visualizer { position: fixed; top: 70px; right: 20px; display: flex; gap: 4px; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 8px 12px; border-radius: 30px; z-index: 31; }
-        .visualizer-bar { width: 4px; height: 20px; background: linear-gradient(135deg, #e63946, #ff6b6b); border-radius: 2px; transition: height 0.05s ease; }
-        .loading-spinner { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); backdrop-filter: blur(12px); padding: 15px 25px; border-radius: 50px; z-index: 10001; display: none; align-items: center; gap: 12px; color: white; }
-        .loading-spinner.show { display: flex; }
-        #tap-to-start { position: fixed; bottom: 20%; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #ff6600, #ff3300); color: white; padding: 10px 20px; border-radius: 40px; font-weight: bold; font-size: 0.85rem; z-index: 10000; cursor: pointer; display: none; animation: btnPulse 1.5s infinite; white-space: nowrap; }
-        @keyframes btnPulse { 0% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.03); } 100% { transform: translateX(-50%) scale(1); } }
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; flex-direction: column; }
-        #splash.hidden { opacity: 0; pointer-events: none; }
-        .splash-content { text-align: center; color: #fff; }
-        .splash-content i { font-size: 3rem; color: #e63946; margin-bottom: 1rem; animation: pulse 1.5s infinite; }
-        .splash-content .loading-text { font-size: 0.8rem; margin-top: 15px; color: #aaa; }
-        @keyframes pulse { 0% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.6; transform: scale(1); } }
-        .swipe-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; z-index: 10002; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
-        
-        .error-banner { position: fixed; bottom: 100px; left: 20px; right: 20px; background: #e63946; color: white; padding: 12px; border-radius: 12px; text-align: center; z-index: 10003; display: none; font-size: 0.75rem; }
-        .error-banner.show { display: block; }
+        .error-retry {
+            margin-top: 20px;
+            background: #e63946;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <div id="splash">
-        <div class="splash-content">
-            <i class="fas fa-broadcast-tower"></i>
-            <h1>Rádio Patico</h1>
-            <p>🎵 Carregando playlist do servidor...</p>
-            <div class="loading-text"><i class="fas fa-circle-notch fa-spin"></i> Buscando músicas do JSON</div>
-        </div>
-    </div>
-    <div id="tap-to-start"><i class="fas fa-play-circle"></i> 🎵 ATIVAR ÁUDIO</div>
-    <div class="error-banner" id="errorBanner"><i class="fas fa-exclamation-triangle"></i> <span id="errorMsg">Erro ao carregar playlist</span></div>
-    
-    <div class="app" style="display: none;" id="appContainer">
-        <div class="fullscreen-video-container"><video id="mainVideo" autoplay loop muted playsinline><source src="pak1.mp4" type="video/mp4"></video></div>
-        <div class="car-mode-video"><video id="carVideo" autoplay loop muted playsinline><source src="carro.mp4" type="video/mp4"></video></div>
-        
-        <div class="car-overlay-controls" id="carOverlayControls">
-            <div class="car-buttons-container">
-                <button class="car-overlay-btn" id="carOverlayPrev"><i class="fas fa-step-backward"></i></button>
-                <button class="car-overlay-btn car-overlay-play" id="carOverlayPlay"><i class="fas fa-play"></i></button>
-                <button class="car-overlay-btn" id="carOverlayNext"><i class="fas fa-step-forward"></i></button>
-            </div>
-        </div>
-        <div class="car-track-overlay" id="carTrackOverlay">
-            <p id="carTrackText">🎵 Carregando...</p>
-            <div class="car-progress-bar-overlay" id="carProgressBarOverlay">
-                <div class="car-progress-fill-overlay" id="carProgressFillOverlay"></div>
-            </div>
-            <div class="car-time-overlay"><span id="carCurrentOverlay">0:00</span><span id="carTotalOverlay">0:00</span></div>
-        </div>
-        
-        <div class="genre-badge" id="genreBadge"><i class="fas fa-music"></i> CARREGANDO</div>
-        <div class="audio-indicator" id="audioIndicator"><i class="fas fa-circle"></i> Aguardando</div>
-        <div class="car-indicator" id="carIndicator"><i class="fas fa-car"></i> MODO CARRO ATIVO</div>
-        <div class="visualizer" id="visualizer"><div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div><div class="visualizer-bar"></div></div>
-        <div class="feedback-buttons"><button class="feedback-btn like" id="likeBtn"><i class="fas fa-thumbs-up"></i></button><button class="feedback-btn dislike" id="dislikeBtn"><i class="fas fa-thumbs-down"></i></button></div>
-        <button class="cta-button" id="ctaButton"><i class="fas fa-headset"></i> <span>PEÇA SUA PLAYLIST</span></button>
-        <button class="genre-button" id="genreButton"><i class="fas fa-guitar"></i></button>
-        <button class="exit-car-btn" id="exitCarBtn"><i class="fas fa-car"></i> SAIR MODO CARRO</button>
-        
-        <div class="notification-top" id="notificationTop"><div class="message" id="notificationMessage"></div></div>
-        <div class="video-ad-overlay" id="videoAdOverlay"><video id="adVideo" autoplay muted playsinline loop><source src="anu.mp4" type="video/mp4"></video></div>
-        <audio id="adAudio" preload="auto"></audio>
-        <div class="audio-ad-container" id="audioAdToast"><i class="fas fa-volume-up"></i><span id="audioAdText">🎧 Anúncio</span></div>
-        
-        <div class="controls-overlay">
-            <div class="bottom-controls" id="bottomControls">
-                <div class="track-info"><p id="trackArtist">🎵 Rádio Patico - Carregando playlist...</p></div>
-                <div class="progress-area"><div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div><div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div></div>
-                <div class="control-buttons"><button class="control-btn" id="prevBtn"><i class="fas fa-step-backward"></i></button><button class="control-btn play-btn" id="playPauseBtn"><i class="fas fa-play"></i></button><button class="control-btn" id="shuffleBtn"><i class="fas fa-random"></i></button><button class="control-btn" id="nextBtn"><i class="fas fa-step-forward"></i></button></div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="menu-button" id="menuButton" style="display: none;"><i class="fas fa-ellipsis-v"></i></div>
-    <div class="menu-popup" id="menuPopup">
-        <button id="carModeMenuBtn"><i class="fas fa-car"></i> Modo Carro</button>
-        <button id="shareMenuBtn"><i class="fas fa-share-alt"></i> Compartilhar</button>
-        <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela Cheia</button>
-    </div>
-    
-    <div class="genres-modal" id="genresModal">
-        <h3><i class="fas fa-head-side-brain"></i> ESCOLHA SEU ESTILO</h3>
-        <div class="genres-grid" id="genresGrid"></div>
-        <button class="close-genres" id="closeGenresBtn"><i class="fas fa-check-circle"></i> FECHAR</button>
-    </div>
-    
-    <audio id="musicPlayer" preload="auto"></audio>
-    <audio id="backgroundAudio" preload="auto" style="display: none;"></audio>
-    <div class="loading-spinner" id="loadingSpinner"><i class="fas fa-circle-notch fa-spin"></i><span>Carregando música...</span></div>
-    <div class="swipe-indicator" id="swipeIndicator">👉 Deslize para trocar música</div>
 
-    <script>
-        // ==================== CONFIGURAÇÕES ====================
-        const PLAYLIST_JSON_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/4146336c11162317c986d6ae73cfad4381330e45/playlist.json";
-        const ARQUIVO_ANUNCIO_VIDEO = "anu.mp4";
-        const ARQUIVO_ANUNCIO_AUDIO = "zzvc.mp3";
-        const INTERVALO_VIDEO_MS = 30000;
-        const QUANTIDADE_MUSICAS_AUDIO = 15;
-        const NUMERO_WHATSAPP = "5512988461978";
-        
-        // Variáveis globais
-        let musicas = [];
-        let filteredPlaylist = [];
-        let currentIndex = 0, isPlaying = false, shuffleMode = false, isBackgroundActive = false, isCarMode = false;
-        let musicCounter = 0, videoAdInterval = null, adVideoPlaying = false;
-        let timerInterval = null, visualizerInterval = null;
-        let trackStartTime = 0;
-        
-        // Preferências do usuário (IA)
-        let userPreferences = {
-            likedSongs: [],
-            dislikedSongs: [],
-            genrePreference: {},
-            songPlays: {}
-        };
-        
-        // Elementos DOM
-        const musicPlayer = document.getElementById('musicPlayer');
-        const playBtn = document.getElementById('playPauseBtn');
-        const progressFill = document.getElementById('progressFill');
-        const currentTimeEl = document.getElementById('currentTime');
-        const totalTimeEl = document.getElementById('totalTime');
-        const trackArtist = document.getElementById('trackArtist');
-        const genreBadge = document.getElementById('genreBadge');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const splash = document.getElementById('splash');
-        const tapToStart = document.getElementById('tap-to-start');
-        const appContainer = document.getElementById('appContainer');
-        const menuButton = document.getElementById('menuButton');
-        
-        musicPlayer.volume = 0.9;
-        
-        // ==================== FUNÇÕES AUXILIARES ====================
-        function formatTime(sec) {
-            if (!sec || isNaN(sec)) return "0:00";
-            const m = Math.floor(sec / 60);
-            const s = Math.floor(sec % 60);
-            return `${m}:${s < 10 ? '0' : ''}${s}`;
-        }
-        
-        function showNotification(msg, duration = 2500) {
-            const notiMsg = document.getElementById('notificationMessage');
-            const notiTop = document.getElementById('notificationTop');
-            notiMsg.innerText = msg;
-            notiTop.classList.add('show');
-            setTimeout(() => notiTop.classList.remove('show'), duration);
-        }
-        
-        function showError(msg) {
-            const banner = document.getElementById('errorBanner');
-            const errorMsg = document.getElementById('errorMsg');
-            errorMsg.innerText = msg;
-            banner.classList.add('show');
-            setTimeout(() => banner.classList.remove('show'), 4000);
-        }
-        
-        function savePrefs() {
-            localStorage.setItem('radio_patico_prefs', JSON.stringify(userPreferences));
-        }
-        
-        function loadPrefs() {
-            const saved = localStorage.getItem('radio_patico_prefs');
-            if (saved) {
-                try {
-                    userPreferences = { ...userPreferences, ...JSON.parse(saved) };
-                } catch(e) {}
-            }
-        }
-        
-        // ==================== IA: PESO DAS MÚSICAS ====================
-        function calculateSongWeight(song) {
-            let weight = 1.0;
-            if (userPreferences.likedSongs.includes(song.id)) weight += 10;
-            if (userPreferences.dislikedSongs.includes(song.id)) weight -= 20;
-            const playCount = userPreferences.songPlays[song.id] || 0;
-            weight -= playCount * 0.3;
-            const genreScore = userPreferences.genrePreference[song.genero] || 0;
-            weight += genreScore * 0.5;
-            return Math.max(0.1, weight);
-        }
-        
-        function prioritizeLiveSongs(playlist) {
-            return [...playlist].sort((a, b) => (b.isLive ? 1 : 0) - (a.isLive ? 1 : 0));
-        }
-        
-        function generateSmartPlaylist() {
-            if (!musicas.length) return [];
-            const scored = musicas.map(song => ({ ...song, weight: calculateSongWeight(song) }));
-            scored.sort((a, b) => b.weight - a.weight);
-            let topSongs = scored.slice(0, 40);
-            if (topSongs.length < 10 && musicas.length) {
-                topSongs = [...musicas];
-            }
-            return prioritizeLiveSongs(topSongs);
-        }
-        
-        function updateGenreBadge() {
-            let icon = "fa-music";
-            const currentGenre = currentFilterGenre || "TODOS";
-            if (currentGenre === "SAMBA") icon = "fa-drumstick-bite";
-            else if (currentGenre === "POP") icon = "fa-microphone-alt";
-            else if (currentGenre === "MPB") icon = "fa-guitar";
-            else if (currentGenre === "FORRÓ") icon = "fa-drum";
-            else if (currentGenre === "FORRÓ_ANTIGO") icon = "fa-accordion";
-            else if (currentGenre === "MODÃO_TOP") icon = "fa-hat-cowboy";
-            else if (currentGenre === "BREGA_SERTANEJO") icon = "fa-guitar";
-            else icon = "fa-head-side-brain";
-            genreBadge.innerHTML = `<i class="fas ${icon}"></i> ${currentGenre.replace('_', ' ')}`;
-        }
-        
-        let currentFilterGenre = "TODOS";
-        
-        function filterByGenre(genero) {
-            if (!musicas.length) return;
-            if (genero === "TODOS") {
-                filteredPlaylist = generateSmartPlaylist();
-                currentFilterGenre = "TODOS";
-                showNotification("🎵 Modo TODOS - IA escolhendo as melhores!", 2000);
+<video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
+    <source src="pak1.mp4" type="video/mp4">
+</video>
+
+<div id="splash">
+    <div class="splash-content">
+        <i class="fas fa-head-side-brain"></i>
+        <h2>Rádio Patico</h2>
+        <p id="splashText">Carregando playlist do servidor...</p>
+        <div class="splash-status" id="splashStatus"><i class="fas fa-circle-notch fa-spin"></i> Buscando JSON</div>
+    </div>
+</div>
+
+<div class="app" id="app" style="display: none;">
+    <div class="top-info">
+        <div class="genre-tag" id="genreTag"><i class="fas fa-guitar"></i> MPB</div>
+        <div class="bluetooth-status" id="bluetoothStatus"><i class="fas fa-bluetooth"></i> <span id="btText">Verificando...</span></div>
+    </div>
+
+    <div class="music-card">
+        <div class="track-title" id="trackTitle">🎵 Carregando...</div>
+        <div class="track-artist" id="trackArtist">Rádio Patico</div>
+        <div class="stars-feedback" id="starContainer">
+            <span><i class="fas fa-star-of-life"></i> Avalie:</span>
+            <i class="far fa-star star" data-rating="1"></i>
+            <i class="far fa-star star" data-rating="2"></i>
+            <i class="far fa-star star" data-rating="3"></i>
+            <i class="far fa-star star" data-rating="4"></i>
+            <i class="far fa-star star" data-rating="5"></i>
+        </div>
+    </div>
+
+    <div class="bottom-panel">
+        <div class="progress-area">
+            <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
+            <div class="progress-bar-bg" id="progressBarBg">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        <div class="control-buttons">
+            <button class="ctrl" id="prevBtn"><i class="fas fa-backward-step"></i></button>
+            <button class="ctrl play-large" id="playBtn"><i class="fas fa-play"></i></button>
+            <button class="ctrl" id="nextBtn"><i class="fas fa-forward-step"></i></button>
+        </div>
+    </div>
+
+    <div class="genre-selector">
+        <div class="genre-trigger" id="genreTriggerBtn"><i class="fas fa-music"></i></div>
+        <div class="genre-mini-panel" id="genrePanel">
+            <div class="genre-option" data-genre="MPB"><i class="fas fa-guitar"></i> MPB</div>
+            <div class="genre-option" data-genre="MODÃO_TOP"><i class="fas fa-hat-cowboy"></i> Modão</div>
+            <div class="genre-option" data-genre="SAMBA"><i class="fas fa-drumstick-bite"></i> Samba</div>
+            <div class="genre-option" data-genre="POP"><i class="fas fa-microphone-alt"></i> Pop</div>
+            <div class="genre-option" data-genre="FORRÓ"><i class="fas fa-drum"></i> Forró</div>
+        </div>
+    </div>
+
+    <div class="whatsapp-fixed" id="whatsappBtn">
+        <i class="fab fa-whatsapp"></i>
+    </div>
+</div>
+
+<div class="loading-spinner" id="loader"><i class="fas fa-circle-notch fa-spin"></i><span>Carregando música...</span></div>
+<div class="toast-msg" id="toastMsg">🎵 Música alterada</div>
+
+<audio id="player" preload="auto"></audio>
+
+<script>
+    // ========== CONFIGURACOES ==========
+    const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/4146336c11162317c986d6ae73cfad4381330e45/playlist.json";
+    const WHATSAPP_NUMBER = "5512988461978";
+    let musicLibrary = [];
+    let currentPlaylist = [];
+    let currentIndex = 0;
+    let isPlaying = false;
+    let currentGenre = "MPB";
+    let genreAlternateTimer = null;
+    let player = document.getElementById("player");
+    let progressInterval = null;
+    let starRatings = {};
+
+    // UI Elements
+    const appDiv = document.getElementById("app");
+    const splashDiv = document.getElementById("splash");
+    const splashText = document.getElementById("splashText");
+    const splashStatus = document.getElementById("splashStatus");
+    const trackTitleSpan = document.getElementById("trackTitle");
+    const trackArtistSpan = document.getElementById("trackArtist");
+    const genreTagDiv = document.getElementById("genreTag");
+    const playBtn = document.getElementById("playBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const progressFill = document.getElementById("progressFill");
+    const currentTimeSpan = document.getElementById("currentTime");
+    const totalTimeSpan = document.getElementById("totalTime");
+    const progressBg = document.getElementById("progressBarBg");
+    const loaderDiv = document.getElementById("loader");
+    const toastMsg = document.getElementById("toastMsg");
+    const btStatusSpan = document.getElementById("btText");
+    const bluetoothDiv = document.getElementById("bluetoothStatus");
+    const starContainer = document.getElementById("starContainer");
+
+    function formatTime(seconds) {
+        if (isNaN(seconds)) return "0:00";
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    function showToast(text, duration = 1800) {
+        toastMsg.innerText = text;
+        toastMsg.style.opacity = "1";
+        setTimeout(() => {
+            toastMsg.style.opacity = "0";
+        }, duration);
+    }
+
+    function loadRatings() {
+        const saved = localStorage.getItem("patico_star_ratings");
+        if (saved) starRatings = JSON.parse(saved);
+    }
+    
+    function saveRating(songId, rating) {
+        starRatings[songId] = rating;
+        localStorage.setItem("patico_star_ratings", JSON.stringify(starRatings));
+        showToast(`⭐ Avaliação ${rating} estrelas registrada!`, 1200);
+    }
+    
+    function updateStarsUI(songId) {
+        const stars = document.querySelectorAll(".star");
+        const currentRating = starRatings[songId] || 0;
+        stars.forEach((star, idx) => {
+            if (idx < currentRating) {
+                star.className = "fas fa-star star active";
             } else {
-                const filtered = musicas.filter(m => m.genero === genero);
-                if (filtered.length === 0) {
-                    showNotification(`⚠️ Nenhuma música para ${genero}`, 1500);
-                    return;
+                star.className = "far fa-star star";
+            }
+        });
+    }
+
+    function initStarsListener() {
+        starContainer.querySelectorAll(".star").forEach(star => {
+            star.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const ratingVal = parseInt(star.getAttribute("data-rating"));
+                if (currentPlaylist.length && currentPlaylist[currentIndex]) {
+                    const song = currentPlaylist[currentIndex];
+                    saveRating(song.id, ratingVal);
+                    updateStarsUI(song.id);
                 }
-                filteredPlaylist = prioritizeLiveSongs(filtered);
-                currentFilterGenre = genero;
-                showNotification(`🎵 ${genero.replace('_', ' ')} ativado!`, 2000);
-            }
-            updateGenreBadge();
-            currentIndex = 0;
-            loadTrackUI(currentIndex);
-            if (isPlaying) playMusic();
-        }
-        
-        // ==================== PLAYER CORE ====================
-        function loadTrackUI(index) {
-            if (!filteredPlaylist.length) return;
-            const track = filteredPlaylist[index];
-            if (!track) return;
-            trackArtist.innerHTML = `${track.title} - ${track.artist} [${track.genero.replace('_', ' ')}]${track.isLive ? ' 🔴 AO VIVO' : ''}`;
-            currentTimeEl.textContent = '0:00';
-            totalTimeEl.textContent = '0:00';
-            progressFill.style.width = '0%';
-            if (isCarMode) {
-                document.getElementById('carTrackText').innerHTML = `${track.title} - ${track.artist}`;
-                document.getElementById('carCurrentOverlay').textContent = '0:00';
-                document.getElementById('carTotalOverlay').textContent = '0:00';
-                document.getElementById('carProgressFillOverlay').style.width = '0%';
-            }
-        }
-        
-        function updateStatsAndAI(track) {
-            userPreferences.songPlays[track.id] = (userPreferences.songPlays[track.id] || 0) + 1;
-            userPreferences.genrePreference[track.genero] = (userPreferences.genrePreference[track.genero] || 0) + 1;
-            savePrefs();
-        }
-        
-        async function playMusic() {
-            if (!isBackgroundActive) {
-                showNotification('⚠️ Clique em "ATIVAR ÁUDIO" primeiro!', 2000);
-                return false;
-            }
-            if (!filteredPlaylist.length) return false;
-            
-            loadingSpinner.classList.add('show');
-            const track = filteredPlaylist[currentIndex];
-            if (!track || !track.src) {
-                loadingSpinner.classList.remove('show');
-                showError(`Arquivo não encontrado: ${track?.title}`);
-                nextTrack();
-                return false;
-            }
-            
-            musicPlayer.src = track.src;
-            musicPlayer.load();
-            
-            return new Promise((resolve) => {
-                const timeout = setTimeout(() => {
-                    loadingSpinner.classList.remove('show');
-                    showError(`Timeout: ${track.title}`);
-                    nextTrack();
-                    resolve(false);
-                }, 10000);
-                
-                musicPlayer.oncanplaythrough = async () => {
-                    clearTimeout(timeout);
-                    loadingSpinner.classList.remove('show');
-                    try {
-                        await musicPlayer.play();
-                        isPlaying = true;
-                        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                        if (document.getElementById('carOverlayPlay')) 
-                            document.getElementById('carOverlayPlay').innerHTML = '<i class="fas fa-pause"></i>';
-                        startTimer();
-                        startVisualizer();
-                        trackStartTime = Date.now();
-                        updateStatsAndAI(track);
-                        
-                        musicCounter++;
-                        if (musicCounter >= QUANTIDADE_MUSICAS_AUDIO) {
-                            musicCounter = 0;
-                            playAudioAd();
-                        }
-                        
-                        if (musicPlayer.duration) {
-                            totalTimeEl.textContent = formatTime(musicPlayer.duration);
-                            if (isCarMode) document.getElementById('carTotalOverlay').textContent = formatTime(musicPlayer.duration);
-                        } else {
-                            musicPlayer.addEventListener('loadedmetadata', () => {
-                                totalTimeEl.textContent = formatTime(musicPlayer.duration);
-                                if (isCarMode) document.getElementById('carTotalOverlay').textContent = formatTime(musicPlayer.duration);
-                            }, { once: true });
-                        }
-                        resolve(true);
-                    } catch(e) {
-                        clearTimeout(timeout);
-                        loadingSpinner.classList.remove('show');
-                        console.error(e);
-                        resolve(false);
-                    }
-                };
-                
-                musicPlayer.onerror = () => {
-                    clearTimeout(timeout);
-                    loadingSpinner.classList.remove('show');
-                    showError(`Erro ao carregar: ${track.title}`);
-                    setTimeout(() => nextTrack(), 1000);
-                    resolve(false);
-                };
-                
-                musicPlayer.onended = () => {
-                    if (trackStartTime) {
-                        const durationSec = Math.floor((Date.now() - trackStartTime) / 1000);
-                        if (durationSec > 0 && durationSec < 600) {
-                            // tempo ouvido
-                        }
-                    }
-                    nextTrack();
-                };
             });
+        });
+    }
+
+    async function checkBluetooth() {
+        if (navigator.bluetooth && navigator.bluetooth.getAvailability) {
+            const available = await navigator.bluetooth.getAvailability();
+            if (available) {
+                btStatusSpan.innerText = "Conectado";
+                bluetoothDiv.classList.add("connected");
+            } else {
+                btStatusSpan.innerText = "Desconectado";
+                bluetoothDiv.classList.remove("connected");
+            }
+        } else {
+            btStatusSpan.innerText = "Não suportado";
+        }
+    }
+    setInterval(checkBluetooth, 5000);
+    checkBluetooth();
+
+    // ========== CARREGAR SOMENTE DO JSON - SEM FALLBACK ==========
+    async function fetchSongsFromJSON() {
+        splashText.innerText = "Baixando playlist do GitHub...";
+        splashStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Conectando ao servidor...';
+        
+        try {
+            const response = await fetch(PLAYLIST_URL);
+            if (!response.ok) throw new Error(`HTTP ${response.status} - Falha na rede`);
+            
+            const data = await response.json();
+            if (!Array.isArray(data) || data.length === 0) {
+                throw new Error("JSON vazio ou formato inválido");
+            }
+            
+            musicLibrary = data.map((item, idx) => ({
+                id: item.id || idx,
+                title: item.title || "Sem título",
+                artist: item.artist || "Artista",
+                src: item.src || "",
+                genero: item.genero || "MPB",
+                isLive: item.isLive || false
+            }));
+            
+            // Verificar se todas as músicas têm src válido
+            const invalidSongs = musicLibrary.filter(s => !s.src || s.src === "");
+            if (invalidSongs.length > 0) {
+                console.warn(`${invalidSongs.length} músicas sem src válido`);
+            }
+            
+            splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicLibrary.length} músicas carregadas!`;
+            splashText.innerText = "Playlist pronta!";
+            
+            console.log("✅ Músicas carregadas do JSON:", musicLibrary.length);
+            return true;
+            
+        } catch (error) {
+            console.error("ERRO ao carregar JSON:", error);
+            splashStatus.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro: ${error.message}`;
+            splashText.innerText = "Falha ao carregar playlist";
+            
+            // Botão de tentar novamente
+            const retryBtn = document.createElement("button");
+            retryBtn.innerText = "🔄 TENTAR NOVAMENTE";
+            retryBtn.className = "error-retry";
+            retryBtn.onclick = () => {
+                retryBtn.remove();
+                fetchSongsFromJSON();
+            };
+            document.querySelector(".splash-content").appendChild(retryBtn);
+            
+            return false;
+        }
+    }
+
+    // Embaralhar playlist
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function filterByGenre(genre) {
+        if (!musicLibrary.length) return;
+        
+        let filtered = musicLibrary.filter(song => song.genero === genre);
+        if (filtered.length === 0) {
+            showToast(`⚠️ Nenhuma música de ${genre} encontrada`, 1500);
+            return;
         }
         
-        function pauseMusic() {
-            musicPlayer.pause();
+        // Embaralhar para músicas diferentes cada vez que troca de gênero
+        currentPlaylist = shuffleArray([...filtered]);
+        currentIndex = 0;
+        updateGenreBadge(genre);
+        loadCurrentTrack();
+        if (isPlaying) playCurrentMusic();
+        showToast(`🎸 Gênero: ${genre.replace('_', ' ')} | ${currentPlaylist.length} músicas`, 1500);
+    }
+
+    function updateGenreBadge(genre) {
+        let icon = "fa-guitar";
+        if (genre === "MODÃO_TOP") icon = "fa-hat-cowboy";
+        else if (genre === "SAMBA") icon = "fa-drumstick-bite";
+        else if (genre === "POP") icon = "fa-microphone-alt";
+        else if (genre === "FORRÓ") icon = "fa-drum";
+        genreTagDiv.innerHTML = `<i class="fas ${icon}"></i> ${genre === "MODÃO_TOP" ? "MODÃO" : genre}`;
+        currentGenre = genre;
+    }
+
+    function loadCurrentTrack() {
+        if (!currentPlaylist.length) return;
+        const track = currentPlaylist[currentIndex];
+        if (!track) return;
+        trackTitleSpan.innerText = track.title || "Sem título";
+        trackArtistSpan.innerText = track.artist || "Desconhecido";
+        totalTimeSpan.innerText = "0:00";
+        currentTimeSpan.innerText = "0:00";
+        progressFill.style.width = "0%";
+        updateStarsUI(track.id);
+    }
+
+    async function playCurrentMusic() {
+        if (!currentPlaylist.length) {
+            showToast("Playlist vazia", 1000);
+            return;
+        }
+        
+        const track = currentPlaylist[currentIndex];
+        if (!track.src) {
+            showToast(`🔇 Música sem fonte: ${track.title}`, 1500);
+            setTimeout(() => nextTrack(), 1000);
+            return;
+        }
+        
+        loaderDiv.style.display = "flex";
+        player.src = track.src;
+        player.load();
+        
+        try {
+            await player.play();
+            isPlaying = true;
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            loaderDiv.style.display = "none";
+            startProgressTimer();
+            
+            player.onended = () => {
+                nextTrack();
+            };
+        } catch (err) {
+            loaderDiv.style.display = "none";
+            console.warn("Erro ao tocar:", err);
             isPlaying = false;
             playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            if (document.getElementById('carOverlayPlay')) 
-                document.getElementById('carOverlayPlay').innerHTML = '<i class="fas fa-play"></i>';
-            stopTimer();
-            stopVisualizer();
+            showToast("Toque no play para iniciar", 1500);
         }
-        
-        function togglePlayPause() {
-            if (!isBackgroundActive) {
-                showNotification('Ative o áudio primeiro!', 1500);
-                return;
+    }
+
+    function pauseMusic() {
+        player.pause();
+        isPlaying = false;
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        stopProgressTimer();
+    }
+
+    function togglePlay() {
+        if (isPlaying) {
+            pauseMusic();
+        } else {
+            playCurrentMusic();
+        }
+    }
+
+    function nextTrack() {
+        if (!currentPlaylist.length) return;
+        currentIndex = (currentIndex + 1) % currentPlaylist.length;
+        loadCurrentTrack();
+        if (isPlaying) playCurrentMusic();
+        showToast("⏭️ Próxima faixa", 800);
+    }
+
+    function prevTrack() {
+        if (!currentPlaylist.length) return;
+        currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+        loadCurrentTrack();
+        if (isPlaying) playCurrentMusic();
+        showToast("⏮️ Faixa anterior", 800);
+    }
+
+    function startProgressTimer() {
+        if (progressInterval) clearInterval(progressInterval);
+        progressInterval = setInterval(() => {
+            if (player && !player.paused && player.duration) {
+                const percent = (player.currentTime / player.duration) * 100;
+                progressFill.style.width = percent + "%";
+                currentTimeSpan.innerText = formatTime(player.currentTime);
+                totalTimeSpan.innerText = formatTime(player.duration);
             }
-            isPlaying ? pauseMusic() : playMusic();
-        }
-        
-        function nextTrack() {
-            if (!filteredPlaylist.length) return;
-            if (shuffleMode) {
-                const randomIndex = Math.floor(Math.random() * filteredPlaylist.length);
-                currentIndex = randomIndex;
-            } else {
-                currentIndex = (currentIndex + 1) % filteredPlaylist.length;
+        }, 200);
+    }
+    
+    function stopProgressTimer() {
+        if (progressInterval) clearInterval(progressInterval);
+        progressInterval = null;
+    }
+
+    progressBg.addEventListener("click", (e) => {
+        if (!player.duration) return;
+        const rect = progressBg.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        player.currentTime = pos * player.duration;
+    });
+
+    // Alternância automática entre MPB e Modão a cada 25 minutos
+    function startAlternatingGenres() {
+        if (genreAlternateTimer) clearInterval(genreAlternateTimer);
+        genreAlternateTimer = setInterval(() => {
+            if (!musicLibrary.length) return;
+            
+            let nextGen = (currentGenre === "MPB") ? "MODÃO_TOP" : "MPB";
+            const hasSongs = musicLibrary.some(s => s.genero === nextGen);
+            
+            if (hasSongs) {
+                filterByGenre(nextGen);
+                showToast(`🔄 Alternando para ${nextGen === "MODÃO_TOP" ? "MODÃO" : nextGen}`, 2000);
             }
-            loadTrackUI(currentIndex);
-            if (isPlaying) playMusic();
-            if (isCarMode) updateCarInfo();
+        }, 25 * 60 * 1000);
+    }
+
+    // ========== INICIALIZAÇÃO ==========
+    async function init() {
+        loadRatings();
+        
+        const success = await fetchSongsFromJSON();
+        if (!success || musicLibrary.length === 0) {
+            return;
         }
         
-        function prevTrack() {
-            if (!filteredPlaylist.length) return;
-            currentIndex = (currentIndex - 1 + filteredPlaylist.length) % filteredPlaylist.length;
-            loadTrackUI(currentIndex);
-            if (isPlaying) playMusic();
-            if (isCarMode) updateCarInfo();
+        // Definir playlist inicial: MPB se existir, senão o primeiro gênero disponível
+        const hasMPB = musicLibrary.some(s => s.genero === "MPB");
+        const hasModao = musicLibrary.some(s => s.genero === "MODÃO_TOP");
+        
+        if (hasMPB) {
+            filterByGenre("MPB");
+        } else if (hasModao) {
+            filterByGenre("MODÃO_TOP");
+        } else {
+            const firstGenre = musicLibrary[0].genero;
+            filterByGenre(firstGenre);
         }
         
-        function likeCurrent() {
-            const track = filteredPlaylist[currentIndex];
-            if (!track) return;
-            if (!userPreferences.likedSongs.includes(track.id)) {
-                userPreferences.likedSongs.push(track.id);
-                userPreferences.dislikedSongs = userPreferences.dislikedSongs.filter(id => id !== track.id);
-                savePrefs();
-                showNotification(`👍 Curtiu "${track.title}"! IA vai tocar mais assim.`, 2000);
-            }
-        }
-        
-        function dislikeCurrent() {
-            const track = filteredPlaylist[currentIndex];
-            if (!track) return;
-            if (!userPreferences.dislikedSongs.includes(track.id)) {
-                userPreferences.dislikedSongs.push(track.id);
-                userPreferences.likedSongs = userPreferences.likedSongs.filter(id => id !== track.id);
-                savePrefs();
-                showNotification(`👎 Não curtiu "${track.title}".`, 1500);
-                setTimeout(() => nextTrack(), 500);
-            }
-        }
-        
-        // Timer e Visualizer
-        function startTimer() {
-            stopTimer();
-            timerInterval = setInterval(() => {
-                if (isPlaying && musicPlayer.duration && !musicPlayer.paused) {
-                    const percent = (musicPlayer.currentTime / musicPlayer.duration) * 100;
-                    progressFill.style.width = percent + '%';
-                    currentTimeEl.textContent = formatTime(musicPlayer.currentTime);
-                    if (isCarMode) updateCarProgress();
-                }
-            }, 200);
-        }
-        
-        function stopTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = null;
-        }
-        
-        function startVisualizer() {
-            if (visualizerInterval) clearInterval(visualizerInterval);
-            visualizerInterval = setInterval(() => {
-                if (isPlaying && musicPlayer.duration && !musicPlayer.paused) {
-                    document.querySelectorAll('.visualizer-bar').forEach(bar => {
-                        bar.style.height = (8 + Math.random() * 32) + 'px';
-                    });
-                } else {
-                    document.querySelectorAll('.visualizer-bar').forEach(bar => bar.style.height = '4px');
-                }
-            }, 100);
-        }
-        
-        function stopVisualizer() {
-            if (visualizerInterval) clearInterval(visualizerInterval);
-            visualizerInterval = null;
-            document.querySelectorAll('.visualizer-bar').forEach(bar => bar.style.height = '4px');
-        }
-        
-        // Anúncios
-        function iniciarVideoAd() {
-            if (isCarMode) return;
-            if (adVideoPlaying) return;
-            const adVid = document.getElementById('adVideo');
-            const overlay = document.getElementById('videoAdOverlay');
-            adVideoPlaying = true;
-            overlay.style.display = 'block';
-            adVid.play().catch(e => console.log);
+        // Esconde splash e mostra app
+        setTimeout(() => {
+            splashDiv.style.opacity = "0";
             setTimeout(() => {
-                overlay.style.display = 'none';
-                adVid.pause();
-                adVideoPlaying = false;
-            }, 8000);
-        }
-        
-        function playAudioAd() {
-            if (isCarMode) return;
-            const wasPlaying = isPlaying;
-            if (wasPlaying) {
-                musicPlayer.pause();
-                isPlaying = false;
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                stopTimer();
-                stopVisualizer();
-            }
-            const adAudio = document.getElementById('adAudio');
-            adAudio.src = ARQUIVO_ANUNCIO_AUDIO;
-            adAudio.volume = 0.9;
-            const toast = document.getElementById('audioAdToast');
-            const textSpan = document.getElementById('audioAdText');
-            textSpan.innerHTML = '<i class="fas fa-volume-up"></i> 🎧 Obrigado por ouvir Rádio Patico!';
-            toast.classList.add('show');
-            adAudio.play().catch(e => console.log);
-            adAudio.onended = () => {
-                toast.classList.remove('show');
-                if (wasPlaying) playMusic();
-            };
-        }
-        
-        // Modo Carro
-        function toggleCarMode() {
-            isCarMode = !isCarMode;
-            document.querySelector('.app').classList.toggle('car-mode-active', isCarMode);
-            const carIndicator = document.getElementById('carIndicator');
-            const exitBtn = document.getElementById('exitCarBtn');
-            if (isCarMode) {
-                carIndicator.style.display = 'flex';
-                exitBtn.style.display = 'block';
-                if (videoAdInterval) clearInterval(videoAdInterval);
-                updateCarInfo();
-                showNotification('🚗 MODO CARRO ATIVADO! Toque na tela para controles', 2500);
-            } else {
-                carIndicator.style.display = 'none';
-                exitBtn.style.display = 'none';
-                videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
-                showNotification('🚗 Modo Carro desativado', 2000);
-            }
-        }
-        
-        function updateCarInfo() {
-            const track = filteredPlaylist[currentIndex];
-            if (track) {
-                document.getElementById('carTrackText').innerHTML = `${track.title} - ${track.artist}`;
-            }
-        }
-        
-        function updateCarProgress() {
-            if (musicPlayer.duration && !musicPlayer.paused) {
-                const percent = (musicPlayer.currentTime / musicPlayer.duration) * 100;
-                document.getElementById('carProgressFillOverlay').style.width = percent + '%';
-                document.getElementById('carCurrentOverlay').textContent = formatTime(musicPlayer.currentTime);
-                document.getElementById('carTotalOverlay').textContent = formatTime(musicPlayer.duration);
-            }
-        }
-        
-        let hideCarTimeout;
-        function showCarControls() {
-            if (!isCarMode) return;
-            const overlay = document.getElementById('carOverlayControls');
-            const trackOverlay = document.getElementById('carTrackOverlay');
-            overlay.classList.add('visible');
-            trackOverlay.classList.add('visible');
-            if (hideCarTimeout) clearTimeout(hideCarTimeout);
-            hideCarTimeout = setTimeout(() => {
-                overlay.classList.remove('visible');
-                trackOverlay.classList.remove('visible');
-            }, 4000);
-        }
-        
-        // Áudio Background
-        function createSilentAudio() {
-            const sampleRate = 44100, duration = 2, numSamples = sampleRate * duration;
-            const buffer = new ArrayBuffer(44 + numSamples * 2);
-            const view = new DataView(buffer);
-            const writeString = (view, offset, str) => {
-                for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
-            };
-            writeString(view, 0, 'RIFF');
-            view.setUint32(4, 36 + numSamples * 2, true);
-            writeString(view, 8, 'WAVE');
-            writeString(view, 12, 'fmt ');
-            view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true);
-            view.setUint16(22, 1, true);
-            view.setUint32(24, sampleRate, true);
-            view.setUint32(28, sampleRate * 2, true);
-            view.setUint16(32, 2, true);
-            view.setUint16(34, 16, true);
-            writeString(view, 36, 'data');
-            view.setUint32(40, numSamples * 2, true);
-            let offset = 44;
-            for (let i = 0; i < numSamples; i++) {
-                view.setInt16(offset, 0, true);
-                offset += 2;
-            }
-            return new Blob([buffer], { type: 'audio/wav' });
-        }
-        
-        const backgroundAudio = document.getElementById('backgroundAudio');
-        
-        async function ativarAudioBackground() {
-            try {
-                const silentUrl = URL.createObjectURL(createSilentAudio());
-                backgroundAudio.src = silentUrl;
-                backgroundAudio.loop = true;
-                backgroundAudio.volume = 0.001;
-                await backgroundAudio.play();
-                isBackgroundActive = true;
-                document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-brain"></i> IA Ativa';
-                document.getElementById('audioIndicator').style.color = '#4ade80';
+                splashDiv.style.display = "none";
+                appDiv.style.display = "flex";
                 
-                videoAdInterval = setInterval(() => iniciarVideoAd(), INTERVALO_VIDEO_MS);
-                
-                if ('wakeLock' in navigator) {
-                    try {
-                        await navigator.wakeLock.request('screen');
-                    } catch(e) {}
-                }
-                
-                await playMusic();
-                return true;
-            } catch (error) {
-                document.getElementById('audioIndicator').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro';
-                return false;
-            }
-        }
-        
-        // ==================== GESTOS TOUCH ====================
-        let touchStartX = 0;
-        let lastTap = 0;
-        
-        document.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-            const now = Date.now();
-            if (now - lastTap < 300) {
-                e.preventDefault();
-                togglePlayPause();
-                const indicator = document.getElementById('swipeIndicator');
-                indicator.textContent = isPlaying ? '⏸️ Pausado' : '▶️ Play';
-                indicator.style.opacity = '1';
-                setTimeout(() => indicator.style.opacity = '0', 800);
-            }
-            lastTap = now;
-        });
-        
-        document.addEventListener('touchend', (e) => {
-            const diff = e.changedTouches[0].screenX - touchStartX;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) {
-                    prevTrack();
-                    document.getElementById('swipeIndicator').textContent = '⏮️ Música anterior';
-                } else {
-                    nextTrack();
-                    document.getElementById('swipeIndicator').textContent = '⏭️ Próxima música';
-                }
-                const ind = document.getElementById('swipeIndicator');
-                ind.style.opacity = '1';
-                setTimeout(() => ind.style.opacity = '0', 800);
-            }
-        });
-        
-        // ==================== CARREGAR PLAYLIST DO JSON ====================
-        async function carregarPlaylistDoJson() {
-            try {
-                splash.querySelector('.loading-text').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlist do GitHub...';
-                const response = await fetch(PLAYLIST_JSON_URL);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                
-                if (!Array.isArray(data) || data.length === 0) {
-                    throw new Error('JSON vazio ou formato inválido');
-                }
-                
-                musicas = data.map((item, idx) => ({
-                    id: item.id || idx + 1,
-                    title: item.title || "Sem título",
-                    artist: item.artist || "Desconhecido",
-                    src: item.src || "",
-                    genero: item.genero || "VARIADAS",
-                    isLive: item.isLive === true || (item.title && (item.title.toLowerCase().includes("ao vivo") || item.title.toLowerCase().includes("live")))
-                }));
-                
-                console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
-                splash.querySelector('.loading-text').innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas carregadas!`;
-                
-                // Inicializar playlist
-                filteredPlaylist = prioritizeLiveSongs([...musicas]);
-                currentFilterGenre = "TODOS";
-                updateGenreBadge();
-                currentIndex = 0;
-                loadTrackUI(0);
-                
-                // Construir grid de gêneros
-                const generosUnicos = [...new Set(musicas.map(m => m.genero))];
-                const grid = document.getElementById('genresGrid');
-                grid.innerHTML = '';
-                
-                const todosBtn = document.createElement('div');
-                todosBtn.className = 'genre-card';
-                todosBtn.style.background = "linear-gradient(135deg,#00b4db,#0083b0)";
-                todosBtn.innerHTML = '<i class="fas fa-list-ul"></i><span>TODOS</span>';
-                todosBtn.onclick = () => { filterByGenre("TODOS"); document.getElementById('genresModal').classList.remove('open'); };
-                grid.appendChild(todosBtn);
-                
-                const iconesPorGenero = {
-                    "SAMBA": "fa-drumstick-bite",
-                    "POP": "fa-microphone-alt", 
-                    "MPB": "fa-guitar",
-                    "FORRÓ": "fa-drum",
-                    "FORRÓ_ANTIGO": "fa-accordion",
-                    "MODÃO_TOP": "fa-hat-cowboy",
-                    "BREGA_SERTANEJO": "fa-guitar"
+                // Iniciar com play automático (após interação do usuário)
+                const startAudio = async () => {
+                    await playCurrentMusic();
+                    document.removeEventListener("click", startAudio);
+                    document.removeEventListener("touchstart", startAudio);
                 };
-                
-                const cores = [
-                    "linear-gradient(135deg,#f2994a,#f2c94c)",
-                    "linear-gradient(135deg,#2193b0,#6dd5ed)",
-                    "linear-gradient(135deg,#134e5e,#71b280)",
-                    "linear-gradient(135deg,#f12711,#f5af19)",
-                    "linear-gradient(135deg,#8E2DE2,#4A00E0)",
-                    "linear-gradient(135deg,#cc2b5e,#753a88)",
-                    "linear-gradient(135deg,#e63946,#ff6b6b)"
-                ];
-                
-                let corIndex = 0;
-                generosUnicos.forEach(genero => {
-                    if (genero === "VARIADAS") return;
-                    const card = document.createElement('div');
-                    card.className = 'genre-card';
-                    card.style.background = cores[corIndex % cores.length];
-                    const icon = iconesPorGenero[genero] || "fa-music";
-                    card.innerHTML = `<i class="fas ${icon}"></i><span>${genero.replace('_', ' ')}</span>`;
-                    card.onclick = () => { filterByGenre(genero); document.getElementById('genresModal').classList.remove('open'); };
-                    grid.appendChild(card);
-                    corIndex++;
-                });
-                
-                // Mostrar app e ocultar splash
-                setTimeout(() => {
-                    splash.classList.add('hidden');
-                    setTimeout(() => {
-                        splash.style.display = 'none';
-                        appContainer.style.display = 'block';
-                        menuButton.style.display = 'flex';
-                        tapToStart.style.display = 'block';
-                    }, 500);
-                }, 1000);
-                
-            } catch (error) {
-                console.error("Erro ao carregar JSON:", error);
-                splash.querySelector('.loading-text').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro: ${error.message}`;
-                showError(`Falha ao carregar playlist: ${error.message}`);
-                setTimeout(() => {
-                    splash.classList.add('hidden');
-                    appContainer.style.display = 'block';
-                    menuButton.style.display = 'flex';
-                    tapToStart.style.display = 'block';
-                    showError('Use as músicas de fallback ou verifique o JSON');
-                }, 3000);
-            }
-        }
+                document.addEventListener("click", startAudio);
+                document.addEventListener("touchstart", startAudio);
+                showToast("Clique na tela para tocar", 2000);
+            }, 500);
+        }, 1000);
         
-        // ==================== EVENTOS E INICIALIZAÇÃO ====================
-        document.getElementById('progressBar').addEventListener('click', (e) => {
-            if (musicPlayer.duration) {
-                const rect = e.currentTarget.getBoundingClientRect();
-                musicPlayer.currentTime = ((e.clientX - rect.left) / rect.width) * musicPlayer.duration;
-            }
-        });
+        startAlternatingGenres();
+        initStarsListener();
+
+        // Eventos
+        playBtn.addEventListener("click", togglePlay);
+        nextBtn.addEventListener("click", nextTrack);
+        prevBtn.addEventListener("click", prevTrack);
         
-        playBtn.addEventListener('click', togglePlayPause);
-        document.getElementById('nextBtn').addEventListener('click', nextTrack);
-        document.getElementById('prevBtn').addEventListener('click', prevTrack);
-        document.getElementById('shuffleBtn').addEventListener('click', () => {
-            shuffleMode = !shuffleMode;
-            showNotification(shuffleMode ? '🔀 Aleatório ON' : '➡️ Sequencial', 1500);
-        });
-        document.getElementById('likeBtn').addEventListener('click', likeCurrent);
-        document.getElementById('dislikeBtn').addEventListener('click', dislikeCurrent);
-        document.getElementById('genreButton').addEventListener('click', () => document.getElementById('genresModal').classList.add('open'));
-        document.getElementById('closeGenresBtn').addEventListener('click', () => document.getElementById('genresModal').classList.remove('open'));
-        document.getElementById('carModeMenuBtn').addEventListener('click', () => { toggleCarMode(); document.getElementById('menuPopup').classList.remove('open'); });
-        document.getElementById('shareMenuBtn').addEventListener('click', () => {
-            if (navigator.share) navigator.share({ title: 'Rádio Patico', text: 'Rádio com IA', url: location.href });
-            else { navigator.clipboard.writeText(location.href); showNotification('🔗 Link copiado!', 1500); }
-        });
-        document.getElementById('fullscreenMenuBtn').addEventListener('click', () => document.documentElement.requestFullscreen());
-        document.getElementById('exitCarBtn').addEventListener('click', () => toggleCarMode());
-        document.getElementById('carOverlayPlay').addEventListener('click', (e) => { e.stopPropagation(); togglePlayPause(); showCarControls(); });
-        document.getElementById('carOverlayPrev').addEventListener('click', (e) => { e.stopPropagation(); prevTrack(); showCarControls(); });
-        document.getElementById('carOverlayNext').addEventListener('click', (e) => { e.stopPropagation(); nextTrack(); showCarControls(); });
-        document.getElementById('carProgressBarOverlay').addEventListener('click', (e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            if (musicPlayer.duration) musicPlayer.currentTime = ((e.clientX - rect.left) / rect.width) * musicPlayer.duration;
-            showCarControls();
-        });
-        document.getElementById('ctaButton').addEventListener('click', () => window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=Olá! Quero minha playlist personalizada!`, '_blank'));
-        document.getElementById('tap-to-start').addEventListener('click', async () => {
-            showNotification('🔊 Ativando áudio...', 1500);
-            await ativarAudioBackground();
-            tapToStart.style.display = 'none';
-        });
-        
-        document.getElementById('menuButton').addEventListener('click', (e) => {
+        document.getElementById("genreTriggerBtn").addEventListener("click", (e) => {
             e.stopPropagation();
-            document.getElementById('menuPopup').classList.toggle('open');
-        });
-        document.addEventListener('click', (e) => {
-            if (!document.getElementById('menuButton').contains(e.target))
-                document.getElementById('menuPopup').classList.remove('open');
+            document.getElementById("genrePanel").classList.toggle("open");
         });
         
-        document.addEventListener('touchstart', showCarControls);
+        document.querySelectorAll(".genre-option").forEach(opt => {
+            opt.addEventListener("click", (e) => {
+                const genre = opt.getAttribute("data-genre");
+                document.getElementById("genrePanel").classList.remove("open");
+                if (genre) filterByGenre(genre);
+            });
+        });
         
-        // Vídeo de fundo - garantir que sempre tente tocar
-        setInterval(() => {
-            const mainVideo = document.getElementById('mainVideo');
-            if (mainVideo && mainVideo.paused && !isCarMode) {
-                mainVideo.play().catch(e => console.log);
+        document.getElementById("whatsappBtn").addEventListener("click", () => {
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Quero minha playlist personalizada na Rádio Patico!`, "_blank");
+        });
+        
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".genre-selector")) {
+                document.getElementById("genrePanel").classList.remove("open");
             }
-        }, 5000);
-        
-        // Iniciar carregamento da playlist
-        loadPrefs();
-        carregarPlaylistDoJson();
-        startVisualizer();
-    </script>
+        });
+    }
+
+    init();
+</script>
 </body>
 </html>
