@@ -3,377 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rádio Patico • IA Player</title>
+    <title>Rádio Patico • Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
-
-        body {
-            min-height: 100vh;
-            background: #000;
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        .video-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 0;
-            filter: brightness(0.55) saturate(1.05);
-        }
-
-        .app {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            background: radial-gradient(circle at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.8) 100%);
-            backdrop-filter: blur(1.5px);
-        }
-
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 18px;
-            background: rgba(0,0,0,0.55);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .genre-badge {
-            background: rgba(230,57,70,0.9);
-            padding: 6px 16px;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: white;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .bt-status {
-            background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(8px);
-            padding: 5px 12px;
-            border-radius: 30px;
-            font-size: 0.65rem;
-            color: #ddd;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; overflow: hidden; height: 100vh; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        
+        .video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; filter: brightness(0.55); }
+        
+        .app { position: relative; z-index: 10; width: 100%; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; background: radial-gradient(circle at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.8) 100%); }
+        
+        /* TOPO */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: rgba(0,0,0,0.55); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .genre-badge { background: rgba(230,57,70,0.9); padding: 6px 16px; border-radius: 40px; font-size: 0.75rem; font-weight: bold; color: white; display: flex; align-items: center; gap: 8px; }
+        .bt-status { background: rgba(0,0,0,0.65); padding: 5px 12px; border-radius: 30px; font-size: 0.65rem; color: #ddd; display: flex; align-items: center; gap: 6px; }
         .bt-status.connected { color: #4ade80; }
-
-        .music-center {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .track-card {
-            background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(16px);
-            padding: 14px 28px;
-            border-radius: 60px;
-            border-left: 4px solid #e63946;
-            text-align: center;
-            max-width: 90%;
-        }
-
-        .track-title {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: white;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .track-artist {
-            font-size: 0.8rem;
-            color: #ccc;
-            margin-top: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .live-badge {
-            font-size: 0.6rem;
-            color: #e63946;
-            margin-top: 6px;
-            letter-spacing: 0.5px;
-        }
-
-        .feedback-zap {
-            margin-top: 25px;
-            background: linear-gradient(135deg, #25D366, #128C7E);
-            border: none;
-            padding: 10px 24px;
-            border-radius: 50px;
-            color: white;
-            font-weight: bold;
-            font-size: 0.8rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
+        
+        /* BOTÕES DO TOPO */
+        .top-buttons { display: flex; gap: 12px; align-items: center; }
+        .icon-btn { background: rgba(0,0,0,0.65); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1.1rem; border: 1px solid rgba(255,255,255,0.15); }
+        .icon-btn:active { background: #e63946; color: #000; transform: scale(0.95); }
+        
+        /* CARD DA MÚSICA */
+        .music-center { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .track-card { background: rgba(0,0,0,0.65); backdrop-filter: blur(16px); padding: 14px 28px; border-radius: 60px; border-left: 4px solid #e63946; text-align: center; max-width: 90%; }
+        .track-title { font-size: 1.2rem; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-artist { font-size: 0.8rem; color: #ccc; margin-top: 4px; }
+        .live-badge { font-size: 0.6rem; color: #e63946; margin-top: 6px; }
+        
+        /* FEEDBACK WHATSAPP */
+        .feedback-zap { margin-top: 25px; background: linear-gradient(135deg, #25D366, #128C7E); border: none; padding: 10px 24px; border-radius: 50px; color: white; font-weight: bold; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
         .feedback-zap:active { transform: scale(0.96); }
-
-        .bottom-controls {
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255,255,255,0.15);
-            padding: 12px 20px 24px;
-            border-radius: 30px 30px 0 0;
-        }
-
-        .progress-time {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.65rem;
-            color: #bbb;
-            margin-bottom: 4px;
-        }
-        .progress-bar-bg {
-            height: 3px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .progress-fill {
-            width: 0%;
-            height: 100%;
-            background: #e63946;
-            border-radius: 4px;
-        }
-
-        .buttons-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 28px;
-            margin-top: 12px;
-        }
-        .ctrl-btn {
-            background: rgba(255,255,255,0.12);
-            border: none;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
+        
+        /* CONTROLES INFERIORES */
+        .bottom-controls { background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.15); padding: 12px 20px 24px; border-radius: 30px 30px 0 0; }
+        .progress-time { display: flex; justify-content: space-between; font-size: 0.65rem; color: #bbb; margin-bottom: 4px; }
+        .progress-bar-bg { height: 3px; background: rgba(255,255,255,0.3); border-radius: 4px; cursor: pointer; }
+        .progress-fill { width: 0%; height: 100%; background: #e63946; border-radius: 4px; }
+        .buttons-row { display: flex; align-items: center; justify-content: center; gap: 28px; margin-top: 12px; }
+        .ctrl-btn { background: rgba(255,255,255,0.12); border: none; width: 48px; height: 48px; border-radius: 50%; color: white; font-size: 1.2rem; cursor: pointer; }
         .ctrl-btn:active { transform: scale(0.92); background: #e63946; color: #000; }
-        .play-big {
-            background: #e63946;
-            width: 64px;
-            height: 64px;
-            font-size: 1.7rem;
-            color: #000;
-            box-shadow: 0 4px 14px rgba(230,57,70,0.4);
-        }
-
-        .menu-dot { position: relative; }
-        .dot-btn {
-            background: rgba(0,0,0,0.65);
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: white;
-            font-size: 1.2rem;
-        }
-        .menu-drop {
-            position: absolute;
-            top: 48px;
-            right: 0;
-            background: rgba(0,0,0,0.94);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 10px 0;
-            width: 180px;
-            display: none;
-            flex-direction: column;
-            border: 1px solid rgba(255,255,255,0.2);
-            z-index: 50;
-        }
-        .menu-drop.open { display: flex; }
-        .menu-item {
-            padding: 10px 16px;
-            color: white;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-        }
-        .menu-item:active { background: #e63946; color: #000; }
-
-        .genre-fab {
-            position: fixed;
-            bottom: 100px;
-            right: 16px;
-            z-index: 40;
-        }
-        .genre-fab-btn {
-            background: linear-gradient(135deg, #1e1e2f, #2a2a3b);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: white;
-            font-size: 1.4rem;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-        .genre-panel-mini {
-            position: absolute;
-            bottom: 65px;
-            right: 0;
-            background: rgba(10,10,20,0.97);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 12px;
-            width: 210px;
-            display: none;
-            flex-direction: column;
-            gap: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .genre-panel-mini.open { display: flex; }
-        .genre-item {
-            background: rgba(255,255,255,0.1);
-            border-radius: 40px;
-            padding: 8px 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .play-big { background: #e63946; width: 64px; height: 64px; font-size: 1.7rem; color: #000; box-shadow: 0 4px 14px rgba(230,57,70,0.4); }
+        
+        /* PAINEL DE GÊNEROS */
+        .genre-fab { position: fixed; bottom: 100px; right: 16px; z-index: 40; }
+        .genre-fab-btn { background: linear-gradient(135deg, #1e1e2f, #2a2a3b); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1.4rem; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+        .genre-fab-btn:active { transform: scale(0.95); background: #e63946; color: #000; }
+        .genre-panel { position: absolute; bottom: 65px; right: 0; background: rgba(10,10,20,0.97); backdrop-filter: blur(20px); border-radius: 24px; padding: 12px; width: 210px; display: none; flex-direction: column; gap: 8px; border: 1px solid rgba(255,255,255,0.2); }
+        .genre-panel.open { display: flex; }
+        .genre-item { background: rgba(255,255,255,0.1); border-radius: 40px; padding: 8px 12px; font-size: 0.75rem; font-weight: bold; color: white; cursor: pointer; display: flex; align-items: center; gap: 10px; }
         .genre-item:active { background: #e63946; color: black; }
-
-        .whatsapp-float {
-            position: fixed;
-            bottom: 100px;
-            left: 16px;
-            background: #25D366;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.6rem;
-            color: white;
-            z-index: 40;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-        }
+        
+        /* WHATSAPP FIXO */
+        .whatsapp-float { position: fixed; bottom: 100px; left: 16px; background: #25D366; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.6rem; color: white; z-index: 40; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
         .whatsapp-float:active { transform: scale(0.94); }
-
-        .toast-msg {
-            position: fixed;
-            bottom: 30%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(12px);
-            padding: 8px 20px;
-            border-radius: 50px;
-            color: white;
-            font-size: 0.75rem;
-            z-index: 200;
-            opacity: 0;
-            transition: opacity 0.2s;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        .loader {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #000000cc;
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            border-radius: 40px;
-            color: white;
-            display: none;
-            gap: 10px;
-            z-index: 300;
-            font-size: 0.8rem;
-        }
-        #splash {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            transition: opacity 0.6s;
-            flex-direction: column;
-            text-align: center;
-            color: white;
-        }
+        
+        /* TOAST E LOADER */
+        .toast-msg { position: fixed; bottom: 30%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); backdrop-filter: blur(12px); padding: 8px 20px; border-radius: 50px; color: white; font-size: 0.75rem; z-index: 200; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; }
+        .loader { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #000000cc; backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 40px; color: white; display: none; gap: 10px; z-index: 300; font-size: 0.8rem; }
+        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; z-index: 1000; transition: opacity 0.6s; flex-direction: column; text-align: center; color: white; }
         .splash-content i { font-size: 3rem; color: #e63946; animation: pulse 1.2s infinite; }
         @keyframes pulse { 0% { opacity: 0.6; transform: scale(1); } 100% { opacity: 1; transform: scale(1.05); } }
         .error-retry { margin-top: 20px; background: #e63946; border: none; padding: 8px 18px; border-radius: 30px; color: white; font-weight: bold; cursor: pointer; }
-
-        .swipe-hint {
-            position: fixed;
-            bottom: 180px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.65);
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.6rem;
-            color: white;
-            opacity: 0;
-            transition: 0.2s;
-            pointer-events: none;
-            white-space: nowrap;
-            z-index: 45;
-        }
+        .swipe-hint { position: fixed; bottom: 180px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.65); padding: 4px 12px; border-radius: 30px; font-size: 0.6rem; color: white; opacity: 0; transition: 0.2s; pointer-events: none; white-space: nowrap; z-index: 45; }
     </style>
 </head>
 <body>
@@ -386,7 +78,7 @@
     <div class="splash-content">
         <i class="fas fa-broadcast-tower"></i>
         <h2>Rádio Patico</h2>
-        <p id="splashText">Carregando playlist inteligente...</p>
+        <p id="splashText">Carregando playlist...</p>
         <div id="splashStatus"><i class="fas fa-circle-notch fa-spin"></i> Buscando músicas</div>
     </div>
 </div>
@@ -394,16 +86,10 @@
 <div class="app" id="app" style="display: none;">
     <div class="top-bar">
         <div class="genre-badge" id="genreBadge"><i class="fas fa-head-side-brain"></i> POP</div>
-        <div style="display: flex; gap: 8px;">
+        <div class="top-buttons">
+            <div class="icon-btn" id="fullscreenBtn"><i class="fas fa-expand"></i></div>
+            <div class="icon-btn" id="shareBtn"><i class="fas fa-share-alt"></i></div>
             <div class="bt-status" id="btDiv"><i class="fab fa-bluetooth-b"></i> <span id="btText">--</span></div>
-            <div class="menu-dot">
-                <div class="dot-btn" id="menuDotBtn"><i class="fas fa-ellipsis-v"></i></div>
-                <div class="menu-drop" id="menuDrop">
-                    <div class="menu-item" id="fullscreenItem"><i class="fas fa-expand"></i> Tela cheia</div>
-                    <div class="menu-item" id="shareItem"><i class="fas fa-share-alt"></i> Compartilhar</div>
-                    <div class="menu-item" id="btStatusItem"><i class="fab fa-bluetooth"></i> Status Bluetooth</div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -427,8 +113,8 @@
     </div>
 
     <div class="genre-fab">
-        <div class="genre-fab-btn" id="genreFab"><i class="fas fa-music"></i></div>
-        <div class="genre-panel-mini" id="genrePanel">
+        <div class="genre-fab-btn" id="genreFab"><i class="fas fa-guitar"></i></div>
+        <div class="genre-panel" id="genrePanel">
             <div class="genre-item" data-genre="POP"><i class="fas fa-microphone-alt"></i> POP</div>
             <div class="genre-item" data-genre="MPB"><i class="fas fa-guitar"></i> MPB</div>
             <div class="genre-item" data-genre="SERTANEJO"><i class="fas fa-hat-cowboy"></i> Sertanejo</div>
@@ -451,14 +137,14 @@
 <audio id="audioPlayer" preload="auto"></audio>
 
 <script>
-    // ==================== CONFIG GLOBAL ====================
     const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/4146336c11162317c986d6ae73cfad4381330e45/playlist.json";
     const WHATSAPP_NUMBER = "5512988461978";
-    let musicLibrary = [];          // todas as musicas do JSON
-    let currentPlaylist = [];       // filtrada por genero
+    
+    let musicLibrary = [];
+    let currentPlaylist = [];
     let currentIndex = 0;
     let isPlaying = false;
-    let currentGenre = "POP";       // inicia no POP (alternância com MPB)
+    let currentGenre = "POP";
     let genreInterval = null;
     let player = document.getElementById("audioPlayer");
     let progressInterval = null;
@@ -482,11 +168,10 @@
     const btTextSpan = document.getElementById("btText");
     const btDiv = document.getElementById("btDiv");
 
-    // helpers
     function formatTime(sec) { if(isNaN(sec)) return "0:00"; const m = Math.floor(sec/60); const s = Math.floor(sec%60); return `${m}:${s<10?'0':''}${s}`; }
     function showToast(msg, duration=1700) { toastMsg.innerText = msg; toastMsg.style.opacity = "1"; setTimeout(()=> toastMsg.style.opacity = "0", duration); }
 
-    // Bluetooth fake / status
+    // Bluetooth status
     async function checkBluetooth() {
         if(navigator.bluetooth && navigator.bluetooth.getAvailability) {
             const avail = await navigator.bluetooth.getAvailability();
@@ -497,10 +182,31 @@
     setInterval(checkBluetooth, 5000);
     checkBluetooth();
 
-    // Carregar JSON com suporte a novos campos
+    // TELA CHEIA
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+            showToast("🎬 Tela cheia ativada", 1500);
+        } else {
+            document.exitFullscreen();
+            showToast("⬜ Tela normal", 1500);
+        }
+    }
+    
+    // COMPARTILHAR
+    function shareApp() {
+        if(navigator.share) {
+            navigator.share({ title: "Rádio Patico", text: "🎵 Rádio com IA", url: location.href });
+        } else {
+            navigator.clipboard.writeText(location.href);
+            showToast("🔗 Link copiado!", 1500);
+        }
+    }
+
+    // Carregar JSON
     async function fetchSongs() {
         try {
-            const res = await fetch(PLAYLIST_URL);
+            const res = await fetch(PLAYLIST_URL + "?t=" + Date.now());
             if(!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
             if(!Array.isArray(data) || data.length===0) throw new Error("JSON vazio");
@@ -512,7 +218,7 @@
                 genero: item.genero || "POP",
                 tipo: item.tipo || "normal"
             })).filter(song => song.src && song.src.trim() !== "");
-            if(musicLibrary.length === 0) throw new Error("Nenhuma música com src válido");
+            console.log(`✅ Carregadas ${musicLibrary.length} músicas`);
             return true;
         } catch(err) {
             console.error(err);
@@ -520,7 +226,6 @@
         }
     }
 
-    // Embaralhar playlist (garante musicas diferentes ao trocar genero)
     function shuffleArray(arr) {
         for(let i=arr.length-1; i>0; i--) {
             const j = Math.floor(Math.random()*(i+1));
@@ -536,14 +241,13 @@
             showToast(`⚠️ Nenhuma música de ${genre}`, 1500);
             return false;
         }
-        // SEMPRE EMBARALHAR para músicas diferentes a cada troca
         currentPlaylist = shuffleArray([...filtered]);
         currentIndex = 0;
         currentGenre = genre;
         updateGenreUI();
         loadCurrentTrackInfo();
         if(isPlaying) playCurrentSong();
-        showToast(`🎸 Gênero: ${genre} • ${currentPlaylist.length} músicas`, 1500);
+        showToast(`🎸 ${genre} • ${currentPlaylist.length} músicas`, 1500);
         return true;
     }
 
@@ -556,7 +260,6 @@
         else if(currentGenre === "BREGA") icon = "fa-heart";
         else if(currentGenre === "SAMBA") icon = "fa-drumstick-bite";
         else if(currentGenre === "MODA TOP") icon = "fa-guitar";
-        else icon = "fa-head-side-brain";
         genreBadgeSpan.innerHTML = `<i class="fas ${icon}"></i> ${currentGenre}`;
     }
 
@@ -606,7 +309,6 @@
     }
 
     function togglePlay() { isPlaying ? pauseMusic() : playCurrentSong(); }
-
     function nextTrack() {
         if(!currentPlaylist.length) return;
         currentIndex = (currentIndex + 1) % currentPlaylist.length;
@@ -614,7 +316,6 @@
         if(isPlaying) playCurrentSong();
         else showToast("⏭️ Próxima música", 700);
     }
-
     function prevTrack() {
         if(!currentPlaylist.length) return;
         currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
@@ -642,7 +343,7 @@
         player.currentTime = pos * player.duration;
     });
 
-    // Alternância automática entre POP e MPB a cada 25 minutos (músicas nunca param)
+    // Alternância automática POP/MPB
     function startGenreAlternation() {
         if(genreInterval) clearInterval(genreInterval);
         genreInterval = setInterval(() => {
@@ -651,18 +352,17 @@
             const hasSongs = musicLibrary.some(s => s.genero === nextGen);
             if(hasSongs) {
                 filterByGenre(nextGen);
-                showToast(`🔄 Alternando para ${nextGen} (IA automática)`, 2000);
+                showToast(`🔄 Alternando para ${nextGen} (IA)`, 2000);
             }
         }, 25 * 60 * 1000);
     }
 
-    // Feedback whatsapp com música atual
     function sendFeedback() {
         if(!currentPlaylist.length) return;
         const track = currentPlaylist[currentIndex];
-        const msg = `🎵 *RÁDIO PATICO - FEEDBACK* 🎵%0A%0AMúsica: ${track.title}%0AArtista: ${track.artist}%0AGênero: ${currentGenre}%0A%0A⭐ Minha avaliação: `;
+        const msg = `🎵 *RÁDIO PATICO* 🎵%0A%0AMúsica: ${track.title}%0AArtista: ${track.artist}%0AGênero: ${currentGenre}%0A%0A⭐ Avaliação: `;
         window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
-        showToast("📱 WhatsApp para feedback", 1200);
+        showToast("📱 WhatsApp aberto", 1200);
     }
 
     // GESTOS TOUCH
@@ -691,11 +391,7 @@
         }
     });
 
-    // Inicialização e TELA CHEIA AUTOMÁTICA
     async function init() {
-        // TELA CHEIA ASSIM QUE CARREGAR
-        document.documentElement.requestFullscreen().catch(e=>console.log);
-        
         const loaded = await fetchSongs();
         if(!loaded || musicLibrary.length===0) {
             document.getElementById("splashStatus").innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro no JSON';
@@ -707,20 +403,18 @@
             return;
         }
         document.getElementById("splashStatus").innerHTML = `<i class="fas fa-check-circle"></i> ${musicLibrary.length} músicas`;
-        // Iniciar com POP (primeiro, para alternar com MPB)
+        
         const hasPop = musicLibrary.some(s => s.genero === "POP");
         const hasMpb = musicLibrary.some(s => s.genero === "MPB");
         if(hasPop) filterByGenre("POP");
         else if(hasMpb) filterByGenre("MPB");
         else filterByGenre(musicLibrary[0].genero);
 
-        // Esconde splash
         setTimeout(() => {
             splashDiv.style.opacity = "0";
             setTimeout(() => {
                 splashDiv.style.display = "none";
                 appDiv.style.display = "flex";
-                // Ativar áudio com primeiro toque
                 const startAudio = async () => {
                     await playCurrentSong();
                     document.removeEventListener("click", startAudio);
@@ -734,26 +428,16 @@
 
         startGenreAlternation();
 
-        // Eventos UI
+        // EVENTOS DOS BOTÕES
         playBtn.addEventListener("click", togglePlay);
         nextBtn.addEventListener("click", nextTrack);
         prevBtn.addEventListener("click", prevTrack);
+        document.getElementById("fullscreenBtn").addEventListener("click", toggleFullscreen);
+        document.getElementById("shareBtn").addEventListener("click", shareApp);
         document.getElementById("feedbackBtn").addEventListener("click", sendFeedback);
         document.getElementById("whatsappFloat").addEventListener("click", () => window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Quero minha playlist personalizada!`, "_blank"));
-        document.getElementById("fullscreenItem").addEventListener("click", () => document.documentElement.requestFullscreen());
-        document.getElementById("shareItem").addEventListener("click", () => {
-            if(navigator.share) navigator.share({title:"Rádio Patico", text:"Rádio com IA"});
-            else { navigator.clipboard.writeText(location.href); showToast("Link copiado!"); }
-        });
-        document.getElementById("btStatusItem").addEventListener("click", () => { checkBluetooth(); showToast(`Bluetooth: ${btTextSpan.innerText}`, 1500); });
-
-        // Menu três pontos
-        const menuBtn = document.getElementById("menuDotBtn");
-        const menuDrop = document.getElementById("menuDrop");
-        menuBtn.addEventListener("click", (e) => { e.stopPropagation(); menuDrop.classList.toggle("open"); });
-        document.addEventListener("click", (e) => { if(!menuBtn.contains(e.target)) menuDrop.classList.remove("open"); });
-
-        // Gênero mini painel
+        
+        // Painel de gêneros
         const fabBtn = document.getElementById("genreFab");
         const genrePanel = document.getElementById("genrePanel");
         fabBtn.addEventListener("click", (e) => { e.stopPropagation(); genrePanel.classList.toggle("open"); });
@@ -765,6 +449,11 @@
             });
         });
         document.addEventListener("click", (e) => { if(!e.target.closest(".genre-fab")) genrePanel.classList.remove("open"); });
+        
+        // Tela cheia automática ao carregar
+        setTimeout(() => {
+            document.documentElement.requestFullscreen().catch(e => console.log);
+        }, 1000);
     }
 
     init();
