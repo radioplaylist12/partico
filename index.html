@@ -176,7 +176,9 @@
 
     <script>
         // ==================== CONFIGURAÇÕES ====================
-        const PLAYLIST_JSON_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/4146336c11162317c986d6ae73cfad4381330e45/playlist.json";
+        // CORRIGIDO: Agora usando o link da branch MAIN (sempre atualizado)
+        const PLAYLIST_JSON_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json";
+        
         const ARQUIVO_ANUNCIO_VIDEO = "anu.mp4";
         const ARQUIVO_ANUNCIO_AUDIO = "zzvc.mp3";
         const INTERVALO_VIDEO_MS = 30000;
@@ -414,12 +416,6 @@
                 };
                 
                 musicPlayer.onended = () => {
-                    if (trackStartTime) {
-                        const durationSec = Math.floor((Date.now() - trackStartTime) / 1000);
-                        if (durationSec > 0 && durationSec < 600) {
-                            // tempo ouvido
-                        }
-                    }
                     nextTrack();
                 };
             });
@@ -710,7 +706,12 @@
         async function carregarPlaylistDoJson() {
             try {
                 splash.querySelector('.loading-text').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlist do GitHub...';
-                const response = await fetch(PLAYLIST_JSON_URL);
+                
+                // Adicionar timestamp para evitar cache
+                const urlComTimestamp = `${PLAYLIST_JSON_URL}?t=${Date.now()}`;
+                console.log("Carregando playlist de:", urlComTimestamp);
+                
+                const response = await fetch(urlComTimestamp);
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
                 
@@ -724,7 +725,7 @@
                     artist: item.artist || "Desconhecido",
                     src: item.src || "",
                     genero: item.genero || "VARIADAS",
-                    isLive: item.isLive === true || (item.title && (item.title.toLowerCase().includes("ao vivo") || item.title.toLowerCase().includes("live")))
+                    isLive: item.tipo === "ao vivo" || (item.title && (item.title.toLowerCase().includes("ao vivo") || item.title.toLowerCase().includes("live")))
                 }));
                 
                 console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
@@ -749,16 +750,6 @@
                 todosBtn.onclick = () => { filterByGenre("TODOS"); document.getElementById('genresModal').classList.remove('open'); };
                 grid.appendChild(todosBtn);
                 
-                const iconesPorGenero = {
-                    "SAMBA": "fa-drumstick-bite",
-                    "POP": "fa-microphone-alt", 
-                    "MPB": "fa-guitar",
-                    "FORRÓ": "fa-drum",
-                    "FORRÓ_ANTIGO": "fa-accordion",
-                    "MODÃO_TOP": "fa-hat-cowboy",
-                    "BREGA_SERTANEJO": "fa-guitar"
-                };
-                
                 const cores = [
                     "linear-gradient(135deg,#f2994a,#f2c94c)",
                     "linear-gradient(135deg,#2193b0,#6dd5ed)",
@@ -775,8 +766,7 @@
                     const card = document.createElement('div');
                     card.className = 'genre-card';
                     card.style.background = cores[corIndex % cores.length];
-                    const icon = iconesPorGenero[genero] || "fa-music";
-                    card.innerHTML = `<i class="fas ${icon}"></i><span>${genero.replace('_', ' ')}</span>`;
+                    card.innerHTML = `<i class="fas fa-music"></i><span>${genero.replace('_', ' ')}</span>`;
                     card.onclick = () => { filterByGenre(genero); document.getElementById('genresModal').classList.remove('open'); };
                     grid.appendChild(card);
                     corIndex++;
@@ -797,13 +787,31 @@
                 console.error("Erro ao carregar JSON:", error);
                 splash.querySelector('.loading-text').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro: ${error.message}`;
                 showError(`Falha ao carregar playlist: ${error.message}`);
+                
+                // PLAYLIST DE FALLBACK LOCAL (caso não consiga carregar do GitHub)
+                splash.querySelector('.loading-text').innerHTML = '<i class="fas fa-database"></i> Usando playlist local...';
+                musicas = [
+                    { id: 1, title: "Corpo Nu", artist: "Panda", src: "Panda_Corpo_Nu_muzzik.m4a", genero: "SERTANEJO", isLive: false },
+                    { id: 2, title: "Infarto", artist: "Diego & Victor Hugo", src: "Diego_Victor_Hugo_Infarto_muzzik.m4a", genero: "SERTANEJO", isLive: false },
+                    { id: 3, title: "Haven't Met You Yet", artist: "Michael Bublé", src: "Michael_Bubl_Haven_t_Met_You_Yet.m4a", genero: "POP", isLive: true },
+                    { id: 4, title: "Billie Jean", artist: "Michael Jackson", src: "Michael_Jackson_Billie_Jean_muzzik.m4a", genero: "POP", isLive: false }
+                ];
+                
+                filteredPlaylist = prioritizeLiveSongs([...musicas]);
+                currentFilterGenre = "TODOS";
+                updateGenreBadge();
+                currentIndex = 0;
+                loadTrackUI(0);
+                
                 setTimeout(() => {
                     splash.classList.add('hidden');
-                    appContainer.style.display = 'block';
-                    menuButton.style.display = 'flex';
-                    tapToStart.style.display = 'block';
-                    showError('Use as músicas de fallback ou verifique o JSON');
-                }, 3000);
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                        appContainer.style.display = 'block';
+                        menuButton.style.display = 'flex';
+                        tapToStart.style.display = 'block';
+                    }, 500);
+                }, 1000);
             }
         }
         
