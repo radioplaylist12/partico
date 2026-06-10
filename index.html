@@ -6,24 +6,9 @@
     <title>Rádio Patico • Player IA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            min-height: 100vh;
-            background: #000;
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* TEMA NEON MODERNO */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; overflow: hidden; height: 100vh; }
+        
         :root {
             --neon-cyan: #00f3ff;
             --neon-pink: #ff2d7f;
@@ -31,565 +16,103 @@
             --glass-bg: rgba(10, 10, 20, 0.85);
         }
 
-        .app {
-            width: 100%;
-            height: 100vh;
-            background: #000;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .video-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 0;
-            filter: brightness(0.5) saturate(1.1);
-        }
-
-        .main-overlay {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            background: radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%);
-            backdrop-filter: blur(2px);
-        }
-
+        .video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; filter: brightness(0.5) saturate(1.1); }
+        
+        .app { position: relative; z-index: 10; width: 100%; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; background: radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%); backdrop-filter: blur(2px); }
+        
         /* TOPO */
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 20px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(0,243,255,0.3);
-        }
-
-        .genre-badge {
-            background: rgba(0,243,255,0.15);
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: var(--neon-cyan);
-            border-left: 3px solid var(--neon-cyan);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .top-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .icon-btn {
-            background: rgba(0,0,0,0.6);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: white;
-            font-size: 1rem;
-            border: 1px solid rgba(0,243,255,0.3);
-        }
-
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,243,255,0.3); }
+        .genre-badge { background: rgba(0,243,255,0.15); padding: 6px 16px; border-radius: 30px; font-size: 0.75rem; font-weight: bold; color: var(--neon-cyan); border-left: 3px solid var(--neon-cyan); display: flex; align-items: center; gap: 8px; }
+        .top-buttons { display: flex; gap: 12px; align-items: center; }
+        .icon-btn { background: rgba(0,0,0,0.6); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1rem; border: 1px solid rgba(0,243,255,0.3); }
         .icon-btn:active { transform: scale(0.92); background: var(--neon-cyan); color: #000; }
-
-        /* CARD DA MÚSICA */
-        .music-center {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .track-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            padding: 18px 32px;
-            border-radius: 60px;
-            border: 1px solid rgba(0,243,255,0.3);
-            text-align: center;
-            max-width: 90%;
-        }
-
-        .track-title {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: white;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .track-artist {
-            font-size: 0.8rem;
-            color: #ccc;
-            margin-top: 4px;
-        }
-
-        .live-badge {
-            font-size: 0.6rem;
-            color: var(--neon-pink);
-            margin-top: 6px;
-        }
-
+        
+        /* BLUETOOTH STATUS */
+        .bt-status { background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 30px; font-size: 0.65rem; color: #ddd; display: flex; align-items: center; gap: 6px; }
+        .bt-status.connected { color: #4ade80; }
+        
+        /* CARD MÚSICA */
+        .music-center { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .track-card { background: var(--glass-bg); backdrop-filter: blur(20px); padding: 18px 32px; border-radius: 60px; border: 1px solid rgba(0,243,255,0.3); text-align: center; max-width: 90%; }
+        .track-title { font-size: 1.2rem; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-artist { font-size: 0.8rem; color: #ccc; margin-top: 4px; }
+        .live-badge { font-size: 0.6rem; color: var(--neon-pink); margin-top: 6px; }
+        
         /* VISUALIZADOR */
-        .visualizer {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            display: flex;
-            gap: 4px;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
-            padding: 8px 12px;
-            border-radius: 30px;
-            z-index: 31;
-        }
-
-        .visualizer-bar {
-            width: 4px;
-            height: 20px;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            border-radius: 2px;
-            transition: height 0.05s ease;
-        }
-
+        .visualizer { position: fixed; top: 80px; right: 20px; display: flex; gap: 4px; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 8px 12px; border-radius: 30px; z-index: 31; }
+        .visualizer-bar { width: 4px; height: 20px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border-radius: 2px; transition: height 0.05s ease; }
+        
         /* FEEDBACK */
-        .feedback-buttons {
-            position: fixed;
-            bottom: 140px;
-            left: 20px;
-            display: flex;
-            gap: 12px;
-            z-index: 27;
-        }
-
-        .feedback-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.2);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
+        .feedback-buttons { position: fixed; bottom: 140px; left: 20px; display: flex; gap: 12px; z-index: 27; }
+        .feedback-btn { width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
         .feedback-btn:active { transform: scale(0.92); }
         .feedback-btn.like { color: #4ade80; }
         .feedback-btn.dislike { color: #ef4444; }
-
+        
         /* BOTÃO GÊNERO */
-        .genre-fab {
-            position: fixed;
-            bottom: 140px;
-            right: 20px;
-            z-index: 40;
-        }
-
-        .genre-fab-btn {
-            background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: white;
-            font-size: 1.4rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
-        }
-
+        .genre-fab { position: fixed; bottom: 140px; right: 20px; z-index: 40; }
+        .genre-fab-btn { background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan)); width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1.4rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
+        
         /* MODAL GÊNEROS */
-        .genres-modal {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border-radius: 30px 30px 0 0;
-            padding: 25px 20px 30px;
-            z-index: 2000;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-
+        .genres-modal { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 30px 30px 0 0; padding: 25px 20px 30px; z-index: 2000; transform: translateY(100%); transition: transform 0.3s ease; max-height: 85vh; overflow-y: auto; }
         .genres-modal.open { transform: translateY(0); }
-
-        .genres-modal h3 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.4rem;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .genres-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .genre-card {
-            border-radius: 16px;
-            padding: 16px 12px;
-            text-align: center;
-            cursor: pointer;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-
-        .genre-card:active {
-            transform: scale(0.96);
-            background: rgba(0, 243, 255, 0.2);
-            border-color: var(--neon-cyan);
-        }
-
-        .genre-card i {
-            font-size: 2rem;
-            display: block;
-            margin-bottom: 8px;
-            color: var(--neon-cyan);
-        }
-
-        .genre-card span {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: white;
-        }
-
-        .close-genres {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            border: none;
-            border-radius: 30px;
-            color: #000;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
+        .genres-modal h3 { text-align: center; margin-bottom: 20px; font-size: 1.4rem; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .genres-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .genre-card { border-radius: 16px; padding: 16px 12px; text-align: center; cursor: pointer; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); }
+        .genre-card:active { transform: scale(0.96); background: rgba(0, 243, 255, 0.2); border-color: var(--neon-cyan); }
+        .genre-card i { font-size: 2rem; display: block; margin-bottom: 8px; color: var(--neon-cyan); }
+        .genre-card span { font-size: 0.8rem; font-weight: 600; color: white; }
+        .close-genres { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; border-radius: 30px; color: #000; font-size: 1rem; cursor: pointer; font-weight: bold; }
+        
         /* CONTROLES */
-        .bottom-controls {
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(0,243,255,0.3);
-            padding: 12px 20px 25px;
-            border-radius: 30px 30px 0 0;
-        }
-
-        .track-info {
-            text-align: center;
-            margin-bottom: 8px;
-            color: #fff;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .progress-time {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.65rem;
-            color: #aaa;
-            margin-bottom: 4px;
-        }
-
-        .progress-bar {
-            height: 4px;
-            background: rgba(255,255,255,0.2);
-            cursor: pointer;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
-            width: 0%;
-            border-radius: 4px;
-        }
-
-        .buttons-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 25px;
-            margin-top: 12px;
-        }
-
-        .ctrl-btn {
-            background: rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
-            font-size: 1.2rem;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
+        .bottom-controls { background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-top: 1px solid rgba(0,243,255,0.3); padding: 12px 20px 25px; border-radius: 30px 30px 0 0; }
+        .track-info { text-align: center; margin-bottom: 8px; color: #fff; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .progress-time { display: flex; justify-content: space-between; font-size: 0.65rem; color: #aaa; margin-bottom: 4px; }
+        .progress-bar { height: 4px; background: rgba(255,255,255,0.2); cursor: pointer; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink)); width: 0%; border-radius: 4px; }
+        .buttons-row { display: flex; align-items: center; justify-content: center; gap: 25px; margin-top: 12px; }
+        .ctrl-btn { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 1.2rem; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; }
         .ctrl-btn:active { transform: scale(0.92); background: var(--neon-cyan); color: #000; }
-
-        .play-big {
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            width: 58px;
-            height: 58px;
-            font-size: 1.6rem;
-            color: #000;
-            border: none;
-        }
-
-        /* MENU */
-        .menu-button {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px);
-            color: white;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            cursor: pointer;
-            z-index: 31;
-            border: 1px solid rgba(0,243,255,0.3);
-        }
-
-        .menu-popup {
-            position: absolute;
-            top: 65px;
-            right: 12px;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 10px;
-            z-index: 32;
-            display: none;
-            flex-direction: column;
-            gap: 8px;
-            border: 1px solid var(--neon-cyan);
-        }
-
+        .play-big { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); width: 58px; height: 58px; font-size: 1.6rem; color: #000; border: none; }
+        
+        /* MENU 3 PONTOS */
+        .menu-button { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 31; border: 1px solid rgba(0,243,255,0.3); }
+        .menu-popup { position: absolute; top: 65px; right: 12px; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); border-radius: 16px; padding: 10px; z-index: 32; display: none; flex-direction: column; gap: 8px; border: 1px solid var(--neon-cyan); min-width: 180px; }
         .menu-popup.open { display: flex; }
-
-        .menu-popup button {
-            background: rgba(255,255,255,0.08);
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-
+        .menu-popup button { background: rgba(255,255,255,0.08); border: none; color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; display: flex; align-items: center; gap: 10px; cursor: pointer; text-align: left; }
         .menu-popup button:active { background: var(--neon-cyan); color: #000; }
-
+        
+        /* CTA */
+        .cta-button { position: fixed; bottom: 210px; right: 20px; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(0,243,255,0.4); border-radius: 50px; padding: 10px 18px; font-size: 0.7rem; font-weight: bold; cursor: pointer; z-index: 26; display: flex; align-items: center; gap: 8px; }
+        
         /* INDICADORES */
-        .audio-indicator {
-            position: absolute;
-            top: 12px;
-            right: 70px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.6rem;
-            color: #ffaa00;
-            z-index: 31;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .cta-button {
-            position: fixed;
-            bottom: 210px;
-            right: 20px;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px);
-            color: white;
-            border: 1px solid rgba(0,243,255,0.4);
-            border-radius: 50px;
-            padding: 10px 18px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 26;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
+        .audio-indicator { position: absolute; top: 12px; right: 130px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 20px; font-size: 0.6rem; color: #ffaa00; z-index: 31; display: flex; align-items: center; gap: 5px; }
+        
         /* SPLASH */
-        #splash {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s;
-            flex-direction: column;
-        }
-
+        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; flex-direction: column; }
         #splash.hidden { opacity: 0; pointer-events: none; }
-
-        .splash-content {
-            text-align: center;
-            color: #fff;
-        }
-
-        .splash-content i {
-            font-size: 3.5rem;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 1rem;
-            animation: pulse 1.5s infinite;
-        }
-
+        .splash-content { text-align: center; color: #fff; }
+        .splash-content i { font-size: 3.5rem; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 1rem; animation: pulse 1.5s infinite; }
         .splash-content h1 { font-size: 1.8rem; letter-spacing: 2px; }
         .loading-text { font-size: 0.8rem; margin-top: 15px; color: #888; }
-
-        @keyframes pulse {
-            0% { opacity: 0.6; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
-            100% { opacity: 0.6; transform: scale(1); }
-        }
-
+        @keyframes pulse { 0% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 0.6; transform: scale(1); } }
+        
         /* TAP TO START */
-        #tap-to-start {
-            position: fixed;
-            bottom: 25%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-            color: #000;
-            padding: 14px 32px;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 1rem;
-            z-index: 10000;
-            cursor: pointer;
-            display: none;
-            animation: btnPulse 1.5s infinite;
-            white-space: nowrap;
-            border: none;
-        }
-
-        @keyframes btnPulse {
-            0% { transform: translateX(-50%) scale(1); opacity: 0.9; }
-            50% { transform: translateX(-50%) scale(1.03); opacity: 1; }
-            100% { transform: translateX(-50%) scale(1); opacity: 0.9; }
-        }
-
-        .notification {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(10px);
-            color: var(--neon-cyan);
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            z-index: 10001;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            white-space: nowrap;
-            border-left: 3px solid var(--neon-cyan);
-        }
-
+        #tap-to-start { position: fixed; bottom: 25%; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); color: #000; padding: 14px 32px; border-radius: 50px; font-weight: bold; font-size: 1rem; z-index: 10000; cursor: pointer; display: none; animation: btnPulse 1.5s infinite; white-space: nowrap; border: none; }
+        @keyframes btnPulse { 0% { transform: translateX(-50%) scale(1); opacity: 0.9; } 50% { transform: translateX(-50%) scale(1.03); opacity: 1; } 100% { transform: translateX(-50%) scale(1); opacity: 0.9; } }
+        
+        .notification { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); color: var(--neon-cyan); padding: 8px 20px; border-radius: 30px; font-size: 0.75rem; z-index: 10001; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; border-left: 3px solid var(--neon-cyan); }
         .notification.show { opacity: 1; }
-
-        .loading {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(10px);
-            padding: 12px 24px;
-            border-radius: 50px;
-            color: white;
-            display: none;
-            gap: 10px;
-            z-index: 10002;
-            font-size: 0.8rem;
-            border: 1px solid var(--neon-cyan);
-        }
-
+        
+        .loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); padding: 12px 24px; border-radius: 50px; color: white; display: none; gap: 10px; z-index: 10002; font-size: 0.8rem; border: 1px solid var(--neon-cyan); }
         .loading.show { display: flex; }
-
-        .swipe-indicator {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(12px);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            z-index: 10003;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            white-space: nowrap;
-            border: 1px solid var(--neon-cyan);
-        }
+        
+        .swipe-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.9rem; z-index: 10003; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; border: 1px solid var(--neon-cyan); }
     </style>
 </head>
 <body>
+    <!-- VÍDEO DE FUNDO PRIORIDADE pak1.mp4 -->
     <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
         <source src="pak1.mp4" type="video/mp4">
     </video>
@@ -605,36 +128,36 @@
     <div id="tap-to-start"><i class="fas fa-play-circle"></i> 🎵 ATIVAR RÁDIO</div>
 
     <div class="app" id="appContainer" style="display: none;">
-        <div class="main-overlay">
-            <div class="top-bar">
-                <div class="genre-badge" id="genreBadge"><i class="fas fa-brain"></i> CARREGANDO</div>
-                <div class="top-buttons">
-                    <div class="icon-btn" id="fullscreenBtn"><i class="fas fa-expand"></i></div>
-                    <div class="icon-btn" id="shareBtn"><i class="fas fa-share-alt"></i></div>
-                </div>
+        <div class="top-bar">
+            <div class="genre-badge" id="genreBadge"><i class="fas fa-brain"></i> MPB/POP</div>
+            <div class="top-buttons">
+                <div class="bt-status" id="btDiv"><i class="fab fa-bluetooth-b"></i> <span id="btText">--</span></div>
+                <div class="icon-btn" id="fullscreenBtn"><i class="fas fa-expand"></i></div>
+                <div class="icon-btn" id="shareBtn"><i class="fas fa-share-alt"></i></div>
             </div>
+        </div>
 
-            <div class="music-center">
-                <div class="track-card">
-                    <div class="track-title" id="trackTitle">🎵 Carregando...</div>
-                    <div class="track-artist" id="trackArtist">Rádio Patico</div>
-                    <div class="live-badge" id="liveTag"></div>
-                </div>
+        <div class="music-center">
+            <div class="track-card">
+                <div class="track-title" id="trackTitle">🎵 Carregando...</div>
+                <div class="track-artist" id="trackArtist">Rádio Patico</div>
+                <div class="live-badge" id="liveTag"></div>
             </div>
+        </div>
 
-            <div class="bottom-controls">
-                <div class="track-info"><p id="trackInfo">🎵 Carregando playlist...</p></div>
-                <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
-                <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
-                <div class="buttons-row">
-                    <button class="ctrl-btn" id="prevBtn"><i class="fas fa-backward-step"></i></button>
-                    <button class="ctrl-btn play-big" id="playBtn"><i class="fas fa-play"></i></button>
-                    <button class="ctrl-btn" id="nextBtn"><i class="fas fa-forward-step"></i></button>
-                </div>
+        <div class="bottom-controls">
+            <div class="track-info"><p id="trackInfo">🎵 Carregando playlist...</p></div>
+            <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
+            <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="buttons-row">
+                <button class="ctrl-btn" id="prevBtn"><i class="fas fa-backward-step"></i></button>
+                <button class="ctrl-btn play-big" id="playBtn"><i class="fas fa-play"></i></button>
+                <button class="ctrl-btn" id="nextBtn"><i class="fas fa-forward-step"></i></button>
             </div>
         </div>
     </div>
 
+    <!-- BOTÕES FLUTUANTES -->
     <div class="genre-fab">
         <div class="genre-fab-btn" id="genreFab"><i class="fas fa-guitar"></i></div>
     </div>
@@ -654,16 +177,43 @@
         <div class="visualizer-bar"></div>
     </div>
 
+    <!-- MENU 3 PONTOS -->
     <div class="menu-button" id="menuButton" style="display: none;"><i class="fas fa-ellipsis-v"></i></div>
     <div class="menu-popup" id="menuPopup">
         <button id="shareMenuBtn"><i class="fas fa-share-alt"></i> Compartilhar</button>
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela Cheia</button>
+        <button id="btStatusMenuBtn"><i class="fab fa-bluetooth"></i> Status Bluetooth</button>
+        <button id="statsMenuBtn"><i class="fas fa-chart-line"></i> Estatísticas</button>
+        <button id="aiMenuBtn"><i class="fas fa-brain"></i> IA Preferências</button>
+        <button id="feedbackMenuBtn"><i class="fab fa-whatsapp"></i> Feedback</button>
     </div>
 
+    <!-- MODAL GÊNEROS -->
     <div class="genres-modal" id="genresModal">
         <h3><i class="fas fa-head-side-brain"></i> ESCOLHA SEU ESTILO</h3>
         <div class="genres-grid" id="genresGrid"></div>
         <button class="close-genres" id="closeGenresBtn">FECHAR</button>
+    </div>
+
+    <!-- MODAL IA -->
+    <div class="genres-modal" id="aiModal" style="display: none;">
+        <h3><i class="fas fa-brain"></i> IA Preferências</h3>
+        <div style="color: white; padding: 10px;">
+            <p>✅ Músicas curtidas: <span id="aiLikedCount">0</span></p>
+            <p>❌ Músicas não curtidas: <span id="aiDislikedCount">0</span></p>
+            <p>⭐ Gênero favorito: <span id="aiTopGenre">-</span></p>
+        </div>
+        <button class="close-genres" id="closeAiBtn">FECHAR</button>
+    </div>
+
+    <!-- MODAL ESTATÍSTICAS -->
+    <div class="genres-modal" id="statsModal" style="display: none;">
+        <h3><i class="fas fa-chart-line"></i> Estatísticas</h3>
+        <div style="color: white; padding: 10px;">
+            <p>🎵 Músicas ouvidas: <span id="statTotalPlayed">0</span></p>
+            <p>⭐ Gênero favorito: <span id="statTopGenre">-</span></p>
+        </div>
+        <button class="close-genres" id="closeStatsBtn">FECHAR</button>
     </div>
 
     <div class="notification" id="notification">Mensagem</div>
@@ -675,7 +225,7 @@
     <audio id="backgroundAudio" preload="auto" style="display: none;"></audio>
 
     <script>
-        // ==================== URL DO SEU JSON ====================
+        // ==================== CONFIGURAÇÕES ====================
         const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json";
         const NUMERO_WHATSAPP = "5512988461978";
 
@@ -687,8 +237,9 @@
         let isBackgroundActive = false;
         let timerInterval = null;
         let visualizerInterval = null;
-        let currentGenre = "TODOS";
+        let modoAtual = "MPB_POP";
         let generoSelecionado = null;
+        let musicasMPB = [], musicasPOP = [], todasMusicas = [];
 
         // Preferências IA
         let userPreferences = {
@@ -697,6 +248,8 @@
             genrePreference: {},
             songPlays: {}
         };
+
+        let stats = { totalPlayed: 0, genreCount: {} };
 
         // Elementos
         const audio = document.getElementById('musicPlayer');
@@ -715,6 +268,8 @@
         const notification = document.getElementById('notification');
         const loading = document.getElementById('loading');
         const audioIndicator = document.getElementById('audioIndicator');
+        const btTextSpan = document.getElementById('btText');
+        const btDiv = document.getElementById('btDiv');
 
         audio.volume = 0.9;
 
@@ -737,18 +292,16 @@
             return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
-        function savePrefs() {
-            localStorage.setItem('radio_patico_prefs', JSON.stringify(userPreferences));
+        // BLUETOOTH STATUS
+        async function checkBluetooth() {
+            if(navigator.bluetooth && navigator.bluetooth.getAvailability) {
+                const avail = await navigator.bluetooth.getAvailability();
+                if(avail) { btTextSpan.innerText = "Conectado"; btDiv.classList.add("connected"); }
+                else { btTextSpan.innerText = "Offline"; btDiv.classList.remove("connected"); }
+            } else { btTextSpan.innerText = "N/D"; }
         }
-
-        function loadPrefs() {
-            const saved = localStorage.getItem('radio_patico_prefs');
-            if (saved) {
-                try {
-                    userPreferences = { ...userPreferences, ...JSON.parse(saved) };
-                } catch(e) {}
-            }
-        }
+        setInterval(checkBluetooth, 5000);
+        checkBluetooth();
 
         // IA - Peso das músicas
         function calculateSongWeight(song) {
@@ -774,22 +327,45 @@
             return candidatas[Math.floor(Math.random() * candidatas.length)];
         }
 
+        // LÓGICA DE GÊNEROS (INICIA COM MPB/POP)
         function getProximaMusica() {
-            if (!todasMusicas.length) return null;
-            let musicasFiltradas = todasMusicas;
-            if (generoSelecionado && generoSelecionado !== "TODOS") {
-                musicasFiltradas = todasMusicas.filter(m => m.genero === generoSelecionado);
-                if (musicasFiltradas.length === 0) musicasFiltradas = todasMusicas;
+            if (todasMusicas.length === 0) return null;
+            
+            if (modoAtual === "MPB_POP") {
+                if (musicasMPB.length === 0 && musicasPOP.length === 0) return getMusicaAleatoria(todasMusicas);
+                
+                const ultimaMusica = filteredPlaylist[currentIndex];
+                const ultimoGenero = ultimaMusica?.genero;
+                let novoGenero;
+                if (ultimoGenero === "MPB") novoGenero = "POP";
+                else if (ultimoGenero === "POP") novoGenero = "MPB";
+                else novoGenero = Math.random() < 0.5 ? "MPB" : "POP";
+                
+                const listaNovoGenero = novoGenero === "MPB" ? musicasMPB : musicasPOP;
+                if (listaNovoGenero.length === 0) {
+                    const outraLista = novoGenero === "MPB" ? musicasPOP : musicasMPB;
+                    return getMusicaAleatoria(outraLista, ultimaMusica?.id);
+                }
+                return getMusicaAleatoria(listaNovoGenero, ultimaMusica?.id);
             }
-            return getMusicaAleatoria(musicasFiltradas, filteredPlaylist[currentIndex]?.id);
+            
+            if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
+                const musicasDoGenero = todasMusicas.filter(m => m.genero === generoSelecionado);
+                if (musicasDoGenero.length === 0) return getMusicaAleatoria(todasMusicas);
+                return getMusicaAleatoria(musicasDoGenero, filteredPlaylist[currentIndex]?.id);
+            }
+            
+            return getMusicaAleatoria(todasMusicas, filteredPlaylist[currentIndex]?.id);
         }
 
         function updateGenreBadge() {
-            if (generoSelecionado === "TODOS" || !generoSelecionado) {
-                genreBadge.innerHTML = '<i class="fas fa-list-ul"></i> TODOS';
-            } else {
+            if (modoAtual === "MPB_POP") {
+                genreBadge.innerHTML = '<i class="fas fa-exchange-alt"></i> MPB/POP';
+            } else if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
                 let icon = getGenreIcon(generoSelecionado);
                 genreBadge.innerHTML = `<i class="fas ${icon}"></i> ${generoSelecionado}`;
+            } else {
+                genreBadge.innerHTML = '<i class="fas fa-list-ul"></i> TODOS';
             }
         }
 
@@ -809,7 +385,21 @@
 
         function filterByGenre(genero) {
             if (!todasMusicas.length) return;
-            generoSelecionado = genero;
+            
+            if (genero === "MPB_POP") {
+                modoAtual = "MPB_POP";
+                generoSelecionado = null;
+                showNotification("🎵 Modo MPB/POP alternando!", 1500);
+            } else if (genero === "TODOS") {
+                modoAtual = "TODOS";
+                generoSelecionado = null;
+                showNotification("🎵 Modo TODOS os estilos!", 1500);
+            } else {
+                modoAtual = "GENERO_ESPECIFICO";
+                generoSelecionado = genero;
+                showNotification(`🎵 ${genero} ativado!`, 1500);
+            }
+            
             updateGenreBadge();
             const novaMusica = getProximaMusica();
             if (novaMusica) {
@@ -818,7 +408,6 @@
                 loadTrackUI(0);
                 if (isPlaying) playMusic();
             }
-            showNotification(`🎵 ${genero} ativado!`, 1500);
         }
 
         function loadTrackUI(index) {
@@ -874,7 +463,10 @@
                         startVisualizer();
                         userPreferences.songPlays[track.id] = (userPreferences.songPlays[track.id] || 0) + 1;
                         userPreferences.genrePreference[track.genero] = (userPreferences.genrePreference[track.genero] || 0) + 1;
+                        stats.totalPlayed++;
+                        stats.genreCount[track.genero] = (stats.genreCount[track.genero] || 0) + 1;
                         savePrefs();
+                        saveStats();
                         showLoading(false);
                         resolve(true);
                     } catch(e) {
@@ -930,7 +522,7 @@
 
         function prevTrack() {
             let musicasDisponiveis = todasMusicas;
-            if (generoSelecionado && generoSelecionado !== "TODOS") {
+            if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
                 musicasDisponiveis = todasMusicas.filter(m => m.genero === generoSelecionado);
             }
             const outras = musicasDisponiveis.filter(m => m.id !== filteredPlaylist[0]?.id);
@@ -997,6 +589,41 @@
             if (visualizerInterval) clearInterval(visualizerInterval);
             visualizerInterval = null;
             document.querySelectorAll('.visualizer-bar').forEach(bar => bar.style.height = '4px');
+        }
+
+        // Salvar preferências e estatísticas
+        function savePrefs() {
+            localStorage.setItem('radio_patico_prefs', JSON.stringify(userPreferences));
+        }
+
+        function loadPrefs() {
+            const saved = localStorage.getItem('radio_patico_prefs');
+            if (saved) {
+                try {
+                    userPreferences = { ...userPreferences, ...JSON.parse(saved) };
+                } catch(e) {}
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('radio_patico_stats', JSON.stringify(stats));
+        }
+
+        function loadStats() {
+            const saved = localStorage.getItem('radio_patico_stats');
+            if (saved) {
+                try {
+                    stats = { ...stats, ...JSON.parse(saved) };
+                } catch(e) {}
+            }
+        }
+
+        function getTopGenre() {
+            let top = "Nenhum", max = 0;
+            for (const [genre, count] of Object.entries(stats.genreCount)) {
+                if (count > max) { max = count; top = genre; }
+            }
+            return top;
         }
 
         // Áudio Background
@@ -1081,12 +708,33 @@
         });
 
         // CONSTRUIR MODAL DE GÊNEROS
-        let todasMusicas = [];
-
         function buildGenresGrid() {
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
             
+            // Botão MPB/POP (destaque)
+            const mpbPopCard = document.createElement('div');
+            mpbPopCard.className = 'genre-card';
+            mpbPopCard.style.background = "linear-gradient(135deg,#e63946,#ff6b6b)";
+            mpbPopCard.innerHTML = '<i class="fas fa-exchange-alt"></i><span>MPB/POP</span>';
+            mpbPopCard.onclick = () => {
+                filterByGenre("MPB_POP");
+                document.getElementById('genresModal').classList.remove('open');
+            };
+            grid.appendChild(mpbPopCard);
+            
+            // Botão TODOS
+            const todosCard = document.createElement('div');
+            todosCard.className = 'genre-card';
+            todosCard.style.background = "linear-gradient(135deg,#00b4db,#0083b0)";
+            todosCard.innerHTML = '<i class="fas fa-list-ul"></i><span>TODOS</span>';
+            todosCard.onclick = () => {
+                filterByGenre("TODOS");
+                document.getElementById('genresModal').classList.remove('open');
+            };
+            grid.appendChild(todosCard);
+            
+            // Gêneros únicos do JSON
             const generosUnicos = [...new Set(todasMusicas.map(m => m.genero))];
             const cores = [
                 "linear-gradient(135deg,#f2994a,#f2c94c)",
@@ -1094,8 +742,7 @@
                 "linear-gradient(135deg,#134e5e,#71b280)",
                 "linear-gradient(135deg,#f12711,#f5af19)",
                 "linear-gradient(135deg,#8E2DE2,#4A00E0)",
-                "linear-gradient(135deg,#cc2b5e,#753a88)",
-                "linear-gradient(135deg,#00b4db,#0083b0)"
+                "linear-gradient(135deg,#cc2b5e,#753a88)"
             ];
             
             generosUnicos.forEach((genero, idx) => {
@@ -1135,11 +782,15 @@
                 console.log(`✅ Carregadas ${musicas.length} músicas!`);
                 splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
                 
+                musicasMPB = musicas.filter(m => m.genero === "MPB");
+                musicasPOP = musicas.filter(m => m.genero === "POP");
                 todasMusicas = [...musicas];
-                generoSelecionado = "TODOS";
+                
+                // INICIAR COM MPB/POP (padrão)
+                modoAtual = "MPB_POP";
                 updateGenreBadge();
                 
-                const primeiraMusica = getMusicaAleatoria(todasMusicas);
+                const primeiraMusica = getProximaMusica();
                 if (primeiraMusica) {
                     filteredPlaylist = [primeiraMusica];
                     currentIndex = 0;
@@ -1169,7 +820,7 @@
             }
         }
 
-        // EVENTOS
+        // EVENTOS DO MENU
         document.getElementById('progressBar').addEventListener('click', (e) => {
             if (audio.duration) {
                 const rect = e.currentTarget.getBoundingClientRect();
@@ -1203,8 +854,45 @@
             document.documentElement.requestFullscreen();
             document.getElementById('menuPopup').classList.remove('open');
         });
+        document.getElementById('btStatusMenuBtn').addEventListener('click', () => {
+            checkBluetooth();
+            showNotification(`Bluetooth: ${btTextSpan.innerText}`, 1500);
+            document.getElementById('menuPopup').classList.remove('open');
+        });
         document.getElementById('ctaButton').addEventListener('click', () => {
             window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=Olá! Quero minha playlist personalizada!`, '_blank');
+        });
+        document.getElementById('feedbackMenuBtn').addEventListener('click', () => {
+            window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=🎵 Feedback Rádio Patico: `, '_blank');
+            document.getElementById('menuPopup').classList.remove('open');
+        });
+        document.getElementById('statsMenuBtn').addEventListener('click', () => {
+            document.getElementById('statTotalPlayed').textContent = stats.totalPlayed;
+            document.getElementById('statTopGenre').textContent = getTopGenre();
+            document.getElementById('statsModal').style.display = 'block';
+            document.getElementById('statsModal').classList.add('open');
+            document.getElementById('menuPopup').classList.remove('open');
+        });
+        document.getElementById('closeStatsBtn').addEventListener('click', () => {
+            document.getElementById('statsModal').classList.remove('open');
+            document.getElementById('statsModal').style.display = 'none';
+        });
+        document.getElementById('aiMenuBtn').addEventListener('click', () => {
+            document.getElementById('aiLikedCount').textContent = userPreferences.likedSongs.length;
+            document.getElementById('aiDislikedCount').textContent = userPreferences.dislikedSongs.length;
+            let topGenre = "Nenhum";
+            let maxCount = 0;
+            for (const [genre, count] of Object.entries(userPreferences.genrePreference)) {
+                if (count > maxCount) { maxCount = count; topGenre = genre; }
+            }
+            document.getElementById('aiTopGenre').textContent = topGenre;
+            document.getElementById('aiModal').style.display = 'block';
+            document.getElementById('aiModal').classList.add('open');
+            document.getElementById('menuPopup').classList.remove('open');
+        });
+        document.getElementById('closeAiBtn').addEventListener('click', () => {
+            document.getElementById('aiModal').classList.remove('open');
+            document.getElementById('aiModal').style.display = 'none';
         });
         document.getElementById('tap-to-start').addEventListener('click', async () => {
             showNotification('🔊 Ativando áudio...', 1500);
@@ -1220,6 +908,8 @@
                 document.getElementById('menuPopup').classList.remove('open');
             }
         });
+        
+        // Manter vídeo rodando (prioridade pak1.mp4)
         setInterval(() => {
             const video = document.getElementById('bgVideo');
             if (video && video.paused) {
@@ -1228,6 +918,7 @@
         }, 5000);
 
         loadPrefs();
+        loadStats();
         carregarPlaylist();
         startVisualizer();
     </script>
