@@ -31,12 +31,12 @@
         .bt-status { background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 30px; font-size: 0.65rem; color: #ddd; display: flex; align-items: center; gap: 6px; }
         .bt-status.connected { color: #4ade80; }
         
-        /* CARD MÚSICA */
+        /* CARD DA MÚSICA (APENAS INFO) */
         .music-center { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
         .track-card { background: var(--glass-bg); backdrop-filter: blur(20px); padding: 18px 32px; border-radius: 60px; border: 1px solid rgba(0,243,255,0.3); text-align: center; max-width: 90%; }
-        .track-title { font-size: 1.2rem; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .track-artist { font-size: 0.8rem; color: #ccc; margin-top: 4px; }
-        .live-badge { font-size: 0.6rem; color: var(--neon-pink); margin-top: 6px; }
+        .track-title { font-size: 1.1rem; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-artist { font-size: 0.75rem; color: #ccc; margin-top: 4px; }
+        .live-badge { font-size: 0.55rem; color: var(--neon-pink); margin-top: 5px; }
         
         /* VISUALIZADOR */
         .visualizer { position: fixed; top: 80px; right: 20px; display: flex; gap: 4px; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 8px 12px; border-radius: 30px; z-index: 31; }
@@ -65,8 +65,25 @@
         .genre-card span { font-size: 0.8rem; font-weight: 600; color: white; }
         .close-genres { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; border-radius: 30px; color: #000; font-size: 1rem; cursor: pointer; font-weight: bold; }
         
-        /* CONTROLES */
-        .bottom-controls { background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-top: 1px solid rgba(0,243,255,0.3); padding: 12px 20px 25px; border-radius: 30px 30px 0 0; }
+        /* CONTROLES INFERIORES (BOTÕES DE MÚSICA) - ESCONDIDOS POR PADRÃO */
+        .bottom-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0,243,255,0.3);
+            padding: 12px 20px 25px;
+            z-index: 20;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .bottom-controls.visible {
+            transform: translateY(0);
+        }
+        
         .track-info { text-align: center; margin-bottom: 8px; color: #fff; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .progress-time { display: flex; justify-content: space-between; font-size: 0.65rem; color: #aaa; margin-bottom: 4px; }
         .progress-bar { height: 4px; background: rgba(255,255,255,0.2); cursor: pointer; border-radius: 4px; overflow: hidden; }
@@ -109,10 +126,27 @@
         .loading.show { display: flex; }
         
         .swipe-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.9rem; z-index: 10003; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; border: 1px solid var(--neon-cyan); }
+        
+        /* HINT TOQUE NA TELA */
+        .tap-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            color: #aaa;
+            z-index: 25;
+            pointer-events: none;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
-    <!-- VÍDEO DE FUNDO PRIORIDADE pak1.mp4 -->
+    <!-- VÍDEO DE FUNDO -->
     <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
         <source src="pak1.mp4" type="video/mp4">
     </video>
@@ -137,6 +171,7 @@
             </div>
         </div>
 
+        <!-- CARD DA MÚSICA (APENAS INFO) -->
         <div class="music-center">
             <div class="track-card">
                 <div class="track-title" id="trackTitle">🎵 Carregando...</div>
@@ -145,15 +180,19 @@
             </div>
         </div>
 
-        <div class="bottom-controls">
-            <div class="track-info"><p id="trackInfo">🎵 Carregando playlist...</p></div>
-            <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
-            <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
-            <div class="buttons-row">
-                <button class="ctrl-btn" id="prevBtn"><i class="fas fa-backward-step"></i></button>
-                <button class="ctrl-btn play-big" id="playBtn"><i class="fas fa-play"></i></button>
-                <button class="ctrl-btn" id="nextBtn"><i class="fas fa-forward-step"></i></button>
-            </div>
+        <!-- HINT -->
+        <div class="tap-hint" id="tapHint">👆 Toque na tela para mostrar controles</div>
+    </div>
+
+    <!-- CONTROLES INFERIORES (BOTÕES DE MÚSICA) -->
+    <div class="bottom-controls" id="bottomControls">
+        <div class="track-info"><p id="trackInfo">🎵 Carregando...</p></div>
+        <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
+        <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="buttons-row">
+            <button class="ctrl-btn" id="prevBtn"><i class="fas fa-backward-step"></i></button>
+            <button class="ctrl-btn play-big" id="playBtn"><i class="fas fa-play"></i></button>
+            <button class="ctrl-btn" id="nextBtn"><i class="fas fa-forward-step"></i></button>
         </div>
     </div>
 
@@ -240,6 +279,7 @@
         let modoAtual = "MPB_POP";
         let generoSelecionado = null;
         let musicasMPB = [], musicasPOP = [], todasMusicas = [];
+        let hideControlsTimeout = null;
 
         // Preferências IA
         let userPreferences = {
@@ -270,6 +310,7 @@
         const audioIndicator = document.getElementById('audioIndicator');
         const btTextSpan = document.getElementById('btText');
         const btDiv = document.getElementById('btDiv');
+        const bottomControls = document.getElementById('bottomControls');
 
         audio.volume = 0.9;
 
@@ -290,6 +331,15 @@
             const m = Math.floor(sec / 60);
             const s = Math.floor(sec % 60);
             return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        // MOSTRAR/ESCONDER CONTROLES
+        function showControls() {
+            bottomControls.classList.add('visible');
+            if (hideControlsTimeout) clearTimeout(hideControlsTimeout);
+            hideControlsTimeout = setTimeout(() => {
+                bottomControls.classList.remove('visible');
+            }, 3000);
         }
 
         // BLUETOOTH STATUS
@@ -500,6 +550,7 @@
                 return;
             }
             isPlaying ? pauseMusic() : playMusic();
+            showControls();
         }
 
         function nextTrack() {
@@ -518,6 +569,7 @@
                     if (isPlaying) playMusic();
                 }
             }
+            showControls();
         }
 
         function prevTrack() {
@@ -533,6 +585,7 @@
                 loadTrackUI(0);
                 if (isPlaying) playMusic();
             }
+            showControls();
         }
 
         function likeCurrent() {
@@ -544,6 +597,7 @@
                 savePrefs();
                 showNotification(`👍 Curtiu "${track.title}"!`);
             }
+            showControls();
         }
 
         function dislikeCurrent() {
@@ -556,6 +610,7 @@
                 showNotification(`👎 Não curtiu "${track.title}"`);
                 setTimeout(() => nextTrack(), 500);
             }
+            showControls();
         }
 
         function startTimer() {
@@ -591,7 +646,6 @@
             document.querySelectorAll('.visualizer-bar').forEach(bar => bar.style.height = '4px');
         }
 
-        // Salvar preferências e estatísticas
         function savePrefs() {
             localStorage.setItem('radio_patico_prefs', JSON.stringify(userPreferences));
         }
@@ -679,7 +733,15 @@
             }
         }
 
-        // GESTOS
+        // GESTOS - TOQUE NA TELA MOSTRA CONTROLES
+        document.addEventListener('touchstart', (e) => {
+            showControls();
+        });
+        document.addEventListener('click', (e) => {
+            showControls();
+        });
+
+        // GESTOS - SWIPE E DUPLO TOQUE
         let touchStartX = 0;
         let lastTap = 0;
         document.addEventListener('touchstart', (e) => {
@@ -704,6 +766,7 @@
                 ind.textContent = diff > 0 ? '⏮️ Anterior' : '⏭️ Próxima';
                 ind.style.opacity = '1';
                 setTimeout(() => ind.style.opacity = '0', 800);
+                showControls();
             }
         });
 
@@ -712,7 +775,6 @@
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
             
-            // Botão MPB/POP (destaque)
             const mpbPopCard = document.createElement('div');
             mpbPopCard.className = 'genre-card';
             mpbPopCard.style.background = "linear-gradient(135deg,#e63946,#ff6b6b)";
@@ -723,7 +785,6 @@
             };
             grid.appendChild(mpbPopCard);
             
-            // Botão TODOS
             const todosCard = document.createElement('div');
             todosCard.className = 'genre-card';
             todosCard.style.background = "linear-gradient(135deg,#00b4db,#0083b0)";
@@ -734,7 +795,6 @@
             };
             grid.appendChild(todosCard);
             
-            // Gêneros únicos do JSON
             const generosUnicos = [...new Set(todasMusicas.map(m => m.genero))];
             const cores = [
                 "linear-gradient(135deg,#f2994a,#f2c94c)",
@@ -786,7 +846,6 @@
                 musicasPOP = musicas.filter(m => m.genero === "POP");
                 todasMusicas = [...musicas];
                 
-                // INICIAR COM MPB/POP (padrão)
                 modoAtual = "MPB_POP";
                 updateGenreBadge();
                 
@@ -820,11 +879,12 @@
             }
         }
 
-        // EVENTOS DO MENU
+        // EVENTOS
         document.getElementById('progressBar').addEventListener('click', (e) => {
             if (audio.duration) {
                 const rect = e.currentTarget.getBoundingClientRect();
                 audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+                showControls();
             }
         });
         playBtn.addEventListener('click', togglePlay);
@@ -834,6 +894,7 @@
         document.getElementById('dislikeBtn').addEventListener('click', dislikeCurrent);
         document.getElementById('genreFab').addEventListener('click', () => {
             document.getElementById('genresModal').classList.add('open');
+            showControls();
         });
         document.getElementById('closeGenresBtn').addEventListener('click', () => {
             document.getElementById('genresModal').classList.remove('open');
@@ -841,30 +902,37 @@
         document.getElementById('shareBtn').addEventListener('click', () => {
             if (navigator.share) navigator.share({ title: 'Rádio Patico', text: '🎵 Rádio com IA', url: location.href });
             else { navigator.clipboard.writeText(location.href); showNotification('🔗 Link copiado!'); }
+            showControls();
         });
         document.getElementById('shareMenuBtn').addEventListener('click', () => {
             if (navigator.share) navigator.share({ title: 'Rádio Patico', text: '🎵 Rádio com IA', url: location.href });
             else { navigator.clipboard.writeText(location.href); showNotification('🔗 Link copiado!'); }
             document.getElementById('menuPopup').classList.remove('open');
+            showControls();
         });
         document.getElementById('fullscreenBtn').addEventListener('click', () => {
             document.documentElement.requestFullscreen();
+            showControls();
         });
         document.getElementById('fullscreenMenuBtn').addEventListener('click', () => {
             document.documentElement.requestFullscreen();
             document.getElementById('menuPopup').classList.remove('open');
+            showControls();
         });
         document.getElementById('btStatusMenuBtn').addEventListener('click', () => {
             checkBluetooth();
             showNotification(`Bluetooth: ${btTextSpan.innerText}`, 1500);
             document.getElementById('menuPopup').classList.remove('open');
+            showControls();
         });
         document.getElementById('ctaButton').addEventListener('click', () => {
             window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=Olá! Quero minha playlist personalizada!`, '_blank');
+            showControls();
         });
         document.getElementById('feedbackMenuBtn').addEventListener('click', () => {
             window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=🎵 Feedback Rádio Patico: `, '_blank');
             document.getElementById('menuPopup').classList.remove('open');
+            showControls();
         });
         document.getElementById('statsMenuBtn').addEventListener('click', () => {
             document.getElementById('statTotalPlayed').textContent = stats.totalPlayed;
@@ -872,6 +940,7 @@
             document.getElementById('statsModal').style.display = 'block';
             document.getElementById('statsModal').classList.add('open');
             document.getElementById('menuPopup').classList.remove('open');
+            showControls();
         });
         document.getElementById('closeStatsBtn').addEventListener('click', () => {
             document.getElementById('statsModal').classList.remove('open');
@@ -889,6 +958,7 @@
             document.getElementById('aiModal').style.display = 'block';
             document.getElementById('aiModal').classList.add('open');
             document.getElementById('menuPopup').classList.remove('open');
+            showControls();
         });
         document.getElementById('closeAiBtn').addEventListener('click', () => {
             document.getElementById('aiModal').classList.remove('open');
@@ -902,6 +972,7 @@
         document.getElementById('menuButton').addEventListener('click', (e) => {
             e.stopPropagation();
             document.getElementById('menuPopup').classList.toggle('open');
+            showControls();
         });
         document.addEventListener('click', (e) => {
             if (!document.getElementById('menuButton').contains(e.target)) {
@@ -909,7 +980,6 @@
             }
         });
         
-        // Manter vídeo rodando (prioridade pak1.mp4)
         setInterval(() => {
             const video = document.getElementById('bgVideo');
             if (video && video.paused) {
