@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>'
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Rogerplaylist • IA Music Player</title>
@@ -14,7 +14,7 @@
         .fullscreen-video-container video { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
         .controls-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
         
-        .bottom-controls, .search-button, .genre-button, .cta-button, .report-button {
+        .bottom-controls, .search-button, .genre-button, .cta-button, .report-button, .reload-button {
             transition: opacity 0.3s ease, visibility 0.3s ease;
             opacity: 0;
             visibility: hidden;
@@ -25,7 +25,8 @@
         .controls-visible .search-button,
         .controls-visible .genre-button,
         .controls-visible .cta-button,
-        .controls-visible .report-button {
+        .controls-visible .report-button,
+        .controls-visible .reload-button {
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
@@ -36,6 +37,9 @@
         
         .search-button { position: fixed; bottom: 130px; left: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; border: 1px solid rgba(255,255,255,0.3); width: 50px; height: 50px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 27; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .search-button:active { transform: scale(0.9); background: #e63946; color: #000; }
+        
+        .reload-button { position: fixed; bottom: 200px; left: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; border: 1px solid rgba(255,255,255,0.3); width: 50px; height: 50px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; z-index: 27; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .reload-button:active { transform: scale(0.9); background: #25D366; color: #000; }
         
         .report-button { position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; border: 1px solid rgba(255,255,255,0.3); width: 40px; height: 40px; border-radius: 50%; font-size: 0.9rem; cursor: pointer; z-index: 28; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .report-button:active { transform: scale(0.9); background: #e63946; color: #000; }
@@ -112,6 +116,21 @@
         .error-banner { position: fixed; bottom: 100px; left: 20px; right: 20px; background: #e63946; color: white; padding: 10px; border-radius: 12px; text-align: center; z-index: 10003; display: none; font-size: 0.65rem; }
         .error-banner.show { display: block; }
         .fullscreen-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 8px 16px; border-radius: 25px; z-index: 10004; opacity: 0; transition: opacity 0.5s; pointer-events: none; font-size: 0.7rem; }
+        
+        /* Estilo para o botão de adicionar música */
+        .add-music-button { position: fixed; bottom: 200px; right: 20px; background: linear-gradient(135deg, #25D366, #128C7E); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 1.3rem; cursor: pointer; z-index: 26; box-shadow: 0 4px 12px rgba(0,0,0,0.3); animation: floatAdd 3s ease-in-out infinite; }
+        @keyframes floatAdd { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
+        
+        /* Modal para adicionar música */
+        .add-music-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 5002; display: none; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
+        .add-music-modal.open { display: flex; }
+        .add-music-container { background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 25px; padding: 20px; width: 90%; max-width: 400px; border: 2px solid #25D366; }
+        .add-music-container h3 { color: #25D366; text-align: center; margin-bottom: 15px; }
+        .add-music-input { width: 100%; padding: 12px; border-radius: 25px; border: none; background: rgba(255,255,255,0.1); color: white; font-size: 0.9rem; margin-bottom: 10px; outline: none; }
+        .add-music-input::placeholder { color: #aaa; }
+        .add-music-select { width: 100%; padding: 12px; border-radius: 25px; border: none; background: rgba(255,255,255,0.1); color: white; font-size: 0.9rem; margin-bottom: 10px; outline: none; }
+        .add-music-select option { background: #1a1a2e; }
+        .close-add-music { width: 100%; padding: 10px; background: #25D366; border: none; border-radius: 25px; color: white; margin-top: 15px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -144,9 +163,11 @@
         </div>
         
         <button class="search-button" id="searchButton"><i class="fas fa-search"></i></button>
+        <button class="reload-button" id="reloadButton"><i class="fas fa-sync-alt"></i></button>
         <button class="report-button" id="reportButton"><i class="fas fa-chart-simple"></i></button>
         <button class="cta-button" id="ctaButton"><i class="fas fa-headset"></i> <span>PEÇA PLAYLIST</span></button>
         <button class="genre-button" id="genreButton"><i class="fas fa-guitar"></i></button>
+        <button class="add-music-button" id="addMusicButton"><i class="fas fa-plus"></i></button>
         
         <div class="genre-badge" id="genreBadge"><i class="fas fa-music"></i> CARREGANDO</div>
         <div class="audio-indicator" id="audioIndicator"><i class="fas fa-circle"></i> Aguardando</div>
@@ -177,6 +198,27 @@
             </div>
         </div>
         
+        <div class="add-music-modal" id="addMusicModal">
+            <div class="add-music-container">
+                <h3><i class="fas fa-plus-circle"></i> ADICIONAR NOVA MÚSICA</h3>
+                <input type="text" class="add-music-input" id="newMusicTitle" placeholder="Título da música" autocomplete="off">
+                <input type="text" class="add-music-input" id="newMusicArtist" placeholder="Artista / Banda" autocomplete="off">
+                <input type="url" class="add-music-input" id="newMusicUrl" placeholder="URL do arquivo de áudio (MP3)" autocomplete="off">
+                <select class="add-music-select" id="newMusicGenre">
+                    <option value="FORRÓ">Forró</option>
+                    <option value="FORRÓ ANTIGO">Forró Antigo</option>
+                    <option value="BREGA">Brega</option>
+                    <option value="MPB">MPB</option>
+                    <option value="POP">Pop</option>
+                    <option value="SERTANEJO">Sertanejo</option>
+                    <option value="MODARAIZ">Moda Raiz</option>
+                    <option value="SAMBA">Samba</option>
+                </select>
+                <button class="close-add-music" id="saveNewMusicBtn"><i class="fas fa-save"></i> SALVAR MÚSICA</button>
+                <button class="close-add-music" id="closeAddMusicBtn" style="background:#e63946; margin-top:5px;">CANCELAR</button>
+            </div>
+        </div>
+        
         <div class="report-modal" id="reportModal">
             <div class="report-container">
                 <h3><i class="fas fa-chart-simple"></i> RELATÓRIO DE ERROS</h3>
@@ -193,17 +235,86 @@
     <div class="swipe-indicator" id="swipeIndicator">👉 Deslize para trocar música</div>
 
     <script>
-        // ==================== URLs DAS PLAYLISTS ====================
+        // ==================== URLs DAS PLAYLISTS (ATUALIZADO - SEM CACHE!) ====================
+        // IMPORTANTE: Todas as URLs agora usam 'main' para sempre pegar a versão mais recente!
         const PLAYLISTS = {
-            "FORRÓ": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/forro.json",
-            "FORRÓ ANTIGO": "https://raw.githubusercontent.com/radioplaylist12/partico/146f58c17b71bfa4880f66761f8528213b69eda9/forrodasantiga.json",
-            "BREGA": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/brega.json",
-            "MPB": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/mpb.json",
-            "POP": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/pop.json",
-            "SERTANEJO": "https://raw.githubusercontent.com/radioplaylist12/partico/d196d1301e2b7fa134bc75fd98b6bd54a231a981/serta.json",
-            "MODARAIZ": "https://raw.githubusercontent.com/radioplaylist12/partico/146f58c17b71bfa4880f66761f8528213b69eda9/modaraiz.json",
-            "SAMBA": "https://raw.githubusercontent.com/radioplaylist12/partico/f7d48fca6060443ee7788a455247f2c8c82dc407/samba.json"
+            "FORRÓ": "https://raw.githubusercontent.com/radioplaylist12/partico/main/forro.json",
+            "FORRÓ ANTIGO": "https://raw.githubusercontent.com/radioplaylist12/partico/main/forrodasantiga.json",
+            "BREGA": "https://raw.githubusercontent.com/radioplaylist12/partico/main/brega.json",
+            "MPB": "https://raw.githubusercontent.com/radioplaylist12/partico/main/mpb.json",
+            "POP": "https://raw.githubusercontent.com/radioplaylist12/partico/main/pop.json",
+            "SERTANEJO": "https://raw.githubusercontent.com/radioplaylist12/partico/main/serta.json",
+            "MODARAIZ": "https://raw.githubusercontent.com/radioplaylist12/partico/main/modaraiz.json",
+            "SAMBA": "https://raw.githubusercontent.com/radioplaylist12/partico/main/samba.json"
         };
+        
+        // ==================== MÚSICAS LOCAIS (ADICIONADAS PELO USUÁRIO) ====================
+        let musicasLocais = [];
+        
+        // Carregar músicas locais salvas
+        function carregarMusicasLocais() {
+            try {
+                const salvas = localStorage.getItem('rogerplaylist_musicas_locais');
+                if (salvas) {
+                    musicasLocais = JSON.parse(salvas);
+                    console.log(`📀 Músicas locais carregadas: ${musicasLocais.length}`);
+                }
+            } catch(e) { console.error("Erro ao carregar músicas locais:", e); }
+        }
+        
+        // Salvar música local
+        function salvarMusicaLocal(musica) {
+            try {
+                musicasLocais.push(musica);
+                localStorage.setItem('rogerplaylist_musicas_locais', JSON.stringify(musicasLocais));
+                console.log(`💾 Música salva localmente: ${musica.title}`);
+                return true;
+            } catch(e) { console.error("Erro ao salvar música local:", e); return false; }
+        }
+        
+        // Adicionar nova música (local)
+        function adicionarNovaMusica(title, artist, src, genero) {
+            if (!title || !artist || !src) {
+                showNotification("❌ Preencha todos os campos!", 2000);
+                return false;
+            }
+            
+            const novaMusica = {
+                id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+                title: title.trim(),
+                artist: artist.trim(),
+                src: src.trim(),
+                genero: genero,
+                isLocal: true,
+                dataAdicionada: new Date().toISOString()
+            };
+            
+            if (salvarMusicaLocal(novaMusica)) {
+                // Adicionar à lista global
+                todasMusicas.push(novaMusica);
+                
+                // Adicionar ao array do gênero específico
+                if (genero === "MPB") musicasMPB.push(novaMusica);
+                else if (genero === "POP") musicasPOP.push(novaMusica);
+                
+                showNotification(`✅ "${title}" adicionada com sucesso!`, 3000);
+                return true;
+            }
+            return false;
+        }
+        
+        // ==================== FUNÇÃO PARA LIMPAR CACHE DOS JSONs ====================
+        async function limparCacheJSON() {
+            if ('caches' in window) {
+                try {
+                    const cacheNames = await caches.keys();
+                    for (const name of cacheNames) {
+                        await caches.delete(name);
+                    }
+                    console.log('✅ Cache do navegador limpo!');
+                } catch(e) { console.log("Erro ao limpar cache:", e); }
+            }
+        }
         
         const NOMES_EXIBICAO = {
             "FORRÓ": "Forró",
@@ -256,7 +367,6 @@
             musicasComErro.push(erroRegistro);
             console.warn(`❌ ERRO: ID ${erroRegistro.id} | ${erroRegistro.genero} | ${erroRegistro.titulo} - ${erroRegistro.artista} - Erro: ${erro}`);
             
-            // Salvar no localStorage
             try {
                 const errosSalvos = localStorage.getItem('rogerplaylist_erros');
                 const errosAnteriores = errosSalvos ? JSON.parse(errosSalvos) : [];
@@ -488,7 +598,8 @@
             resultados.forEach(musica => {
                 const item = document.createElement('div');
                 item.className = 'search-result-item';
-                item.innerHTML = `<div class="title">${musica.title}</div><div class="artist">${musica.artist} [${NOMES_EXIBICAO[musica.genero] || musica.genero}]</div>`;
+                const localTag = musica.isLocal ? ' 📱 LOCAL' : '';
+                item.innerHTML = `<div class="title">${musica.title}${localTag}</div><div class="artist">${musica.artist} [${NOMES_EXIBICAO[musica.genero] || musica.genero}]</div>`;
                 item.onclick = () => {
                     playlistAtual = [musica];
                     currentIndex = 0;
@@ -618,8 +729,9 @@
             const track = playlistAtual[index];
             if (!track) return;
             const aoVivo = isLiveSong(track) ? ' 🔴 AO VIVO' : '';
+            const localTag = track.isLocal ? ' 📱 LOCAL' : '';
             const nomeGenero = NOMES_EXIBICAO[track.genero] || track.genero;
-            trackArtist.innerHTML = `${track.title} - ${track.artist} [${nomeGenero}]${aoVivo}`;
+            trackArtist.innerHTML = `${track.title} - ${track.artist} [${nomeGenero}]${aoVivo}${localTag}`;
             updateGenreBadge(track.genero);
             currentTimeEl.textContent = '0:00';
             totalTimeEl.textContent = '0:00';
@@ -825,12 +937,50 @@
             }
         });
         
-        async function carregarTodasPlaylists() {
+        // Função para recarregar playlists (forçar atualização)
+        async function recarregarPlaylists() {
+            showNotification('🔄 Recarregando playlists...', 2000);
+            loadingSpinner.classList.add('show');
+            
+            // Limpar cache
+            await limparCacheJSON();
+            
+            // Resetar arrays
+            musicas = [];
+            musicasMPB = [];
+            musicasPOP = [];
+            todasMusicas = [];
+            playlistHistorico = [];
+            
+            // Recarregar
+            await carregarTodasPlaylists(true);
+            
+            loadingSpinner.classList.remove('show');
+            showNotification('✅ Playlists recarregadas!', 2000);
+        }
+        
+        async function carregarTodasPlaylists(forcarRecarga = false) {
             try {
-                splash.querySelector('.loading-text').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlists...';
+                if (forcarRecarga) {
+                    splash.querySelector('.loading-text').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Recarregando playlists...';
+                } else {
+                    splash.querySelector('.loading-text').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlists...';
+                }
+                
+                // Limpar cache antes de carregar
+                await limparCacheJSON();
+                
                 const promises = Object.entries(PLAYLISTS).map(async ([genero, url]) => {
                     try {
-                        const response = await fetch(url);
+                        // Adicionar timestamp para evitar cache
+                        const urlComTimestamp = `${url}?t=${Date.now()}`;
+                        const response = await fetch(urlComTimestamp, {
+                            cache: 'no-store',
+                            headers: {
+                                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                                'Pragma': 'no-cache'
+                            }
+                        });
                         if (!response.ok) throw new Error(`HTTP ${response.status}`);
                         const data = await response.json();
                         const musicasComGenero = data.map(musica => ({
@@ -847,6 +997,16 @@
                 });
                 
                 await Promise.all(promises);
+                
+                // Carregar músicas locais salvas
+                carregarMusicasLocais();
+                
+                // Adicionar músicas locais à lista
+                if (musicasLocais.length > 0) {
+                    musicas = [...musicas, ...musicasLocais];
+                    console.log(`📀 Músicas locais adicionadas: ${musicasLocais.length}`);
+                }
+                
                 console.log(`🎉 TOTAL: ${musicas.length} músicas carregadas!`);
                 splash.querySelector('.loading-text').innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
                 
@@ -854,7 +1014,7 @@
                 musicasPOP = musicas.filter(m => m.genero === "POP");
                 todasMusicas = [...musicas];
                 
-                console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | Outros: ${todasMusicas.length - musicasMPB.length - musicasPOP.length}`);
+                console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | Locais: ${musicasLocais.length} | Outros: ${todasMusicas.length - musicasMPB.length - musicasPOP.length}`);
                 
                 if (musicas.length === 0) throw new Error("Nenhuma música foi carregada");
                 
@@ -952,6 +1112,7 @@
             }
         }
         
+        // Event listeners
         document.getElementById('progressBar').addEventListener('click', (e) => {
             if (musicPlayer.duration) { const rect = e.currentTarget.getBoundingClientRect(); musicPlayer.currentTime = ((e.clientX - rect.left) / rect.width) * musicPlayer.duration; }
             showControlsTemporarily();
@@ -965,9 +1126,40 @@
         document.getElementById('searchButton').addEventListener('click', () => { document.getElementById('searchModal').classList.add('open'); showControlsTemporarily(); });
         document.getElementById('closeSearchBtn').addEventListener('click', () => document.getElementById('searchModal').classList.remove('open'));
         document.getElementById('reportButton').addEventListener('click', () => gerarRelatorioErros());
+        document.getElementById('reloadButton').addEventListener('click', () => recarregarPlaylists());
         document.getElementById('reportMenuBtn').addEventListener('click', () => { gerarRelatorioErros(); document.getElementById('menuPopup').classList.remove('open'); });
         document.getElementById('closeReportBtn').addEventListener('click', () => document.getElementById('reportModal').classList.remove('open'));
         document.getElementById('downloadReportBtn').addEventListener('click', () => baixarRelatorio());
+        
+        // Botão de adicionar música
+        document.getElementById('addMusicButton').addEventListener('click', () => {
+            document.getElementById('addMusicModal').classList.add('open');
+            showControlsTemporarily();
+        });
+        
+        document.getElementById('closeAddMusicBtn').addEventListener('click', () => {
+            document.getElementById('addMusicModal').classList.remove('open');
+            // Limpar campos
+            document.getElementById('newMusicTitle').value = '';
+            document.getElementById('newMusicArtist').value = '';
+            document.getElementById('newMusicUrl').value = '';
+        });
+        
+        document.getElementById('saveNewMusicBtn').addEventListener('click', () => {
+            const title = document.getElementById('newMusicTitle').value;
+            const artist = document.getElementById('newMusicArtist').value;
+            const url = document.getElementById('newMusicUrl').value;
+            const genre = document.getElementById('newMusicGenre').value;
+            
+            if (adicionarNovaMusica(title, artist, url, genre)) {
+                document.getElementById('addMusicModal').classList.remove('open');
+                // Limpar campos
+                document.getElementById('newMusicTitle').value = '';
+                document.getElementById('newMusicArtist').value = '';
+                document.getElementById('newMusicUrl').value = '';
+            }
+        });
+        
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const resultados = buscarMusicas(e.target.value);
             mostrarResultadosBusca(resultados);
