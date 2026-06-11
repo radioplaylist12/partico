@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rádio Patico • Player IA</title>
+    <title>Rádio Play 12 • teste 90<@</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -26,7 +26,7 @@
         .icon-btn { background: rgba(0,0,0,0.6); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1rem; border: 1px solid rgba(0,243,255,0.3); }
         .icon-btn:active { transform: scale(0.92); background: var(--neon-cyan); color: #000; }
         
-        /* LETREIRO DE INFORMAÇÕES - COM LETRAS MAIS GROSSAS */
+        /* LETREIRO DE INFORMAÇÕES - LETRAS MAIS GROSSAS */
         .info-scroll {
             position: fixed;
             top: 80px;
@@ -44,13 +44,13 @@
         .info-scroll p {
             color: white;
             font-size: 0.85rem;
-            font-weight: 800;           /* Letra mais grossa */
+            font-weight: 800;
             letter-spacing: 0.5px;
             font-family: monospace;
             animation: scrollText 25s linear infinite;
             display: inline-block;
             padding-right: 50px;
-            text-shadow: 0 0 5px rgba(0,243,255,0.5); /* Sombra neon */
+            text-shadow: 0 0 5px rgba(0,243,255,0.5);
         }
         @keyframes scrollText {
             0% { transform: translateX(100%); }
@@ -69,7 +69,7 @@
         .genre-fab-btn { background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan)); width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1.4rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
         
-        /* MODAL GÊNEROS COM IMAGENS - SEM TEXTO SOBREPOSTO */
+        /* MODAL GÊNEROS - FOTO PREENCHE TODO O QUADRADO */
         .genres-modal {
             position: fixed;
             bottom: 0;
@@ -90,14 +90,13 @@
         .genre-card {
             border-radius: 16px;
             cursor: pointer;
-            background-size: contain;  /* Mostra a foto INTEIRA, sem cortar */
+            background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             transition: all 0.2s ease;
             border: 1px solid rgba(255,255,255,0.2);
-            min-height: 160px;
+            aspect-ratio: 5 / 3;
             background-color: #000;
-            position: relative;
         }
         .genre-card:active { transform: scale(0.96); }
         /* SEM TEXTO SOBREPOSTO - APENAS A IMAGEM */
@@ -214,7 +213,7 @@
         </div>
 
         <div class="info-scroll" id="infoScroll">
-            <p id="scrollText">🎵 RÁDIO PATICO - A MELHOR PLAYLIST COM IA! 🎵</p>
+            <p id="scrollText">🎵 RÁDIO Play 12 - A MELHOR PLAYLIST COM IA! 🎵</p>
         </div>
 
         <div class="tap-hint">👆 Toque na tela para mostrar controles</div>
@@ -526,6 +525,10 @@
                 modoAtual = "TODOS"; 
                 generoSelecionado = null; 
                 showNotification("🎵 Modo TODOS os estilos!", 1500);
+            } else if (genero === "GLOBAL HITS") {
+                modoAtual = "GENERO_ESPECIFICO";
+                generoSelecionado = "POP";
+                showNotification("🎵 GLOBAL HITS ativado!", 1500);
             } else { 
                 modoAtual = "GENERO_ESPECIFICO"; 
                 generoSelecionado = genero; 
@@ -743,33 +746,32 @@
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
             
-            // Lista de gêneros com suas imagens (NOMES CORRETOS DAS IMAGENS)
+            // Lista de gêneros com suas imagens (NOMES CORRETOS)
             const generosComImagem = [
-                { nome: "MPB_POP", exibicao: "MPB/POP", imagem: "mpbpop90.png" },
-                { nome: "TODOS", exibicao: "", imagem: "todos90.png" },
-                { nome: "SERTANEJO", exibicao: "", imagem: "ser90.png" },
-                { nome: "FORRÓ", exibicao: "", imagem: "forro90.png" },
-                { nome: "SAMBA", exibicao: "", imagem: "samba90.png" },
-                { nome: "BREGA", exibicao: "", imagem: "brega90.png" },
-                { nome: "GLOBAL HITS", exibicao: "", imagem: "pop90.png" },
-                { nome: "MPB", exibicao: "", imagem: "mpbpop90.png" },
-                { nome: "MODA TOP", exibicao: "", imagem: "moda90.png" }
+                { nome: "MPB_POP", exibicao: "MPB/POP", imagem: "mpbpop90.png", filtro: "MPB_POP" },
+                { nome: "TODOS", exibicao: "", imagem: "todos90.png", filtro: "TODOS" },
+                { nome: "SERTANEJO", exibicao: "", imagem: "ser90.png", filtro: "SERTANEJO" },
+                { nome: "FORRÓ", exibicao: "", imagem: "forro90.png", filtro: "FORRÓ" },
+                { nome: "SAMBA", exibicao: "", imagem: "samba90.png", filtro: "SAMBA" },
+                { nome: "BREGA", exibicao: "", imagem: "brega90.png", filtro: "BREGA" },
+                { nome: "GLOBAL HITS", exibicao: "", imagem: "pop90.png", filtro: "GLOBAL HITS" },
+                { nome: "MPB", exibicao: "", imagem: "mpbpop90.png", filtro: "MPB" },
+                { nome: "MODA TOP", exibicao: "", imagem: "moda90.png", filtro: "MODA TOP" }
             ];
             
             generosComImagem.forEach(g => {
                 const card = document.createElement('div');
                 card.className = 'genre-card';
                 card.style.backgroundImage = `url('${g.imagem}')`;
-                card.style.backgroundSize = "contain";
+                card.style.backgroundSize = "cover";
                 card.style.backgroundPosition = "center";
                 card.style.backgroundColor = "#000";
                 card.setAttribute("data-genre", g.nome);
-                // Sem texto sobreposto - apenas a imagem
                 card.onclick = () => { 
-                    if (g.nome === "MPB_POP") filterByGenre("MPB_POP");
-                    else if (g.nome === "TODOS") filterByGenre("TODOS");
-                    else if (g.nome === "GLOBAL HITS") filterByGenre("POP");
-                    else filterByGenre(g.nome);
+                    if (g.filtro === "MPB_POP") filterByGenre("MPB_POP");
+                    else if (g.filtro === "TODOS") filterByGenre("TODOS");
+                    else if (g.filtro === "GLOBAL HITS") filterByGenre("GLOBAL HITS");
+                    else filterByGenre(g.filtro);
                     document.getElementById('genresModal').classList.remove('open'); 
                 };
                 grid.appendChild(card);
@@ -783,7 +785,7 @@
                     const card = document.createElement('div');
                     card.className = 'genre-card';
                     card.style.backgroundImage = `url('default90.png')`;
-                    card.style.backgroundSize = "contain";
+                    card.style.backgroundSize = "cover";
                     card.style.backgroundPosition = "center";
                     card.style.backgroundColor = "#000";
                     card.onclick = () => { filterByGenre(genero); document.getElementById('genresModal').classList.remove('open'); };
