@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rádio Patico • Player IA</title>
+    <title>RÁDIO PLAY 12 • Player IA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -19,7 +19,7 @@
         
         .app { position: relative; z-index: 10; width: 100%; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; background: transparent; }
         
-        /* TOPO - SEM SÍMBOLO DE IA */
+        /* TOPO */
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(0,243,255,0.3); }
         .genre-badge { background: rgba(0,243,255,0.15); padding: 6px 16px; border-radius: 30px; font-size: 0.7rem; font-weight: bold; color: var(--neon-cyan); border-left: 3px solid var(--neon-cyan); display: flex; align-items: center; gap: 8px; }
         .top-buttons { display: flex; gap: 12px; align-items: center; }
@@ -227,7 +227,7 @@
     <div id="splash">
         <div class="splash-content">
             <i class="fas fa-music"></i>
-            <h1>RÁDIO PATICO</h1>
+            <h1>RÁDIO PLAY 12</h1>
             <div class="loading-text"><i class="fas fa-circle-notch fa-spin"></i> Carregando playlist...</div>
         </div>
     </div>
@@ -243,7 +243,7 @@
         </div>
 
         <div class="info-scroll" id="infoScroll">
-            <p id="scrollText">🎵 RÁDIO PATICO - A MELHOR PLAYLIST COM IA! 🎵</p>
+            <p id="scrollText">🎵 RÁDIO PLAY 12 - A MELHOR PLAYLIST COM IA! 🎵</p>
         </div>
 
         <div class="tap-hint">👆 Toque na tela para mostrar controles</div>
@@ -343,7 +343,7 @@
         let newsList = [];
         let newsIndex = 0;
         let alternationInterval = null;
-        let currentMusicText = "🎵 RÁDIO PATICO - A MELHOR PLAYLIST COM IA! 🎵";
+        let currentMusicText = "🎵 RÁDIO PLAY 12 - A MELHOR PLAYLIST COM IA! 🎵";
         let currentDisplayMode = "music";
 
         // ==================== VARIÁVEIS ====================
@@ -356,10 +356,10 @@
         let timerInterval = null;
         let modoAtual = "MPB_POP";
         let generoSelecionado = null;
-        let musicasMPB = [], musicasPOP = [], musicasGLOBAL = [], todasMusicas = [];
+        let musicasMPB = [], musicasPOP = [], musicasGLOBAL = [], musicasTodas = [];
         let hideControlsTimeout = null;
         let currentRating = 0;
-        let nextSongCache = null; // Para pré-carregar próxima música
+        let nextSongCache = null;
 
         let userPreferences = { likedSongs: [], dislikedSongs: [], genrePreference: {}, songPlays: {} };
         let stats = { totalPlayed: 0, genreCount: {} };
@@ -416,7 +416,7 @@
 
         function updateScrollText(track) {
             if (track) {
-                currentMusicText = `🎵 RÁDIO PATICO - TOCANDO: ${track.title} - ${track.artist} [${track.genero}] 🎵`;
+                currentMusicText = `🎵 RÁDIO PLAY 12 - TOCANDO: ${track.title} - ${track.artist} [${track.genero}] 🎵`;
                 if (currentDisplayMode === "music") {
                     scrollText.innerHTML = currentMusicText;
                 }
@@ -459,10 +459,10 @@
             } catch (error) {
                 console.error("Erro ao buscar notícias:", error);
                 newsList = [
-                    { title: "Rádio Patico - Sua playlist inteligente 24/7" },
+                    { title: "Rádio Play 12 - Sua playlist inteligente 24/7" },
                     { title: "Curta as músicas e a IA aprende seu gosto!" },
                     { title: "Deixe seu like ou dislike para melhorar as recomendações" },
-                    { title: "Compartilhe a Rádio Patico com seus amigos!" }
+                    { title: "Compartilhe a Rádio Play 12 com seus amigos!" }
                 ];
             }
         }
@@ -513,9 +513,20 @@
             return candidatas[Math.floor(Math.random() * candidatas.length)];
         }
 
+        // Pré-carregar próxima música
+        function preloadNextSong() {
+            const proxima = getProximaMusica(filteredPlaylist[currentIndex]?.id);
+            if (proxima && proxima.src) {
+                nextSongCache = new Audio();
+                nextSongCache.src = proxima.src;
+                nextSongCache.load();
+                console.log("🎵 Pré-carregando próxima música:", proxima.title);
+            }
+        }
+
         // ==================== LÓGICA DE GÊNEROS ====================
         function getProximaMusica(evitarId = null) {
-            if (todasMusicas.length === 0) return null;
+            if (musicasTodas.length === 0) return null;
             
             if (modoAtual === "MPB_POP") {
                 if (musicasMPB.length === 0 && musicasPOP.length === 0) {
@@ -541,24 +552,13 @@
                 if (generoSelecionado === "GLOBAL HITS") {
                     musicasDoGenero = musicasGLOBAL;
                 } else {
-                    musicasDoGenero = todasMusicas.filter(m => m.genero === generoSelecionado);
+                    musicasDoGenero = musicasTodas.filter(m => m.genero === generoSelecionado);
                 }
-                if (musicasDoGenero.length === 0) return getMusicaAleatoria(todasMusicas, evitarId);
+                if (musicasDoGenero.length === 0) return getMusicaAleatoria(musicasTodas, evitarId);
                 return getMusicaAleatoria(musicasDoGenero, evitarId);
             }
             
-            return getMusicaAleatoria(todasMusicas, evitarId);
-        }
-
-        // Pré-carregar próxima música
-        function preloadNextSong() {
-            const proxima = getProximaMusica(filteredPlaylist[currentIndex]?.id);
-            if (proxima && proxima.src) {
-                nextSongCache = new Audio();
-                nextSongCache.src = proxima.src;
-                nextSongCache.load();
-                console.log("🎵 Pré-carregando próxima música:", proxima.title);
-            }
+            return getMusicaAleatoria(musicasTodas, evitarId);
         }
 
         function updateGenreBadge() {
@@ -569,7 +569,7 @@
         }
 
         function filterByGenre(genero) {
-            if (!todasMusicas.length) return;
+            if (!musicasTodas.length) return;
             
             try {
                 document.documentElement.requestFullscreen();
@@ -603,7 +603,7 @@
                 currentIndex = 0; 
                 updateScrollText(novaMusica); 
                 if (isPlaying) playMusic(); 
-                preloadNextSong(); // Pré-carregar próxima
+                preloadNextSong();
             }
         }
 
@@ -619,7 +619,6 @@
             const track = filteredPlaylist[currentIndex];
             if (!track || !track.src) { showLoading(false); nextTrack(); return; }
             
-            // Usar cache se disponível
             if (nextSongCache && nextSongCache.src.includes(track.src)) {
                 audio.src = nextSongCache.src;
                 nextSongCache = null;
@@ -645,7 +644,7 @@
                         localStorage.setItem('radio_patico_stats', JSON.stringify(stats));
                         updateScrollText(track);
                         showLoading(false);
-                        preloadNextSong(); // Pré-carregar próxima música
+                        preloadNextSong();
                         resolve(true);
                     } catch(e) { clearTimeout(timeout); showLoading(false); resolve(false); }
                 };
@@ -664,8 +663,8 @@
                 currentIndex = 0; 
                 updateScrollText(proxima); 
                 if (isPlaying) playMusic(); 
-            } else if (todasMusicas.length > 0) { 
-                const fallback = getMusicaAleatoria(todasMusicas); 
+            } else if (musicasTodas.length > 0) { 
+                const fallback = getMusicaAleatoria(musicasTodas); 
                 if (fallback) { 
                     filteredPlaylist = [fallback]; 
                     currentIndex = 0; 
@@ -677,12 +676,12 @@
         }
 
         function prevTrack() {
-            let musicasDisponiveis = todasMusicas;
+            let musicasDisponiveis = musicasTodas;
             if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
                 if (generoSelecionado === "GLOBAL HITS") {
                     musicasDisponiveis = musicasGLOBAL;
                 } else {
-                    musicasDisponiveis = todasMusicas.filter(m => m.genero === generoSelecionado);
+                    musicasDisponiveis = musicasTodas.filter(m => m.genero === generoSelecionado);
                 }
             }
             const outras = musicasDisponiveis.filter(m => m.id !== filteredPlaylist[0]?.id);
@@ -737,7 +736,7 @@
             let starsText = '';
             if (currentRating > 0) starsText = '★'.repeat(currentRating) + '☆'.repeat(5 - currentRating);
             else starsText = 'Sem avaliação';
-            const msg = `🎵 *RÁDIO PATICO - FEEDBACK* 🎵%0A%0A🎤 Música: ${track.title}%0A👤 Artista: ${track.artist}%0A🎸 Gênero: ${track.genero}%0A⭐ Avaliação: ${starsText}%0A💬 Comentário: ${comment || "Sem comentário"}`;
+            const msg = `🎵 *RÁDIO PLAY 12 - FEEDBACK* 🎵%0A%0A🎤 Música: ${track.title}%0A👤 Artista: ${track.artist}%0A🎸 Gênero: ${track.genero}%0A⭐ Avaliação: ${starsText}%0A💬 Comentário: ${comment || "Sem comentário"}`;
             window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
             showNotification("📱 Feedback enviado!", 1500);
             feedbackModal.classList.remove('open');
@@ -831,7 +830,7 @@
             });
         });
 
-        // ==================== MODAL GÊNEROS COM IMAGENS ====================
+        // ==================== MODAL GÊNEROS ====================
         function buildGenresGrid() {
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
@@ -860,7 +859,7 @@
                 grid.appendChild(card);
             });
             
-            const generosUnicos = [...new Set(todasMusicas.map(m => m.genero))];
+            const generosUnicos = [...new Set(musicasTodas.map(m => m.genero))];
             const generosJaAdicionados = ["MPB_POP", "TODOS", "SERTANEJO", "FORRÓ", "SAMBA", "BREGA", "GLOBAL HITS", "POP", "MPB", "MODA TOP"];
             generosUnicos.forEach(genero => {
                 if (!generosJaAdicionados.includes(genero) && genero !== "FORRÓ ANTIGO") {
@@ -888,12 +887,16 @@
                 console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
                 splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
                 
+                // SEPARAÇÃO DOS GÊNEROS:
+                // MPB: músicas com genero "MPB"
                 musicasMPB = musicas.filter(m => m.genero === "MPB");
+                // POP: músicas com genero "POP"
                 musicasPOP = musicas.filter(m => m.genero === "POP");
-                musicasGLOBAL = musicas.filter(m => m.genero === "POP" || m.genero === "INTERNATIONAL");
-                todasMusicas = [...musicas];
+                // GLOBAL HITS: músicas com genero "GLOBAL" (você precisa criar este gênero no JSON)
+                musicasGLOBAL = musicas.filter(m => m.genero === "GLOBAL");
+                musicasTodas = [...musicas];
                 
-                console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | GLOBAL: ${musicasGLOBAL.length} | Outros: ${todasMusicas.length - musicasMPB.length - musicasPOP.length}`);
+                console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | GLOBAL: ${musicasGLOBAL.length}`);
                 
                 modoAtual = "MPB_POP";
                 updateGenreBadge();
@@ -943,12 +946,12 @@
         document.getElementById('genreFab').addEventListener('click', () => { document.getElementById('genresModal').classList.add('open'); showControls(); });
         document.getElementById('closeGenresBtn').addEventListener('click', () => { document.getElementById('genresModal').classList.remove('open'); });
         document.getElementById('shareBtn').addEventListener('click', () => {
-            if (navigator.share) navigator.share({ title: 'Rádio Patico', text: '🎵 Rádio com IA', url: location.href });
+            if (navigator.share) navigator.share({ title: 'Rádio Play 12', text: '🎵 Rádio com IA', url: location.href });
             else { navigator.clipboard.writeText(location.href); showNotification('🔗 Link copiado!'); }
             showControls();
         });
         document.getElementById('shareMenuBtn').addEventListener('click', () => {
-            if (navigator.share) navigator.share({ title: 'Rádio Patico', text: '🎵 Rádio com IA', url: location.href });
+            if (navigator.share) navigator.share({ title: 'Rádio Play 12', text: '🎵 Rádio com IA', url: location.href });
             else { navigator.clipboard.writeText(location.href); showNotification('🔗 Link copiado!'); }
             document.getElementById('menuPopup').classList.remove('open');
             showControls();
