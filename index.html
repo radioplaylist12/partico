@@ -15,59 +15,16 @@
             --neon-purple: #8E2DE2;
         }
 
-        /* VÍDEO NÍTIDO - SEM CAMADAS ESCURAS */
-        .video-bg { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            z-index: 0; 
-            /* REMOVIDO: filter: brightness(0.5) saturate(1.1); */
-        }
+        .video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
         
-        .app { 
-            position: relative; 
-            z-index: 10; 
-            width: 100%; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-            /* REMOVIDO: background: radial-gradient(...) */
-            background: transparent;
-            /* REMOVIDO: backdrop-filter: blur(2px); */
-        }
+        .app { position: relative; z-index: 10; width: 100%; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; background: transparent; }
         
         /* TOPO */
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(0,243,255,0.3); }
+        .top-bar { display: flex; justify-content: flex-end; align-items: center; padding: 14px 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(0,243,255,0.3); }
         .genre-badge { background: rgba(0,243,255,0.15); padding: 6px 16px; border-radius: 30px; font-size: 0.7rem; font-weight: bold; color: var(--neon-cyan); border-left: 3px solid var(--neon-cyan); display: flex; align-items: center; gap: 8px; }
         .top-buttons { display: flex; gap: 12px; align-items: center; }
-        .bt-status { background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 30px; font-size: 0.65rem; color: #ddd; display: flex; align-items: center; gap: 6px; }
-        .bt-status.connected { color: #4ade80; }
         .icon-btn { background: rgba(0,0,0,0.6); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1rem; border: 1px solid rgba(0,243,255,0.3); }
         .icon-btn:active { transform: scale(0.92); background: var(--neon-cyan); color: #000; }
-        
-        /* INFO DA MÚSICA (PEQUENA E DISCRETA) */
-        .music-info {
-            position: fixed;
-            top: 80px;
-            left: 20px;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
-            padding: 6px 14px;
-            border-radius: 30px;
-            z-index: 30;
-            max-width: 70%;
-        }
-        .track-title-small { font-size: 0.7rem; font-weight: bold; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .track-artist-small { font-size: 0.6rem; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .live-badge-small { font-size: 0.5rem; color: var(--neon-pink); margin-top: 2px; }
-        
-        /* VISUALIZADOR */
-        .visualizer { position: fixed; top: 80px; right: 20px; display: flex; gap: 4px; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 8px 12px; border-radius: 30px; z-index: 31; }
-        .visualizer-bar { width: 4px; height: 20px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border-radius: 2px; transition: height 0.05s ease; }
         
         /* FEEDBACK */
         .feedback-buttons { position: fixed; bottom: 140px; left: 20px; display: flex; gap: 12px; z-index: 27; }
@@ -106,7 +63,6 @@
             transform: translateY(100%);
             transition: transform 0.3s ease;
         }
-        
         .bottom-controls.visible { transform: translateY(0); }
         
         .progress-time { display: flex; justify-content: space-between; font-size: 0.65rem; color: #aaa; margin-bottom: 4px; }
@@ -154,6 +110,33 @@
         .swipe-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.9rem; z-index: 10003; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; border: 1px solid var(--neon-cyan); }
         
         .tap-hint { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 6px 16px; border-radius: 30px; font-size: 0.6rem; color: #aaa; z-index: 25; pointer-events: none; white-space: nowrap; }
+        
+        /* MODAL FEEDBACK ESTRELAS */
+        .feedback-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 30px;
+            padding: 25px;
+            z-index: 5000;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            width: 85%;
+            max-width: 320px;
+            border: 2px solid var(--neon-cyan);
+            text-align: center;
+        }
+        .feedback-modal.open { display: flex; }
+        .feedback-modal h3 { color: var(--neon-cyan); margin-bottom: 5px; }
+        .stars { display: flex; justify-content: center; gap: 10px; margin: 10px 0; }
+        .star { font-size: 2rem; color: #555; cursor: pointer; transition: 0.1s; }
+        .star.active { color: #ffd700; text-shadow: 0 0 5px #ffd700; }
+        .feedback-modal textarea { width: 100%; height: 80px; background: rgba(255,255,255,0.1); border: 1px solid rgba(0,243,255,0.3); border-radius: 15px; padding: 10px; color: white; resize: none; }
+        .feedback-modal button { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; padding: 12px; border-radius: 30px; color: #000; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .close-feedback { background: rgba(255,255,255,0.1) !important; color: white !important; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -175,16 +158,8 @@
         <div class="top-bar">
             <div class="genre-badge" id="genreBadge"><i class="fas fa-brain"></i> MPB/POP</div>
             <div class="top-buttons">
-                <div class="bt-status" id="btDiv"><i class="fab fa-bluetooth-b"></i> <span id="btText">--</span></div>
                 <div class="icon-btn" id="shareBtn"><i class="fas fa-share-alt"></i></div>
             </div>
-        </div>
-
-        <!-- INFO DA MÚSICA (PEQUENA, NÃO ATRAPALHA) -->
-        <div class="music-info" id="musicInfo">
-            <div class="track-title-small" id="trackTitle">🎵 Carregando...</div>
-            <div class="track-artist-small" id="trackArtist">Rádio Patico</div>
-            <div class="live-badge-small" id="liveTag"></div>
         </div>
 
         <div class="tap-hint">👆 Toque na tela para mostrar controles</div>
@@ -213,14 +188,6 @@
     </div>
 
     <button class="cta-button" id="ctaButton"><i class="fas fa-headset"></i> PEÇA PLAYLIST</button>
-
-    <div class="visualizer" id="visualizer">
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-        <div class="visualizer-bar"></div>
-    </div>
 
     <!-- MENU 3 PONTOS -->
     <div class="menu-button" id="menuButton" style="display: none;"><i class="fas fa-ellipsis-v"></i></div>
@@ -259,6 +226,21 @@
         <button class="close-genres" id="closeStatsBtn">FECHAR</button>
     </div>
 
+    <!-- FEEDBACK COM ESTRELAS E TEXTO -->
+    <div class="feedback-modal" id="feedbackModal">
+        <h3><i class="fas fa-star"></i> Avalie a música</h3>
+        <div class="stars" id="starRating">
+            <i class="far fa-star star" data-rating="1"></i>
+            <i class="far fa-star star" data-rating="2"></i>
+            <i class="far fa-star star" data-rating="3"></i>
+            <i class="far fa-star star" data-rating="4"></i>
+            <i class="far fa-star star" data-rating="5"></i>
+        </div>
+        <textarea id="feedbackText" placeholder="Escreva sua opinião ou sugestão..."></textarea>
+        <button id="sendFeedbackBtn"><i class="fab fa-whatsapp"></i> Enviar via WhatsApp</button>
+        <button id="closeFeedbackBtn" class="close-feedback">Cancelar</button>
+    </div>
+
     <div class="notification" id="notification">Mensagem</div>
     <div class="loading" id="loading"><i class="fas fa-circle-notch fa-spin"></i><span>Carregando...</span></div>
     <div class="swipe-indicator" id="swipeIndicator">👉 Deslize para trocar música</div>
@@ -285,6 +267,7 @@
         let generoSelecionado = null;
         let musicasMPB = [], musicasPOP = [], todasMusicas = [];
         let hideControlsTimeout = null;
+        let currentRating = 0;
 
         let userPreferences = { likedSongs: [], dislikedSongs: [], genrePreference: {}, songPlays: {} };
         let stats = { totalPlayed: 0, genreCount: {} };
@@ -295,9 +278,6 @@
         const progressFill = document.getElementById('progressFill');
         const currentTimeEl = document.getElementById('currentTime');
         const totalTimeEl = document.getElementById('totalTime');
-        const trackTitle = document.getElementById('trackTitle');
-        const trackArtist = document.getElementById('trackArtist');
-        const liveTag = document.getElementById('liveTag');
         const genreBadge = document.getElementById('genreBadge');
         const splash = document.getElementById('splash');
         const tapToStart = document.getElementById('tap-to-start');
@@ -306,10 +286,9 @@
         const notification = document.getElementById('notification');
         const loading = document.getElementById('loading');
         const audioIndicator = document.getElementById('audioIndicator');
-        const btTextSpan = document.getElementById('btText');
-        const btDiv = document.getElementById('btDiv');
         const bottomControls = document.getElementById('bottomControls');
         const shuffleBtn = document.getElementById('shuffleBtn');
+        const feedbackModal = document.getElementById('feedbackModal');
 
         audio.volume = 0.9;
 
@@ -335,15 +314,14 @@
             hideControlsTimeout = setTimeout(() => bottomControls.classList.remove('visible'), 3000);
         }
 
+        // BLUETOOTH
         async function checkBluetooth() {
             if(navigator.bluetooth && navigator.bluetooth.getAvailability) {
                 const avail = await navigator.bluetooth.getAvailability();
-                if(avail) { btTextSpan.innerText = "Conectado"; btDiv.classList.add("connected"); }
-                else { btTextSpan.innerText = "Offline"; btDiv.classList.remove("connected"); }
-            } else { btTextSpan.innerText = "N/D"; }
+                if(avail) showNotification("📡 Bluetooth disponível", 1500);
+                else showNotification("📡 Bluetooth indisponível", 1500);
+            } else { showNotification("📡 Bluetooth não suportado", 1500); }
         }
-        setInterval(checkBluetooth, 5000);
-        checkBluetooth();
 
         function calculateSongWeight(song) {
             let weight = 1.0;
@@ -415,27 +393,14 @@
             else { modoAtual = "GENERO_ESPECIFICO"; generoSelecionado = genero; showNotification(`🎵 ${genero} ativado!`, 1500); }
             updateGenreBadge();
             const novaMusica = getProximaMusica();
-            if (novaMusica) { filteredPlaylist = [novaMusica]; currentIndex = 0; loadTrackUI(0); if (isPlaying) playMusic(); }
-        }
-
-        function loadTrackUI(index) {
-            if (!filteredPlaylist.length) return;
-            const track = filteredPlaylist[index];
-            if (!track) return;
-            trackTitle.textContent = track.title;
-            trackArtist.textContent = track.artist;
-            if (track.tipo === "ao vivo") liveTag.innerHTML = "🔴 AO VIVO";
-            else liveTag.innerHTML = "";
-            currentTimeEl.textContent = "0:00";
-            totalTimeEl.textContent = "0:00";
-            progressFill.style.width = "0%";
+            if (novaMusica) { filteredPlaylist = [novaMusica]; currentIndex = 0; if (isPlaying) playMusic(); }
         }
 
         async function playMusic() {
             if (!isBackgroundActive) { showNotification("⚠️ Clique em 'ATIVAR RÁDIO' primeiro!"); return; }
             if (!filteredPlaylist.length) {
                 const proxima = getProximaMusica();
-                if (proxima) { filteredPlaylist = [proxima]; currentIndex = 0; loadTrackUI(0); }
+                if (proxima) { filteredPlaylist = [proxima]; currentIndex = 0; }
                 else return;
             }
             showLoading(true);
@@ -452,7 +417,6 @@
                         isPlaying = true;
                         playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                         startTimer();
-                        startVisualizer();
                         userPreferences.songPlays[track.id] = (userPreferences.songPlays[track.id] || 0) + 1;
                         userPreferences.genrePreference[track.genero] = (userPreferences.genrePreference[track.genero] || 0) + 1;
                         stats.totalPlayed++;
@@ -468,13 +432,13 @@
             });
         }
 
-        function pauseMusic() { audio.pause(); isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; stopTimer(); stopVisualizer(); }
+        function pauseMusic() { audio.pause(); isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; stopTimer(); }
         function togglePlay() { if (!isBackgroundActive) { showNotification("Ative o áudio primeiro!"); return; } isPlaying ? pauseMusic() : playMusic(); showControls(); }
 
         function nextTrack() {
             const proxima = getProximaMusica();
-            if (proxima) { filteredPlaylist = [proxima]; currentIndex = 0; loadTrackUI(0); if (isPlaying) playMusic(); }
-            else if (todasMusicas.length > 0) { const fallback = getMusicaAleatoria(todasMusicas); if (fallback) { filteredPlaylist = [fallback]; currentIndex = 0; loadTrackUI(0); if (isPlaying) playMusic(); } }
+            if (proxima) { filteredPlaylist = [proxima]; currentIndex = 0; if (isPlaying) playMusic(); }
+            else if (todasMusicas.length > 0) { const fallback = getMusicaAleatoria(todasMusicas); if (fallback) { filteredPlaylist = [fallback]; currentIndex = 0; if (isPlaying) playMusic(); } }
             showControls();
         }
 
@@ -482,7 +446,7 @@
             let musicasDisponiveis = todasMusicas;
             if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) musicasDisponiveis = todasMusicas.filter(m => m.genero === generoSelecionado);
             const outras = musicasDisponiveis.filter(m => m.id !== filteredPlaylist[0]?.id);
-            if (outras.length > 0) { const anterior = getMusicaAleatoria(outras); filteredPlaylist = [anterior]; currentIndex = 0; loadTrackUI(0); if (isPlaying) playMusic(); }
+            if (outras.length > 0) { const anterior = getMusicaAleatoria(outras); filteredPlaylist = [anterior]; currentIndex = 0; if (isPlaying) playMusic(); }
             showControls();
         }
 
@@ -513,6 +477,30 @@
             showControls();
         }
 
+        // FEEDBACK COM ESTRELAS
+        function openFeedbackModal() {
+            currentRating = 0;
+            document.getElementById('feedbackText').value = '';
+            document.querySelectorAll('.star').forEach(star => {
+                star.classList.remove('fas', 'active');
+                star.classList.add('far');
+            });
+            feedbackModal.classList.add('open');
+        }
+
+        function sendFeedback() {
+            const track = filteredPlaylist[currentIndex];
+            if (!track) return;
+            const comment = document.getElementById('feedbackText').value;
+            let starsText = '';
+            if (currentRating > 0) starsText = '★'.repeat(currentRating) + '☆'.repeat(5 - currentRating);
+            else starsText = 'Sem avaliação';
+            const msg = `🎵 *RÁDIO PATICO - FEEDBACK* 🎵%0A%0A🎤 Música: ${track.title}%0A👤 Artista: ${track.artist}%0A🎸 Gênero: ${track.genero}%0A⭐ Avaliação: ${starsText}%0A💬 Comentário: ${comment || "Sem comentário"}`;
+            window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
+            showNotification("📱 Feedback enviado!", 1500);
+            feedbackModal.classList.remove('open');
+        }
+
         function startTimer() {
             stopTimer();
             timerInterval = setInterval(() => {
@@ -525,16 +513,6 @@
             }, 200);
         }
         function stopTimer() { if (timerInterval) clearInterval(timerInterval); timerInterval = null; }
-
-        function startVisualizer() {
-            if (visualizerInterval) clearInterval(visualizerInterval);
-            visualizerInterval = setInterval(() => {
-                if (isPlaying && audio.duration && !audio.paused) {
-                    document.querySelectorAll('.visualizer-bar').forEach(bar => bar.style.height = (8 + Math.random() * 32) + 'px');
-                } else { document.querySelectorAll('.visualizer-bar').forEach(bar => bar.style.height = '4px'); }
-            }, 100);
-        }
-        function stopVisualizer() { if (visualizerInterval) clearInterval(visualizerInterval); visualizerInterval = null; document.querySelectorAll('.visualizer-bar').forEach(bar => bar.style.height = '4px'); }
 
         function createSilentAudio() {
             const sampleRate = 44100, duration = 2, numSamples = sampleRate * duration;
@@ -600,6 +578,17 @@
             }
         });
 
+        // ESTRELAS
+        document.querySelectorAll('.star').forEach(star => {
+            star.addEventListener('click', () => {
+                currentRating = parseInt(star.dataset.rating);
+                document.querySelectorAll('.star').forEach((s, i) => {
+                    if (i < currentRating) { s.classList.add('fas', 'active'); s.classList.remove('far'); }
+                    else { s.classList.remove('fas', 'active'); s.classList.add('far'); }
+                });
+            });
+        });
+
         // CONSTRUIR MODAL DE GÊNEROS
         function buildGenresGrid() {
             const grid = document.getElementById('genresGrid');
@@ -652,7 +641,7 @@
                 modoAtual = "MPB_POP";
                 updateGenreBadge();
                 const primeiraMusica = getProximaMusica();
-                if (primeiraMusica) { filteredPlaylist = [primeiraMusica]; currentIndex = 0; loadTrackUI(0); }
+                if (primeiraMusica) { filteredPlaylist = [primeiraMusica]; currentIndex = 0; }
                 buildGenresGrid();
                 setTimeout(() => {
                     splash.classList.add('hidden');
@@ -704,7 +693,6 @@
         });
         document.getElementById('btStatusMenuBtn').addEventListener('click', () => {
             checkBluetooth();
-            showNotification(`Bluetooth: ${btTextSpan.innerText}`, 1500);
             document.getElementById('menuPopup').classList.remove('open');
             showControls();
         });
@@ -713,10 +701,12 @@
             showControls();
         });
         document.getElementById('feedbackMenuBtn').addEventListener('click', () => {
-            window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=🎵 Feedback Rádio Patico: `, '_blank');
+            openFeedbackModal();
             document.getElementById('menuPopup').classList.remove('open');
             showControls();
         });
+        document.getElementById('sendFeedbackBtn').addEventListener('click', sendFeedback);
+        document.getElementById('closeFeedbackBtn').addEventListener('click', () => feedbackModal.classList.remove('open'));
         document.getElementById('statsMenuBtn').addEventListener('click', () => {
             const savedStats = localStorage.getItem('radio_patico_stats');
             if (savedStats) { const s = JSON.parse(savedStats); document.getElementById('statTotalPlayed').textContent = s.totalPlayed || 0; }
@@ -760,7 +750,6 @@
         setInterval(() => { const video = document.getElementById('bgVideo'); if (video && video.paused) video.play().catch(e => console.log); }, 5000);
 
         carregarPlaylist();
-        startVisualizer();
     </script>
 </body>
 </html>
