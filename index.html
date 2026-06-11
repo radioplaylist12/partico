@@ -195,7 +195,7 @@
 
     <div id="splash">
         <div class="splash-content">
-            <i class="fas fa-brain"></i>
+            <i class="fas fa-music"></i>
             <h1>RÁDIO PATICO</h1>
             <div class="loading-text"><i class="fas fa-circle-notch fa-spin"></i> Carregando playlist...</div>
         </div>
@@ -325,7 +325,7 @@
         let timerInterval = null;
         let modoAtual = "MPB_POP";
         let generoSelecionado = null;
-        let musicasMPB = [], musicasPOP = [], todasMusicas = [];
+        let musicasMPB = [], musicasPOP = [], musicasGLOBAL = [], todasMusicas = [];
         let hideControlsTimeout = null;
         let currentRating = 0;
 
@@ -506,7 +506,12 @@
             }
             
             if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
-                const musicasDoGenero = todasMusicas.filter(m => m.genero === generoSelecionado);
+                let musicasDoGenero = [];
+                if (generoSelecionado === "GLOBAL HITS") {
+                    musicasDoGenero = musicasGLOBAL;
+                } else {
+                    musicasDoGenero = todasMusicas.filter(m => m.genero === generoSelecionado);
+                }
                 if (musicasDoGenero.length === 0) return getMusicaAleatoria(todasMusicas);
                 return getMusicaAleatoria(musicasDoGenero, filteredPlaylist[currentIndex]?.id);
             }
@@ -539,8 +544,12 @@
                 showNotification("🎵 Modo TODOS os estilos!", 1500);
             } else if (genero === "GLOBAL HITS") {
                 modoAtual = "GENERO_ESPECIFICO";
-                generoSelecionado = "POP";
+                generoSelecionado = "GLOBAL HITS";
                 showNotification("🎵 GLOBAL HITS ativado!", 1500);
+            } else if (genero === "POP") {
+                modoAtual = "GENERO_ESPECIFICO";
+                generoSelecionado = "POP";
+                showNotification("🎵 POP ativado!", 1500);
             } else { 
                 modoAtual = "GENERO_ESPECIFICO"; 
                 generoSelecionado = genero; 
@@ -606,7 +615,13 @@
 
         function prevTrack() {
             let musicasDisponiveis = todasMusicas;
-            if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) musicasDisponiveis = todasMusicas.filter(m => m.genero === generoSelecionado);
+            if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
+                if (generoSelecionado === "GLOBAL HITS") {
+                    musicasDisponiveis = musicasGLOBAL;
+                } else {
+                    musicasDisponiveis = todasMusicas.filter(m => m.genero === generoSelecionado);
+                }
+            }
             const outras = musicasDisponiveis.filter(m => m.id !== filteredPlaylist[0]?.id);
             if (outras.length > 0) { const anterior = getMusicaAleatoria(outras); filteredPlaylist = [anterior]; currentIndex = 0; updateScrollText(anterior); if (isPlaying) playMusic(); }
             showControls();
@@ -758,17 +773,18 @@
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
             
-            // Lista de gêneros com suas imagens (NOMES CORRETOS)
+            // Lista de gêneros com suas imagens
             const generosComImagem = [
-                { nome: "MPB_POP", exibicao: "MPB/POP", imagem: "mpbpop90.png", filtro: "MPB_POP" },
-                { nome: "TODOS", exibicao: "", imagem: "todos90.png", filtro: "TODOS" },
-                { nome: "SERTANEJO", exibicao: "", imagem: "ser90.png", filtro: "SERTANEJO" },
-                { nome: "FORRÓ", exibicao: "", imagem: "forro90.png", filtro: "FORRÓ" },
-                { nome: "SAMBA", exibicao: "", imagem: "samba90.png", filtro: "SAMBA" },
-                { nome: "BREGA", exibicao: "", imagem: "brega90.png", filtro: "BREGA" },
-                { nome: "GLOBAL HITS", exibicao: "", imagem: "global90.png", filtro: "GLOBAL HITS" },
-                { nome: "MPB", exibicao: "", imagem: "mpb90.png", filtro: "MPB" },
-                { nome: "MODA TOP", exibicao: "", imagem: "moda90.png", filtro: "MODA TOP" }
+                { nome: "MPB_POP", imagem: "mpbpop90.png", filtro: "MPB_POP" },
+                { nome: "TODOS", imagem: "todos90.png", filtro: "TODOS" },
+                { nome: "SERTANEJO", imagem: "ser90.png", filtro: "SERTANEJO" },
+                { nome: "FORRÓ", imagem: "forro90.png", filtro: "FORRÓ" },
+                { nome: "SAMBA", imagem: "samba90.png", filtro: "SAMBA" },
+                { nome: "BREGA", imagem: "brega90.png", filtro: "BREGA" },
+                { nome: "GLOBAL HITS", imagem: "global90.png", filtro: "GLOBAL HITS" },
+                { nome: "POP", imagem: "pop90.png", filtro: "POP" },
+                { nome: "MPB", imagem: "mpb90.png", filtro: "MPB" },
+                { nome: "MODA TOP", imagem: "moda90.png", filtro: "MODA TOP" }
             ];
             
             generosComImagem.forEach(g => {
@@ -778,12 +794,8 @@
                 card.style.backgroundSize = "cover";
                 card.style.backgroundPosition = "center";
                 card.style.backgroundColor = "#000";
-                card.setAttribute("data-genre", g.nome);
                 card.onclick = () => { 
-                    if (g.filtro === "MPB_POP") filterByGenre("MPB_POP");
-                    else if (g.filtro === "TODOS") filterByGenre("TODOS");
-                    else if (g.filtro === "GLOBAL HITS") filterByGenre("GLOBAL HITS");
-                    else filterByGenre(g.filtro);
+                    filterByGenre(g.filtro);
                     activateFullscreenAndClose();
                 };
                 grid.appendChild(card);
@@ -791,7 +803,7 @@
             
             // Adiciona gêneros extras do JSON
             const generosUnicos = [...new Set(todasMusicas.map(m => m.genero))];
-            const generosJaAdicionados = ["MPB_POP", "TODOS", "SERTANEJO", "FORRÓ", "SAMBA", "BREGA", "POP", "MPB", "MODA TOP", "GLOBAL HITS"];
+            const generosJaAdicionados = ["MPB_POP", "TODOS", "SERTANEJO", "FORRÓ", "SAMBA", "BREGA", "GLOBAL HITS", "POP", "MPB", "MODA TOP"];
             generosUnicos.forEach(genero => {
                 if (!generosJaAdicionados.includes(genero) && genero !== "FORRÓ ANTIGO") {
                     const card = document.createElement('div');
@@ -823,9 +835,10 @@
                 
                 musicasMPB = musicas.filter(m => m.genero === "MPB");
                 musicasPOP = musicas.filter(m => m.genero === "POP");
+                musicasGLOBAL = musicas.filter(m => m.genero === "POP" || m.genero === "INTERNATIONAL");
                 todasMusicas = [...musicas];
                 
-                console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | Outros: ${todasMusicas.length - musicasMPB.length - musicasPOP.length}`);
+                console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | GLOBAL: ${musicasGLOBAL.length} | Outros: ${todasMusicas.length - musicasMPB.length - musicasPOP.length}`);
                 
                 modoAtual = "MPB_POP";
                 updateGenreBadge();
