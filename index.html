@@ -67,15 +67,58 @@
         .genre-fab-btn { background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan)); width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1.4rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
         
-        /* MODAL GÊNEROS */
-        .genres-modal { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 30px 30px 0 0; padding: 25px 20px 30px; z-index: 2000; transform: translateY(100%); transition: transform 0.3s ease; max-height: 85vh; overflow-y: auto; }
+        /* MODAL GÊNEROS COM IMAGENS */
+        .genres-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 30px 30px 0 0;
+            padding: 25px 20px 30px;
+            z-index: 2000;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
         .genres-modal.open { transform: translateY(0); }
         .genres-modal h3 { text-align: center; margin-bottom: 20px; font-size: 1.4rem; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .genres-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-        .genre-card { border-radius: 16px; padding: 16px 12px; text-align: center; cursor: pointer; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); }
-        .genre-card:active { transform: scale(0.96); background: rgba(0, 243, 255, 0.2); border-color: var(--neon-cyan); }
-        .genre-card i { font-size: 2rem; display: block; margin-bottom: 8px; color: var(--neon-cyan); }
-        .genre-card span { font-size: 0.8rem; font-weight: 600; color: white; }
+        .genre-card {
+            border-radius: 16px;
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .genre-card:active { transform: scale(0.96); }
+        .genre-card img { 
+            width: 60px; 
+            height: 60px; 
+            border-radius: 50%; 
+            margin-bottom: 8px;
+            object-fit: cover;
+            border: 2px solid var(--neon-cyan);
+        }
+        .genre-card span { 
+            font-size: 0.8rem; 
+            font-weight: 800; 
+            color: white; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.5);
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
         .close-genres { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; border-radius: 30px; color: #000; font-size: 1rem; cursor: pointer; font-weight: bold; }
         
         /* CONTROLES INFERIORES */
@@ -284,7 +327,6 @@
         const NUMERO_WHATSAPP = "5512988461978";
         
         // ==================== RSS NEWS (SEM API, GRÁTIS) ====================
-        // RSS do G1 (principal portal do Brasil)
         const RSS_URL = "https://g1.globo.com/rss/g1/";
         const RSS_TO_JSON = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
         
@@ -292,7 +334,7 @@
         let newsIndex = 0;
         let alternationInterval = null;
         let currentMusicText = "🎵 RÁDIO PATICO - A MELHOR PLAYLIST COM IA! 🎵";
-        let currentDisplayMode = "music"; // "music" ou "news"
+        let currentDisplayMode = "music";
 
         // ==================== VARIÁVEIS ====================
         let musicas = [];
@@ -368,7 +410,6 @@
             if (alternationInterval) clearInterval(alternationInterval);
             alternationInterval = setInterval(() => {
                 if (currentDisplayMode === "music") {
-                    // Trocar para notícia
                     currentDisplayMode = "news";
                     if (newsList.length > 0) {
                         const news = newsList[newsIndex % newsList.length];
@@ -378,11 +419,10 @@
                         scrollText.innerHTML = currentMusicText;
                     }
                 } else {
-                    // Trocar para música
                     currentDisplayMode = "music";
                     scrollText.innerHTML = currentMusicText;
                 }
-            }, 12000); // Alterna a cada 12 segundos
+            }, 12000);
         }
 
         async function fetchNews() {
@@ -391,9 +431,7 @@
                 const response = await fetch(RSS_TO_JSON);
                 if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
                 const data = await response.json();
-                
                 if (data.items && data.items.length > 0) {
-                    // Pega os títulos das notícias e remove HTML
                     newsList = data.items.map(item => ({ 
                         title: item.title.replace(/<[^>]*>/g, '').substring(0, 80)
                     }));
@@ -403,16 +441,11 @@
                 }
             } catch (error) {
                 console.error("Erro ao buscar notícias:", error);
-                // Notícias de fallback caso o RSS falhe
                 newsList = [
                     { title: "Rádio Patico - Sua playlist inteligente 24/7" },
                     { title: "Curta as músicas e a IA aprende seu gosto!" },
                     { title: "Deixe seu like ou dislike para melhorar as recomendações" },
-                    { title: "Compartilhe a Rádio Patico com seus amigos!" },
-                    { title: "Feedback? Use o menu 3 pontinhos e avalie as músicas" },
-                    { title: "Modo MPB/POP alterna automaticamente entre os estilos" },
-                    { title: "Escolha seu gênero favorito no botão roxo" },
-                    { title: "Rádio Patico - A rádio que aprende com você" }
+                    { title: "Compartilhe a Rádio Patico com seus amigos!" }
                 ];
                 console.log(`📰 Usando ${newsList.length} notícias de fallback`);
             }
@@ -464,29 +497,22 @@
             return candidatas[Math.floor(Math.random() * candidatas.length)];
         }
 
-        // ==================== LÓGICA DE GÊNEROS (CORRIGIDA) ====================
+        // ==================== LÓGICA DE GÊNEROS ====================
         function getProximaMusica() {
             if (todasMusicas.length === 0) return null;
             
             if (modoAtual === "MPB_POP") {
-                // CORREÇÃO: Só usa MPB e POP, NADA de outros gêneros
                 if (musicasMPB.length === 0 && musicasPOP.length === 0) {
                     showNotification("⚠️ Nenhuma música MPB ou POP encontrada!", 2000);
                     return null;
                 }
-                
                 const ultimaMusica = filteredPlaylist[currentIndex];
                 const ultimoGenero = ultimaMusica?.genero;
                 let novoGenero;
-                
-                // Se a última música era MPB, toca POP. Se era POP, toca MPB.
                 if (ultimoGenero === "MPB") novoGenero = "POP";
                 else if (ultimoGenero === "POP") novoGenero = "MPB";
                 else novoGenero = Math.random() < 0.5 ? "MPB" : "POP";
-                
                 const listaNovoGenero = novoGenero === "MPB" ? musicasMPB : musicasPOP;
-                
-                // Se o gênero escolhido não tem músicas, tenta o outro
                 if (listaNovoGenero.length === 0) {
                     const outraLista = novoGenero === "MPB" ? musicasPOP : musicasMPB;
                     if (outraLista.length === 0) return null;
@@ -507,14 +533,8 @@
         function updateGenreBadge() {
             if (modoAtual === "MPB_POP") genreBadge.innerHTML = '<i class="fas fa-exchange-alt"></i> MPB/POP';
             else if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
-                let icon = getGenreIcon(generoSelecionado);
-                genreBadge.innerHTML = `<i class="fas ${icon}"></i> ${generoSelecionado}`;
+                genreBadge.innerHTML = `<i class="fas fa-music"></i> ${generoSelecionado}`;
             } else genreBadge.innerHTML = '<i class="fas fa-list-ul"></i> TODOS';
-        }
-
-        function getGenreIcon(genero) {
-            const icons = { "FORRÓ": "fa-drum", "FORRÓ ANTIGO": "fa-accordion", "BREGA": "fa-heart", "MPB": "fa-guitar", "POP": "fa-microphone-alt", "SERTANEJO": "fa-hat-cowboy", "MODA TOP": "fa-guitar", "SAMBA": "fa-drumstick-bite" };
-            return icons[genero] || "fa-music";
         }
 
         function filterByGenre(genero) {
@@ -739,34 +759,51 @@
             });
         });
 
-        // ==================== MODAL GÊNEROS ====================
+        // ==================== MODAL GÊNEROS COM IMAGENS ====================
         function buildGenresGrid() {
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
             
-            const mpbPopCard = document.createElement('div');
-            mpbPopCard.className = 'genre-card';
-            mpbPopCard.style.background = "linear-gradient(135deg,#e63946,#ff6b6b)";
-            mpbPopCard.innerHTML = '<i class="fas fa-exchange-alt"></i><span>MPB/POP</span>';
-            mpbPopCard.onclick = () => { filterByGenre("MPB_POP"); document.getElementById('genresModal').classList.remove('open'); };
-            grid.appendChild(mpbPopCard);
+            // Gêneros com imagens (removido FORRÓ ANTIGO, POP virou GLOBAL HITS)
+            const generosComImagem = [
+                { nome: "MPB_POP", exibicao: "MPB/POP", imagem: "mpbpop90.png" },
+                { nome: "TODOS", exibicao: "TODOS", imagem: "todos90.png" },
+                { nome: "SERTANEJO", exibicao: "SERTANEJO", imagem: "sertanejo90.png" },
+                { nome: "FORRÓ", exibicao: "FORRÓ", imagem: "forro90.png" },
+                { nome: "SAMBA", exibicao: "SAMBA", imagem: "samba90.png" },
+                { nome: "BREGA", exibicao: "BREGA", imagem: "brega90.png" },
+                { nome: "GLOBAL HITS", exibicao: "GLOBAL HITS", imagem: "global90.png" },
+                { nome: "MPB", exibicao: "MPB", imagem: "mpbpop90.png" },
+                { nome: "MODA TOP", exibicao: "MODA TOP", imagem: "moda90.png" }
+            ];
             
-            const todosCard = document.createElement('div');
-            todosCard.className = 'genre-card';
-            todosCard.style.background = "linear-gradient(135deg,#00b4db,#0083b0)";
-            todosCard.innerHTML = '<i class="fas fa-list-ul"></i><span>TODOS</span>';
-            todosCard.onclick = () => { filterByGenre("TODOS"); document.getElementById('genresModal').classList.remove('open'); };
-            grid.appendChild(todosCard);
-            
-            const generosUnicos = [...new Set(todasMusicas.map(m => m.genero))];
-            const cores = ["linear-gradient(135deg,#f2994a,#f2c94c)","linear-gradient(135deg,#2193b0,#6dd5ed)","linear-gradient(135deg,#134e5e,#71b280)","linear-gradient(135deg,#f12711,#f5af19)","linear-gradient(135deg,#8E2DE2,#4A00E0)","linear-gradient(135deg,#cc2b5e,#753a88)"];
-            generosUnicos.forEach((genero, idx) => {
+            generosComImagem.forEach(g => {
                 const card = document.createElement('div');
                 card.className = 'genre-card';
-                card.style.background = cores[idx % cores.length];
-                card.innerHTML = `<i class="fas ${getGenreIcon(genero)}"></i><span>${genero}</span>`;
-                card.onclick = () => { filterByGenre(genero); document.getElementById('genresModal').classList.remove('open'); };
+                card.style.background = "rgba(0,0,0,0.6)";
+                card.innerHTML = `<img src="${g.imagem}" alt="${g.exibicao}"><span>${g.exibicao}</span>`;
+                card.onclick = () => { 
+                    if (g.nome === "MPB_POP") filterByGenre("MPB_POP");
+                    else if (g.nome === "TODOS") filterByGenre("TODOS");
+                    else if (g.nome === "GLOBAL HITS") filterByGenre("POP");
+                    else filterByGenre(g.nome);
+                    document.getElementById('genresModal').classList.remove('open'); 
+                };
                 grid.appendChild(card);
+            });
+            
+            // Adiciona os gêneros adicionais do JSON que não estão na lista fixa
+            const generosUnicos = [...new Set(todasMusicas.map(m => m.genero))];
+            const generosJaAdicionados = ["MPB_POP", "TODOS", "SERTANEJO", "FORRÓ", "SAMBA", "BREGA", "POP", "MPB", "MODA TOP"];
+            generosUnicos.forEach(genero => {
+                if (!generosJaAdicionados.includes(genero) && genero !== "FORRÓ ANTIGO") {
+                    const card = document.createElement('div');
+                    card.className = 'genre-card';
+                    card.style.background = "rgba(0,0,0,0.6)";
+                    card.innerHTML = `<img src="default90.png" alt="${genero}"><span>${genero}</span>`;
+                    card.onclick = () => { filterByGenre(genero); document.getElementById('genresModal').classList.remove('open'); };
+                    grid.appendChild(card);
+                }
             });
         }
 
@@ -785,7 +822,6 @@
                 console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
                 splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
                 
-                // CORREÇÃO: Filtra APENAS MPB e POP para o modo MPB_POP
                 musicasMPB = musicas.filter(m => m.genero === "MPB");
                 musicasPOP = musicas.filter(m => m.genero === "POP");
                 todasMusicas = [...musicas];
@@ -804,7 +840,6 @@
                 
                 buildGenresGrid();
                 
-                // Buscar notícias do RSS e iniciar alternância
                 await fetchNews();
                 startNewsAlternation();
                 
@@ -911,7 +946,6 @@
         setInterval(() => { const video = document.getElementById('bgVideo'); if (video && video.paused) video.play().catch(e => console.log); }, 5000);
 
         // ==================== INICIALIZAÇÃO ====================
-        // Carregar preferências salvas
         const savedPrefs = localStorage.getItem('radio_patico_prefs');
         if (savedPrefs) { try { userPreferences = { ...userPreferences, ...JSON.parse(savedPrefs) }; } catch(e) {} }
         const savedStats = localStorage.getItem('radio_patico_stats');
