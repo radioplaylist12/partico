@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rádio Patico • Player</title>
+    <title>Rádio Patico • Player IA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -23,7 +23,7 @@
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(0,243,255,0.3); }
         .genre-badge { background: rgba(0,243,255,0.15); padding: 6px 16px; border-radius: 30px; font-size: 0.7rem; font-weight: bold; color: var(--neon-cyan); border-left: 3px solid var(--neon-cyan); display: flex; align-items: center; gap: 8px; }
         .top-buttons { display: flex; gap: 12px; align-items: center; }
-        .icon-btn { background: rgba(0,0,0,0.6); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1rem; border: 1px solid rgba(0,243,255,0.3); }
+        .icon-btn { background: rgba(0,0,0,0.6); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1rem; border: 1px solid rgba(0,243,255,0.3); transition: transform 0.2s, background 0.2s; }
         .icon-btn:active { transform: scale(0.92); background: var(--neon-cyan); color: #000; }
         
         /* LETREIRO DE INFORMAÇÕES - LETRAS MAIS GROSSAS */
@@ -59,17 +59,18 @@
         
         /* FEEDBACK */
         .feedback-buttons { position: fixed; bottom: 140px; left: 20px; display: flex; gap: 12px; z-index: 27; }
-        .feedback-btn { width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .feedback-btn { width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: transform 0.1s; }
         .feedback-btn:active { transform: scale(0.92); }
         .feedback-btn.like { color: #4ade80; }
         .feedback-btn.dislike { color: #ef4444; }
         
         /* BOTÃO GÊNERO */
         .genre-fab { position: fixed; bottom: 140px; right: 20px; z-index: 40; }
-        .genre-fab-btn { background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan)); width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1.4rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite; }
+        .genre-fab-btn { background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan)); width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1.4rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite; transition: transform 0.2s; }
+        .genre-fab-btn:active { transform: scale(0.95); }
         @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
         
-        /* MODAL GÊNEROS - FOTO PREENCHE TODO O QUADRADO */
+        /* MODAL GÊNEROS - COM EFEITO HOVER */
         .genres-modal {
             position: fixed;
             bottom: 0;
@@ -93,15 +94,16 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             border: 1px solid rgba(255,255,255,0.2);
             aspect-ratio: 5 / 3;
             background-color: #000;
         }
+        .genre-card:hover { transform: scale(1.02); border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0,243,255,0.3); }
         .genre-card:active { transform: scale(0.96); }
         .close-genres { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; border-radius: 30px; color: #000; font-size: 1rem; cursor: pointer; font-weight: bold; }
         
-        /* CONTROLES INFERIORES */
+        /* CONTROLES INFERIORES COM BARRA DE PROGRESSO MELHORADA */
         .bottom-controls {
             position: fixed;
             bottom: 0;
@@ -118,20 +120,49 @@
         .bottom-controls.visible { transform: translateY(0); }
         
         .progress-time { display: flex; justify-content: space-between; font-size: 0.65rem; color: #aaa; margin-bottom: 4px; }
-        .progress-bar { height: 4px; background: rgba(255,255,255,0.2); cursor: pointer; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink)); width: 0%; border-radius: 4px; }
+        .progress-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            cursor: pointer;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+            width: 0%;
+            border-radius: 4px;
+            position: relative;
+        }
+        /* Bolinha na barra de progresso */
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--neon-cyan);
+            opacity: 0.8;
+        }
+        
         .buttons-row { display: flex; align-items: center; justify-content: center; gap: 25px; margin-top: 12px; }
-        .ctrl-btn { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 1.2rem; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; }
+        .ctrl-btn { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 1.2rem; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; transition: transform 0.1s, background 0.2s; }
         .ctrl-btn:active { transform: scale(0.92); background: var(--neon-cyan); color: #000; }
         .play-big { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); width: 58px; height: 58px; font-size: 1.6rem; color: #000; border: none; }
-        .shuffle-btn { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 1rem; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; }
+        .shuffle-btn { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 1rem; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; transition: all 0.2s; }
         .shuffle-btn.active { background: var(--neon-cyan); color: #000; border-color: var(--neon-cyan); }
         
         /* MENU 3 PONTOS */
-        .menu-button { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 31; border: 1px solid rgba(0,243,255,0.3); }
+        .menu-button { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 31; border: 1px solid rgba(0,243,255,0.3); transition: background 0.2s; }
+        .menu-button:active { background: var(--neon-cyan); color: #000; }
         .menu-popup { position: absolute; top: 65px; right: 12px; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); border-radius: 16px; padding: 10px; z-index: 32; display: none; flex-direction: column; gap: 8px; border: 1px solid var(--neon-cyan); min-width: 180px; }
         .menu-popup.open { display: flex; }
-        .menu-popup button { background: rgba(255,255,255,0.08); border: none; color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; display: flex; align-items: center; gap: 10px; cursor: pointer; text-align: left; }
+        .menu-popup button { background: rgba(255,255,255,0.08); border: none; color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; display: flex; align-items: center; gap: 10px; cursor: pointer; text-align: left; transition: background 0.2s; }
         .menu-popup button:active { background: var(--neon-cyan); color: #000; }
         
         /* INDICADORES */
@@ -305,8 +336,8 @@
         const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json";
         const NUMERO_WHATSAPP = "5512988461978";
         
-        // ==================== RSS NEWS ====================
-        const RSS_URL = "https://g1.globo.com/rss/g1/";
+        // ==================== RSS NEWS (UOL - MAIS NOTÍCIAS) ====================
+        const RSS_URL = "https://rss.uol.com.br/feed/noticias.xml";
         const RSS_TO_JSON = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
         
         let newsList = [];
@@ -328,6 +359,7 @@
         let musicasMPB = [], musicasPOP = [], musicasGLOBAL = [], todasMusicas = [];
         let hideControlsTimeout = null;
         let currentRating = 0;
+        let nextSongCache = null; // Para pré-carregar próxima música
 
         let userPreferences = { likedSongs: [], dislikedSongs: [], genrePreference: {}, songPlays: {} };
         let stats = { totalPlayed: 0, genreCount: {} };
@@ -412,7 +444,7 @@
 
         async function fetchNews() {
             try {
-                console.log("🔄 Buscando notícias do RSS G1...");
+                console.log("🔄 Buscando notícias do RSS UOL...");
                 const response = await fetch(RSS_TO_JSON);
                 if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
                 const data = await response.json();
@@ -420,7 +452,7 @@
                     newsList = data.items.map(item => ({ 
                         title: item.title.replace(/<[^>]*>/g, '').substring(0, 80)
                     }));
-                    console.log(`✅ ${newsList.length} notícias carregadas do G1!`);
+                    console.log(`✅ ${newsList.length} notícias carregadas do UOL!`);
                 } else {
                     throw new Error("Nenhuma notícia encontrada");
                 }
@@ -482,12 +514,11 @@
         }
 
         // ==================== LÓGICA DE GÊNEROS ====================
-        function getProximaMusica() {
+        function getProximaMusica(evitarId = null) {
             if (todasMusicas.length === 0) return null;
             
             if (modoAtual === "MPB_POP") {
                 if (musicasMPB.length === 0 && musicasPOP.length === 0) {
-                    showNotification("⚠️ Nenhuma música MPB ou POP encontrada!", 2000);
                     return null;
                 }
                 const ultimaMusica = filteredPlaylist[currentIndex];
@@ -500,9 +531,9 @@
                 if (listaNovoGenero.length === 0) {
                     const outraLista = novoGenero === "MPB" ? musicasPOP : musicasMPB;
                     if (outraLista.length === 0) return null;
-                    return getMusicaAleatoria(outraLista, ultimaMusica?.id);
+                    return getMusicaAleatoria(outraLista, evitarId || ultimaMusica?.id);
                 }
-                return getMusicaAleatoria(listaNovoGenero, ultimaMusica?.id);
+                return getMusicaAleatoria(listaNovoGenero, evitarId || ultimaMusica?.id);
             }
             
             if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
@@ -512,11 +543,22 @@
                 } else {
                     musicasDoGenero = todasMusicas.filter(m => m.genero === generoSelecionado);
                 }
-                if (musicasDoGenero.length === 0) return getMusicaAleatoria(todasMusicas);
-                return getMusicaAleatoria(musicasDoGenero, filteredPlaylist[currentIndex]?.id);
+                if (musicasDoGenero.length === 0) return getMusicaAleatoria(todasMusicas, evitarId);
+                return getMusicaAleatoria(musicasDoGenero, evitarId);
             }
             
-            return getMusicaAleatoria(todasMusicas, filteredPlaylist[currentIndex]?.id);
+            return getMusicaAleatoria(todasMusicas, evitarId);
+        }
+
+        // Pré-carregar próxima música
+        function preloadNextSong() {
+            const proxima = getProximaMusica(filteredPlaylist[currentIndex]?.id);
+            if (proxima && proxima.src) {
+                nextSongCache = new Audio();
+                nextSongCache.src = proxima.src;
+                nextSongCache.load();
+                console.log("🎵 Pré-carregando próxima música:", proxima.title);
+            }
         }
 
         function updateGenreBadge() {
@@ -529,7 +571,6 @@
         function filterByGenre(genero) {
             if (!todasMusicas.length) return;
             
-            // Ativar tela cheia ao escolher gênero
             try {
                 document.documentElement.requestFullscreen();
             } catch(e) {}
@@ -562,6 +603,7 @@
                 currentIndex = 0; 
                 updateScrollText(novaMusica); 
                 if (isPlaying) playMusic(); 
+                preloadNextSong(); // Pré-carregar próxima
             }
         }
 
@@ -576,8 +618,16 @@
             showLoading(true);
             const track = filteredPlaylist[currentIndex];
             if (!track || !track.src) { showLoading(false); nextTrack(); return; }
-            audio.src = track.src;
+            
+            // Usar cache se disponível
+            if (nextSongCache && nextSongCache.src.includes(track.src)) {
+                audio.src = nextSongCache.src;
+                nextSongCache = null;
+            } else {
+                audio.src = track.src;
+            }
             audio.load();
+            
             return new Promise((resolve) => {
                 const timeout = setTimeout(() => { showLoading(false); showNotification(`Timeout: ${track.title}`); nextTrack(); resolve(false); }, 10000);
                 audio.oncanplaythrough = async () => {
@@ -595,6 +645,7 @@
                         localStorage.setItem('radio_patico_stats', JSON.stringify(stats));
                         updateScrollText(track);
                         showLoading(false);
+                        preloadNextSong(); // Pré-carregar próxima música
                         resolve(true);
                     } catch(e) { clearTimeout(timeout); showLoading(false); resolve(false); }
                 };
@@ -607,9 +658,21 @@
         function togglePlay() { if (!isBackgroundActive) { showNotification("Ative o áudio primeiro!"); return; } isPlaying ? pauseMusic() : playMusic(); showControls(); }
 
         function nextTrack() {
-            const proxima = getProximaMusica();
-            if (proxima) { filteredPlaylist = [proxima]; currentIndex = 0; updateScrollText(proxima); if (isPlaying) playMusic(); }
-            else if (todasMusicas.length > 0) { const fallback = getMusicaAleatoria(todasMusicas); if (fallback) { filteredPlaylist = [fallback]; currentIndex = 0; updateScrollText(fallback); if (isPlaying) playMusic(); } }
+            const proxima = getProximaMusica(filteredPlaylist[currentIndex]?.id);
+            if (proxima) { 
+                filteredPlaylist = [proxima]; 
+                currentIndex = 0; 
+                updateScrollText(proxima); 
+                if (isPlaying) playMusic(); 
+            } else if (todasMusicas.length > 0) { 
+                const fallback = getMusicaAleatoria(todasMusicas); 
+                if (fallback) { 
+                    filteredPlaylist = [fallback]; 
+                    currentIndex = 0; 
+                    updateScrollText(fallback); 
+                    if (isPlaying) playMusic(); 
+                } 
+            }
             showControls();
         }
 
@@ -773,7 +836,6 @@
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
             
-            // Lista de gêneros com suas imagens
             const generosComImagem = [
                 { nome: "MPB_POP", imagem: "mpbpop90.png", filtro: "MPB_POP" },
                 { nome: "TODOS", imagem: "todos90.png", filtro: "TODOS" },
@@ -791,9 +853,6 @@
                 const card = document.createElement('div');
                 card.className = 'genre-card';
                 card.style.backgroundImage = `url('${g.imagem}')`;
-                card.style.backgroundSize = "cover";
-                card.style.backgroundPosition = "center";
-                card.style.backgroundColor = "#000";
                 card.onclick = () => { 
                     filterByGenre(g.filtro);
                     activateFullscreenAndClose();
@@ -801,7 +860,6 @@
                 grid.appendChild(card);
             });
             
-            // Adiciona gêneros extras do JSON
             const generosUnicos = [...new Set(todasMusicas.map(m => m.genero))];
             const generosJaAdicionados = ["MPB_POP", "TODOS", "SERTANEJO", "FORRÓ", "SAMBA", "BREGA", "GLOBAL HITS", "POP", "MPB", "MODA TOP"];
             generosUnicos.forEach(genero => {
@@ -809,9 +867,6 @@
                     const card = document.createElement('div');
                     card.className = 'genre-card';
                     card.style.backgroundImage = `url('default90.png')`;
-                    card.style.backgroundSize = "cover";
-                    card.style.backgroundPosition = "center";
-                    card.style.backgroundColor = "#000";
                     card.onclick = () => { filterByGenre(genero); activateFullscreenAndClose(); };
                     grid.appendChild(card);
                 }
