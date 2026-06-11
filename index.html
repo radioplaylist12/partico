@@ -67,7 +67,7 @@
         .genre-fab-btn { background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan)); width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1.4rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
         
-        /* MODAL GÊNEROS COM IMAGENS */
+        /* MODAL GÊNEROS COM IMAGENS OCUPANDO TODO O QUADRADO */
         .genres-modal {
             position: fixed;
             bottom: 0;
@@ -87,7 +87,6 @@
         .genres-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
         .genre-card {
             border-radius: 16px;
-            padding: 16px 12px;
             text-align: center;
             cursor: pointer;
             background-size: cover;
@@ -95,29 +94,23 @@
             background-repeat: no-repeat;
             transition: all 0.2s ease;
             border: 1px solid rgba(255,255,255,0.2);
-            min-height: 120px;
+            min-height: 140px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
         .genre-card:active { transform: scale(0.96); }
-        .genre-card img { 
-            width: 60px; 
-            height: 60px; 
-            border-radius: 50%; 
-            margin-bottom: 8px;
-            object-fit: cover;
-            border: 2px solid var(--neon-cyan);
-        }
         .genre-card span { 
-            font-size: 0.8rem; 
+            font-size: 0.9rem; 
             font-weight: 800; 
             color: white; 
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-            background: rgba(0,0,0,0.5);
-            padding: 4px 8px;
-            border-radius: 20px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.6);
+            padding: 6px 12px;
+            border-radius: 25px;
+            backdrop-filter: blur(4px);
         }
         .close-genres { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; border-radius: 30px; color: #000; font-size: 1rem; cursor: pointer; font-weight: bold; }
         
@@ -231,7 +224,6 @@
             </div>
         </div>
 
-        <!-- LETREIRO DE INFORMAÇÕES (ALTERNA MÚSICA E NOTÍCIA) -->
         <div class="info-scroll" id="infoScroll">
             <p id="scrollText">🎵 RÁDIO PATICO - A MELHOR PLAYLIST COM IA! 🎵</p>
         </div>
@@ -326,7 +318,7 @@
         const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json";
         const NUMERO_WHATSAPP = "5512988461978";
         
-        // ==================== RSS NEWS (SEM API, GRÁTIS) ====================
+        // ==================== RSS NEWS ====================
         const RSS_URL = "https://g1.globo.com/rss/g1/";
         const RSS_TO_JSON = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
         
@@ -396,7 +388,6 @@
             hideControlsTimeout = setTimeout(() => bottomControls.classList.remove('visible'), 3000);
         }
 
-        // ==================== RSS NEWS FUNCTIONS ====================
         function updateScrollText(track) {
             if (track) {
                 currentMusicText = `🎵 RÁDIO PATICO - TOCANDO: ${track.title} - ${track.artist} [${track.genero}] 🎵`;
@@ -447,7 +438,6 @@
                     { title: "Deixe seu like ou dislike para melhorar as recomendações" },
                     { title: "Compartilhe a Rádio Patico com seus amigos!" }
                 ];
-                console.log(`📰 Usando ${newsList.length} notícias de fallback`);
             }
         }
 
@@ -759,12 +749,12 @@
             });
         });
 
-        // ==================== MODAL GÊNEROS COM IMAGENS ====================
+        // ==================== MODAL GÊNEROS COM IMAGENS OCUPANDO TODO O QUADRADO ====================
         function buildGenresGrid() {
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
             
-            // Gêneros com imagens (removido FORRÓ ANTIGO, POP virou GLOBAL HITS)
+            // Lista de gêneros com suas imagens de fundo
             const generosComImagem = [
                 { nome: "MPB_POP", exibicao: "MPB/POP", imagem: "mpbpop90.png" },
                 { nome: "TODOS", exibicao: "TODOS", imagem: "todos90.png" },
@@ -780,8 +770,10 @@
             generosComImagem.forEach(g => {
                 const card = document.createElement('div');
                 card.className = 'genre-card';
-                card.style.background = "rgba(0,0,0,0.6)";
-                card.innerHTML = `<img src="${g.imagem}" alt="${g.exibicao}"><span>${g.exibicao}</span>`;
+                card.style.backgroundImage = `url('${g.imagem}')`;
+                card.style.backgroundSize = "cover";
+                card.style.backgroundPosition = "center";
+                card.innerHTML = `<span>${g.exibicao}</span>`;
                 card.onclick = () => { 
                     if (g.nome === "MPB_POP") filterByGenre("MPB_POP");
                     else if (g.nome === "TODOS") filterByGenre("TODOS");
@@ -792,15 +784,17 @@
                 grid.appendChild(card);
             });
             
-            // Adiciona os gêneros adicionais do JSON que não estão na lista fixa
+            // Adiciona gêneros extras do JSON
             const generosUnicos = [...new Set(todasMusicas.map(m => m.genero))];
             const generosJaAdicionados = ["MPB_POP", "TODOS", "SERTANEJO", "FORRÓ", "SAMBA", "BREGA", "POP", "MPB", "MODA TOP"];
             generosUnicos.forEach(genero => {
                 if (!generosJaAdicionados.includes(genero) && genero !== "FORRÓ ANTIGO") {
                     const card = document.createElement('div');
                     card.className = 'genre-card';
-                    card.style.background = "rgba(0,0,0,0.6)";
-                    card.innerHTML = `<img src="default90.png" alt="${genero}"><span>${genero}</span>`;
+                    card.style.backgroundImage = `url('default90.png')`;
+                    card.style.backgroundSize = "cover";
+                    card.style.backgroundPosition = "center";
+                    card.innerHTML = `<span>${genero}</span>`;
                     card.onclick = () => { filterByGenre(genero); document.getElementById('genresModal').classList.remove('open'); };
                     grid.appendChild(card);
                 }
