@@ -283,11 +283,11 @@
         const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json";
         const NUMERO_WHATSAPP = "5512988461978";
         
-        // ==================== NEWS API (GNews) ====================
-        // 🔴 ATENÇÃO: Substitua "SUA_CHAVE_AQUI" pela sua chave do GNews!
-        // Cadastre-se em: https://gnews.io/ (grátis)
-        const GNEWS_API_KEY = "0f853fd89f9e47789bb6fc96b0dd8d01";
-        const GNEWS_URL = `https://gnews.io/api/v4/top-headlines?country=br&lang=pt&max=10&apikey=${GNEWS_API_KEY}`;
+        // ==================== RSS NEWS (SEM API, GRÁTIS) ====================
+        // RSS do G1 (principal portal do Brasil)
+        const RSS_URL = "https://g1.globo.com/rss/g1/";
+        const RSS_TO_JSON = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
+        
         let newsList = [];
         let newsIndex = 0;
         let alternationInterval = null;
@@ -354,23 +354,13 @@
             hideControlsTimeout = setTimeout(() => bottomControls.classList.remove('visible'), 3000);
         }
 
-        // ==================== NEWS FUNCTIONS ====================
+        // ==================== RSS NEWS FUNCTIONS ====================
         function updateScrollText(track) {
             if (track) {
                 currentMusicText = `🎵 RÁDIO PATICO - TOCANDO: ${track.title} - ${track.artist} [${track.genero}] 🎵`;
                 if (currentDisplayMode === "music") {
                     scrollText.innerHTML = currentMusicText;
                 }
-            }
-        }
-
-        function displayNewsText() {
-            if (newsList.length > 0) {
-                const news = newsList[newsIndex % newsList.length];
-                scrollText.innerHTML = `📰 NOTÍCIA: ${news.title} 📰`;
-                newsIndex++;
-            } else {
-                scrollText.innerHTML = currentMusicText;
             }
         }
 
@@ -397,31 +387,34 @@
 
         async function fetchNews() {
             try {
-                // Se não tiver chave configurada, usa notícias de exemplo
-                if (GNEWS_API_KEY === "SUA_CHAVE_AQUI") {
-                    console.warn("⚠️ Configure sua chave da API GNews!");
-                    newsList = [
-                        { title: "Configure sua chave da API GNews em https://gnews.io/" },
-                        { title: "Rádio Patico - A melhor playlist com IA!" }
-                    ];
-                    return;
-                }
-                
-                const response = await fetch(GNEWS_URL);
+                console.log("🔄 Buscando notícias do RSS G1...");
+                const response = await fetch(RSS_TO_JSON);
                 if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
                 const data = await response.json();
-                if (data.articles && data.articles.length > 0) {
-                    newsList = data.articles;
-                    console.log(`✅ ${newsList.length} notícias carregadas!`);
+                
+                if (data.items && data.items.length > 0) {
+                    // Pega os títulos das notícias e remove HTML
+                    newsList = data.items.map(item => ({ 
+                        title: item.title.replace(/<[^>]*>/g, '').substring(0, 80)
+                    }));
+                    console.log(`✅ ${newsList.length} notícias carregadas do G1!`);
                 } else {
                     throw new Error("Nenhuma notícia encontrada");
                 }
             } catch (error) {
                 console.error("Erro ao buscar notícias:", error);
+                // Notícias de fallback caso o RSS falhe
                 newsList = [
                     { title: "Rádio Patico - Sua playlist inteligente 24/7" },
-                    { title: "Curta as músicas e a IA aprende seu gosto!" }
+                    { title: "Curta as músicas e a IA aprende seu gosto!" },
+                    { title: "Deixe seu like ou dislike para melhorar as recomendações" },
+                    { title: "Compartilhe a Rádio Patico com seus amigos!" },
+                    { title: "Feedback? Use o menu 3 pontinhos e avalie as músicas" },
+                    { title: "Modo MPB/POP alterna automaticamente entre os estilos" },
+                    { title: "Escolha seu gênero favorito no botão roxo" },
+                    { title: "Rádio Patico - A rádio que aprende com você" }
                 ];
+                console.log(`📰 Usando ${newsList.length} notícias de fallback`);
             }
         }
 
@@ -476,7 +469,7 @@
             if (todasMusicas.length === 0) return null;
             
             if (modoAtual === "MPB_POP") {
-                // 🔴 CORREÇÃO: Só usa MPB e POP, NADA de outros gêneros
+                // CORREÇÃO: Só usa MPB e POP, NADA de outros gêneros
                 if (musicasMPB.length === 0 && musicasPOP.length === 0) {
                     showNotification("⚠️ Nenhuma música MPB ou POP encontrada!", 2000);
                     return null;
@@ -792,7 +785,7 @@
                 console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
                 splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
                 
-                // 🔴 CORREÇÃO: Filtra APENAS MPB e POP para o modo MPB_POP
+                // CORREÇÃO: Filtra APENAS MPB e POP para o modo MPB_POP
                 musicasMPB = musicas.filter(m => m.genero === "MPB");
                 musicasPOP = musicas.filter(m => m.genero === "POP");
                 todasMusicas = [...musicas];
@@ -811,7 +804,7 @@
                 
                 buildGenresGrid();
                 
-                // Buscar notícias e iniciar alternância
+                // Buscar notícias do RSS e iniciar alternância
                 await fetchNews();
                 startNewsAlternation();
                 
