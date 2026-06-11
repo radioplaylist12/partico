@@ -38,7 +38,6 @@
             z-index: 30;
             border-bottom: 1px solid rgba(0,243,255,0.2);
             border-top: 1px solid rgba(0,243,255,0.2);
-            text-align: center;
             overflow: hidden;
             white-space: nowrap;
         }
@@ -47,7 +46,7 @@
             font-size: 0.75rem;
             letter-spacing: 0.5px;
             font-family: monospace;
-            animation: scrollText 20s linear infinite;
+            animation: scrollText 25s linear infinite;
             display: inline-block;
             padding-right: 50px;
         }
@@ -189,7 +188,7 @@
             </div>
         </div>
 
-        <!-- LETREIRO DE INFORMAÇÕES -->
+        <!-- LETREIRO DE INFORMAÇÕES (ALTERNA MÚSICA E NOTÍCIA) -->
         <div class="info-scroll" id="infoScroll">
             <p id="scrollText">🎵 RÁDIO PATICO - A MELHOR PLAYLIST COM IA! 🎵</p>
         </div>
@@ -283,6 +282,17 @@
         // ==================== CONFIGURAÇÕES ====================
         const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json";
         const NUMERO_WHATSAPP = "5512988461978";
+        
+        // ==================== NEWS API (GNews) ====================
+        // 🔴 ATENÇÃO: Substitua "SUA_CHAVE_AQUI" pela sua chave do GNews!
+        // Cadastre-se em: https://gnews.io/ (grátis)
+        const GNEWS_API_KEY = "SUA_CHAVE_AQUI";
+        const GNEWS_URL = `https://gnews.io/api/v4/top-headlines?country=br&lang=pt&max=10&apikey=${GNEWS_API_KEY}`;
+        let newsList = [];
+        let newsIndex = 0;
+        let alternationInterval = null;
+        let currentMusicText = "🎵 RÁDIO PATICO - A MELHOR PLAYLIST COM IA! 🎵";
+        let currentDisplayMode = "music"; // "music" ou "news"
 
         // ==================== VARIÁVEIS ====================
         let musicas = [];
@@ -344,15 +354,78 @@
             hideControlsTimeout = setTimeout(() => bottomControls.classList.remove('visible'), 3000);
         }
 
+        // ==================== NEWS FUNCTIONS ====================
         function updateScrollText(track) {
             if (track) {
-                scrollText.innerHTML = `🎵 RÁDIO PATICO - TOCANDO: ${track.title} - ${track.artist} [${track.genero}] 🎵`;
-            } else {
-                scrollText.innerHTML = `🎵 RÁDIO PATICO - A MELHOR PLAYLIST COM IA! 🎵`;
+                currentMusicText = `🎵 RÁDIO PATICO - TOCANDO: ${track.title} - ${track.artist} [${track.genero}] 🎵`;
+                if (currentDisplayMode === "music") {
+                    scrollText.innerHTML = currentMusicText;
+                }
             }
         }
 
-        // BLUETOOTH - PROCURAR DISPOSITIVOS
+        function displayNewsText() {
+            if (newsList.length > 0) {
+                const news = newsList[newsIndex % newsList.length];
+                scrollText.innerHTML = `📰 NOTÍCIA: ${news.title} 📰`;
+                newsIndex++;
+            } else {
+                scrollText.innerHTML = currentMusicText;
+            }
+        }
+
+        function startNewsAlternation() {
+            if (alternationInterval) clearInterval(alternationInterval);
+            alternationInterval = setInterval(() => {
+                if (currentDisplayMode === "music") {
+                    // Trocar para notícia
+                    currentDisplayMode = "news";
+                    if (newsList.length > 0) {
+                        const news = newsList[newsIndex % newsList.length];
+                        scrollText.innerHTML = `📰 NOTÍCIA: ${news.title} 📰`;
+                        newsIndex++;
+                    } else {
+                        scrollText.innerHTML = currentMusicText;
+                    }
+                } else {
+                    // Trocar para música
+                    currentDisplayMode = "music";
+                    scrollText.innerHTML = currentMusicText;
+                }
+            }, 12000); // Alterna a cada 12 segundos
+        }
+
+        async function fetchNews() {
+            try {
+                // Se não tiver chave configurada, usa notícias de exemplo
+                if (GNEWS_API_KEY === "SUA_CHAVE_AQUI") {
+                    console.warn("⚠️ Configure sua chave da API GNews!");
+                    newsList = [
+                        { title: "Configure sua chave da API GNews em https://gnews.io/" },
+                        { title: "Rádio Patico - A melhor playlist com IA!" }
+                    ];
+                    return;
+                }
+                
+                const response = await fetch(GNEWS_URL);
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                const data = await response.json();
+                if (data.articles && data.articles.length > 0) {
+                    newsList = data.articles;
+                    console.log(`✅ ${newsList.length} notícias carregadas!`);
+                } else {
+                    throw new Error("Nenhuma notícia encontrada");
+                }
+            } catch (error) {
+                console.error("Erro ao buscar notícias:", error);
+                newsList = [
+                    { title: "Rádio Patico - Sua playlist inteligente 24/7" },
+                    { title: "Curta as músicas e a IA aprende seu gosto!" }
+                ];
+            }
+        }
+
+        // ==================== BLUETOOTH ====================
         async function procurarBluetooth() {
             try {
                 if (!navigator.bluetooth) {
@@ -374,6 +447,7 @@
             }
         }
 
+        // ==================== IA PESOS ====================
         function calculateSongWeight(song) {
             let weight = 1.0;
             if (userPreferences.likedSongs.includes(song.id)) weight += 10;
@@ -397,20 +471,32 @@
             return candidatas[Math.floor(Math.random() * candidatas.length)];
         }
 
+        // ==================== LÓGICA DE GÊNEROS (CORRIGIDA) ====================
         function getProximaMusica() {
             if (todasMusicas.length === 0) return null;
             
             if (modoAtual === "MPB_POP") {
-                if (musicasMPB.length === 0 && musicasPOP.length === 0) return getMusicaAleatoria(todasMusicas);
+                // 🔴 CORREÇÃO: Só usa MPB e POP, NADA de outros gêneros
+                if (musicasMPB.length === 0 && musicasPOP.length === 0) {
+                    showNotification("⚠️ Nenhuma música MPB ou POP encontrada!", 2000);
+                    return null;
+                }
+                
                 const ultimaMusica = filteredPlaylist[currentIndex];
                 const ultimoGenero = ultimaMusica?.genero;
                 let novoGenero;
+                
+                // Se a última música era MPB, toca POP. Se era POP, toca MPB.
                 if (ultimoGenero === "MPB") novoGenero = "POP";
                 else if (ultimoGenero === "POP") novoGenero = "MPB";
                 else novoGenero = Math.random() < 0.5 ? "MPB" : "POP";
+                
                 const listaNovoGenero = novoGenero === "MPB" ? musicasMPB : musicasPOP;
+                
+                // Se o gênero escolhido não tem músicas, tenta o outro
                 if (listaNovoGenero.length === 0) {
                     const outraLista = novoGenero === "MPB" ? musicasPOP : musicasMPB;
+                    if (outraLista.length === 0) return null;
                     return getMusicaAleatoria(outraLista, ultimaMusica?.id);
                 }
                 return getMusicaAleatoria(listaNovoGenero, ultimaMusica?.id);
@@ -421,6 +507,7 @@
                 if (musicasDoGenero.length === 0) return getMusicaAleatoria(todasMusicas);
                 return getMusicaAleatoria(musicasDoGenero, filteredPlaylist[currentIndex]?.id);
             }
+            
             return getMusicaAleatoria(todasMusicas, filteredPlaylist[currentIndex]?.id);
         }
 
@@ -439,14 +526,30 @@
 
         function filterByGenre(genero) {
             if (!todasMusicas.length) return;
-            if (genero === "MPB_POP") { modoAtual = "MPB_POP"; generoSelecionado = null; showNotification("🎵 Modo MPB/POP alternando!", 1500); }
-            else if (genero === "TODOS") { modoAtual = "TODOS"; generoSelecionado = null; showNotification("🎵 Modo TODOS os estilos!", 1500); }
-            else { modoAtual = "GENERO_ESPECIFICO"; generoSelecionado = genero; showNotification(`🎵 ${genero} ativado!`, 1500); }
+            if (genero === "MPB_POP") { 
+                modoAtual = "MPB_POP"; 
+                generoSelecionado = null; 
+                showNotification("🎵 Modo MPB/POP alternando!", 1500);
+            } else if (genero === "TODOS") { 
+                modoAtual = "TODOS"; 
+                generoSelecionado = null; 
+                showNotification("🎵 Modo TODOS os estilos!", 1500);
+            } else { 
+                modoAtual = "GENERO_ESPECIFICO"; 
+                generoSelecionado = genero; 
+                showNotification(`🎵 ${genero} ativado!`, 1500);
+            }
             updateGenreBadge();
             const novaMusica = getProximaMusica();
-            if (novaMusica) { filteredPlaylist = [novaMusica]; currentIndex = 0; updateScrollText(novaMusica); if (isPlaying) playMusic(); }
+            if (novaMusica) { 
+                filteredPlaylist = [novaMusica]; 
+                currentIndex = 0; 
+                updateScrollText(novaMusica); 
+                if (isPlaying) playMusic(); 
+            }
         }
 
+        // ==================== PLAYER CORE ====================
         async function playMusic() {
             if (!isBackgroundActive) { showNotification("⚠️ Clique em 'ATIVAR RÁDIO' primeiro!"); return; }
             if (!filteredPlaylist.length) {
@@ -529,6 +632,7 @@
             showControls();
         }
 
+        // ==================== FEEDBACK MODAL ====================
         function openFeedbackModal() {
             const track = filteredPlaylist[currentIndex];
             if (!track) return;
@@ -600,7 +704,7 @@
             } catch (error) { audioIndicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'; return false; }
         }
 
-        // GESTOS
+        // ==================== GESTOS ====================
         document.addEventListener('touchstart', () => showControls());
         document.addEventListener('click', () => showControls());
 
@@ -631,7 +735,7 @@
             }
         });
 
-        // ESTRELAS
+        // ==================== ESTRELAS ====================
         document.querySelectorAll('.star').forEach(star => {
             star.addEventListener('click', () => {
                 currentRating = parseInt(star.dataset.rating);
@@ -642,7 +746,7 @@
             });
         });
 
-        // CONSTRUIR MODAL DE GÊNEROS
+        // ==================== MODAL GÊNEROS ====================
         function buildGenresGrid() {
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
@@ -673,7 +777,7 @@
             });
         }
 
-        // CARREGAR PLAYLIST
+        // ==================== CARREGAR PLAYLIST ====================
         async function carregarPlaylist() {
             try {
                 const splashStatus = document.querySelector('#splash .loading-text');
@@ -685,17 +789,32 @@
                 if (!Array.isArray(data) || data.length === 0) throw new Error("JSON vazio");
                 
                 musicas = data.map((item, idx) => ({ id: item.id || idx + 1, title: item.title || "Sem título", artist: item.artist || "Desconhecido", src: item.src || "", genero: item.genero || "POP", tipo: item.tipo || "normal" }));
-                console.log(`✅ Carregadas ${musicas.length} músicas!`);
+                console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
                 splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
                 
+                // 🔴 CORREÇÃO: Filtra APENAS MPB e POP para o modo MPB_POP
                 musicasMPB = musicas.filter(m => m.genero === "MPB");
                 musicasPOP = musicas.filter(m => m.genero === "POP");
                 todasMusicas = [...musicas];
+                
+                console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | Outros: ${todasMusicas.length - musicasMPB.length - musicasPOP.length}`);
+                
                 modoAtual = "MPB_POP";
                 updateGenreBadge();
+                
                 const primeiraMusica = getProximaMusica();
-                if (primeiraMusica) { filteredPlaylist = [primeiraMusica]; currentIndex = 0; updateScrollText(primeiraMusica); }
+                if (primeiraMusica) { 
+                    filteredPlaylist = [primeiraMusica]; 
+                    currentIndex = 0; 
+                    updateScrollText(primeiraMusica); 
+                }
+                
                 buildGenresGrid();
+                
+                // Buscar notícias e iniciar alternância
+                await fetchNews();
+                startNewsAlternation();
+                
                 setTimeout(() => {
                     splash.classList.add('hidden');
                     setTimeout(() => {
@@ -712,7 +831,7 @@
             }
         }
 
-        // EVENTOS
+        // ==================== EVENTOS ====================
         document.getElementById('progressBar').addEventListener('click', (e) => {
             if (audio.duration) {
                 const rect = e.currentTarget.getBoundingClientRect();
@@ -798,6 +917,13 @@
         });
         setInterval(() => { const video = document.getElementById('bgVideo'); if (video && video.paused) video.play().catch(e => console.log); }, 5000);
 
+        // ==================== INICIALIZAÇÃO ====================
+        // Carregar preferências salvas
+        const savedPrefs = localStorage.getItem('radio_patico_prefs');
+        if (savedPrefs) { try { userPreferences = { ...userPreferences, ...JSON.parse(savedPrefs) }; } catch(e) {} }
+        const savedStats = localStorage.getItem('radio_patico_stats');
+        if (savedStats) { try { stats = { ...stats, ...JSON.parse(savedStats) }; } catch(e) {} }
+        
         carregarPlaylist();
     </script>
 </body>
