@@ -25,30 +25,31 @@
         .icon-btn { background: rgba(0,0,0,0.6); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1rem; border: 1px solid rgba(0,243,255,0.3); transition: transform 0.2s, background 0.2s; }
         .icon-btn:active { transform: scale(0.92); background: var(--neon-cyan); color: #000; }
         
+        /* LETREIRO APENAS COM INFORMAÇÕES DA MÚSICA - LETRAS MAIS GROSSAS */
         .info-scroll {
             position: fixed;
             top: 80px;
             left: 0;
             right: 0;
-            background: #000;
-            backdrop-filter: blur(0);
-            padding: 8px 20px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
             z-index: 30;
-            border-bottom: 1px solid rgba(0,243,255,0.2);
-            border-top: 1px solid rgba(0,243,255,0.2);
+            border-bottom: 1px solid rgba(0,243,255,0.3);
+            border-top: 1px solid rgba(0,243,255,0.3);
             overflow: hidden;
             white-space: nowrap;
         }
         .info-scroll p {
             color: white;
-            font-size: 0.85rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+            font-weight: 900;
+            letter-spacing: 1px;
             font-family: monospace;
-            animation: scrollText 25s linear infinite;
+            animation: scrollText 20s linear infinite;
             display: inline-block;
             padding-right: 50px;
-            text-shadow: 0 0 5px rgba(0,243,255,0.5);
+            text-shadow: 0 0 8px rgba(0,243,255,0.8);
         }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
@@ -156,13 +157,34 @@
         
         .audio-indicator { position: absolute; top: 12px; right: 70px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 20px; font-size: 0.6rem; color: #ffaa00; z-index: 31; display: flex; align-items: center; gap: 5px; }
         
-        #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s; flex-direction: column; }
+        /* SPLASH SEM ÍCONE E SEM NOME - APENAS VÍDEO */
+        #splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
         #splash.hidden { opacity: 0; pointer-events: none; }
-        .splash-content { text-align: center; color: #fff; }
-        .splash-content i { font-size: 3.5rem; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 1rem; animation: pulse 1.5s infinite; }
-        .splash-content h1 { font-size: 1.8rem; letter-spacing: 2px; }
-        .loading-text { font-size: 0.8rem; margin-top: 15px; color: #888; }
-        @keyframes pulse { 0% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 0.6; transform: scale(1); } }
+        .splash-loading {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: white;
+            font-size: 0.8rem;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 16px;
+            border-radius: 30px;
+            backdrop-filter: blur(8px);
+        }
         
         #tap-to-start { position: fixed; bottom: 25%; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); color: #000; padding: 14px 32px; border-radius: 50px; font-weight: bold; font-size: 1rem; z-index: 10000; cursor: pointer; display: none; animation: btnPulse 1.5s infinite; white-space: nowrap; border: none; }
         @keyframes btnPulse { 0% { transform: translateX(-50%) scale(1); opacity: 0.9; } 50% { transform: translateX(-50%) scale(1.03); opacity: 1; } 100% { transform: translateX(-50%) scale(1); opacity: 0.9; } }
@@ -206,15 +228,11 @@
 </head>
 <body>
     <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
-        <source src="pak300.mp4" type="video/mp4">
+        <source src="ti.mp4" type="video/mp4">
     </video>
 
     <div id="splash">
-        <div class="splash-content">
-            <i class="fas fa-music"></i>
-            <h1>RÁDIO PLAY 12</h1>
-            <div class="loading-text"><i class="fas fa-circle-notch fa-spin"></i> Carregando playlist...</div>
-        </div>
+        <div class="splash-loading"><i class="fas fa-circle-notch fa-spin"></i> Carregando playlist...</div>
     </div>
 
     <div id="tap-to-start"><i class="fas fa-play-circle"></i> 🎵 ATIVAR RÁDIO</div>
@@ -316,16 +334,6 @@
         const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json";
         const NUMERO_WHATSAPP = "5512988461978";
         
-        // ==================== RSS NEWS ====================
-        const RSS_URL = "https://rss.uol.com.br/feed/noticias.xml";
-        const RSS_TO_JSON = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`;
-        
-        let newsList = [];
-        let newsIndex = 0;
-        let alternationInterval = null;
-        let currentMusicText = "🎵 RÁDIO PLAY 12 - A MELHOR PLAYLIST COM IA! 🎵";
-        let currentDisplayMode = "music";
-
         // ==================== VARIÁVEIS ====================
         let musicas = [];
         let filteredPlaylist = [];
@@ -393,54 +401,9 @@
 
         function updateScrollText(track) {
             if (track) {
-                currentMusicText = `🎵 RÁDIO PLAY 12 - TOCANDO: ${track.title} - ${track.artist} [${track.genero}] 🎵`;
-                if (currentDisplayMode === "music") {
-                    scrollText.innerHTML = currentMusicText;
-                }
-            }
-        }
-
-        function startNewsAlternation() {
-            if (alternationInterval) clearInterval(alternationInterval);
-            alternationInterval = setInterval(() => {
-                if (currentDisplayMode === "music") {
-                    currentDisplayMode = "news";
-                    if (newsList.length > 0) {
-                        const news = newsList[newsIndex % newsList.length];
-                        scrollText.innerHTML = `📰 NOTÍCIA: ${news.title} 📰`;
-                        newsIndex++;
-                    } else {
-                        scrollText.innerHTML = currentMusicText;
-                    }
-                } else {
-                    currentDisplayMode = "music";
-                    scrollText.innerHTML = currentMusicText;
-                }
-            }, 12000);
-        }
-
-        async function fetchNews() {
-            try {
-                console.log("🔄 Buscando notícias do RSS UOL...");
-                const response = await fetch(RSS_TO_JSON);
-                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
-                const data = await response.json();
-                if (data.items && data.items.length > 0) {
-                    newsList = data.items.map(item => ({ 
-                        title: item.title.replace(/<[^>]*>/g, '').substring(0, 80)
-                    }));
-                    console.log(`✅ ${newsList.length} notícias carregadas do UOL!`);
-                } else {
-                    throw new Error("Nenhuma notícia encontrada");
-                }
-            } catch (error) {
-                console.error("Erro ao buscar notícias:", error);
-                newsList = [
-                    { title: "Rádio Play 12 - Sua playlist inteligente 24/7" },
-                    { title: "Curta as músicas e a IA aprende seu gosto!" },
-                    { title: "Deixe seu like ou dislike para melhorar as recomendações" },
-                    { title: "Compartilhe a Rádio Play 12 com seus amigos!" }
-                ];
+                const texto = `🎵 ${track.title} - ${track.artist} [${track.genero}] ${track.tipo === "ao vivo" ? '🔴 AO VIVO' : '🎧 ESTÚDIO'} 🎵`;
+                scrollText.innerHTML = texto;
+                currentMusicText = texto;
             }
         }
 
@@ -528,6 +491,7 @@
                 return getMusicaAleatoria(musicasDoGenero, evitarId);
             }
             
+            // MODO TODOS - TODOS OS GÊNEROS MISTURADOS!
             return getMusicaAleatoria(musicasTodas, evitarId);
         }
 
@@ -550,7 +514,7 @@
             } else if (genero === "TODOS") { 
                 modoAtual = "TODOS"; 
                 generoSelecionado = null; 
-                showNotification("🎵 Modo TODOS os estilos!", 1500);
+                showNotification("🎵 Modo TODOS os estilos misturados!", 1500);
             } else if (genero === "GLOBAL HITS") {
                 modoAtual = "GENERO_ESPECIFICO";
                 generoSelecionado = "GLOBAL HITS";
@@ -835,7 +799,7 @@
 
         async function carregarPlaylist() {
             try {
-                const splashStatus = document.querySelector('#splash .loading-text');
+                const splashStatus = document.querySelector('#splash .splash-loading');
                 splashStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlist...';
                 const url = `${PLAYLIST_URL}?t=${Date.now()}`;
                 const response = await fetch(url);
@@ -850,7 +814,7 @@
                 // SEPARAÇÃO CORRETA DOS GÊNEROS:
                 musicasMPB = musicas.filter(m => m.genero === "MPB");
                 musicasPOP = musicas.filter(m => m.genero === "POP");
-                musicasGLOBAL = musicas.filter(m => m.genero === "GLOBAL HITS");  // CORRIGIDO!
+                musicasGLOBAL = musicas.filter(m => m.genero === "GLOBAL HITS");
                 musicasTodas = [...musicas];
                 
                 console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | GLOBAL: ${musicasGLOBAL.length}`);
@@ -867,9 +831,6 @@
                 
                 buildGenresGrid();
                 
-                await fetchNews();
-                startNewsAlternation();
-                
                 setTimeout(() => {
                     splash.classList.add('hidden');
                     setTimeout(() => {
@@ -881,7 +842,7 @@
                 }, 1000);
             } catch (error) {
                 console.error("Erro:", error);
-                document.querySelector('#splash .loading-text').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro: ${error.message}`;
+                document.querySelector('#splash .splash-loading').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro: ${error.message}`;
                 setTimeout(() => { splash.classList.add('hidden'); appContainer.style.display = 'block'; menuButton.style.display = 'flex'; tapToStart.style.display = 'block'; }, 3000);
             }
         }
