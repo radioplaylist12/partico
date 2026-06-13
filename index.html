@@ -25,6 +25,7 @@
         .icon-btn { background: rgba(0,0,0,0.6); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1rem; border: 1px solid rgba(0,243,255,0.3); transition: transform 0.2s, background 0.2s; }
         .icon-btn:active { transform: scale(0.92); background: var(--neon-cyan); color: #000; }
         
+        /* LETREIRO - SUBIU E SEM LINHA DE CIMA */
         .info-scroll {
             position: fixed;
             top: 70px;
@@ -51,6 +52,7 @@
         }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
+        /* BOTÃO GÊNERO FLUTUANTE MAIS BONITO */
         .genre-fab { position: fixed; bottom: 140px; right: 20px; z-index: 40; }
         .genre-fab-btn { 
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink)); 
@@ -97,7 +99,7 @@
             transition: all 0.3s ease;
             border: 1px solid rgba(255,255,255,0.2);
             aspect-ratio: 5 / 3;
-            background-color: #1a1a2e;
+            background-color: #000;
         }
         .genre-card:hover { transform: scale(1.02); border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0,243,255,0.3); }
         .genre-card:active { transform: scale(0.96); }
@@ -231,6 +233,7 @@
         .feedback-modal button { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; padding: 12px; border-radius: 30px; color: #000; font-weight: bold; cursor: pointer; margin-top: 5px; }
         .close-feedback { background: rgba(255,255,255,0.1) !important; color: white !important; margin-top: 5px; }
         
+        /* Modal de Relatório de Problemas */
         .report-modal {
             position: fixed;
             top: 50%;
@@ -295,9 +298,12 @@
         </div>
     </div>
 
+    <!-- BOTÃO GÊNERO MAIS BONITO -->
     <div class="genre-fab">
         <div class="genre-fab-btn" id="genreFab"><i class="fas fa-guitar"></i></div>
     </div>
+
+    <!-- BOTÕES LIKE E AI REMOVIDOS -->
 
     <div class="menu-button" id="menuButton" style="display: none;"><i class="fas fa-ellipsis-v"></i></div>
     <div class="menu-popup" id="menuPopup">
@@ -338,6 +344,7 @@
         <button id="closeFeedbackBtn" class="close-feedback">Cancelar</button>
     </div>
 
+    <!-- MODAL RELATÓRIO DE PROBLEMAS -->
     <div class="report-modal" id="reportProblemModal">
         <h3><i class="fas fa-exclamation-triangle"></i> RELATÓRIO DE PROBLEMAS</h3>
         <div class="report-info" id="reportInfo">
@@ -378,7 +385,6 @@
         let hideControlsTimeout = null;
         let currentRating = 0;
         let nextSongCache = null;
-        let isTransitioning = false;
 
         let userPreferences = { likedSongs: [], dislikedSongs: [], genrePreference: {}, songPlays: {} };
         let stats = { totalPlayed: 0, genreCount: {} };
@@ -404,10 +410,7 @@
 
         audio.volume = 0.9;
 
-        audio.onerror = () => {
-            if (!isTransitioning) nextTrack();
-        };
-
+        // ==================== FUNÇÕES ====================
         function showNotification(msg, duration = 2000) {
             notification.textContent = msg;
             notification.classList.add('show');
@@ -429,9 +432,33 @@
             hideControlsTimeout = setTimeout(() => bottomControls.classList.remove('visible'), 3000);
         }
 
+        function activateFullscreenAndClose() {
+            try { document.documentElement.requestFullscreen(); } catch(e) {}
+            document.getElementById('genresModal').classList.remove('open');
+        }
+
         function updateScrollText(track) {
             if (track) {
-                scrollText.innerHTML = `🎵 ${track.title} - ${track.artist} [${track.genero}] 🎵`;
+                const texto = `🎵 ${track.title} - ${track.artist} [${track.genero}] ${track.tipo === "ao vivo" ? '🔴 AO VIVO' : '🎧 ESTÚDIO'} 🎵`;
+                scrollText.innerHTML = texto;
+            }
+        }
+
+        async function procurarBluetooth() {
+            try {
+                if (!navigator.bluetooth) {
+                    showNotification("❌ Bluetooth não é suportado neste navegador", 2000);
+                    return;
+                }
+                showNotification("🔍 Procurando dispositivos Bluetooth...", 2000);
+                const device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: [] });
+                showNotification(`✅ Conectado a: ${device.name || 'Dispositivo'}`, 3000);
+                device.addEventListener('gattserverdisconnected', () => {
+                    showNotification(`🔴 Desconectado de ${device.name || 'dispositivo'}`, 2000);
+                });
+            } catch(error) {
+                console.log("Erro Bluetooth:", error);
+                showNotification("❌ Nenhum dispositivo selecionado ou erro", 2000);
             }
         }
 
@@ -448,10 +475,12 @@
 
         function getMusicaAleatoria(lista, evitarId = null) {
             if (!lista || lista.length === 0) return null;
-            let candidatas = [...lista];
+            const comPeso = lista.map(m => ({ ...m, weight: calculateSongWeight(m) }));
+            comPeso.sort((a, b) => b.weight - a.weight);
+            let candidatas = comPeso.slice(0, Math.min(30, comPeso.length));
             if (evitarId && candidatas.length > 1) {
                 candidatas = candidatas.filter(m => m.id !== evitarId);
-                if (candidatas.length === 0) candidatas = [...lista];
+                if (candidatas.length === 0) candidatas = comPeso.slice(0, 30);
             }
             return candidatas[Math.floor(Math.random() * candidatas.length)];
         }
@@ -459,10 +488,10 @@
         function preloadNextSong() {
             const proxima = getProximaMusica(filteredPlaylist[currentIndex]?.id);
             if (proxima && proxima.src) {
-                if (nextSongCache) nextSongCache.src = '';
                 nextSongCache = new Audio();
                 nextSongCache.src = proxima.src;
                 nextSongCache.load();
+                console.log("🎵 Pré-carregando próxima música:", proxima.title);
             }
         }
 
@@ -471,34 +500,45 @@
             
             if (modoAtual === "MPB_POP") {
                 if (musicasMPB.length === 0 && musicasPOP.length === 0) return null;
-                const ultimoGenero = filteredPlaylist[currentIndex]?.genero;
+                const ultimaMusica = filteredPlaylist[currentIndex];
+                const ultimoGenero = ultimaMusica?.genero;
                 let novoGenero;
                 if (ultimoGenero === "MPB") novoGenero = "POP";
                 else if (ultimoGenero === "POP") novoGenero = "MPB";
                 else novoGenero = Math.random() < 0.5 ? "MPB" : "POP";
                 const listaNovoGenero = novoGenero === "MPB" ? musicasMPB : musicasPOP;
-                if (listaNovoGenero.length === 0) return getMusicaAleatoria(musicasTodas, evitarId);
-                return getMusicaAleatoria(listaNovoGenero, evitarId);
+                if (listaNovoGenero.length === 0) {
+                    const outraLista = novoGenero === "MPB" ? musicasPOP : musicasMPB;
+                    if (outraLista.length === 0) return null;
+                    return getMusicaAleatoria(outraLista, evitarId || ultimaMusica?.id);
+                }
+                return getMusicaAleatoria(listaNovoGenero, evitarId || ultimaMusica?.id);
             }
             
             if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
                 let musicasDoGenero = [];
-                if (generoSelecionado === "GLOBAL HITS") musicasDoGenero = musicasGLOBAL;
-                else if (generoSelecionado === "POP") musicasDoGenero = musicasPOP;
-                else if (generoSelecionado === "FORRÓ ANTIGO") musicasDoGenero = musicasForroAntigo;
-                else musicasDoGenero = musicasTodas.filter(m => m.genero === generoSelecionado);
-                
+                if (generoSelecionado === "GLOBAL HITS") {
+                    musicasDoGenero = musicasGLOBAL;
+                } else if (generoSelecionado === "POP") {
+                    musicasDoGenero = musicasPOP;
+                } else if (generoSelecionado === "FORRÓ ANTIGO") {
+                    musicasDoGenero = musicasForroAntigo;
+                } else {
+                    musicasDoGenero = musicasTodas.filter(m => m.genero === generoSelecionado);
+                }
                 if (musicasDoGenero.length === 0) return getMusicaAleatoria(musicasTodas, evitarId);
                 return getMusicaAleatoria(musicasDoGenero, evitarId);
             }
             
+            // MODO TODOS - TODOS OS GÊNEROS MISTURADOS!
             return getMusicaAleatoria(musicasTodas, evitarId);
         }
 
         function updateGenreBadge() {
             if (modoAtual === "MPB_POP") genreBadge.innerHTML = '<i class="fas fa-exchange-alt"></i> MPB/POP';
             else if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
-                genreBadge.innerHTML = `<i class="fas fa-music"></i> ${generoSelecionado}`;
+                let nome = generoSelecionado === "GLOBAL HITS" ? "GLOBAL HITS" : generoSelecionado;
+                genreBadge.innerHTML = `<i class="fas fa-music"></i> ${nome}`;
             } else genreBadge.innerHTML = '<i class="fas fa-list-ul"></i> TODOS';
         }
 
@@ -510,23 +550,23 @@
             if (genero === "MPB_POP") { 
                 modoAtual = "MPB_POP"; 
                 generoSelecionado = null; 
-                showNotification("🎵 Modo MPB/POP", 1000);
+                showNotification("🎵 Modo MPB/POP alternando!", 1500);
             } else if (genero === "TODOS") { 
                 modoAtual = "TODOS"; 
                 generoSelecionado = null; 
-                showNotification("🎵 Todos os estilos", 1000);
-            } else if (genero === "FORRÓ ANTIGO") {
-                modoAtual = "GENERO_ESPECIFICO";
-                generoSelecionado = "FORRÓ ANTIGO";
-                showNotification("🪘 FORRÓ ANTIGO", 1000);
+                showNotification("🎵 Modo TODOS os estilos misturados!", 1500);
             } else if (genero === "GLOBAL HITS") {
                 modoAtual = "GENERO_ESPECIFICO";
                 generoSelecionado = "GLOBAL HITS";
-                showNotification("🌍 GLOBAL HITS", 1000);
+                showNotification("🎵 GLOBAL HITS ativado!", 1500);
+            } else if (genero === "FORRÓ ANTIGO") {
+                modoAtual = "GENERO_ESPECIFICO";
+                generoSelecionado = "FORRÓ ANTIGO";
+                showNotification("🎵 FORRÓ ANTIGO ativado!", 1500);
             } else { 
                 modoAtual = "GENERO_ESPECIFICO"; 
                 generoSelecionado = genero; 
-                showNotification(`🎵 ${genero}`, 1000);
+                showNotification(`🎵 ${genero} ativado!`, 1500);
             }
             updateGenreBadge();
             const novaMusica = getProximaMusica();
@@ -537,31 +577,18 @@
                 if (isPlaying) playMusic(); 
                 preloadNextSong();
             }
-            document.getElementById('genresModal').classList.remove('open');
         }
 
         async function playMusic() {
-            if (isTransitioning) return;
-            if (!isBackgroundActive) { showNotification("⚠️ Ative o áudio primeiro!"); return; }
+            if (!isBackgroundActive) { showNotification("⚠️ Clique em 'ATIVAR RÁDIO' primeiro!"); return; }
             if (!filteredPlaylist.length) {
                 const proxima = getProximaMusica();
                 if (proxima) { filteredPlaylist = [proxima]; currentIndex = 0; updateScrollText(proxima); }
                 else return;
             }
-            
-            isTransitioning = true;
             showLoading(true);
-            
             const track = filteredPlaylist[currentIndex];
-            if (!track || !track.src) { 
-                showLoading(false); 
-                isTransitioning = false;
-                nextTrack(); 
-                return;
-            }
-            
-            audio.pause();
-            audio.currentTime = 0;
+            if (!track || !track.src) { showLoading(false); nextTrack(); return; }
             
             if (nextSongCache && nextSongCache.src.includes(track.src)) {
                 audio.src = nextSongCache.src;
@@ -569,80 +596,127 @@
             } else {
                 audio.src = track.src;
             }
-            
             audio.load();
             
-            const timeout = setTimeout(() => { 
-                showLoading(false); 
-                isTransitioning = false;
-                nextTrack(); 
-            }, 10000);
-            
-            audio.oncanplaythrough = async () => {
-                clearTimeout(timeout);
-                try {
-                    await audio.play();
-                    isPlaying = true;
-                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                    startTimer();
-                    userPreferences.songPlays[track.id] = (userPreferences.songPlays[track.id] || 0) + 1;
-                    stats.totalPlayed++;
-                    stats.genreCount[track.genero] = (stats.genreCount[track.genero] || 0) + 1;
-                    updateScrollText(track);
-                    showLoading(false);
-                    isTransitioning = false;
-                    preloadNextSong();
-                } catch(e) { 
-                    clearTimeout(timeout); 
-                    showLoading(false); 
-                    isTransitioning = false;
-                }
-            };
-            
-            audio.onended = () => { if (!isTransitioning) nextTrack(); };
+            return new Promise((resolve) => {
+                const timeout = setTimeout(() => { showLoading(false); showNotification(`Timeout: ${track.title}`); nextTrack(); resolve(false); }, 10000);
+                audio.oncanplaythrough = async () => {
+                    clearTimeout(timeout);
+                    try {
+                        await audio.play();
+                        isPlaying = true;
+                        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        startTimer();
+                        userPreferences.songPlays[track.id] = (userPreferences.songPlays[track.id] || 0) + 1;
+                        userPreferences.genrePreference[track.genero] = (userPreferences.genrePreference[track.genero] || 0) + 1;
+                        stats.totalPlayed++;
+                        stats.genreCount[track.genero] = (stats.genreCount[track.genero] || 0) + 1;
+                        localStorage.setItem('radio_patico_prefs', JSON.stringify(userPreferences));
+                        localStorage.setItem('radio_patico_stats', JSON.stringify(stats));
+                        updateScrollText(track);
+                        showLoading(false);
+                        preloadNextSong();
+                        resolve(true);
+                    } catch(e) { clearTimeout(timeout); showLoading(false); resolve(false); }
+                };
+                audio.onerror = () => { clearTimeout(timeout); showLoading(false); showNotification(`Erro: ${track.title}`); nextTrack(); resolve(false); };
+                audio.onended = () => { nextTrack(); };
+            });
         }
 
         function pauseMusic() { audio.pause(); isPlaying = false; playBtn.innerHTML = '<i class="fas fa-play"></i>'; stopTimer(); }
         function togglePlay() { if (!isBackgroundActive) { showNotification("Ative o áudio primeiro!"); return; } isPlaying ? pauseMusic() : playMusic(); showControls(); }
 
         function nextTrack() {
-            if (isTransitioning) return;
             const proxima = getProximaMusica(filteredPlaylist[currentIndex]?.id);
             if (proxima) { 
                 filteredPlaylist = [proxima]; 
                 currentIndex = 0; 
                 updateScrollText(proxima); 
                 if (isPlaying) playMusic(); 
+            } else if (musicasTodas.length > 0) { 
+                const fallback = getMusicaAleatoria(musicasTodas); 
+                if (fallback) { 
+                    filteredPlaylist = [fallback]; 
+                    currentIndex = 0; 
+                    updateScrollText(fallback); 
+                    if (isPlaying) playMusic(); 
+                } 
             }
             showControls();
         }
 
         function prevTrack() {
-            if (isTransitioning) return;
             let musicasDisponiveis = musicasTodas;
             if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
-                if (generoSelecionado === "GLOBAL HITS") musicasDisponiveis = musicasGLOBAL;
-                else if (generoSelecionado === "POP") musicasDisponiveis = musicasPOP;
-                else if (generoSelecionado === "FORRÓ ANTIGO") musicasDisponiveis = musicasForroAntigo;
-                else musicasDisponiveis = musicasTodas.filter(m => m.genero === generoSelecionado);
+                if (generoSelecionado === "GLOBAL HITS") {
+                    musicasDisponiveis = musicasGLOBAL;
+                } else if (generoSelecionado === "POP") {
+                    musicasDisponiveis = musicasPOP;
+                } else if (generoSelecionado === "FORRÓ ANTIGO") {
+                    musicasDisponiveis = musicasForroAntigo;
+                } else {
+                    musicasDisponiveis = musicasTodas.filter(m => m.genero === generoSelecionado);
+                }
             }
             const outras = musicasDisponiveis.filter(m => m.id !== filteredPlaylist[0]?.id);
-            if (outras.length > 0) { 
-                const anterior = outras[Math.floor(Math.random() * outras.length)]; 
-                filteredPlaylist = [anterior]; 
-                currentIndex = 0; 
-                updateScrollText(anterior); 
-                if (isPlaying) playMusic(); 
-            }
+            if (outras.length > 0) { const anterior = getMusicaAleatoria(outras); filteredPlaylist = [anterior]; currentIndex = 0; updateScrollText(anterior); if (isPlaying) playMusic(); }
             showControls();
         }
 
-        function toggleShuffle() { shuffleMode = !shuffleMode; shuffleBtn.classList.toggle('active', shuffleMode); showControls(); }
+        function toggleShuffle() { shuffleMode = !shuffleMode; shuffleBtn.classList.toggle('active', shuffleMode); showNotification(shuffleMode ? '🔀 Embaralhado ON' : '➡️ Sequencial', 1000); showControls(); }
+
+        function openFeedbackModal() {
+            const track = filteredPlaylist[currentIndex];
+            if (!track) return;
+            currentRating = 0;
+            document.getElementById('feedbackText').value = '';
+            document.querySelectorAll('.star').forEach(star => {
+                star.classList.remove('fas', 'active');
+                star.classList.add('far');
+            });
+            feedbackModal.classList.add('open');
+        }
+
+        function sendFeedback() {
+            const track = filteredPlaylist[currentIndex];
+            if (!track) return;
+            const comment = document.getElementById('feedbackText').value;
+            let starsText = '';
+            if (currentRating > 0) starsText = '★'.repeat(currentRating) + '☆'.repeat(5 - currentRating);
+            else starsText = 'Sem avaliação';
+            const msg = `🎵 *RÁDIO PLAY 12 - FEEDBACK* 🎵%0A%0A🎤 Música: ${track.title}%0A👤 Artista: ${track.artist}%0A🎸 Gênero: ${track.genero}%0A⭐ Avaliação: ${starsText}%0A💬 Comentário: ${comment || "Sem comentário"}`;
+            window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
+            showNotification("📱 Feedback enviado!", 1500);
+            feedbackModal.classList.remove('open');
+        }
+
+        // Abrir relatório de problemas com informações da música atual
+        function openReportProblemModal() {
+            const track = filteredPlaylist[currentIndex];
+            if (!track) return;
+            document.getElementById('reportSongId').textContent = track.id;
+            document.getElementById('reportSongTitle').textContent = track.title;
+            document.getElementById('reportSongArtist').textContent = track.artist;
+            document.getElementById('reportSongGenre').textContent = track.genero;
+            document.getElementById('problemText').value = '';
+            reportProblemModal.classList.add('open');
+        }
+
+        function sendReportProblem() {
+            const track = filteredPlaylist[currentIndex];
+            if (!track) return;
+            const problem = document.getElementById('problemText').value;
+            const msg = `🔴 *RÁDIO PLAY 12 - RELATÓRIO DE PROBLEMA* 🔴%0A%0A🆔 ID: ${track.id}%0A🎤 Música: ${track.title}%0A👤 Artista: ${track.artist}%0A🎸 Gênero: ${track.genero}%0A📁 Arquivo: ${track.src}%0A%0A❌ Problema: ${problem || "Não especificado"}%0A%0A📅 Data: ${new Date().toLocaleString()}`;
+            window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
+            showNotification("📱 Relatório enviado!", 1500);
+            reportProblemModal.classList.remove('open');
+        }
 
         function startTimer() {
             stopTimer();
             timerInterval = setInterval(() => {
-                if (isPlaying && audio.duration && !audio.paused && !isNaN(audio.duration)) {
+                if (isPlaying && audio.duration && !audio.paused) {
                     const percent = (audio.currentTime / audio.duration) * 100;
                     progressFill.style.width = percent + '%';
                     currentTimeEl.textContent = formatTime(audio.currentTime);
@@ -678,16 +752,53 @@
                 isBackgroundActive = true;
                 audioIndicator.innerHTML = '<i class="fas fa-music"></i> Ativo';
                 audioIndicator.style.color = '#4ade80';
+                if ('wakeLock' in navigator) try { await navigator.wakeLock.request('screen'); } catch(e) {}
                 try { await document.documentElement.requestFullscreen(); } catch(e) {}
                 await playMusic();
                 return true;
-            } catch (error) { 
-                audioIndicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'; 
-                return false; 
-            }
+            } catch (error) { audioIndicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro'; return false; }
         }
 
-        // BUILD GENRES COM IMAGENS
+        document.addEventListener('touchstart', () => showControls());
+        document.addEventListener('click', () => showControls());
+
+        let touchStartX = 0, lastTap = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            const now = Date.now();
+            if (now - lastTap < 300) {
+                e.preventDefault();
+                togglePlay();
+                const indicator = document.getElementById('swipeIndicator');
+                indicator.textContent = isPlaying ? '⏸️ Pausado' : '▶️ Play';
+                indicator.style.opacity = '1';
+                setTimeout(() => indicator.style.opacity = '0', 800);
+            }
+            lastTap = now;
+        });
+        document.addEventListener('touchend', (e) => {
+            const diff = e.changedTouches[0].screenX - touchStartX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) prevTrack();
+                else nextTrack();
+                const ind = document.getElementById('swipeIndicator');
+                ind.textContent = diff > 0 ? '⏮️ Anterior' : '⏭️ Próxima';
+                ind.style.opacity = '1';
+                setTimeout(() => ind.style.opacity = '0', 800);
+                showControls();
+            }
+        });
+
+        document.querySelectorAll('.star').forEach(star => {
+            star.addEventListener('click', () => {
+                currentRating = parseInt(star.dataset.rating);
+                document.querySelectorAll('.star').forEach((s, i) => {
+                    if (i < currentRating) { s.classList.add('fas', 'active'); s.classList.remove('far'); }
+                    else { s.classList.remove('fas', 'active'); s.classList.add('far'); }
+                });
+            });
+        });
+
         function buildGenresGrid() {
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
@@ -709,37 +820,48 @@
                 const card = document.createElement('div');
                 card.className = 'genre-card';
                 card.style.backgroundImage = `url('${g.imagem}')`;
-                card.style.backgroundSize = 'cover';
-                card.style.backgroundPosition = 'center';
-                card.onclick = () => filterByGenre(g.filtro);
+                card.onclick = () => { 
+                    filterByGenre(g.filtro);
+                    activateFullscreenAndClose();
+                };
                 grid.appendChild(card);
+            });
+            
+            const generosUnicos = [...new Set(musicasTodas.map(m => m.genero))];
+            const generosJaAdicionados = ["MPB_POP", "TODOS", "SERTANEJO", "FORRÓ ANTIGO", "SAMBA", "BREGA", "GLOBAL HITS", "POP", "MPB", "MODA TOP"];
+            generosUnicos.forEach(genero => {
+                if (!generosJaAdicionados.includes(genero) && genero !== "FORRÓ ANTIGO") {
+                    const card = document.createElement('div');
+                    card.className = 'genre-card';
+                    card.style.backgroundImage = `url('default90.png')`;
+                    card.onclick = () => { filterByGenre(genero); activateFullscreenAndClose(); };
+                    grid.appendChild(card);
+                }
             });
         }
 
         async function carregarPlaylist() {
             try {
                 const splashStatus = document.querySelector('#splash .splash-loading');
-                splashStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Carregando...';
+                splashStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlist...';
                 const url = `${PLAYLIST_URL}?t=${Date.now()}`;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
                 if (!Array.isArray(data) || data.length === 0) throw new Error("JSON vazio");
                 
-                musicas = data.map((item, idx) => ({ 
-                    id: item.id || idx + 1, 
-                    title: item.title || "Sem título", 
-                    artist: item.artist || "Desconhecido", 
-                    src: item.src || "", 
-                    genero: item.genero || "POP", 
-                    tipo: item.tipo || "normal" 
-                }));
+                musicas = data.map((item, idx) => ({ id: item.id || idx + 1, title: item.title || "Sem título", artist: item.artist || "Desconhecido", src: item.src || "", genero: item.genero || "POP", tipo: item.tipo || "normal" }));
+                console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
+                splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
                 
+                // SEPARAÇÃO CORRETA DOS GÊNEROS:
                 musicasMPB = musicas.filter(m => m.genero === "MPB");
                 musicasPOP = musicas.filter(m => m.genero === "POP");
                 musicasGLOBAL = musicas.filter(m => m.genero === "GLOBAL HITS");
                 musicasForroAntigo = musicas.filter(m => m.genero === "FORRÓ ANTIGO");
                 musicasTodas = [...musicas];
+                
+                console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | GLOBAL: ${musicasGLOBAL.length} | FORRÓ ANTIGO: ${musicasForroAntigo.length}`);
                 
                 modoAtual = "MPB_POP";
                 updateGenreBadge();
@@ -753,29 +875,25 @@
                 
                 buildGenresGrid();
                 
-                splash.classList.add('hidden');
                 setTimeout(() => {
-                    splash.style.display = 'none';
-                    appContainer.style.display = 'block';
-                    menuButton.style.display = 'flex';
-                    tapToStart.style.display = 'block';
-                }, 500);
+                    splash.classList.add('hidden');
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                        appContainer.style.display = 'block';
+                        menuButton.style.display = 'flex';
+                        tapToStart.style.display = 'block';
+                    }, 500);
+                }, 1000);
             } catch (error) {
                 console.error("Erro:", error);
                 document.querySelector('#splash .splash-loading').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro: ${error.message}`;
-                setTimeout(() => { 
-                    splash.classList.add('hidden'); 
-                    appContainer.style.display = 'block'; 
-                    menuButton.style.display = 'flex'; 
-                    tapToStart.style.display = 'block';
-                    buildGenresGrid();
-                }, 2000);
+                setTimeout(() => { splash.classList.add('hidden'); appContainer.style.display = 'block'; menuButton.style.display = 'flex'; tapToStart.style.display = 'block'; }, 3000);
             }
         }
 
-        // EVENTOS
+        // ==================== EVENTOS ====================
         document.getElementById('progressBar').addEventListener('click', (e) => {
-            if (audio.duration && !isNaN(audio.duration)) {
+            if (audio.duration) {
                 const rect = e.currentTarget.getBoundingClientRect();
                 audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
                 showControls();
@@ -796,138 +914,43 @@
             if (navigator.share) navigator.share({ title: 'Rádio Play 12', text: '🎵 Rádio com IA', url: location.href });
             else { navigator.clipboard.writeText(location.href); showNotification('🔗 Link copiado!'); }
             document.getElementById('menuPopup').classList.remove('open');
+            showControls();
         });
-        document.getElementById('fullscreenMenuBtn').addEventListener('click', () => { document.documentElement.requestFullscreen(); document.getElementById('menuPopup').classList.remove('open'); });
-        document.getElementById('btStatusMenuBtn').addEventListener('click', () => { 
-            if (navigator.bluetooth) {
-                showNotification("Bluetooth disponível", 1500);
-            } else {
-                showNotification("Bluetooth não suportado", 1500);
-            }
-            document.getElementById('menuPopup').classList.remove('open'); 
-        });
-        document.getElementById('feedbackMenuBtn').addEventListener('click', () => { 
-            openFeedbackModal(); 
-            document.getElementById('menuPopup').classList.remove('open'); 
-        });
-        document.getElementById('reportProblemBtn').addEventListener('click', () => { 
-            openReportProblemModal(); 
-            document.getElementById('menuPopup').classList.remove('open'); 
-        });
+        document.getElementById('fullscreenMenuBtn').addEventListener('click', () => { document.documentElement.requestFullscreen(); document.getElementById('menuPopup').classList.remove('open'); showControls(); });
+        document.getElementById('btStatusMenuBtn').addEventListener('click', () => { procurarBluetooth(); document.getElementById('menuPopup').classList.remove('open'); showControls(); });
+        document.getElementById('feedbackMenuBtn').addEventListener('click', () => { openFeedbackModal(); document.getElementById('menuPopup').classList.remove('open'); showControls(); });
+        document.getElementById('reportProblemBtn').addEventListener('click', () => { openReportProblemModal(); document.getElementById('menuPopup').classList.remove('open'); showControls(); });
         document.getElementById('sendReportBtn').addEventListener('click', sendReportProblem);
         document.getElementById('closeReportBtn').addEventListener('click', () => reportProblemModal.classList.remove('open'));
         document.getElementById('sendFeedbackBtn').addEventListener('click', sendFeedback);
         document.getElementById('closeFeedbackBtn').addEventListener('click', () => feedbackModal.classList.remove('open'));
         document.getElementById('statsMenuBtn').addEventListener('click', () => {
-            document.getElementById('statTotalPlayed').textContent = stats.totalPlayed || 0;
+            const savedStats = localStorage.getItem('radio_patico_stats');
+            if (savedStats) { const s = JSON.parse(savedStats); document.getElementById('statTotalPlayed').textContent = s.totalPlayed || 0; }
             let topGenre = "Nenhum", max = 0;
-            for (const [genre, count] of Object.entries(stats.genreCount || {})) { 
-                if (count > max) { max = count; topGenre = genre; } 
-            }
+            if (savedStats) { const s = JSON.parse(savedStats); for (const [genre, count] of Object.entries(s.genreCount || {})) { if (count > max) { max = count; topGenre = genre; } } }
             document.getElementById('statTopGenre').textContent = topGenre;
             document.getElementById('statsModal').style.display = 'block';
             document.getElementById('statsModal').classList.add('open');
             document.getElementById('menuPopup').classList.remove('open');
+            showControls();
         });
-        document.getElementById('closeStatsBtn').addEventListener('click', () => { 
-            document.getElementById('statsModal').classList.remove('open'); 
-            document.getElementById('statsModal').style.display = 'none'; 
-        });
+        document.getElementById('closeStatsBtn').addEventListener('click', () => { document.getElementById('statsModal').classList.remove('open'); document.getElementById('statsModal').style.display = 'none'; });
         document.getElementById('tap-to-start').addEventListener('click', async () => {
             showNotification('🔊 Ativando áudio...', 1500);
             await ativarAudio();
             tapToStart.style.display = 'none';
             try { document.documentElement.requestFullscreen(); } catch(e) {}
         });
-        document.getElementById('menuButton').addEventListener('click', (e) => { 
-            e.stopPropagation(); 
-            document.getElementById('menuPopup').classList.toggle('open'); 
-            showControls(); 
-        });
-        document.addEventListener('click', (e) => { 
-            if (!document.getElementById('menuButton')?.contains(e.target)) 
-                document.getElementById('menuPopup').classList.remove('open'); 
-        });
+        document.getElementById('menuButton').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('menuPopup').classList.toggle('open'); showControls(); });
+        document.addEventListener('click', (e) => { if (!document.getElementById('menuButton').contains(e.target)) document.getElementById('menuPopup').classList.remove('open'); });
+        setInterval(() => { const video = document.getElementById('bgVideo'); if (video && video.paused) video.play().catch(e => console.log); }, 5000);
 
-        function openFeedbackModal() {
-            const track = filteredPlaylist[currentIndex];
-            if (!track) return;
-            currentRating = 0;
-            document.getElementById('feedbackText').value = '';
-            document.querySelectorAll('.star').forEach(star => {
-                star.classList.remove('fas', 'active');
-                star.classList.add('far');
-            });
-            feedbackModal.classList.add('open');
-        }
-
-        function sendFeedback() {
-            const track = filteredPlaylist[currentIndex];
-            if (!track) return;
-            const comment = document.getElementById('feedbackText').value;
-            let starsText = currentRating > 0 ? '★'.repeat(currentRating) + '☆'.repeat(5 - currentRating) : 'Sem avaliação';
-            const msg = `🎵 FEEDBACK RÁDIO PLAY 12 🎵%0A%0A🎤 ${track.title} - ${track.artist}%0A🎸 ${track.genero}%0A⭐ ${starsText}%0A💬 ${comment || "Sem comentário"}`;
-            window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
-            feedbackModal.classList.remove('open');
-        }
-
-        function openReportProblemModal() {
-            const track = filteredPlaylist[currentIndex];
-            if (!track) return;
-            document.getElementById('reportSongId').textContent = track.id;
-            document.getElementById('reportSongTitle').textContent = track.title;
-            document.getElementById('reportSongArtist').textContent = track.artist;
-            document.getElementById('reportSongGenre').textContent = track.genero;
-            document.getElementById('problemText').value = '';
-            reportProblemModal.classList.add('open');
-        }
-
-        function sendReportProblem() {
-            const track = filteredPlaylist[currentIndex];
-            if (!track) return;
-            const problem = document.getElementById('problemText').value;
-            const msg = `🔴 PROBLEMA RÁDIO PLAY 12 🔴%0A%0A🎤 ${track.title} - ${track.artist}%0A🎸 ${track.genero}%0A📁 ${track.src}%0A❌ ${problem || "Não especificado"}`;
-            window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
-            reportProblemModal.classList.remove('open');
-        }
-
-        document.querySelectorAll('.star').forEach(star => {
-            star.addEventListener('click', () => {
-                currentRating = parseInt(star.dataset.rating);
-                document.querySelectorAll('.star').forEach((s, i) => {
-                    if (i < currentRating) { s.classList.add('fas', 'active'); s.classList.remove('far'); }
-                    else { s.classList.remove('fas', 'active'); s.classList.add('far'); }
-                });
-            });
-        });
-
-        document.addEventListener('touchstart', () => showControls());
-        document.addEventListener('click', () => showControls());
-
-        let touchStartX = 0, lastTap = 0;
-        document.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-            const now = Date.now();
-            if (now - lastTap < 300) {
-                e.preventDefault();
-                togglePlay();
-            }
-            lastTap = now;
-        });
-        document.addEventListener('touchend', (e) => {
-            const diff = e.changedTouches[0].screenX - touchStartX;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) prevTrack();
-                else nextTrack();
-                showControls();
-            }
-        });
-
-        setInterval(() => { 
-            const video = document.getElementById('bgVideo'); 
-            if (video && video.paused) video.play().catch(e => console.log); 
-        }, 5000);
-
+        const savedPrefs = localStorage.getItem('radio_patico_prefs');
+        if (savedPrefs) { try { userPreferences = { ...userPreferences, ...JSON.parse(savedPrefs) }; } catch(e) {} }
+        const savedStats = localStorage.getItem('radio_patico_stats');
+        if (savedStats) { try { stats = { ...stats, ...JSON.parse(savedStats) }; } catch(e) {} }
+        
         carregarPlaylist();
     </script>
 </body>
