@@ -91,19 +91,13 @@
         .genre-card {
             border-radius: 16px;
             cursor: pointer;
-            background: linear-gradient(135deg, #2a2a4a, #1a1a3e);
-            transition: all 0.2s ease;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: all 0.3s ease;
             border: 1px solid rgba(255,255,255,0.2);
             aspect-ratio: 5 / 3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-            text-shadow: 0 0 5px rgba(0,0,0,0.5);
-            text-align: center;
-            padding: 10px;
-            font-size: 0.9rem;
+            background-color: #1a1a2e;
         }
         .genre-card:hover { transform: scale(1.02); border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0,243,255,0.3); }
         .genre-card:active { transform: scale(0.96); }
@@ -411,7 +405,6 @@
         audio.volume = 0.9;
 
         audio.onerror = () => {
-            console.log("Erro no áudio");
             if (!isTransitioning) nextTrack();
         };
 
@@ -455,10 +448,10 @@
 
         function getMusicaAleatoria(lista, evitarId = null) {
             if (!lista || lista.length === 0) return null;
-            const candidatas = [...lista];
+            let candidatas = [...lista];
             if (evitarId && candidatas.length > 1) {
-                const filtered = candidatas.filter(m => m.id !== evitarId);
-                if (filtered.length > 0) return filtered[Math.floor(Math.random() * filtered.length)];
+                candidatas = candidatas.filter(m => m.id !== evitarId);
+                if (candidatas.length === 0) candidatas = [...lista];
             }
             return candidatas[Math.floor(Math.random() * candidatas.length)];
         }
@@ -512,21 +505,28 @@
         function filterByGenre(genero) {
             if (!musicasTodas.length) return;
             
+            try { document.documentElement.requestFullscreen(); } catch(e) {}
+            
             if (genero === "MPB_POP") { 
                 modoAtual = "MPB_POP"; 
                 generoSelecionado = null; 
+                showNotification("🎵 Modo MPB/POP", 1000);
             } else if (genero === "TODOS") { 
                 modoAtual = "TODOS"; 
                 generoSelecionado = null; 
+                showNotification("🎵 Todos os estilos", 1000);
             } else if (genero === "FORRÓ ANTIGO") {
                 modoAtual = "GENERO_ESPECIFICO";
                 generoSelecionado = "FORRÓ ANTIGO";
+                showNotification("🪘 FORRÓ ANTIGO", 1000);
             } else if (genero === "GLOBAL HITS") {
                 modoAtual = "GENERO_ESPECIFICO";
                 generoSelecionado = "GLOBAL HITS";
+                showNotification("🌍 GLOBAL HITS", 1000);
             } else { 
                 modoAtual = "GENERO_ESPECIFICO"; 
                 generoSelecionado = genero; 
+                showNotification(`🎵 ${genero}`, 1000);
             }
             updateGenreBadge();
             const novaMusica = getProximaMusica();
@@ -687,35 +687,31 @@
             }
         }
 
-        // BUILD GENRES - RÁPIDO, SEM IMAGENS
+        // BUILD GENRES COM IMAGENS
         function buildGenresGrid() {
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
             
-            const generosLista = [
-                "MPB_POP", "TODOS", "SERTANEJO", "FORRÓ ANTIGO", "SAMBA", 
-                "BREGA", "GLOBAL HITS", "POP", "MPB", "MODA TOP"
+            const generosComImagem = [
+                { nome: "MPB_POP", imagem: "mpbpop90.png", filtro: "MPB_POP" },
+                { nome: "TODOS", imagem: "todas90.png", filtro: "TODOS" },
+                { nome: "SERTANEJO", imagem: "serta90.png", filtro: "SERTANEJO" },
+                { nome: "FORRÓ ANTIGO", imagem: "forroant.png", filtro: "FORRÓ ANTIGO" },
+                { nome: "SAMBA", imagem: "samba901.png", filtro: "SAMBA" },
+                { nome: "BREGA", imagem: "brega90.png", filtro: "BREGA" },
+                { nome: "GLOBAL HITS", imagem: "global90.png", filtro: "GLOBAL HITS" },
+                { nome: "POP", imagem: "pop90.png", filtro: "POP" },
+                { nome: "MPB", imagem: "mpb901.png", filtro: "MPB" },
+                { nome: "MODA TOP", imagem: "moda90.png", filtro: "MODA TOP" }
             ];
             
-            generosLista.forEach(genero => {
+            generosComImagem.forEach(g => {
                 const card = document.createElement('div');
                 card.className = 'genre-card';
-                let nomeExibir = genero.replace("_", "/");
-                if (genero === "FORRÓ ANTIGO") nomeExibir = "FORRÓ ANTIGO";
-                if (genero === "GLOBAL HITS") nomeExibir = "🌍 GLOBAL HITS";
-                if (genero === "MPB_POP") nomeExibir = "🎵 MPB/POP";
-                if (genero === "TODOS") nomeExibir = "🎲 TODOS";
-                if (genero === "SERTANEJO") nomeExibir = "🤠 SERTANEJO";
-                if (genero === "FORRÓ ANTIGO") nomeExibir = "🪘 FORRÓ ANTIGO";
-                if (genero === "SAMBA") nomeExibir = "🎭 SAMBA";
-                if (genero === "BREGA") nomeExibir = "💔 BREGA";
-                if (genero === "POP") nomeExibir = "🎤 POP";
-                if (genero === "MPB") nomeExibir = "🎸 MPB";
-                if (genero === "MODA TOP") nomeExibir = "👢 MODA TOP";
-                
-                card.innerHTML = nomeExibir;
-                card.style.background = "linear-gradient(135deg, #2a2a4a, #1a1a3e)";
-                card.onclick = () => filterByGenre(genero);
+                card.style.backgroundImage = `url('${g.imagem}')`;
+                card.style.backgroundSize = 'cover';
+                card.style.backgroundPosition = 'center';
+                card.onclick = () => filterByGenre(g.filtro);
                 grid.appendChild(card);
             });
         }
@@ -755,7 +751,6 @@
                     updateScrollText(primeiraMusica); 
                 }
                 
-                // Já constroi os gêneros imediatamente
                 buildGenresGrid();
                 
                 splash.classList.add('hidden');
@@ -764,7 +759,7 @@
                     appContainer.style.display = 'block';
                     menuButton.style.display = 'flex';
                     tapToStart.style.display = 'block';
-                }, 300);
+                }, 500);
             } catch (error) {
                 console.error("Erro:", error);
                 document.querySelector('#splash .splash-loading').innerHTML = `<i class="fas fa-exclamation-triangle"></i> Erro: ${error.message}`;
@@ -773,7 +768,7 @@
                     appContainer.style.display = 'block'; 
                     menuButton.style.display = 'flex'; 
                     tapToStart.style.display = 'block';
-                    buildGenresGrid(); // Mesmo com erro, mostra os gêneros
+                    buildGenresGrid();
                 }, 2000);
             }
         }
@@ -804,7 +799,11 @@
         });
         document.getElementById('fullscreenMenuBtn').addEventListener('click', () => { document.documentElement.requestFullscreen(); document.getElementById('menuPopup').classList.remove('open'); });
         document.getElementById('btStatusMenuBtn').addEventListener('click', () => { 
-            showNotification("Bluetooth: " + (navigator.bluetooth ? "Disponível" : "Não suportado"), 2000);
+            if (navigator.bluetooth) {
+                showNotification("Bluetooth disponível", 1500);
+            } else {
+                showNotification("Bluetooth não suportado", 1500);
+            }
             document.getElementById('menuPopup').classList.remove('open'); 
         });
         document.getElementById('feedbackMenuBtn').addEventListener('click', () => { 
