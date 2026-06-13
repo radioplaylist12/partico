@@ -374,7 +374,7 @@
         let timerInterval = null;
         let modoAtual = "MPB_POP";
         let generoSelecionado = null;
-        let musicasMPB = [], musicasPOP = [], musicasGLOBAL = [], musicasForroAntigo = [], musicasTodas = [];
+        let musicasMPB = [], musicasPOP = [], musicasGLOBAL = [], musicasTodas = [];
         let hideControlsTimeout = null;
         let currentRating = 0;
         let nextSongCache = null;
@@ -403,7 +403,6 @@
 
         audio.volume = 0.9;
 
-        // ==================== FUNÇÕES ====================
         function showNotification(msg, duration = 2000) {
             notification.textContent = msg;
             notification.classList.add('show');
@@ -514,8 +513,6 @@
                     musicasDoGenero = musicasGLOBAL;
                 } else if (generoSelecionado === "POP") {
                     musicasDoGenero = musicasPOP;
-                } else if (generoSelecionado === "FORRÓ ANTIGO") {
-                    musicasDoGenero = musicasForroAntigo;
                 } else {
                     musicasDoGenero = musicasTodas.filter(m => m.genero === generoSelecionado);
                 }
@@ -551,10 +548,10 @@
                 modoAtual = "GENERO_ESPECIFICO";
                 generoSelecionado = "GLOBAL HITS";
                 showNotification("🎵 GLOBAL HITS ativado!", 1500);
-            } else if (genero === "FORRÓ ANTIGO") {
+            } else if (genero === "POP") {
                 modoAtual = "GENERO_ESPECIFICO";
-                generoSelecionado = "FORRÓ ANTIGO";
-                showNotification("🎵 FORRÓ ANTIGO ativado!", 1500);
+                generoSelecionado = "POP";
+                showNotification("🎵 POP ativado!", 1500);
             } else { 
                 modoAtual = "GENERO_ESPECIFICO"; 
                 generoSelecionado = genero; 
@@ -645,8 +642,6 @@
                     musicasDisponiveis = musicasGLOBAL;
                 } else if (generoSelecionado === "POP") {
                     musicasDisponiveis = musicasPOP;
-                } else if (generoSelecionado === "FORRÓ ANTIGO") {
-                    musicasDisponiveis = musicasForroAntigo;
                 } else {
                     musicasDisponiveis = musicasTodas.filter(m => m.genero === generoSelecionado);
                 }
@@ -798,7 +793,6 @@
                 { nome: "MPB_POP", imagem: "mpbpop90.png", filtro: "MPB_POP" },
                 { nome: "TODOS", imagem: "todas90.png", filtro: "TODOS" },
                 { nome: "SERTANEJO", imagem: "serta90.png", filtro: "SERTANEJO" },
-                { nome: "FORRÓ ANTIGO", imagem: "forro90.png", filtro: "FORRÓ ANTIGO" },
                 { nome: "SAMBA", imagem: "samba901.png", filtro: "SAMBA" },
                 { nome: "BREGA", imagem: "brega90.png", filtro: "BREGA" },
                 { nome: "GLOBAL HITS", imagem: "global90.png", filtro: "GLOBAL HITS" },
@@ -819,7 +813,7 @@
             });
             
             const generosUnicos = [...new Set(musicasTodas.map(m => m.genero))];
-            const generosJaAdicionados = ["MPB_POP", "TODOS", "SERTANEJO", "FORRÓ ANTIGO", "SAMBA", "BREGA", "GLOBAL HITS", "POP", "MPB", "MODA TOP"];
+            const generosJaAdicionados = ["MPB_POP", "TODOS", "SERTANEJO", "SAMBA", "BREGA", "GLOBAL HITS", "POP", "MPB", "MODA TOP"];
             generosUnicos.forEach(genero => {
                 if (!generosJaAdicionados.includes(genero)) {
                     const card = document.createElement('div');
@@ -848,10 +842,9 @@
                 musicasMPB = musicas.filter(m => m.genero === "MPB");
                 musicasPOP = musicas.filter(m => m.genero === "POP");
                 musicasGLOBAL = musicas.filter(m => m.genero === "GLOBAL HITS");
-                musicasForroAntigo = musicas.filter(m => m.genero === "FORRÓ ANTIGO");
                 musicasTodas = [...musicas];
                 
-                console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | GLOBAL: ${musicasGLOBAL.length} | FORRÓ ANTIGO: ${musicasForroAntigo.length}`);
+                console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | GLOBAL: ${musicasGLOBAL.length}`);
                 
                 modoAtual = "MPB_POP";
                 updateGenreBadge();
@@ -881,7 +874,6 @@
             }
         }
 
-        // ==================== EVENTOS ====================
         document.getElementById('progressBar').addEventListener('click', (e) => {
             if (audio.duration) {
                 const rect = e.currentTarget.getBoundingClientRect();
