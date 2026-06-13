@@ -25,7 +25,6 @@
         .icon-btn { background: rgba(0,0,0,0.6); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1rem; border: 1px solid rgba(0,243,255,0.3); transition: transform 0.2s, background 0.2s; }
         .icon-btn:active { transform: scale(0.92); background: var(--neon-cyan); color: #000; }
         
-        /* LETREIRO - SUBIU E SEM LINHA DE CIMA */
         .info-scroll {
             position: fixed;
             top: 70px;
@@ -52,7 +51,6 @@
         }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
-        /* BOTÃO GÊNERO FLUTUANTE MAIS BONITO */
         .genre-fab { position: fixed; bottom: 140px; right: 20px; z-index: 40; }
         .genre-fab-btn { 
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink)); 
@@ -233,7 +231,6 @@
         .feedback-modal button { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; padding: 12px; border-radius: 30px; color: #000; font-weight: bold; cursor: pointer; margin-top: 5px; }
         .close-feedback { background: rgba(255,255,255,0.1) !important; color: white !important; margin-top: 5px; }
         
-        /* Modal de Relatório de Problemas */
         .report-modal {
             position: fixed;
             top: 50%;
@@ -298,12 +295,9 @@
         </div>
     </div>
 
-    <!-- BOTÃO GÊNERO MAIS BONITO -->
     <div class="genre-fab">
         <div class="genre-fab-btn" id="genreFab"><i class="fas fa-guitar"></i></div>
     </div>
-
-    <!-- BOTÕES LIKE E AI REMOVIDOS -->
 
     <div class="menu-button" id="menuButton" style="display: none;"><i class="fas fa-ellipsis-v"></i></div>
     <div class="menu-popup" id="menuPopup">
@@ -344,7 +338,6 @@
         <button id="closeFeedbackBtn" class="close-feedback">Cancelar</button>
     </div>
 
-    <!-- MODAL RELATÓRIO DE PROBLEMAS -->
     <div class="report-modal" id="reportProblemModal">
         <h3><i class="fas fa-exclamation-triangle"></i> RELATÓRIO DE PROBLEMAS</h3>
         <div class="report-info" id="reportInfo">
@@ -381,7 +374,9 @@
         let timerInterval = null;
         let modoAtual = "MPB_POP";
         let generoSelecionado = null;
-        let musicasMPB = [], musicasPOP = [], musicasGLOBAL = [], musicasTodas = [];
+        // MAPAS DE MÚSICAS POR GÊNERO CORRETOS
+        let musicasPorGenero = {};
+        let musicasTodas = [];
         let hideControlsTimeout = null;
         let currentRating = 0;
         let nextSongCache = null;
@@ -495,40 +490,48 @@
             }
         }
 
+        // FUNÇÃO PRINCIPAL - PEGA PRÓXIMA MÚSICA RESPEITANDO O GÊNERO CORRETO
         function getProximaMusica(evitarId = null) {
             if (musicasTodas.length === 0) return null;
             
+            // MODO MPB/POP - alterna entre MPB e POP
             if (modoAtual === "MPB_POP") {
-                if (musicasMPB.length === 0 && musicasPOP.length === 0) return null;
+                const musicasMPB = musicasPorGenero["MPB"] || [];
+                const musicasPOP = musicasPorGenero["POP"] || [];
+                
+                if (musicasMPB.length === 0 && musicasPOP.length === 0) return getMusicaAleatoria(musicasTodas, evitarId);
+                
                 const ultimaMusica = filteredPlaylist[currentIndex];
                 const ultimoGenero = ultimaMusica?.genero;
                 let novoGenero;
+                
                 if (ultimoGenero === "MPB") novoGenero = "POP";
                 else if (ultimoGenero === "POP") novoGenero = "MPB";
                 else novoGenero = Math.random() < 0.5 ? "MPB" : "POP";
-                const listaNovoGenero = novoGenero === "MPB" ? musicasMPB : musicasPOP;
+                
+                const listaNovoGenero = musicasPorGenero[novoGenero] || [];
                 if (listaNovoGenero.length === 0) {
                     const outraLista = novoGenero === "MPB" ? musicasPOP : musicasMPB;
-                    if (outraLista.length === 0) return null;
+                    if (outraLista.length === 0) return getMusicaAleatoria(musicasTodas, evitarId);
                     return getMusicaAleatoria(outraLista, evitarId || ultimaMusica?.id);
                 }
                 return getMusicaAleatoria(listaNovoGenero, evitarId || ultimaMusica?.id);
             }
             
+            // MODO GÊNERO ESPECÍFICO
             if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
-                let musicasDoGenero = [];
-                if (generoSelecionado === "GLOBAL HITS") {
-                    musicasDoGenero = musicasGLOBAL;
-                } else if (generoSelecionado === "POP") {
-                    musicasDoGenero = musicasPOP;
-                } else {
-                    musicasDoGenero = musicasTodas.filter(m => m.genero === generoSelecionado);
+                const musicasDoGenero = musicasPorGenero[generoSelecionado] || [];
+                if (musicasDoGenero.length === 0) {
+                    showNotification(`⚠️ Gênero ${generoSelecionado} sem músicas!`, 1500);
+                    modoAtual = "TODOS";
+                    generoSelecionado = null;
+                    updateGenreBadge();
+                    return getMusicaAleatoria(musicasTodas, evitarId);
                 }
-                if (musicasDoGenero.length === 0) return getMusicaAleatoria(musicasTodas, evitarId);
                 return getMusicaAleatoria(musicasDoGenero, evitarId);
             }
             
-            // MODO TODOS - TODOS OS GÊNEROS MISTURADOS!
+            // MODO TODOS - TODOS OS GÊNEROS MISTURADOS
             return getMusicaAleatoria(musicasTodas, evitarId);
         }
 
@@ -537,7 +540,7 @@
             else if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
                 let nome = generoSelecionado === "GLOBAL HITS" ? "GLOBAL HITS" : generoSelecionado;
                 genreBadge.innerHTML = `<i class="fas fa-music"></i> ${nome}`;
-            } else genreBadge.innerHTML = '<i class="fas fa-list-ul"></i> TODOS';
+            } else genreBadge.innerHTML = '<i class="fas fa-list-ul"></i> TODOS OS GÊNEROS';
         }
 
         function filterByGenre(genero) {
@@ -553,16 +556,14 @@
                 modoAtual = "TODOS"; 
                 generoSelecionado = null; 
                 showNotification("🎵 Modo TODOS os estilos misturados!", 1500);
-            } else if (genero === "GLOBAL HITS") {
-                modoAtual = "GENERO_ESPECIFICO";
-                generoSelecionado = "GLOBAL HITS";
-                showNotification("🎵 GLOBAL HITS ativado!", 1500);
             } else { 
                 modoAtual = "GENERO_ESPECIFICO"; 
                 generoSelecionado = genero; 
                 showNotification(`🎵 ${genero} ativado!`, 1500);
             }
             updateGenreBadge();
+            
+            // VARREdura para encontrar música do gênero correto
             const novaMusica = getProximaMusica();
             if (novaMusica) { 
                 filteredPlaylist = [novaMusica]; 
@@ -570,6 +571,8 @@
                 updateScrollText(novaMusica); 
                 if (isPlaying) playMusic(); 
                 preloadNextSong();
+            } else {
+                showNotification(`⚠️ Nenhuma música encontrada para ${genero}`, 2000);
             }
         }
 
@@ -643,13 +646,7 @@
         function prevTrack() {
             let musicasDisponiveis = musicasTodas;
             if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
-                if (generoSelecionado === "GLOBAL HITS") {
-                    musicasDisponiveis = musicasGLOBAL;
-                } else if (generoSelecionado === "POP") {
-                    musicasDisponiveis = musicasPOP;
-                } else {
-                    musicasDisponiveis = musicasTodas.filter(m => m.genero === generoSelecionado);
-                }
+                musicasDisponiveis = musicasPorGenero[generoSelecionado] || musicasTodas;
             }
             const outras = musicasDisponiveis.filter(m => m.id !== filteredPlaylist[0]?.id);
             if (outras.length > 0) { const anterior = getMusicaAleatoria(outras); filteredPlaylist = [anterior]; currentIndex = 0; updateScrollText(anterior); if (isPlaying) playMusic(); }
@@ -683,7 +680,6 @@
             feedbackModal.classList.remove('open');
         }
 
-        // Abrir relatório de problemas com informações da música atual
         function openReportProblemModal() {
             const track = filteredPlaylist[currentIndex];
             if (!track) return;
@@ -795,17 +791,19 @@
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
             
+            // LISTA DE GÊNEROS COM SUAS IMAGENS
             const generosComImagem = [
-                { nome: "MPB_POP", imagem: "mpbpop90.png", filtro: "MPB_POP" },
-                { nome: "TODOS", imagem: "todas90.png", filtro: "TODOS" },
-                { nome: "SERTANEJO", imagem: "serta90.png", filtro: "SERTANEJO" },
-                { nome: "FORRÓ", imagem: "forro90.png", filtro: "FORRÓ" },
-                { nome: "SAMBA", imagem: "samba901.png", filtro: "SAMBA" },
-                { nome: "BREGA", imagem: "brega90.png", filtro: "BREGA" },
-                { nome: "GLOBAL HITS", imagem: "global90.png", filtro: "GLOBAL HITS" },
-                { nome: "POP", imagem: "pop90.png", filtro: "POP" },
-                { nome: "MPB", imagem: "mpb901.png", filtro: "MPB" },
-                { nome: "MODA TOP", imagem: "moda90.png", filtro: "MODA TOP" }
+                { nome: "MPB_POP", imagem: "mpbpop90.png", filtro: "MPB_POP", label: "MPB/POP" },
+                { nome: "TODOS", imagem: "todas90.png", filtro: "TODOS", label: "TODOS" },
+                { nome: "SERTANEJO", imagem: "serta90.png", filtro: "SERTANEJO", label: "SERTANEJO" },
+                { nome: "FORRÓ", imagem: "forro90.png", filtro: "FORRÓ", label: "FORRÓ" },
+                { nome: "FORRÓ ANTIGO", imagem: "forroant.png", filtro: "FORRÓ ANTIGO", label: "FORRÓ ANTIGO" },
+                { nome: "SAMBA", imagem: "samba901.png", filtro: "SAMBA", label: "SAMBA" },
+                { nome: "BREGA", imagem: "brega90.png", filtro: "BREGA", label: "BREGA" },
+                { nome: "GLOBAL HITS", imagem: "global90.png", filtro: "GLOBAL HITS", label: "GLOBAL HITS" },
+                { nome: "POP", imagem: "pop90.png", filtro: "POP", label: "POP" },
+                { nome: "MPB", imagem: "mpb901.png", filtro: "MPB", label: "MPB" },
+                { nome: "MODA TOP", imagem: "moda90.png", filtro: "MODA TOP", label: "MODA TOP" }
             ];
             
             generosComImagem.forEach(g => {
@@ -819,10 +817,11 @@
                 grid.appendChild(card);
             });
             
+            // ADICIONA GÊNEROS DINÂMICOS QUE NÃO ESTÃO NA LISTA PRINCIPAL
+            const generosExistentes = new Set(generosComImagem.map(g => g.filtro));
             const generosUnicos = [...new Set(musicasTodas.map(m => m.genero))];
-            const generosJaAdicionados = ["MPB_POP", "TODOS", "SERTANEJO", "FORRÓ", "SAMBA", "BREGA", "GLOBAL HITS", "POP", "MPB", "MODA TOP"];
             generosUnicos.forEach(genero => {
-                if (!generosJaAdicionados.includes(genero) && genero !== "FORRÓ ANTIGO") {
+                if (!generosExistentes.has(genero) && genero !== "FORRÓ ANTIGO" && genero !== "MPB_POP") {
                     const card = document.createElement('div');
                     card.className = 'genre-card';
                     card.style.backgroundImage = `url('default90.png')`;
@@ -842,17 +841,37 @@
                 const data = await response.json();
                 if (!Array.isArray(data) || data.length === 0) throw new Error("JSON vazio");
                 
-                musicas = data.map((item, idx) => ({ id: item.id || idx + 1, title: item.title || "Sem título", artist: item.artist || "Desconhecido", src: item.src || "", genero: item.genero || "POP", tipo: item.tipo || "normal" }));
+                musicas = data.map((item, idx) => ({ 
+                    id: item.id || idx + 1, 
+                    title: item.title || "Sem título", 
+                    artist: item.artist || "Desconhecido", 
+                    src: item.src || "", 
+                    genero: item.genero || "POP", 
+                    tipo: item.tipo || "normal" 
+                }));
                 console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
-                splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
                 
-                // SEPARAÇÃO CORRETA DOS GÊNEROS:
-                musicasMPB = musicas.filter(m => m.genero === "MPB");
-                musicasPOP = musicas.filter(m => m.genero === "POP");
-                musicasGLOBAL = musicas.filter(m => m.genero === "GLOBAL HITS");
-                musicasTodas = [...musicas];
+                // LIMPA MAPAS ANTIGOS
+                musicasPorGenero = {};
+                musicasTodas = [];
                 
-                console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | GLOBAL: ${musicasGLOBAL.length}`);
+                // CLASSIFICA AS MÚSICAS POR GÊNERO (VARREdura correta)
+                musicas.forEach(musica => {
+                    const genero = musica.genero;
+                    if (!musicasPorGenero[genero]) {
+                        musicasPorGenero[genero] = [];
+                    }
+                    musicasPorGenero[genero].push(musica);
+                    musicasTodas.push(musica);
+                });
+                
+                // EXIBE ESTATÍSTICA DOS GÊNEROS ENCONTRADOS
+                console.log("📊 GÊNEROS ENCONTRADOS NA PLAYLIST:");
+                for (const [genero, lista] of Object.entries(musicasPorGenero)) {
+                    console.log(`   ${genero}: ${lista.length} músicas`);
+                }
+                
+                splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas - ${Object.keys(musicasPorGenero).length} gêneros!`;
                 
                 modoAtual = "MPB_POP";
                 updateGenreBadge();
