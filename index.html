@@ -364,6 +364,16 @@
         const PLAYLIST_URL = "https://raw.githubusercontent.com/radioplaylist12/partico/main/playlist.json";
         const NUMERO_WHATSAPP = "5512988461978";
         
+        // PLAYLIST FALLBACK (CASO O JSON NÃO CARREGUE)
+        const PLAYLIST_FALLBACK = [
+            {"id":20,"title":"Ficar por Ficar","artist":"Zé Vaqueiro","src":"Ze-Vaqueiro-Ficar-por-Ficar.m4a","genero":"FORRO","tipo":"normal"},
+            {"id":21,"title":"Coração Partido","artist":"Luan Estilizado","src":"16-Coracao_Partido-Luan_Estilizado.mp3","genero":"FORRO","tipo":"normal"},
+            {"id":115,"title":"Nem Se Despediu De Mim","artist":"Luiz Gonzaga","src":"Luiz_Gonzaga_Nem_Se_Despediu_De_Mim_muzzik.m4a","genero":"FORRÓ ANTIGO","tipo":"normal"},
+            {"id":166,"title":"Haven't Met You Yet","artist":"Michael Bublé","src":"Michael_Buble_Haven_t_Met_You_Yet.m4a","genero":"POP","tipo":"ao vivo"},
+            {"id":327,"title":"Palpite","artist":"Vanessa Rangel","src":"Palpite_Palpite_muzzik.m4a","genero":"MPB","tipo":"normal"},
+            {"id":129,"title":"Lance Livre","artist":"Kamisa 10","src":"Kamisa_10-Lance_Livre_NA_VIBE_DO_K10.mp3","genero":"SAMBA","tipo":"normal"}
+        ];
+        
         // ==================== VARIÁVEIS ====================
         let musicas = [];
         let filteredPlaylist = [];
@@ -491,7 +501,10 @@
             
             // Modo MPB/POP (alterna entre MPB e POP)
             if (modoAtual === "MPB_POP") {
-                if (musicasMPB.length === 0 && musicasPOP.length === 0) return null;
+                if (musicasMPB.length === 0 && musicasPOP.length === 0) {
+                    // Se não tem MPB nem POP, pega todas
+                    return getMusicaAleatoria(musicasTodas, evitarId);
+                }
                 const ultimaMusica = filteredPlaylist[currentIndex];
                 const ultimoGenero = ultimaMusica?.genero;
                 let novoGenero;
@@ -501,7 +514,7 @@
                 const listaNovoGenero = novoGenero === "MPB" ? musicasMPB : musicasPOP;
                 if (listaNovoGenero.length === 0) {
                     const outraLista = novoGenero === "MPB" ? musicasPOP : musicasMPB;
-                    if (outraLista.length === 0) return null;
+                    if (outraLista.length === 0) return getMusicaAleatoria(musicasTodas, evitarId);
                     return getMusicaAleatoria(outraLista, evitarId || ultimaMusica?.id);
                 }
                 return getMusicaAleatoria(listaNovoGenero, evitarId || ultimaMusica?.id);
@@ -522,7 +535,10 @@
                     case "MODA TOP": musicasDoGenero = musicasMODATOP; break;
                     default: musicasDoGenero = musicasTodas.filter(m => m.genero === generoSelecionado);
                 }
-                if (musicasDoGenero.length === 0) return getMusicaAleatoria(musicasTodas, evitarId);
+                if (musicasDoGenero.length === 0) {
+                    showNotification(`Nenhuma música em ${generoSelecionado}`, 1500);
+                    return getMusicaAleatoria(musicasTodas, evitarId);
+                }
                 return getMusicaAleatoria(musicasDoGenero, evitarId);
             }
             
@@ -564,6 +580,8 @@
                 updateScrollText(novaMusica); 
                 if (isPlaying) playMusic(); 
                 preloadNextSong();
+            } else {
+                showNotification(`Nenhuma música disponível em ${genero}`, 2000);
             }
             document.getElementById('genresModal').classList.remove('open');
         }
@@ -736,9 +754,18 @@
                 splashStatus.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Baixando playlist...';
                 const url = `${PLAYLIST_URL}?t=${Date.now()}`;
                 const response = await fetch(url);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                if (!Array.isArray(data) || data.length === 0) throw new Error("JSON vazio");
+                
+                let data;
+                if (!response.ok) {
+                    console.warn("Usando playlist fallback");
+                    data = PLAYLIST_FALLBACK;
+                } else {
+                    data = await response.json();
+                    if (!Array.isArray(data) || data.length === 0) {
+                        console.warn("JSON vazio, usando fallback");
+                        data = PLAYLIST_FALLBACK;
+                    }
+                }
                 
                 musicas = data.map((item, idx) => ({ 
                     id: item.id || idx + 1, 
@@ -748,6 +775,9 @@
                     genero: item.genero || "POP", 
                     tipo: item.tipo || "normal" 
                 }));
+                
+                console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
+                splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
                 
                 // Separação por gênero baseada no seu JSON
                 musicasMPB = musicas.filter(m => m.genero === "MPB");
@@ -762,6 +792,12 @@
                 musicasTodas = [...musicas];
                 
                 console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | FORRO: ${musicasFORRO.length} | FORRÓ ANTIGO: ${musicasFORROANTIGO.length} | SERTANEJO: ${musicasSERTANEJO.length}`);
+                
+                if (musicasFORRO.length > 0) {
+                    console.log(`✅ FORRO encontrado! ${musicasFORRO.length} músicas`);
+                } else {
+                    console.warn("⚠️ Nenhuma música FORRO encontrada!");
+                }
                 
                 modoAtual = "MPB_POP";
                 updateGenreBadge();
@@ -827,6 +863,7 @@
         document.getElementById('feedbackMenuBtn').addEventListener('click', () => { 
             const track = filteredPlaylist[currentIndex];
             if (!track) return;
+            currentRating = 0;
             document.getElementById('feedbackText').value = '';
             document.querySelectorAll('.star').forEach(star => {
                 star.classList.remove('fas', 'active');
@@ -860,7 +897,6 @@
             if (!track) return;
             const comment = document.getElementById('feedbackText').value;
             let starsText = '';
-            const currentRating = document.querySelectorAll('.star.active').length;
             if (currentRating > 0) starsText = '★'.repeat(currentRating) + '☆'.repeat(5 - currentRating);
             else starsText = 'Sem avaliação';
             const msg = `🎵 FEEDBACK RÁDIO PLAY 12 🎵%0A%0A🎤 ${track.title} - ${track.artist}%0A🎸 ${track.genero}%0A⭐ ${starsText}%0A💬 ${comment || "Sem comentário"}`;
@@ -901,9 +937,9 @@
 
         document.querySelectorAll('.star').forEach(star => {
             star.addEventListener('click', () => {
-                const rating = parseInt(star.dataset.rating);
+                currentRating = parseInt(star.dataset.rating);
                 document.querySelectorAll('.star').forEach((s, i) => {
-                    if (i < rating) { s.classList.add('fas', 'active'); s.classList.remove('far'); }
+                    if (i < currentRating) { s.classList.add('fas', 'active'); s.classList.remove('far'); }
                     else { s.classList.remove('fas', 'active'); s.classList.add('far'); }
                 });
             });
@@ -919,6 +955,10 @@
             if (now - lastTap < 300) {
                 e.preventDefault();
                 togglePlay();
+                const indicator = document.getElementById('swipeIndicator');
+                indicator.textContent = isPlaying ? '⏸️ Pausado' : '▶️ Play';
+                indicator.style.opacity = '1';
+                setTimeout(() => indicator.style.opacity = '0', 800);
             }
             lastTap = now;
         });
@@ -927,6 +967,10 @@
             if (Math.abs(diff) > 50) {
                 if (diff > 0) prevTrack();
                 else nextTrack();
+                const ind = document.getElementById('swipeIndicator');
+                ind.textContent = diff > 0 ? '⏮️ Anterior' : '⏭️ Próxima';
+                ind.style.opacity = '1';
+                setTimeout(() => ind.style.opacity = '0', 800);
                 showControls();
             }
         });
