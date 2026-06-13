@@ -25,6 +25,7 @@
         .icon-btn { background: rgba(0,0,0,0.6); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1rem; border: 1px solid rgba(0,243,255,0.3); transition: transform 0.2s, background 0.2s; }
         .icon-btn:active { transform: scale(0.92); background: var(--neon-cyan); color: #000; }
         
+        /* LETREIRO - SUBIU E SEM LINHA DE CIMA */
         .info-scroll {
             position: fixed;
             top: 70px;
@@ -51,6 +52,7 @@
         }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
+        /* BOTÃO GÊNERO FLUTUANTE MAIS BONITO */
         .genre-fab { position: fixed; bottom: 140px; right: 20px; z-index: 40; }
         .genre-fab-btn { 
             background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink)); 
@@ -231,6 +233,7 @@
         .feedback-modal button { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; padding: 12px; border-radius: 30px; color: #000; font-weight: bold; cursor: pointer; margin-top: 5px; }
         .close-feedback { background: rgba(255,255,255,0.1) !important; color: white !important; margin-top: 5px; }
         
+        /* Modal de Relatório de Problemas */
         .report-modal {
             position: fixed;
             top: 50%;
@@ -295,9 +298,12 @@
         </div>
     </div>
 
+    <!-- BOTÃO GÊNERO MAIS BONITO -->
     <div class="genre-fab">
         <div class="genre-fab-btn" id="genreFab"><i class="fas fa-guitar"></i></div>
     </div>
+
+    <!-- BOTÕES LIKE E AI REMOVIDOS -->
 
     <div class="menu-button" id="menuButton" style="display: none;"><i class="fas fa-ellipsis-v"></i></div>
     <div class="menu-popup" id="menuPopup">
@@ -338,6 +344,7 @@
         <button id="closeFeedbackBtn" class="close-feedback">Cancelar</button>
     </div>
 
+    <!-- MODAL RELATÓRIO DE PROBLEMAS -->
     <div class="report-modal" id="reportProblemModal">
         <h3><i class="fas fa-exclamation-triangle"></i> RELATÓRIO DE PROBLEMAS</h3>
         <div class="report-info" id="reportInfo">
@@ -403,6 +410,7 @@
 
         audio.volume = 0.9;
 
+        // ==================== FUNÇÕES ====================
         function showNotification(msg, duration = 2000) {
             notification.textContent = msg;
             notification.classList.add('show');
@@ -520,6 +528,7 @@
                 return getMusicaAleatoria(musicasDoGenero, evitarId);
             }
             
+            // MODO TODOS - TODOS OS GÊNEROS MISTURADOS!
             return getMusicaAleatoria(musicasTodas, evitarId);
         }
 
@@ -548,10 +557,6 @@
                 modoAtual = "GENERO_ESPECIFICO";
                 generoSelecionado = "GLOBAL HITS";
                 showNotification("🎵 GLOBAL HITS ativado!", 1500);
-            } else if (genero === "POP") {
-                modoAtual = "GENERO_ESPECIFICO";
-                generoSelecionado = "POP";
-                showNotification("🎵 POP ativado!", 1500);
             } else { 
                 modoAtual = "GENERO_ESPECIFICO"; 
                 generoSelecionado = genero; 
@@ -678,6 +683,7 @@
             feedbackModal.classList.remove('open');
         }
 
+        // Abrir relatório de problemas com informações da música atual
         function openReportProblemModal() {
             const track = filteredPlaylist[currentIndex];
             if (!track) return;
@@ -792,12 +798,13 @@
             const generosComImagem = [
                 { nome: "MPB_POP", imagem: "mpbpop90.png", filtro: "MPB_POP" },
                 { nome: "TODOS", imagem: "todas90.png", filtro: "TODOS" },
-                { nome: "SERTANEJO", imagem: "serta90.png", filtro: "SERTANEJO" },
-                { nome: "SAMBA", imagem: "samba901.png", filtro: "SAMBA" },
+                { nome: "SERTANEJO", imagem: "ser90.png", filtro: "SERTANEJO" },
+                { nome: "FORRÓ", imagem: "forro90.png", filtro: "FORRÓ" },
+                { nome: "SAMBA", imagem: "samba90.png", filtro: "SAMBA" },
                 { nome: "BREGA", imagem: "brega90.png", filtro: "BREGA" },
                 { nome: "GLOBAL HITS", imagem: "global90.png", filtro: "GLOBAL HITS" },
                 { nome: "POP", imagem: "pop90.png", filtro: "POP" },
-                { nome: "MPB", imagem: "mpb901.png", filtro: "MPB" },
+                { nome: "MPB", imagem: "mpb90.png", filtro: "MPB" },
                 { nome: "MODA TOP", imagem: "moda90.png", filtro: "MODA TOP" }
             ];
             
@@ -813,9 +820,9 @@
             });
             
             const generosUnicos = [...new Set(musicasTodas.map(m => m.genero))];
-            const generosJaAdicionados = ["MPB_POP", "TODOS", "SERTANEJO", "SAMBA", "BREGA", "GLOBAL HITS", "POP", "MPB", "MODA TOP"];
+            const generosJaAdicionados = ["MPB_POP", "TODOS", "SERTANEJO", "FORRÓ", "SAMBA", "BREGA", "GLOBAL HITS", "POP", "MPB", "MODA TOP"];
             generosUnicos.forEach(genero => {
-                if (!generosJaAdicionados.includes(genero)) {
+                if (!generosJaAdicionados.includes(genero) && genero !== "FORRÓ ANTIGO") {
                     const card = document.createElement('div');
                     card.className = 'genre-card';
                     card.style.backgroundImage = `url('default90.png')`;
@@ -839,6 +846,7 @@
                 console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
                 splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
                 
+                // SEPARAÇÃO CORRETA DOS GÊNEROS:
                 musicasMPB = musicas.filter(m => m.genero === "MPB");
                 musicasPOP = musicas.filter(m => m.genero === "POP");
                 musicasGLOBAL = musicas.filter(m => m.genero === "GLOBAL HITS");
@@ -874,6 +882,7 @@
             }
         }
 
+        // ==================== EVENTOS ====================
         document.getElementById('progressBar').addEventListener('click', (e) => {
             if (audio.duration) {
                 const rect = e.currentTarget.getBoundingClientRect();
