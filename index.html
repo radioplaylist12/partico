@@ -488,7 +488,6 @@
             }
         }
 
-        // CORREÇÃO DO FORRÓ: Função que busca a próxima música
         function getProximaMusica(evitarId = null) {
             if (musicasTodas.length === 0) return null;
             
@@ -512,7 +511,6 @@
             if (modoAtual === "GENERO_ESPECIFICO" && generoSelecionado) {
                 let musicasDoGenero = [];
                 
-                // CORREÇÃO AQUI: Verifica FORRÓ corretamente
                 if (generoSelecionado === "GLOBAL HITS") {
                     musicasDoGenero = musicasGLOBAL;
                 } else if (generoSelecionado === "POP") {
@@ -532,7 +530,6 @@
                 return getMusicaAleatoria(musicasDoGenero, evitarId);
             }
             
-            // MODO TODOS - TODOS OS GÊNEROS MISTURADOS!
             return getMusicaAleatoria(musicasTodas, evitarId);
         }
 
@@ -796,7 +793,6 @@
             });
         });
 
-        // CORREÇÃO: buildGenresGrid com FORRÓ incluído
         function buildGenresGrid() {
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
@@ -838,7 +834,7 @@
             });
         }
 
-        // CORREÇÃO: carregarPlaylist com separação do FORRÓ
+        // ==================== CORREÇÃO PRINCIPAL: UNIFICAR FORRÓ ====================
         async function carregarPlaylist() {
             try {
                 const splashStatus = document.querySelector('#splash .splash-loading');
@@ -851,22 +847,31 @@
                 
                 musicas = data.map((item, idx) => ({ id: item.id || idx + 1, title: item.title || "Sem título", artist: item.artist || "Desconhecido", src: item.src || "", genero: item.genero || "POP", tipo: item.tipo || "normal" }));
                 console.log(`✅ Playlist carregada: ${musicas.length} músicas`);
-                splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
                 
-                // CORREÇÃO: Normalizar gênero FORRÓ (com e sem acento vira FORRÓ)
+                // 🔴 CORREÇÃO AQUI: Unifica FORRO e FORRÓ em um único gênero "FORRÓ"
                 musicas = musicas.map(m => ({
                     ...m,
-                    genero: m.genero === "FORRÓ" || m.genero === "FORRO" ? "FORRÓ" : m.genero
+                    genero: (m.genero === "FORRO" || m.genero === "FORRÓ") ? "FORRÓ" : m.genero
                 }));
                 
-                // SEPARAÇÃO CORRETA DOS GÊNEROS - INCLUINDO FORRÓ
+                splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
+                
+                // SEPARAÇÃO CORRETA DOS GÊNEROS
                 musicasMPB = musicas.filter(m => m.genero === "MPB");
                 musicasPOP = musicas.filter(m => m.genero === "POP");
                 musicasGLOBAL = musicas.filter(m => m.genero === "GLOBAL HITS");
-                musicasFORRO = musicas.filter(m => m.genero === "FORRÓ");
+                musicasFORRO = musicas.filter(m => m.genero === "FORRÓ");  // Agora pega TODOS os FORRÓs
                 musicasTodas = [...musicas];
                 
                 console.log(`📊 MPB: ${musicasMPB.length} | POP: ${musicasPOP.length} | FORRÓ: ${musicasFORRO.length} | GLOBAL: ${musicasGLOBAL.length}`);
+                
+                if (musicasFORRO.length === 0) {
+                    console.warn("⚠️ Nenhuma música de FORRÓ encontrada!");
+                } else {
+                    console.log(`✅ FORRÓ encontrado! ${musicasFORRO.length} músicas disponíveis`);
+                    // Mostrar algumas músicas de FORRÓ como exemplo
+                    console.log("Exemplos de FORRÓ:", musicasFORRO.slice(0, 5).map(m => m.title));
+                }
                 
                 modoAtual = "MPB_POP";
                 updateGenreBadge();
