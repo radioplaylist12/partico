@@ -6,6 +6,7 @@
     <title>RÁDIO PLAY 12 • Player Rápido</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ===== CSS COMPLETO (MANTIDO IGUAL AO SEU ORIGINAL) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #000; overflow: hidden; height: 100vh; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --neon-purple: #8E2DE2; }
@@ -183,7 +184,6 @@
 
     <script>
         // ==================== PLAYLIST COMPLETA (553 MÚSICAS) ====================
-        // Os dados foram corrigidos e incluídos como string JSON para evitar erros de sintaxe.
         const PLAYLIST_JSON = `[
             {"id":1,"title":"Corpo Nu","artist":"Panda","src":"Panda_Corpo_Nu_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
             {"id":2,"title":"Infarto","artist":"Diego & Victor Hugo","src":"Diego_Victor_Hugo_Infarto_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
@@ -736,7 +736,7 @@
             {"id":549,"title":"Faca","artist":"Diego & Victor Hugo, Bruno & Marrone","src":"Diego_Victor_Hugo_Bruno_Marrone_Faca_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
             {"id":550,"title":"Eu Escolho Deus","artist":"Desconhecido","src":"Eu_Escolho_Eu_Escolho_Deus_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
             {"id":551,"title":"Ele Não Desiste de Você","artist":"Marquinhos Gomes","src":"Ele_n_o_desiste_de_voc_Marquinhos_Gomes_PLAYBACK_Legendado_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
-            {"id":552,"title":"Ah Jesus Coração Igual ao Teu","artist":"Julliany Souza","src":"JULLIANY_SOUZA_AH_JESUS_CORA_O_IGUAL_AO_TEU_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
+            {"id":552,"title":"Ah Jesus - Coração Igual ao Teu","artist":"Julliany Souza","src":"JULLIANY_SOUZA_AH_JESUS_CORA_O_IGUAL_AO_TEU_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
             {"id":553,"title":"Vai","artist":"Zion Thariel","src":"Zion_Thariel_Zion_Thariel_Vai_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"}
         ]`;
 
@@ -870,19 +870,26 @@
 
         async function ativarAudio() {
             try {
+                // 1. Ativa o áudio de fundo
                 const silentUrl = URL.createObjectURL(createSilentAudio());
                 backgroundAudio.src = silentUrl;
                 backgroundAudio.loop = true;
                 backgroundAudio.volume = 0.001;
                 await backgroundAudio.play();
+
+                // 2. Marca como ativo ANTES de tocar a música
                 isBackgroundActive = true;
                 audioIndicator.innerHTML = '<i class="fas fa-music"></i> Ativo';
                 audioIndicator.style.color = '#4ade80';
+
                 if ('wakeLock' in navigator) try { await navigator.wakeLock.request('screen'); } catch (e) {}
+
+                // 3. Toca a música imediatamente
                 await playMusic();
                 return true;
             } catch (error) {
                 console.warn("Falha no áudio silencioso, mas continuando...", error);
+                // Mesmo com erro, ativa para tentar tocar
                 isBackgroundActive = true;
                 await playMusic();
                 return true;
@@ -1030,10 +1037,13 @@
         }
 
         async function playMusic() {
+            // Se não estiver ativo, mostra aviso e tenta ativar automaticamente
             if (!isBackgroundActive) {
-                showNotification("⚠️ Ative o áudio primeiro!", 1000);
+                showNotification("⚠️ Ativando áudio...", 1000);
+                await ativarAudio(); // tenta ativar
                 return;
             }
+
             if (!musicas.length) {
                 showNotification("Playlist vazia!", 1500);
                 return;
@@ -1056,10 +1066,20 @@
                 }
             }
 
-            if (!track || !track.src) {
-                showLoading(false);
-                resetMudandoGenero();
-                showNotification("Música indisponível", 1000);
+            // Se não encontrou música, tenta qualquer uma
+            if (!track) {
+                track = getMusicaAleatoria(musicas);
+                if (track) {
+                    currentPlaylist = [track];
+                    currentIndex = 0;
+                } else {
+                    showNotification("Nenhuma música disponível", 1500);
+                    return;
+                }
+            }
+
+            if (!track.src) {
+                showNotification("Música sem fonte", 1000);
                 nextTrack();
                 return;
             }
@@ -1129,7 +1149,8 @@
 
         function togglePlay() {
             if (!isBackgroundActive) {
-                showNotification("Ative o áudio primeiro!", 1000);
+                // Se não está ativo, ativa e toca
+                ativarAudio();
                 return;
             }
             isPlaying ? pauseMusic() : playMusic();
@@ -1152,10 +1173,21 @@
                         currentIndex = 0;
                         updateScrollText(q);
                         if (isPlaying) playMusic();
+                    } else {
+                        showNotification("Sem mais músicas", 1000);
                     }
                 }
             } else {
-                if (currentPlaylist.length === 0) return;
+                if (currentPlaylist.length === 0) {
+                    const q = getMusicaAleatoria(musicas);
+                    if (q) {
+                        currentPlaylist = [q];
+                        currentIndex = 0;
+                        updateScrollText(q);
+                        if (isPlaying) playMusic();
+                    }
+                    return;
+                }
                 if (shuffleMode) {
                     currentIndex = Math.floor(Math.random() * currentPlaylist.length);
                 } else {
@@ -1249,9 +1281,17 @@
                         resetMudandoGenero();
                     }, 100);
                 } else {
+                    // fallback: pega qualquer música
+                    const q = getMusicaAleatoria(musicas);
+                    if (q) {
+                        currentPlaylist = [q];
+                        currentIndex = 0;
+                        updateScrollText(q);
+                        if (isBackgroundActive && !mudandoGenero) playMusic();
+                    }
                     resetMudandoGenero();
                     showLoading(false);
-                    showNotification("Nenhuma MPB/POP", 1500);
+                    if (!q) showNotification("Nenhuma MPB/POP", 1500);
                 }
                 showNotification("🎵 MPB/POP alternando!", 1000);
             } else {
@@ -1321,7 +1361,7 @@
             });
         }
 
-        // ==================== MODAIS ====================
+        // ==================== MODAIS (mantidos iguais) ====================
         function openFeedbackModal() {
             const track = currentPlaylist[0];
             if (!track) { showNotification("Nenhuma música", 1000); return; }
@@ -1441,9 +1481,10 @@
         document.getElementById('closeFeedbackBtn').addEventListener('click', () => feedbackModal.classList.remove('open'));
         document.getElementById('closeStatsBtn').addEventListener('click', () => statsModal.classList.remove('open'));
 
+        // ========== BOTÃO ATIVAR RÁDIO ==========
         document.getElementById('tap-to-start').addEventListener('click', async () => {
             showNotification('🔊 Ativando...', 1000);
-            await ativarAudio();
+            await ativarAudio(); // Isso já chama playMusic internamente
             tapToStart.style.display = 'none';
             try { document.documentElement.requestFullscreen(); } catch (e) {}
         });
