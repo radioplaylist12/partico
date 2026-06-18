@@ -185,8 +185,8 @@
     <script>
         // ==================== PLAYLIST SEPARADA POR GÊNERO ====================
         // Edite apenas as listas abaixo, adicionando ou removendo objetos.
-        // Cada objeto: { "id": número, "title": "título", "artist": "artista", "src": "arquivo.m4a", "genero": "GÊNERO", "tipo": "normal" }
-
+        // ATENÇÃO: Os nomes dos gêneros devem ser EXATAMENTE iguais aos que aparecem no grid.
+        // Para GLOBAL HITS, use "GLOBAL HITS" (com espaço, tudo maiúsculo).
         const MUSICAS_POR_GENERO = {
             "SERTANEJO": [
                 {"id":1,"title":"Corpo Nu","artist":"Panda","src":"Panda_Corpo_Nu_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
@@ -938,6 +938,8 @@
                     let g = (m.genero || "POP").toUpperCase().trim();
                     if (g === "FORRO" || g === "FORRÓ" || g === "FORRÓ ANTIGO") g = "FORRÓ";
                     if (g === "CRISTÃ" || g === "CRISTÃO" || g === "GOSPEL" || g === "EVANGÉLICA") g = "CRISTÃ HITS";
+                    // Força GLOBAL HITS a ficar exatamente igual
+                    if (g === "GLOBAL HITS") g = "GLOBAL HITS";
                     return { ...m, genero: g };
                 });
 
@@ -958,7 +960,14 @@
                     musicasPorGenero[m.genero].push(m);
                 });
 
-                console.log("🎵 Gêneros:", Object.keys(musicasPorGenero).join(", "));
+                console.log("🎵 Gêneros encontrados:", Object.keys(musicasPorGenero).join(", "));
+                // Log específico para GLOBAL HITS
+                if (musicasPorGenero["GLOBAL HITS"]) {
+                    console.log("✅ GLOBAL HITS tem", musicasPorGenero["GLOBAL HITS"].length, "músicas");
+                } else {
+                    console.warn("⚠️ GLOBAL HITS NÃO encontrado no musicasPorGenero!");
+                }
+
                 splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
 
                 modoAtual = "MPB_POP";
@@ -1314,6 +1323,7 @@
                 }
                 showNotification("🎵 MPB/POP alternando!", 1000);
             } else {
+                // Verifica se o gênero existe
                 if (musicasPorGenero[genero] && musicasPorGenero[genero].length > 0) {
                     modoAtual = "GENERO_ESPECIFICO";
                     let lista = [...musicasPorGenero[genero]];
@@ -1342,9 +1352,11 @@
                     }
                     showNotification(`🎵 ${genero} - ${currentPlaylist.length} músicas`, 1000);
                 } else {
-                    showNotification(`⚠️ ${genero} não encontrado`, 1500);
+                    // Gênero não encontrado – não toca nada e mostra erro
+                    showNotification(`⚠️ Gênero "${genero}" não encontrado!`, 2000);
                     resetMudandoGenero();
                     showLoading(false);
+                    // Não chama playMusic, para não tocar outro gênero
                 }
             }
         }
@@ -1380,7 +1392,7 @@
             });
         }
 
-        // ==================== MODAIS ====================
+        // ==================== MODAIS (mantidos iguais) ====================
         function openFeedbackModal() {
             const track = currentPlaylist[0];
             if (!track) { showNotification("Nenhuma música", 1000); return; }
