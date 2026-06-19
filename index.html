@@ -21,7 +21,7 @@
         .info-scroll p { color: white; font-size: 0.85rem; font-weight: 900; letter-spacing: 1px; font-family: monospace; animation: scrollText 20s linear infinite; display: inline-block; padding-right: 50px; text-shadow: 0 0 8px rgba(0,243,255,0.8); }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
-        /* ===== BOTÃO FLUTUANTE (alternância com cores) ===== */
+        /* ===== BOTÃO FLUTUANTE ===== */
         .genre-fab-wrapper {
             position: fixed;
             bottom: 140px;
@@ -198,7 +198,7 @@
         .swipe-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.9rem; z-index: 10003; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; border: 1px solid var(--neon-cyan); }
         .tap-hint { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 6px 16px; border-radius: 30px; font-size: 0.6rem; color: #aaa; z-index: 25; pointer-events: none; white-space: nowrap; }
 
-        /* ===== MODAIS (feedback, relatório, estatísticas) ===== */
+        /* ===== MODAIS ===== */
         .feedback-modal, .report-modal, .stats-modal {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: linear-gradient(135deg, #1a1a2e, #16213e);
@@ -238,7 +238,7 @@
 </head>
 <body>
     <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
-        <source src="ti.mp4" type="video/mp4">
+        <source src="apk2001.mp4" type="video/mp4">
     </video>
 
     <div id="splash">
@@ -346,9 +346,8 @@
 
     <script>
         // ==================== PLAYLIST DE EXEMPLO ====================
-        // Substitua pelos seus dados reais. Mantenha a estrutura.
         const MUSICAS_POR_GENERO = {
-             "SERTANEJO": [
+     "SERTANEJO": [
                 {"id":1,"title":"Corpo Nu","artist":"Panda","src":"Panda_Corpo_Nu_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
                 {"id":2,"title":"Infarto","artist":"Diego & Victor Hugo","src":"Diego_Victor_Hugo_Infarto_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
                 {"id":3,"title":"Esqueci Você","artist":"Bruno & Marrone","src":"Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
@@ -924,7 +923,7 @@
                 {"id":553,"title":"Vai","artist":"Zion Thariel","src":"Zion_Thariel_Zion_Thariel_Vai_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
                 {"id":555,"title":"Maria Mar - Deixa","artist":"Maria Mar","src":"Maria_Mar_al_Deixa_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
                 {"id":564,"title":"Thiago Brado - Ninguém Te Ama Como Eu","artist":"Thiago Brado","src":"Thiago_Brado_Ningu_m_Te_Ama_Como_Eu_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"}
-        
+              
             ]
         };
 
@@ -940,18 +939,6 @@
             "GLOBAL HITS": "#1abc9c",
             "MODA TOP": "#9b59b6",
             "CRISTÃ HITS": "#f39c12"
-        };
-        const genreIcons = {
-            "MPB/POP": "🔄",
-            "SERTANEJO": "🤠",
-            "FORRÓ": "🪗",
-            "SAMBA": "🎭",
-            "POP": "🎤",
-            "MPB": "🎸",
-            "BREGA": "💔",
-            "GLOBAL HITS": "🌍",
-            "MODA TOP": "🔥",
-            "CRISTÃ HITS": "✝️"
         };
 
         // ==================== CONCATENA PLAYLIST ====================
@@ -1017,8 +1004,10 @@
         }
         function resetMudandoGenero() { mudandoGenero = false; if (generoTimeout) { clearTimeout(generoTimeout); generoTimeout = null; } }
 
-        // ==================== BOTÃO FLUTUANTE COM CORES ====================
+        // ==================== BOTÃO FLUTUANTE COM LISTA DE ESTILOS ====================
         let tooltipInterval = null, tooltipTimeout = null, tooltipCycleRunning = false;
+        let estiloIndex = 0;
+        const estilosLista = ["MPB", "Sertanejo", "Samba", "Forró", "Brega", "Pop", "Cristã"];
 
         function getCurrentGenreName() {
             if (modoAtual === "MPB_POP") return "MPB/POP";
@@ -1033,12 +1022,13 @@
             genreFab.style.boxShadow = `0 0 30px ${cor}66, 0 4px 15px rgba(0,0,0,0.3)`;
         }
 
-        function updateTooltipText(showGenre) {
-            if (showGenre) {
-                const genero = getCurrentGenreName();
-                const icon = genreIcons[genero] || "🎵";
-                tooltipText.innerHTML = `${icon} <span class="highlight">${genero}</span>`;
-                updateFabColors(genero);
+        function updateTooltipText(showList) {
+            if (showList) {
+                const estilo = estilosLista[estiloIndex % estilosLista.length];
+                tooltipText.innerHTML = `🎵 <span class="highlight">${estilo}</span>`;
+                // Cor do botão com base no gênero atual (ou neutra)
+                const generoAtual = getCurrentGenreName();
+                updateFabColors(generoAtual);
             } else {
                 tooltipText.innerHTML = `🎵 <span class="highlight">Qual seu estilo?</span>`;
                 genreFab.style.background = 'linear-gradient(135deg, #00f3ff, #8E2DE2, #ff2d7f)';
@@ -1054,15 +1044,21 @@
             if (tooltipCycleRunning) return;
             tooltipCycleRunning = true;
 
-            updateTooltipText(false);
-            tooltipTimeout = setTimeout(() => {
+            // Mostra o primeiro estilo imediatamente
+            estiloIndex = 0;
+            updateTooltipText(true);
+            let count = 0;
+            const maxChanges = 7; // 7 * 3 = 21 segundos (~20s)
+            tooltipInterval = setInterval(() => {
+                count++;
+                estiloIndex = (estiloIndex + 1) % estilosLista.length;
                 updateTooltipText(true);
-                let showGenre = true;
-                tooltipInterval = setInterval(() => {
-                    showGenre = !showGenre;
-                    updateTooltipText(showGenre);
-                }, 3000);
-                tooltipCycleRunning = false;
+                if (count >= maxChanges) {
+                    clearInterval(tooltipInterval);
+                    tooltipInterval = null;
+                    genreFabTooltip.classList.remove('show');
+                    tooltipCycleRunning = false;
+                }
             }, 3000);
         }
 
@@ -1081,11 +1077,27 @@
 
         genreFab.addEventListener('click', function(e) {
             e.stopPropagation();
-            updateTooltipText(true);
+            // Reativa o tooltip imediatamente com a lista
             if (tooltipInterval) clearInterval(tooltipInterval);
             if (tooltipTimeout) clearTimeout(tooltipTimeout);
             tooltipCycleRunning = false;
-            tooltipTimeout = setTimeout(startTooltipAlternation, 2000);
+            // Força a exibição do tooltip e reinicia a alternância
+            genreFabTooltip.classList.add('show');
+            estiloIndex = 0;
+            updateTooltipText(true);
+            let count = 0;
+            const maxChanges = 7;
+            tooltipInterval = setInterval(() => {
+                count++;
+                estiloIndex = (estiloIndex + 1) % estilosLista.length;
+                updateTooltipText(true);
+                if (count >= maxChanges) {
+                    clearInterval(tooltipInterval);
+                    tooltipInterval = null;
+                    genreFabTooltip.classList.remove('show');
+                    tooltipCycleRunning = false;
+                }
+            }, 3000);
             document.getElementById('genresModal').classList.add('open');
             showControls();
         });
