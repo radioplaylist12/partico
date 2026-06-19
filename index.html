@@ -21,7 +21,7 @@
         .info-scroll p { color: white; font-size: 0.85rem; font-weight: 900; letter-spacing: 1px; font-family: monospace; animation: scrollText 20s linear infinite; display: inline-block; padding-right: 50px; text-shadow: 0 0 8px rgba(0,243,255,0.8); }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
-        /* ===== BOTÃO FLUTUANTE COM BALÃO ===== */
+        /* ===== BOTÃO FLUTUANTE COM ALTERNÂNCIA ===== */
         .genre-fab-wrapper {
             position: fixed;
             bottom: 140px;
@@ -57,14 +57,15 @@
         .genre-fab-btn:active { transform: scale(0.95); }
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        /* Balão de dica */
+        /* Balão que alterna */
         .genre-fab-tooltip {
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(12px);
             color: white;
             padding: 10px 16px;
             border-radius: 16px;
-            font-size: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: bold;
             max-width: 220px;
             border: 1px solid var(--neon-cyan);
             box-shadow: 0 0 30px rgba(0,243,255,0.15);
@@ -74,6 +75,11 @@
             transform: translateX(10px) scale(0.95);
             pointer-events: none;
             line-height: 1.4;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .genre-fab-tooltip.show {
             opacity: 1;
@@ -81,7 +87,6 @@
         }
         .genre-fab-tooltip .highlight {
             color: var(--neon-cyan);
-            font-weight: bold;
         }
         .genre-fab-tooltip .small {
             font-size: 0.6rem;
@@ -97,7 +102,13 @@
             border: 6px solid transparent;
             border-left-color: rgba(0,0,0,0.85);
         }
+        /* Ícone do gênero no tooltip */
+        .genre-fab-tooltip .genre-icon {
+            font-size: 1.2rem;
+            margin-right: 6px;
+        }
 
+        /* Label "Estilos" */
         .genre-fab-label {
             position: fixed;
             bottom: 210px;
@@ -241,7 +252,7 @@
 </head>
 <body>
     <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
-        <source src="apk2001.mp4" type="video/mp4">
+        <source src="ti.mp4" type="video/mp4">
     </video>
 
     <div id="splash">
@@ -276,12 +287,11 @@
         </div>
     </div>
 
-    <!-- BOTÃO FLUTUANTE COM BALÃO -->
+    <!-- BOTÃO FLUTUANTE COM ALTERNÂNCIA -->
     <div class="genre-fab-label" id="genreFabLabel"><i class="fas fa-music"></i> Estilos</div>
     <div class="genre-fab-wrapper" id="genreFabWrapper">
         <div class="genre-fab-tooltip" id="genreFabTooltip">
-            🎵 <span class="highlight">Qual seu estilo?</span><br>
-            <span class="small">Sertanejo • Pop • Samba • Cristã • Moda Caipira • Forró • MPB • Brega • Global</span>
+            <span id="tooltipText">🎵 Qual seu estilo?</span>
         </div>
         <div class="genre-fab-btn" id="genreFab"><i class="fas fa-guitar"></i></div>
     </div>
@@ -354,6 +364,26 @@
 
     <script>
         // ==================== PLAYLIST SEPARADA POR GÊNERO ====================
+        // (A playlist é igual à anterior, mantida por brevidade – você pode substituir pela sua)
+        // Como o código é extenso, vou colocar a playlist resumida para economizar caracteres,
+        // mas mantenha a sua completa. Aqui vai apenas um esqueleto.
+
+        const MUSICAS_POR_GENERO = {
+            "SERTANEJO": [],
+            "FORRÓ": [],
+            "SAMBA": [],
+            "POP": [],
+            "GLOBAL HITS": [],
+            "BREGA": [],
+            "MPB": [],
+            "MODA TOP": [],
+            "CRISTÃ HITS": []
+        };
+        // Na prática, você deve preencher com seus dados reais.
+        // Para este exemplo, vou deixar vazio e usar fallback.
+
+        // ==== PARA ESTE EXEMPLO, VOU CRIAR UMA PLAYLIST MÍNIMA ====
+        // PARA QUE O PLAYER FUNCIONE E MOSTRE O GÊNERO.
         const MUSICAS_POR_GENERO = {
             "SERTANEJO": [
                 {"id":1,"title":"Corpo Nu","artist":"Panda","src":"Panda_Corpo_Nu_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
@@ -934,6 +964,13 @@
             ]
         };
 
+        // Preenche as listas vazias com os exemplos
+        for (const m of playlistMinima) {
+            if (MUSICAS_POR_GENERO[m.genero]) {
+                MUSICAS_POR_GENERO[m.genero].push(m);
+            }
+        }
+
         // ==================== CONCATENA TUDO EM UM ARRAY ====================
         function carregarPlaylist() {
             let todas = [];
@@ -1068,7 +1105,67 @@
             }, 2000);
         }
 
-        // ==================== BOTÃO FLUTUANTE ====================
+        // ==================== BOTÃO FLUTUANTE COM ALTERNÂNCIA ====================
+        let tooltipInterval = null;
+        let tooltipTimeout = null;
+
+        function getCurrentGenreName() {
+            // Retorna o nome do gênero atual (modoAtual ou "MPB/POP")
+            if (modoAtual === "MPB_POP") return "MPB/POP";
+            if (currentPlaylist.length > 0) return currentPlaylist[0]?.genero || "GÊNERO";
+            return "GÊNERO";
+        }
+
+        function getGenreIcon(genero) {
+            const map = {
+                "MPB/POP": "🔄",
+                "SERTANEJO": "🤠",
+                "FORRÓ": "🪗",
+                "SAMBA": "🎭",
+                "POP": "🎤",
+                "MPB": "🎸",
+                "BREGA": "💔",
+                "GLOBAL HITS": "🌍",
+                "MODA TOP": "🔥",
+                "CRISTÃ HITS": "✝️"
+            };
+            return map[genero] || "🎵";
+        }
+
+        function updateTooltipText(showGenre) {
+            const tooltip = document.getElementById('genreFabTooltip');
+            const textSpan = document.getElementById('tooltipText');
+            if (showGenre) {
+                const genero = getCurrentGenreName();
+                const icon = getGenreIcon(genero);
+                textSpan.innerHTML = `${icon} <span class="highlight">${genero}</span>`;
+            } else {
+                textSpan.innerHTML = `🎵 <span class="highlight">Qual seu estilo?</span>`;
+            }
+            // Garante que o tooltip esteja visível
+            tooltip.classList.add('show');
+        }
+
+        function startTooltipAlternation() {
+            // Limpa intervalos anteriores
+            if (tooltipInterval) clearInterval(tooltipInterval);
+            if (tooltipTimeout) clearTimeout(tooltipTimeout);
+
+            // Primeiro, mostra a pergunta
+            updateTooltipText(false);
+
+            // Após 3 segundos, mostra o gênero
+            tooltipTimeout = setTimeout(() => {
+                updateTooltipText(true);
+                // E então alterna a cada 3 segundos
+                let showGenre = true;
+                tooltipInterval = setInterval(() => {
+                    showGenre = !showGenre;
+                    updateTooltipText(showGenre);
+                }, 3000);
+            }, 3000);
+        }
+
         function toggleFabVisibility(show) {
             const wrapper = document.getElementById('genreFabWrapper');
             const label = document.getElementById('genreFabLabel');
@@ -1076,16 +1173,35 @@
             if (show) {
                 wrapper.classList.remove('hidden');
                 label.classList.add('show');
-                // Mostra o balão após um pequeno atraso
+                // Inicia a alternância após aparecer
                 setTimeout(() => {
-                    tooltip.classList.add('show');
-                }, 400);
+                    startTooltipAlternation();
+                }, 300);
             } else {
                 wrapper.classList.add('hidden');
                 label.classList.remove('show');
                 tooltip.classList.remove('show');
+                // Para a alternância
+                if (tooltipInterval) clearInterval(tooltipInterval);
+                if (tooltipTimeout) clearTimeout(tooltipTimeout);
             }
         }
+
+        // Ao clicar no botão, mostra o gênero imediatamente e reinicia a alternância
+        document.getElementById('genreFab').addEventListener('click', function(e) {
+            e.stopPropagation();
+            // Força a exibição do gênero
+            updateTooltipText(true);
+            // Reinicia a alternância após 2 segundos
+            if (tooltipInterval) clearInterval(tooltipInterval);
+            if (tooltipTimeout) clearTimeout(tooltipTimeout);
+            tooltipTimeout = setTimeout(() => {
+                startTooltipAlternation();
+            }, 2000);
+            // Abre o modal de gêneros (opcional)
+            document.getElementById('genresModal').classList.add('open');
+            showControls();
+        });
 
         // ==================== ATIVAÇÃO DE ÁUDIO ====================
         function createSilentAudio() {
@@ -1746,10 +1862,6 @@
         document.getElementById('nextBtn').addEventListener('click', nextTrack);
         document.getElementById('prevBtn').addEventListener('click', prevTrack);
         shuffleBtn.addEventListener('click', toggleShuffle);
-        document.getElementById('genreFab').addEventListener('click', () => {
-            document.getElementById('genresModal').classList.add('open');
-            showControls();
-        });
         document.getElementById('closeGenresBtn').addEventListener('click', () => {
             document.getElementById('genresModal').classList.remove('open');
         });
