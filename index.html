@@ -6,7 +6,7 @@
     <title>RÁDIO PLAY 12 • Player Rápido</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== CSS COMPLETO (MANTIDO IGUAL) ===== */
+        /* ===== CSS COMPLETO ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #000; overflow: hidden; height: 100vh; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --neon-purple: #8E2DE2; }
@@ -20,17 +20,20 @@
         .info-scroll { position: fixed; top: 70px; left: 0; right: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); padding: 8px 20px; z-index: 30; border-bottom: 1px solid rgba(0,243,255,0.3); overflow: hidden; white-space: nowrap; }
         .info-scroll p { color: white; font-size: 0.85rem; font-weight: 900; letter-spacing: 1px; font-family: monospace; animation: scrollText 20s linear infinite; display: inline-block; padding-right: 50px; text-shadow: 0 0 8px rgba(0,243,255,0.8); }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        .genre-fab {
+        
+        /* ===== BOTÃO FLUTUANTE COM BALÃO ===== */
+        .genre-fab-wrapper {
             position: fixed;
             bottom: 140px;
             right: 20px;
             z-index: 40;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
-            transform: scale(1);
-            opacity: 1;
         }
-        .genre-fab.hidden {
-            transform: scale(0);
+        .genre-fab-wrapper.hidden {
+            transform: scale(0) translateX(20px);
             opacity: 0;
             pointer-events: none;
         }
@@ -49,9 +52,72 @@
             animation: float 3s ease-in-out infinite;
             border: 2px solid rgba(255,255,255,0.3);
             transition: transform 0.2s;
+            flex-shrink: 0;
         }
         .genre-fab-btn:active { transform: scale(0.95); }
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* Balão de dica */
+        .genre-fab-tooltip {
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            max-width: 220px;
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 0 0 30px rgba(0,243,255,0.15);
+            position: relative;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            opacity: 0;
+            transform: translateX(10px) scale(0.95);
+            pointer-events: none;
+            line-height: 1.4;
+        }
+        .genre-fab-tooltip.show {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+        .genre-fab-tooltip .highlight {
+            color: var(--neon-cyan);
+            font-weight: bold;
+        }
+        .genre-fab-tooltip .small {
+            font-size: 0.6rem;
+            color: #aaa;
+            margin-top: 4px;
+        }
+        .genre-fab-tooltip::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-left-color: rgba(0,0,0,0.85);
+        }
+
+        .genre-fab-label {
+            position: fixed;
+            bottom: 210px;
+            right: 20px;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            z-index: 39;
+            border-left: 3px solid var(--neon-cyan);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+        .genre-fab-label.show { opacity: 1; }
+
+        /* ===== MODAL DE GÊNEROS ===== */
         .genres-modal {
             position: fixed;
             bottom: 0;
@@ -93,6 +159,8 @@
         }
         .genre-card:active { transform: scale(0.96); }
         .close-genres { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; border-radius: 30px; color: #000; font-size: 1rem; cursor: pointer; font-weight: bold; }
+
+        /* ===== OUTROS ESTILOS ===== */
         .bottom-controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(0,243,255,0.3); padding: 12px 20px 25px; z-index: 20; transform: translateY(100%); transition: transform 0.3s ease; }
         .bottom-controls.visible { transform: translateY(0); }
         .progress-time { display: flex; justify-content: space-between; font-size: 0.65rem; color: #aaa; margin-bottom: 4px; }
@@ -141,26 +209,6 @@
         .stats-info { color: white; padding: 10px; text-align: left; }
         .stats-info p { margin: 8px 0; }
 
-        /* ===== NOVOS ESTILOS ===== */
-        .genre-fab-label {
-            position: fixed;
-            bottom: 210px;
-            right: 20px;
-            background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(8px);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            z-index: 39;
-            border-left: 3px solid var(--neon-cyan);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            white-space: nowrap;
-        }
-        .genre-fab-label.show { opacity: 1; }
-
         .genre-change-msg {
             position: fixed;
             top: 50%;
@@ -188,14 +236,12 @@
             opacity: 1;
             transform: translate(-50%, -50%) scale(1.05);
         }
-        .genre-change-msg .icon {
-            font-size: 2rem;
-        }
+        .genre-change-msg .icon { font-size: 2rem; }
     </style>
 </head>
 <body>
     <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
-        <source src="ti.mp4" type="video/mp4">
+        <source src="apk2001.mp4" type="video/mp4">
     </video>
 
     <div id="splash">
@@ -230,9 +276,13 @@
         </div>
     </div>
 
-    <!-- BOTÃO FLUTUANTE COM LABEL -->
+    <!-- BOTÃO FLUTUANTE COM BALÃO -->
     <div class="genre-fab-label" id="genreFabLabel"><i class="fas fa-music"></i> Estilos</div>
-    <div class="genre-fab" id="genreFabContainer">
+    <div class="genre-fab-wrapper" id="genreFabWrapper">
+        <div class="genre-fab-tooltip" id="genreFabTooltip">
+            🎵 <span class="highlight">Qual seu estilo?</span><br>
+            <span class="small">Sertanejo • Pop • Samba • Cristã • Moda Caipira • Forró • MPB • Brega • Global</span>
+        </div>
         <div class="genre-fab-btn" id="genreFab"><i class="fas fa-guitar"></i></div>
     </div>
 
@@ -650,7 +700,6 @@
                 { "id": 527, "title": "Plug da Nova feat Veigh Ghard", "artist": "Plug da Nova", "src": "Plug_da_Plug_da_Nova_feat_Veigh_Ghard__muzzika.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
                 { "id": 528, "title": "Smooth Operator", "artist": "Sade", "src": "Smooth_Operator_Smooth_Operator_Sade_muzzika.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
                 { "id": 529, "title": "How Deep Is Your Love", "artist": "Take That", "src": "Take_That_How_Deep_Is_Your_Love_muzzika.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
-                // NOVOS ITENS (IDs 565-574)
                 { "id": 565, "title": "ELA CUIDA DO PET", "artist": "MCs Negão, Original, Aaron Modesto, Willian Iguinho, CT Du l", "src": "ELA_CUIDA_DO_PET_MCs_Neg_o_Original_Aaron_Modesto_Willian_Iguinho_CT_Du_l_muzzik.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
                 { "id": 566, "title": "G A Pros Menor da Nova", "artist": "Desconhecido", "src": "G_A_Pros_Menor_da_Nova_muzzik.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
                 { "id": 567, "title": "MC Cabelinho - Saudade", "artist": "MC Cabelinho", "src": "MC_Cabelinho_Saudade_muzzik.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
@@ -891,7 +940,6 @@
             for (const genero in MUSICAS_POR_GENERO) {
                 todas = todas.concat(MUSICAS_POR_GENERO[genero]);
             }
-            // Remove possíveis duplicatas de ID
             const ids = new Set();
             const unicas = [];
             for (const m of todas) {
@@ -1022,19 +1070,22 @@
 
         // ==================== BOTÃO FLUTUANTE ====================
         function toggleFabVisibility(show) {
-            const fab = document.getElementById('genreFabContainer');
+            const wrapper = document.getElementById('genreFabWrapper');
             const label = document.getElementById('genreFabLabel');
+            const tooltip = document.getElementById('genreFabTooltip');
             if (show) {
-                fab.classList.remove('hidden');
+                wrapper.classList.remove('hidden');
                 label.classList.add('show');
+                // Mostra o balão após um pequeno atraso
+                setTimeout(() => {
+                    tooltip.classList.add('show');
+                }, 400);
             } else {
-                fab.classList.add('hidden');
+                wrapper.classList.add('hidden');
                 label.classList.remove('show');
+                tooltip.classList.remove('show');
             }
         }
-
-        // Mostrar o botão quando o player estiver ativo
-        // A lógica de exibição será integrada ao `iniciarPlaylist`
 
         // ==================== ATIVAÇÃO DE ÁUDIO ====================
         function createSilentAudio() {
@@ -1095,7 +1146,6 @@
                 console.log("🔧 Inicializando playlist...");
                 musicas = PLAYLIST_DATA.map(item => ({ ...item }));
 
-                // Normaliza gêneros
                 musicas = musicas.map(m => {
                     let g = (m.genero || "POP").toUpperCase().trim();
                     if (g === "FORRO" || g === "FORRÓ" || g === "FORRÓ ANTIGO") g = "FORRÓ";
@@ -1124,13 +1174,10 @@
                 console.log("🎵 Gêneros encontrados:", Object.keys(musicasPorGenero).join(", "));
                 if (musicasPorGenero["GLOBAL HITS"]) {
                     console.log("✅ GLOBAL HITS tem", musicasPorGenero["GLOBAL HITS"].length, "músicas");
-                } else {
-                    console.warn("⚠️ GLOBAL HITS NÃO encontrado no musicasPorGenero!");
                 }
 
                 splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
 
-                // Modo inicial MPB/POP
                 modoAtual = "MPB_POP";
                 updateGenreBadge();
 
@@ -1153,7 +1200,6 @@
                         appContainer.style.display = 'block';
                         menuButton.style.display = 'flex';
                         tapToStart.style.display = 'block';
-                        // Mostra o botão flutuante após o player aparecer
                         toggleFabVisibility(true);
                     }, 500);
                 }, 2000);
@@ -1495,7 +1541,6 @@
             mudandoGenero = true;
             document.getElementById('genresModal').classList.remove('open');
 
-            // Oculta o botão flutuante enquanto troca
             toggleFabVisibility(false);
 
             pararAudioAtual();
@@ -1551,7 +1596,6 @@
                         updateScrollText(m);
                         updateGenreBadge();
 
-                        // Ícones para cada gênero
                         const iconMap = {
                             "SERTANEJO": '🤠',
                             "FORRÓ": '🪗',
@@ -1618,7 +1662,7 @@
             });
         }
 
-        // ==================== MODAIS ====================
+        // ==================== MODAIS (mantidos) ====================
         function openFeedbackModal() {
             const track = currentPlaylist[0];
             if (!track) { showNotification("Nenhuma música", 1000); return; }
@@ -1746,7 +1790,6 @@
             await ativarAudio();
             tapToStart.style.display = 'none';
             try { document.documentElement.requestFullscreen(); } catch (e) {}
-            // Mostra o botão flutuante após ativar
             toggleFabVisibility(true);
         });
 
