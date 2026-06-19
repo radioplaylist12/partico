@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Roger Song • Play</title>
+    <title>RÁDIO PLAY 12 • Player Rápido</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ===== CSS COMPLETO (MANTIDO IGUAL) ===== */
@@ -20,16 +20,77 @@
         .info-scroll { position: fixed; top: 70px; left: 0; right: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); padding: 8px 20px; z-index: 30; border-bottom: 1px solid rgba(0,243,255,0.3); overflow: hidden; white-space: nowrap; }
         .info-scroll p { color: white; font-size: 0.85rem; font-weight: 900; letter-spacing: 1px; font-family: monospace; animation: scrollText 20s linear infinite; display: inline-block; padding-right: 50px; text-shadow: 0 0 8px rgba(0,243,255,0.8); }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        .genre-fab { position: fixed; bottom: 140px; right: 20px; z-index: 40; }
-        .genre-fab-btn { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink)); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 1.6rem; box-shadow: 0 0 20px rgba(0,243,255,0.5), 0 4px 15px rgba(0,0,0,0.3); animation: float 3s ease-in-out infinite; border: 2px solid rgba(255,255,255,0.3); }
+        .genre-fab {
+            position: fixed;
+            bottom: 140px;
+            right: 20px;
+            z-index: 40;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            transform: scale(1);
+            opacity: 1;
+        }
+        .genre-fab.hidden {
+            transform: scale(0);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .genre-fab-btn {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 1.6rem;
+            box-shadow: 0 0 20px rgba(0,243,255,0.5), 0 4px 15px rgba(0,0,0,0.3);
+            animation: float 3s ease-in-out infinite;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: transform 0.2s;
+        }
         .genre-fab-btn:active { transform: scale(0.95); }
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .genres-modal { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 30px 30px 0 0; padding: 25px 20px 30px; z-index: 2000; transform: translateY(100%); transition: transform 0.3s ease; max-height: 85vh; overflow-y: auto; }
+        .genres-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 30px 30px 0 0;
+            padding: 25px 20px 30px;
+            z-index: 2000;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
         .genres-modal.open { transform: translateY(0); }
         .genres-modal h3 { text-align: center; margin-bottom: 20px; font-size: 1.4rem; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .genres-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-        .genre-card { border-radius: 16px; cursor: pointer; transition: all 0.3s ease; border: 2px solid rgba(255,255,255,0.2); aspect-ratio: 5 / 3; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; text-align: center; color: white; font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 5px black; }
-        .genre-card:hover { transform: scale(1.02); border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0,243,255,0.3); }
+        .genres-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .genre-card {
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.2);
+            aspect-ratio: 5 / 3;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px black;
+            padding: 8px;
+        }
         .genre-card:active { transform: scale(0.96); }
         .close-genres { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); border: none; border-radius: 30px; color: #000; font-size: 1rem; cursor: pointer; font-weight: bold; }
         .bottom-controls { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(0,243,255,0.3); padding: 12px 20px 25px; z-index: 20; transform: translateY(100%); transition: transform 0.3s ease; }
@@ -79,11 +140,62 @@
         .report-info .label { color: #00f3ff; font-weight: bold; }
         .stats-info { color: white; padding: 10px; text-align: left; }
         .stats-info p { margin: 8px 0; }
+
+        /* ===== NOVOS ESTILOS ===== */
+        .genre-fab-label {
+            position: fixed;
+            bottom: 210px;
+            right: 20px;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            z-index: 39;
+            border-left: 3px solid var(--neon-cyan);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+        .genre-fab-label.show { opacity: 1; }
+
+        .genre-change-msg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            z-index: 10004;
+            opacity: 0;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            pointer-events: none;
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 40px rgba(0,243,255,0.2);
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .genre-change-msg.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+        .genre-change-msg .icon {
+            font-size: 2rem;
+        }
     </style>
 </head>
 <body>
     <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
-        <source src="apk200.mp4" type="video/mp4">
+        <source src="ti.mp4" type="video/mp4">
     </video>
 
     <div id="splash">
@@ -102,7 +214,7 @@
             </div>
         </div>
         <div class="info-scroll" id="infoScroll">
-            <p id="scrollText">🎵 Roger Song Play - TOCANDO AGORA! 🎵</p>
+            <p id="scrollText">🎵 RÁDIO PLAY 12 - TOCANDO AGORA! 🎵</p>
         </div>
         <div class="tap-hint">👆 Toque na tela para mostrar controles</div>
     </div>
@@ -118,8 +230,16 @@
         </div>
     </div>
 
-    <div class="genre-fab">
+    <!-- BOTÃO FLUTUANTE COM LABEL -->
+    <div class="genre-fab-label" id="genreFabLabel"><i class="fas fa-music"></i> Estilos</div>
+    <div class="genre-fab" id="genreFabContainer">
         <div class="genre-fab-btn" id="genreFab"><i class="fas fa-guitar"></i></div>
+    </div>
+
+    <!-- MENSAGEM DE TROCA DE GÊNERO -->
+    <div class="genre-change-msg" id="genreChangeMsg">
+        <span class="icon" id="genreChangeIcon">🎸</span>
+        <span id="genreChangeText">Mudando para...</span>
     </div>
 
     <div class="menu-button" id="menuButton" style="display: none;"><i class="fas fa-ellipsis-v"></i></div>
@@ -184,9 +304,6 @@
 
     <script>
         // ==================== PLAYLIST SEPARADA POR GÊNERO ====================
-        // Edite apenas as listas abaixo, adicionando ou removendo objetos.
-        // ATENÇÃO: Os nomes dos gêneros devem ser EXATAMENTE iguais aos que aparecem no grid.
-        // Para GLOBAL HITS, use "GLOBAL HITS" (com espaço, tudo maiúsculo).
         const MUSICAS_POR_GENERO = {
             "SERTANEJO": [
                 {"id":1,"title":"Corpo Nu","artist":"Panda","src":"Panda_Corpo_Nu_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
@@ -532,7 +649,18 @@
                 { "id": 285, "title": "MENOS FOCO MAIS ANSIEDADE", "artist": "Andreoli MC", "src": "Andreoli_MC_Lele_Jp_Mc_Jacar_Mc_Ryan_sp_Mc_Luuky_Zano_muzzika.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
                 { "id": 527, "title": "Plug da Nova feat Veigh Ghard", "artist": "Plug da Nova", "src": "Plug_da_Plug_da_Nova_feat_Veigh_Ghard__muzzika.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
                 { "id": 528, "title": "Smooth Operator", "artist": "Sade", "src": "Smooth_Operator_Smooth_Operator_Sade_muzzika.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
-                { "id": 529, "title": "How Deep Is Your Love", "artist": "Take That", "src": "Take_That_How_Deep_Is_Your_Love_muzzika.m4a", "genero": "GLOBAL HITS", "tipo": "normal" }
+                { "id": 529, "title": "How Deep Is Your Love", "artist": "Take That", "src": "Take_That_How_Deep_Is_Your_Love_muzzika.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
+                // NOVOS ITENS (IDs 565-574)
+                { "id": 565, "title": "ELA CUIDA DO PET", "artist": "MCs Negão, Original, Aaron Modesto, Willian Iguinho, CT Du l", "src": "ELA_CUIDA_DO_PET_MCs_Neg_o_Original_Aaron_Modesto_Willian_Iguinho_CT_Du_l_muzzik.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
+                { "id": 566, "title": "G A Pros Menor da Nova", "artist": "Desconhecido", "src": "G_A_Pros_Menor_da_Nova_muzzik.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
+                { "id": 567, "title": "MC Cabelinho - Saudade", "artist": "MC Cabelinho", "src": "MC_Cabelinho_Saudade_muzzik.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
+                { "id": 568, "title": "MC Kevin - Cavalo de Troia", "artist": "MC Kevin", "src": "MC_Kevin_Cavalo_de_Troia_muzzik.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
+                { "id": 569, "title": "MC Kevin - A Verdade", "artist": "MC Kevin", "src": "MC_KEVIN_MC_KEVIN_A_VERDADE_muzzik.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
+                { "id": 570, "title": "Men At Work - It's a Mistake", "artist": "Men At Work", "src": "Men_At_Work_It_s_a_Mistake_muzzik.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
+                { "id": 571, "title": "NA RELQUIA DO T", "artist": "MC Vine, MC Tuto, MC FR da Norte, MC Joozinho VT, MC Dkzin", "src": "NA_REL_QUIA_DO_T_MC_Vine_MC_Tuto_MC_FR_da_Norte_MC_Jo_ozinho_VT_MC_Dkzin_muzzik.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
+                { "id": 572, "title": "PRA NÃO ESQUECER DE MIM", "artist": "Aaron Modesto, MC Magal, MC Meno K, DJ Glenner", "src": "PRA_N_O_ESQUECER_DE_MIM_Aaron_Modesto_MC_Magal_MC_Meno_K_DJ_Glenner_muzzik.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
+                { "id": 573, "title": "Skank - Esquecimento", "artist": "Skank", "src": "Skank_Esquecimento_muzzik.m4a", "genero": "GLOBAL HITS", "tipo": "normal" },
+                { "id": 574, "title": "Anitta part Projota - Cobertor", "artist": "Anitta & Projota", "src": "Anitta_part_Projota_Cobertor_muzzik.m4a", "genero": "GLOBAL HITS", "tipo": "normal" }
             ],
             "BREGA": [
                 {"id":286,"title":"Tarde Demais","artist":"À Vontade","src":"A_Vontade_TARDE_DEMAIS.m4a","genero":"BREGA","tipo":"normal"},
@@ -751,7 +879,9 @@
                 {"id":550,"title":"Eu Escolho Deus","artist":"Desconhecido","src":"Eu_Escolho_Eu_Escolho_Deus_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
                 {"id":551,"title":"Ele Não Desiste de Você","artist":"Marquinhos Gomes","src":"Ele_n_o_desiste_de_voc_Marquinhos_Gomes_PLAYBACK_Legendado_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
                 {"id":552,"title":"Ah Jesus - Coração Igual ao Teu","artist":"Julliany Souza","src":"JULLIANY_SOUZA_AH_JESUS_CORA_O_IGUAL_AO_TEU_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
-                {"id":553,"title":"Vai","artist":"Zion Thariel","src":"Zion_Thariel_Zion_Thariel_Vai_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"}
+                {"id":553,"title":"Vai","artist":"Zion Thariel","src":"Zion_Thariel_Zion_Thariel_Vai_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
+                {"id":555,"title":"Maria Mar - Deixa","artist":"Maria Mar","src":"Maria_Mar_al_Deixa_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
+                {"id":564,"title":"Thiago Brado - Ninguém Te Ama Como Eu","artist":"Thiago Brado","src":"Thiago_Brado_Ningu_m_Te_Ama_Como_Eu_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"}
             ]
         };
 
@@ -761,7 +891,7 @@
             for (const genero in MUSICAS_POR_GENERO) {
                 todas = todas.concat(MUSICAS_POR_GENERO[genero]);
             }
-            // Remove possíveis duplicatas de ID (caso haja)
+            // Remove possíveis duplicatas de ID
             const ids = new Set();
             const unicas = [];
             for (const m of todas) {
@@ -798,6 +928,8 @@
         let timeoutCarregando = null;
         let generoTimeout = null;
         let doubleTapFlag = false;
+        let historicoIds = [];
+        let ultimoIdTocado = null;
 
         let stats = { totalPlayed: 0, genreCount: {} };
 
@@ -874,6 +1006,36 @@
             }
         }
 
+        // ==================== MENSAGEM DE TROCA DE GÊNERO ====================
+        function showGenreChangeMessage(genero, icon = '🎸') {
+            const msg = document.getElementById('genreChangeMsg');
+            const text = document.getElementById('genreChangeText');
+            const iconEl = document.getElementById('genreChangeIcon');
+            iconEl.textContent = icon;
+            text.textContent = `Mudando para ${genero}`;
+            msg.classList.add('show');
+            clearTimeout(window.genreMsgTimeout);
+            window.genreMsgTimeout = setTimeout(() => {
+                msg.classList.remove('show');
+            }, 2000);
+        }
+
+        // ==================== BOTÃO FLUTUANTE ====================
+        function toggleFabVisibility(show) {
+            const fab = document.getElementById('genreFabContainer');
+            const label = document.getElementById('genreFabLabel');
+            if (show) {
+                fab.classList.remove('hidden');
+                label.classList.add('show');
+            } else {
+                fab.classList.add('hidden');
+                label.classList.remove('show');
+            }
+        }
+
+        // Mostrar o botão quando o player estiver ativo
+        // A lógica de exibição será integrada ao `iniciarPlaylist`
+
         // ==================== ATIVAÇÃO DE ÁUDIO ====================
         function createSilentAudio() {
             const sampleRate = 44100,
@@ -933,13 +1095,12 @@
                 console.log("🔧 Inicializando playlist...");
                 musicas = PLAYLIST_DATA.map(item => ({ ...item }));
 
-                // Normaliza gêneros (já estão padronizados, mas por segurança)
+                // Normaliza gêneros
                 musicas = musicas.map(m => {
                     let g = (m.genero || "POP").toUpperCase().trim();
                     if (g === "FORRO" || g === "FORRÓ" || g === "FORRÓ ANTIGO") g = "FORRÓ";
                     if (g === "CRISTÃ" || g === "CRISTÃO" || g === "GOSPEL" || g === "EVANGÉLICA") g = "CRISTÃ HITS";
-                    // Força GLOBAL HITS a ficar exatamente igual
-                    if (g === "GLOBAL HITS") g = "GLOBAL HITS";
+                    if (g === "HITS GLOBAL") g = "GLOBAL HITS";
                     return { ...m, genero: g };
                 });
 
@@ -961,7 +1122,6 @@
                 });
 
                 console.log("🎵 Gêneros encontrados:", Object.keys(musicasPorGenero).join(", "));
-                // Log específico para GLOBAL HITS
                 if (musicasPorGenero["GLOBAL HITS"]) {
                     console.log("✅ GLOBAL HITS tem", musicasPorGenero["GLOBAL HITS"].length, "músicas");
                 } else {
@@ -970,6 +1130,7 @@
 
                 splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
 
+                // Modo inicial MPB/POP
                 modoAtual = "MPB_POP";
                 updateGenreBadge();
 
@@ -992,6 +1153,8 @@
                         appContainer.style.display = 'block';
                         menuButton.style.display = 'flex';
                         tapToStart.style.display = 'block';
+                        // Mostra o botão flutuante após o player aparecer
+                        toggleFabVisibility(true);
                     }, 500);
                 }, 2000);
 
@@ -1004,19 +1167,39 @@
                     appContainer.style.display = 'block';
                     menuButton.style.display = 'flex';
                     tapToStart.style.display = 'block';
+                    toggleFabVisibility(true);
                 }, 2500);
             }
         }
 
         // ==================== LÓGICA DE MÚSICAS ====================
-        function getMusicaAleatoria(lista, evitarId = null) {
+        function getMusicaAleatoria(lista, evitarId = null, evitarHistorico = true) {
             if (!lista || lista.length === 0) return null;
+
             let candidatas = [...lista];
+
             if (evitarId && candidatas.length > 1) {
                 candidatas = candidatas.filter(m => m.id !== evitarId);
             }
-            if (candidatas.length === 0) candidatas = [...lista];
-            return candidatas[Math.floor(Math.random() * candidatas.length)];
+
+            if (evitarHistorico && candidatas.length > 3) {
+                const idsEvitar = historicoIds.slice(-5);
+                candidatas = candidatas.filter(m => !idsEvitar.includes(m.id));
+            }
+
+            if (candidatas.length === 0) {
+                candidatas = [...lista];
+                if (evitarId && candidatas.length > 1) {
+                    candidatas = candidatas.filter(m => m.id !== evitarId);
+                }
+                if (candidatas.length === 0) candidatas = [...lista];
+            }
+
+            const escolhida = candidatas[Math.floor(Math.random() * candidatas.length)];
+            historicoIds.push(escolhida.id);
+            if (historicoIds.length > 10) historicoIds.shift();
+            ultimoIdTocado = escolhida.id;
+            return escolhida;
         }
 
         function getMusicaMPBPOP(evitarId = null) {
@@ -1196,7 +1379,7 @@
                     updateScrollText(nova);
                     if (isPlaying) playMusic();
                 } else {
-                    const q = getMusicaAleatoria(musicas);
+                    const q = getMusicaAleatoria(musicas, atual?.id);
                     if (q) {
                         currentPlaylist = [q];
                         currentIndex = 0;
@@ -1218,14 +1401,28 @@
                     return;
                 }
                 if (shuffleMode) {
-                    currentIndex = Math.floor(Math.random() * currentPlaylist.length);
+                    const anterior = currentPlaylist[currentIndex];
+                    const nova = getMusicaAleatoria(currentPlaylist, anterior?.id);
+                    if (nova) {
+                        currentIndex = currentPlaylist.findIndex(m => m.id === nova.id);
+                        if (currentIndex === -1) currentIndex = 0;
+                        updateScrollText(nova);
+                        if (isPlaying) playMusic();
+                    } else {
+                        currentIndex = (currentIndex + 1) % currentPlaylist.length;
+                        const track = currentPlaylist[currentIndex];
+                        if (track) {
+                            updateScrollText(track);
+                            if (isPlaying) playMusic();
+                        }
+                    }
                 } else {
                     currentIndex = (currentIndex + 1) % currentPlaylist.length;
-                }
-                const track = currentPlaylist[currentIndex];
-                if (track) {
-                    updateScrollText(track);
-                    if (isPlaying) playMusic();
+                    const track = currentPlaylist[currentIndex];
+                    if (track) {
+                        updateScrollText(track);
+                        if (isPlaying) playMusic();
+                    }
                 }
             }
             showControls();
@@ -1244,14 +1441,21 @@
             } else {
                 if (currentPlaylist.length === 0) return;
                 if (shuffleMode) {
-                    currentIndex = Math.floor(Math.random() * currentPlaylist.length);
+                    const atual = currentPlaylist[currentIndex];
+                    const nova = getMusicaAleatoria(currentPlaylist, atual?.id);
+                    if (nova) {
+                        currentIndex = currentPlaylist.findIndex(m => m.id === nova.id);
+                        if (currentIndex === -1) currentIndex = 0;
+                        updateScrollText(nova);
+                        if (isPlaying) playMusic();
+                    }
                 } else {
                     currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
-                }
-                const track = currentPlaylist[currentIndex];
-                if (track) {
-                    updateScrollText(track);
-                    if (isPlaying) playMusic();
+                    const track = currentPlaylist[currentIndex];
+                    if (track) {
+                        updateScrollText(track);
+                        if (isPlaying) playMusic();
+                    }
                 }
             }
             showControls();
@@ -1290,6 +1494,10 @@
 
             mudandoGenero = true;
             document.getElementById('genresModal').classList.remove('open');
+
+            // Oculta o botão flutuante enquanto troca
+            toggleFabVisibility(false);
+
             pararAudioAtual();
             showLoading(true);
 
@@ -1298,6 +1506,7 @@
                 currentPlaylist = [];
                 ultimoGeneroTocado = null;
                 updateGenreBadge();
+                showGenreChangeMessage("MPB/POP", '🔄');
 
                 const nova = getMusicaMPBPOP();
                 if (nova) {
@@ -1308,7 +1517,8 @@
                     generoTimeout = setTimeout(() => {
                         if (isBackgroundActive && !mudandoGenero) playMusic();
                         resetMudandoGenero();
-                    }, 100);
+                        toggleFabVisibility(true);
+                    }, 300);
                 } else {
                     const q = getMusicaAleatoria(musicas);
                     if (q) {
@@ -1320,10 +1530,10 @@
                     resetMudandoGenero();
                     showLoading(false);
                     if (!q) showNotification("Nenhuma MPB/POP", 1500);
+                    toggleFabVisibility(true);
                 }
                 showNotification("🎵 MPB/POP alternando!", 1000);
             } else {
-                // Verifica se o gênero existe
                 if (musicasPorGenero[genero] && musicasPorGenero[genero].length > 0) {
                     modoAtual = "GENERO_ESPECIFICO";
                     let lista = [...musicasPorGenero[genero]];
@@ -1340,23 +1550,39 @@
                         if (currentIndex === -1) currentIndex = 0;
                         updateScrollText(m);
                         updateGenreBadge();
+
+                        // Ícones para cada gênero
+                        const iconMap = {
+                            "SERTANEJO": '🤠',
+                            "FORRÓ": '🪗',
+                            "SAMBA": '🎭',
+                            "POP": '🎤',
+                            "MPB": '🎸',
+                            "BREGA": '💔',
+                            "GLOBAL HITS": '🌍',
+                            "MODA TOP": '🔥',
+                            "CRISTÃ HITS": '✝️'
+                        };
+                        showGenreChangeMessage(genero, iconMap[genero] || '🎵');
+
                         if (generoTimeout) clearTimeout(generoTimeout);
                         generoTimeout = setTimeout(() => {
                             if (isBackgroundActive && !mudandoGenero) playMusic();
                             resetMudandoGenero();
-                        }, 100);
+                            toggleFabVisibility(true);
+                        }, 300);
                     } else {
                         resetMudandoGenero();
                         showLoading(false);
                         showNotification(`Nenhuma em ${genero}`, 1500);
+                        toggleFabVisibility(true);
                     }
                     showNotification(`🎵 ${genero} - ${currentPlaylist.length} músicas`, 1000);
                 } else {
-                    // Gênero não encontrado – não toca nada e mostra erro
                     showNotification(`⚠️ Gênero "${genero}" não encontrado!`, 2000);
                     resetMudandoGenero();
                     showLoading(false);
-                    // Não chama playMusic, para não tocar outro gênero
+                    toggleFabVisibility(true);
                 }
             }
         }
@@ -1392,7 +1618,7 @@
             });
         }
 
-        // ==================== MODAIS (mantidos iguais) ====================
+        // ==================== MODAIS ====================
         function openFeedbackModal() {
             const track = currentPlaylist[0];
             if (!track) { showNotification("Nenhuma música", 1000); return; }
@@ -1476,9 +1702,13 @@
         document.getElementById('nextBtn').addEventListener('click', nextTrack);
         document.getElementById('prevBtn').addEventListener('click', prevTrack);
         shuffleBtn.addEventListener('click', toggleShuffle);
-        document.getElementById('genreFab').addEventListener('click', () => { document.getElementById('genresModal').classList.add('open');
-            showControls(); });
-        document.getElementById('closeGenresBtn').addEventListener('click', () => { document.getElementById('genresModal').classList.remove('open'); });
+        document.getElementById('genreFab').addEventListener('click', () => {
+            document.getElementById('genresModal').classList.add('open');
+            showControls();
+        });
+        document.getElementById('closeGenresBtn').addEventListener('click', () => {
+            document.getElementById('genresModal').classList.remove('open');
+        });
 
         document.getElementById('shareBtn').addEventListener('click', () => {
             if (navigator.share) navigator.share({ title: 'Rádio Play 12', url: location.href });
@@ -1516,6 +1746,8 @@
             await ativarAudio();
             tapToStart.style.display = 'none';
             try { document.documentElement.requestFullscreen(); } catch (e) {}
+            // Mostra o botão flutuante após ativar
+            toggleFabVisibility(true);
         });
 
         document.getElementById('menuButton').addEventListener('click', (e) => { e.stopPropagation();
