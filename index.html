@@ -10,7 +10,17 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #000; overflow: hidden; height: 100vh; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --neon-purple: #8E2DE2; }
-        .video-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0.5; }
+        .video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            opacity: 0.5;
+            transition: opacity 0.5s ease;
+        }
         .app { position: relative; z-index: 10; width: 100%; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; background: transparent; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,243,255,0.3); }
         .genre-badge { background: rgba(0,243,255,0.15); padding: 6px 16px; border-radius: 30px; font-size: 0.75rem; font-weight: bold; color: var(--neon-cyan); border-left: 3px solid var(--neon-cyan); display: flex; align-items: center; gap: 8px; }
@@ -238,7 +248,7 @@
 </head>
 <body>
     <video id="bgVideo" class="video-bg" autoplay loop muted playsinline>
-        <source src="apk2001.mp4" type="video/mp4">
+        <source src="apk2002.mp4" type="video/mp4">
     </video>
 
     <div id="splash">
@@ -347,7 +357,7 @@
     <script>
         // ==================== PLAYLIST DE EXEMPLO ====================
         const MUSICAS_POR_GENERO = {
-     "SERTANEJO": [
+             "SERTANEJO": [
                 {"id":1,"title":"Corpo Nu","artist":"Panda","src":"Panda_Corpo_Nu_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
                 {"id":2,"title":"Infarto","artist":"Diego & Victor Hugo","src":"Diego_Victor_Hugo_Infarto_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
                 {"id":3,"title":"Esqueci Você","artist":"Bruno & Marrone","src":"Bruno_Marrone_e_Henrique_Diego_Esqueci_Voc__muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
@@ -923,7 +933,6 @@
                 {"id":553,"title":"Vai","artist":"Zion Thariel","src":"Zion_Thariel_Zion_Thariel_Vai_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
                 {"id":555,"title":"Maria Mar - Deixa","artist":"Maria Mar","src":"Maria_Mar_al_Deixa_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
                 {"id":564,"title":"Thiago Brado - Ninguém Te Ama Como Eu","artist":"Thiago Brado","src":"Thiago_Brado_Ningu_m_Te_Ama_Como_Eu_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"}
-              
             ]
         };
 
@@ -959,13 +968,16 @@
         // ==================== VARIÁVEIS ====================
         let musicas = [], musicasMPB = [], musicasPOP = [], musicasPorGenero = {};
         let currentPlaylist = [], currentIndex = 0;
-        let isPlaying = false, shuffleMode = false, isBackgroundActive = false;
+        let isPlaying = false, shuffleMode = true; // shuffle sempre ativo
+        let isBackgroundActive = false;
         let timerInterval = null, modoAtual = "MPB_POP", ultimoGeneroTocado = null;
         let hideControlsTimeout = null, currentRating = 0, nextSongPreload = null;
         let mudandoGenero = false, timeoutCarregando = null, generoTimeout = null;
         let doubleTapFlag = false, historicoIds = [], ultimoIdTocado = null;
         let stats = { totalPlayed: 0, genreCount: {} };
 
+        // ==================== ELEMENTOS DOM ====================
+        const bgVideo = document.getElementById('bgVideo');
         const audio = document.getElementById('musicPlayer');
         const playBtn = document.getElementById('playBtn');
         const progressFill = document.getElementById('progressFill');
@@ -988,6 +1000,39 @@
         const genreFabTooltip = document.getElementById('genreFabTooltip');
         const tooltipText = document.getElementById('tooltipText');
 
+        // ==================== FUNÇÃO DE TROCA DE VÍDEO ====================
+        function mudarVideoPorGenero(genero) {
+            let videoSrc = "apk2002.mp4"; // padrão
+
+            if (genero === "CRISTÃ HITS") {
+                videoSrc = "criia.mp4";
+            } else if (genero === "SERTANEJO" || genero === "MODA TOP") {
+                videoSrc = "serai.mp4";
+            } else {
+                videoSrc = "apk2002.mp4";
+            }
+
+            // Se o vídeo já estiver com essa fonte, não recarrega
+            const currentSrc = bgVideo.querySelector('source')?.src || '';
+            if (currentSrc.includes(videoSrc)) return;
+
+            // Troca a fonte
+            const source = bgVideo.querySelector('source');
+            if (source) {
+                source.src = videoSrc;
+            } else {
+                // fallback: cria um source
+                const newSource = document.createElement('source');
+                newSource.src = videoSrc;
+                newSource.type = 'video/mp4';
+                bgVideo.appendChild(newSource);
+            }
+
+            // Recarrega e toca o vídeo
+            bgVideo.load();
+            bgVideo.play().catch(e => console.log("Vídeo auto-play bloqueado:", e));
+        }
+
         // ==================== AUX ====================
         function showNotification(msg, dur = 1500) {
             notification.textContent = msg;
@@ -997,23 +1042,17 @@
         function showLoading(show) { loading.classList.toggle('show', show); }
         function formatTime(sec) { if (!sec || isNaN(sec)) return "0:00"; const m = Math.floor(sec/60), s = Math.floor(sec%60); return m+":"+(s<10?'0':'')+s; }
         function showControls() { bottomControls.classList.add('visible'); if (hideControlsTimeout) clearTimeout(hideControlsTimeout); hideControlsTimeout = setTimeout(() => bottomControls.classList.remove('visible'), 5000); }
-        function updateScrollText(track) { if (track) scrollText.innerHTML = `🎵 ${track.title} - ${track.artist} [${track.genero}] 🎵`; }
+        function updateScrollText(track) { if (track) { scrollText.innerHTML = `🎵 ${track.title} - ${track.artist} [${track.genero}] 🎵`; } }
         function updateGenreBadge() {
             if (modoAtual === "MPB_POP") genreBadge.innerHTML = '<i class="fas fa-exchange-alt"></i> MPB/POP';
             else if (modoAtual === "GENERO_ESPECIFICO" && currentPlaylist.length > 0) genreBadge.innerHTML = `<i class="fas fa-music"></i> ${currentPlaylist[0]?.genero || "GÊNERO"}`;
         }
         function resetMudandoGenero() { mudandoGenero = false; if (generoTimeout) { clearTimeout(generoTimeout); generoTimeout = null; } }
 
-        // ==================== BOTÃO FLUTUANTE COM LISTA DE ESTILOS ====================
+        // ==================== BOTÃO FLUTUANTE (30 segundos) ====================
         let tooltipInterval = null, tooltipTimeout = null, tooltipCycleRunning = false;
         let estiloIndex = 0;
-        const estilosLista = ["MPB", "Sertanejo", "Samba", "Forró", "Brega", "Pop", "Cristã"];
-
-        function getCurrentGenreName() {
-            if (modoAtual === "MPB_POP") return "MPB/POP";
-            if (currentPlaylist.length > 0) return currentPlaylist[0]?.genero || "GÊNERO";
-            return "GÊNERO";
-        }
+        const estilosLista = ["MPB", "Sertanejo", "Pagode", "Forró", "Pop"];
 
         function updateFabColors(genero) {
             const cor = genreColors[genero] || "#00f3ff";
@@ -1026,7 +1065,7 @@
             if (showList) {
                 const estilo = estilosLista[estiloIndex % estilosLista.length];
                 tooltipText.innerHTML = `🎵 <span class="highlight">${estilo}</span>`;
-                // Cor do botão com base no gênero atual (ou neutra)
+                // Mantém a cor do gênero atual
                 const generoAtual = getCurrentGenreName();
                 updateFabColors(generoAtual);
             } else {
@@ -1044,11 +1083,10 @@
             if (tooltipCycleRunning) return;
             tooltipCycleRunning = true;
 
-            // Mostra o primeiro estilo imediatamente
             estiloIndex = 0;
             updateTooltipText(true);
             let count = 0;
-            const maxChanges = 7; // 7 * 3 = 21 segundos (~20s)
+            const maxChanges = 10; // 10 * 3 = 30 segundos
             tooltipInterval = setInterval(() => {
                 count++;
                 estiloIndex = (estiloIndex + 1) % estilosLista.length;
@@ -1077,16 +1115,15 @@
 
         genreFab.addEventListener('click', function(e) {
             e.stopPropagation();
-            // Reativa o tooltip imediatamente com a lista
+            // Reativa o tooltip
             if (tooltipInterval) clearInterval(tooltipInterval);
             if (tooltipTimeout) clearTimeout(tooltipTimeout);
             tooltipCycleRunning = false;
-            // Força a exibição do tooltip e reinicia a alternância
             genreFabTooltip.classList.add('show');
             estiloIndex = 0;
             updateTooltipText(true);
             let count = 0;
-            const maxChanges = 7;
+            const maxChanges = 10;
             tooltipInterval = setInterval(() => {
                 count++;
                 estiloIndex = (estiloIndex + 1) % estilosLista.length;
@@ -1101,6 +1138,13 @@
             document.getElementById('genresModal').classList.add('open');
             showControls();
         });
+
+        // ==================== LÓGICA DE GÊNERO ATUAL ====================
+        function getCurrentGenreName() {
+            if (modoAtual === "MPB_POP") return "MPB/POP";
+            if (currentPlaylist.length > 0) return currentPlaylist[0]?.genero || "GÊNERO";
+            return "GÊNERO";
+        }
 
         // ==================== ATIVAÇÃO DE ÁUDIO ====================
         function createSilentAudio() {
@@ -1169,6 +1213,10 @@
 
                 splashStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${musicas.length} músicas!`;
 
+                // Ativa shuffle por padrão
+                shuffleMode = true;
+                shuffleBtn.classList.add('active');
+
                 modoAtual = "MPB_POP";
                 updateGenreBadge();
 
@@ -1177,6 +1225,8 @@
                     currentPlaylist = [primeira];
                     currentIndex = 0;
                     updateScrollText(primeira);
+                    // Troca vídeo conforme o gênero
+                    mudarVideoPorGenero(primeira.genero);
                 }
 
                 buildGenresGrid();
@@ -1192,6 +1242,8 @@
                         menuButton.style.display = 'flex';
                         tapToStart.style.display = 'block';
                         toggleFabVisibility(true);
+                        // Tela cheia automaticamente
+                        try { document.documentElement.requestFullscreen(); } catch(e) {}
                     }, 500);
                 }, 2000);
 
@@ -1205,6 +1257,7 @@
                     menuButton.style.display = 'flex';
                     tapToStart.style.display = 'block';
                     toggleFabVisibility(true);
+                    try { document.documentElement.requestFullscreen(); } catch(e) {}
                 }, 2500);
             }
         }
@@ -1291,6 +1344,9 @@
             }
             if (!track.src) { showNotification("Música sem fonte", 1000); nextTrack(); return; }
 
+            // Troca vídeo de fundo conforme o gênero
+            mudarVideoPorGenero(track.genero);
+
             showLoading(true);
             if (nextSongPreload && nextSongPreload.src === track.src) {
                 audio.src = nextSongPreload.src;
@@ -1345,16 +1401,16 @@
             if (modoAtual === "MPB_POP") {
                 const atual = currentPlaylist[0];
                 const nova = getMusicaMPBPOP(atual?.id);
-                if (nova) { currentPlaylist = [nova]; currentIndex = 0; updateScrollText(nova); if (isPlaying) playMusic(); }
+                if (nova) { currentPlaylist = [nova]; currentIndex = 0; updateScrollText(nova); mudarVideoPorGenero(nova.genero); if (isPlaying) playMusic(); }
                 else {
                     const q = getMusicaAleatoria(musicas, atual?.id);
-                    if (q) { currentPlaylist = [q]; currentIndex = 0; updateScrollText(q); if (isPlaying) playMusic(); }
+                    if (q) { currentPlaylist = [q]; currentIndex = 0; updateScrollText(q); mudarVideoPorGenero(q.genero); if (isPlaying) playMusic(); }
                     else showNotification("Sem mais músicas", 1000);
                 }
             } else {
                 if (!currentPlaylist.length) {
                     const q = getMusicaAleatoria(musicas);
-                    if (q) { currentPlaylist = [q]; currentIndex = 0; updateScrollText(q); if (isPlaying) playMusic(); }
+                    if (q) { currentPlaylist = [q]; currentIndex = 0; updateScrollText(q); mudarVideoPorGenero(q.genero); if (isPlaying) playMusic(); }
                     return;
                 }
                 if (shuffleMode) {
@@ -1364,16 +1420,17 @@
                         currentIndex = currentPlaylist.findIndex(m => m.id === nova.id);
                         if (currentIndex === -1) currentIndex = 0;
                         updateScrollText(nova);
+                        mudarVideoPorGenero(nova.genero);
                         if (isPlaying) playMusic();
                     } else {
                         currentIndex = (currentIndex + 1) % currentPlaylist.length;
                         const track = currentPlaylist[currentIndex];
-                        if (track) { updateScrollText(track); if (isPlaying) playMusic(); }
+                        if (track) { updateScrollText(track); mudarVideoPorGenero(track.genero); if (isPlaying) playMusic(); }
                     }
                 } else {
                     currentIndex = (currentIndex + 1) % currentPlaylist.length;
                     const track = currentPlaylist[currentIndex];
-                    if (track) { updateScrollText(track); if (isPlaying) playMusic(); }
+                    if (track) { updateScrollText(track); mudarVideoPorGenero(track.genero); if (isPlaying) playMusic(); }
                 }
             }
             showControls();
@@ -1383,7 +1440,7 @@
             if (modoAtual === "MPB_POP") {
                 const atual = currentPlaylist[0];
                 const nova = getMusicaMPBPOP(atual?.id);
-                if (nova) { currentPlaylist = [nova]; currentIndex = 0; updateScrollText(nova); if (isPlaying) playMusic(); }
+                if (nova) { currentPlaylist = [nova]; currentIndex = 0; updateScrollText(nova); mudarVideoPorGenero(nova.genero); if (isPlaying) playMusic(); }
             } else {
                 if (!currentPlaylist.length) return;
                 if (shuffleMode) {
@@ -1393,12 +1450,13 @@
                         currentIndex = currentPlaylist.findIndex(m => m.id === nova.id);
                         if (currentIndex === -1) currentIndex = 0;
                         updateScrollText(nova);
+                        mudarVideoPorGenero(nova.genero);
                         if (isPlaying) playMusic();
                     }
                 } else {
                     currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
                     const track = currentPlaylist[currentIndex];
-                    if (track) { updateScrollText(track); if (isPlaying) playMusic(); }
+                    if (track) { updateScrollText(track); mudarVideoPorGenero(track.genero); if (isPlaying) playMusic(); }
                 }
             }
             showControls();
@@ -1440,7 +1498,7 @@
                 ultimoGeneroTocado = null;
                 updateGenreBadge();
                 const nova = getMusicaMPBPOP();
-                if (nova) { currentPlaylist = [nova]; currentIndex = 0; updateScrollText(nova); if (generoTimeout) clearTimeout(generoTimeout); generoTimeout = setTimeout(() => { if (isBackgroundActive && !mudandoGenero) playMusic(); resetMudandoGenero(); toggleFabVisibility(true); }, 300); }
+                if (nova) { currentPlaylist = [nova]; currentIndex = 0; updateScrollText(nova); mudarVideoPorGenero(nova.genero); if (generoTimeout) clearTimeout(generoTimeout); generoTimeout = setTimeout(() => { if (isBackgroundActive && !mudandoGenero) playMusic(); resetMudandoGenero(); toggleFabVisibility(true); }, 300); }
                 else { resetMudandoGenero(); showLoading(false); toggleFabVisibility(true); showNotification("Nenhuma MPB/POP", 1500); }
                 showNotification("🎵 MPB/POP alternando!", 1000);
             } else {
@@ -1459,6 +1517,7 @@
                         currentIndex = currentPlaylist.findIndex(x => x.id === m.id);
                         if (currentIndex === -1) currentIndex = 0;
                         updateScrollText(m);
+                        mudarVideoPorGenero(m.genero);
                         updateGenreBadge();
                         const cor = genreColors[genero] || "#00f3ff";
                         genreFab.style.background = cor;
