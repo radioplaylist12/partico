@@ -212,6 +212,79 @@
         .senha-box .erro-senha { color: #ff4444; font-size: 0.85rem; margin-top: 10px; display: none; }
         .senha-box .erro-senha.show { display: block; }
         
+        /* ===== VÍDEO FULLSCREEN ===== */
+        .video-fullscreen-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 99998;
+            display: none;
+            flex-direction: column;
+        }
+        .video-fullscreen-modal.open { display: flex; }
+        .video-fullscreen-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.95);
+            z-index: 10;
+            border-bottom: 2px solid var(--neon-cyan);
+            min-height: 56px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .video-fullscreen-close {
+            background: none;
+            border: none;
+            color: var(--neon-cyan);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 1px solid var(--neon-cyan);
+            transition: all 0.2s;
+            font-weight: bold;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .video-fullscreen-close:active {
+            background: var(--neon-cyan);
+            color: #000;
+            transform: scale(0.95);
+        }
+        .video-fullscreen-header .titulo-video {
+            color: white;
+            font-weight: bold;
+            font-size: 0.95rem;
+            flex: 1;
+            text-align: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .video-fullscreen-header .titulo-video i {
+            color: #FF0000;
+            margin-right: 8px;
+        }
+        #videoFullscreenIframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: #000;
+            pointer-events: auto;
+        }
+        .video-fullscreen-modal * {
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+        
         @media (max-width: 480px) {
             .search-container { width: 280px; right: 10px; }
             .fab-main { width: 60px; height: 60px; font-size: 1.6rem; }
@@ -220,6 +293,8 @@
             .genres-grid { gap: 8px; }
             .genre-card { font-size: 1rem; }
             .search-box input { font-size: 0.85rem; padding: 10px 12px; }
+            .video-fullscreen-close { font-size: 0.85rem; padding: 6px 14px; }
+            .video-fullscreen-header .titulo-video { font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -228,7 +303,7 @@
         <source src="apk300.mp4" type="video/mp4">
     </video>
 
-    <!-- SPLASH -->
+    <!-- ===== SPLASH ===== -->
     <div id="splash">
         <div class="splash-loading" id="splashStatus">
             <i class="fas fa-circle-notch fa-spin"></i> Carregando playlist...
@@ -237,10 +312,10 @@
         </div>
     </div>
 
-    <!-- TAP TO START -->
+    <!-- ===== TAP TO START ===== -->
     <div id="tap-to-start"><i class="fas fa-play-circle"></i> 🎵 ATIVAR RÁDIO</div>
 
-    <!-- APP -->
+    <!-- ===== APP ===== -->
     <div class="app" id="appContainer" style="display: none;">
         <div class="top-bar" id="topBar">
             <div class="genre-badge" id="genreBadge"><i class="fas fa-exchange-alt"></i> MPB/POP</div>
@@ -255,19 +330,18 @@
         <div class="history-indicator" id="historyIndicator">📊 0 na fila</div>
     </div>
 
-    <!-- FAB -->
+    <!-- ===== FAB ===== -->
     <div class="fab-container" id="fabContainer">
         <div class="fab-sub" id="fabSub">
             <button class="fab-sub-btn" id="fabGeneros"><i class="fas fa-guitar"></i> Gêneros</button>
             <button class="fab-sub-btn" id="fabBusca"><i class="fas fa-search"></i> Buscar Música</button>
             <button class="fab-sub-btn" id="fabFeedback"><i class="fas fa-star"></i> Feedback</button>
-            <!-- ===== BOTÃO VÍDEO YOUTUBE ===== -->
             <button class="fab-sub-btn" id="fabYoutube"><i class="fab fa-youtube fab-icon-youtube"></i> Vídeo YouTube</button>
         </div>
         <div class="fab-main" id="fabMain"><i class="fas fa-plus"></i></div>
     </div>
 
-    <!-- SEARCH -->
+    <!-- ===== SEARCH ===== -->
     <div class="search-container" id="searchContainer">
         <div class="search-box">
             <i class="fas fa-search search-icon"></i>
@@ -277,14 +351,14 @@
         <div class="search-results" id="searchResults"></div>
     </div>
 
-    <!-- GENRES MODAL -->
+    <!-- ===== GENRES MODAL ===== -->
     <div class="genres-modal" id="genresModal">
         <h3><i class="fas fa-head-side-brain"></i> ESCOLHA SEU ESTILO</h3>
         <div class="genres-grid" id="genresGrid"></div>
         <button class="close-genres" id="closeGenresBtn">FECHAR</button>
     </div>
 
-    <!-- BOTTOM CONTROLS -->
+    <!-- ===== BOTTOM CONTROLS ===== -->
     <div class="bottom-controls" id="bottomControls">
         <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
         <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
@@ -296,7 +370,7 @@
         </div>
     </div>
 
-    <!-- MENU -->
+    <!-- ===== MENU ===== -->
     <div class="menu-button" id="menuButton" style="display: none;"><i class="fas fa-ellipsis-v"></i></div>
     <div class="menu-popup" id="menuPopup">
         <button id="fullscreenMenuBtn"><i class="fas fa-expand"></i> Tela Cheia</button>
@@ -306,7 +380,7 @@
         <button id="feedbackMenuBtn"><i class="fas fa-star"></i> Feedback</button>
     </div>
 
-    <!-- STATS MODAL -->
+    <!-- ===== STATS MODAL ===== -->
     <div class="stats-modal" id="statsModal">
         <h3><i class="fas fa-chart-line"></i> Estatísticas</h3>
         <div class="stats-info">
@@ -319,7 +393,7 @@
         <button id="closeStatsBtn" class="close-stats">FECHAR</button>
     </div>
 
-    <!-- FEEDBACK MODAL -->
+    <!-- ===== FEEDBACK MODAL ===== -->
     <div class="feedback-modal" id="feedbackModal">
         <h3><i class="fas fa-star"></i> Avalie o App</h3>
         <p style="color: #aaa; font-size: 0.85rem;">Sua opinião é importante para nós!</p>
@@ -348,7 +422,22 @@
         </div>
     </div>
 
-    <!-- NOTIFICATION -->
+    <!-- ===== VÍDEO FULLSCREEN ===== -->
+    <div class="video-fullscreen-modal" id="videoFullscreenModal">
+        <div class="video-fullscreen-header">
+            <button class="video-fullscreen-close" id="videoFullscreenClose">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <span class="titulo-video"><i class="fab fa-youtube"></i> Vídeo YouTube</span>
+        </div>
+        <iframe id="videoFullscreenIframe" 
+                src="about:blank" 
+                frameborder="0" 
+                allowfullscreen>
+        </iframe>
+    </div>
+
+    <!-- ===== NOTIFICATION ===== -->
     <div class="notification" id="notification">Mensagem</div>
     <div class="loading" id="loading"><i class="fas fa-circle-notch fa-spin"></i><span>Carregando...</span></div>
     <div class="swipe-indicator" id="swipeIndicator">👉 Deslize para trocar música</div>
@@ -359,16 +448,15 @@
 
     <script>
         // ==================== CONFIGURAÇÕES ====================
-        const TEMPO_TESTE_GRATIS = 5; // minutos
+        const TEMPO_TESTE_GRATIS = 5;
         const SENHA_CORRETA = 'admin123';
         const NUMERO_WHATSAPP = "5512988461978";
         const MAX_HISTORICO = 15;
         const LINK_YOUTUBE = 'https://sites.google.com/view/rogersjc/in%C3%ADcio';
 
-        // ==================== PLAYLIST (3 MÚSICAS DE EXEMPLO) ====================
-        // DEPOIS VOCÊ ADICIONA O RESTANTE AQUI
+        // ==================== PLAYLIST (EXEMPLO) ====================
         const PLAYLIST_ORIGINAL = [
-         // ============================================================
+ // ============================================================
             // GÊNERO: SERTANEJO
             // ============================================================
             {"id":1,"title":"Corpo Nu","artist":"Panda","src":"Panda_Corpo_Nu_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
@@ -1049,6 +1137,8 @@
             {"id":598,"title":"T_Mal_T_Mal","artist":"T_Mal_T_Mal_muz","src":"T_Mal_T_Mal_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
             {"id":599,"title":"Tem_Que_Ser_Voc","artist":"Victor_Leo","src":"Victor_Leo_Tem_Que_Ser_Voc__muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
             {"id":600,"title":"Pr_Mudar_Minha_Vida","artist":"Zez_Di_Camargo_Luciano","src":"Zez_Di_Camargo_Luciano_Pr_Mudar_Minha_Vida_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"}
+            
+         
         ];
 
         // ===== VARIÁVEIS =====
@@ -1113,6 +1203,9 @@
         const fabFeedback = document.getElementById('fabFeedback');
         const fabYoutube = document.getElementById('fabYoutube');
         const searchContainer = document.getElementById('searchContainer');
+        const videoFullscreenModal = document.getElementById('videoFullscreenModal');
+        const videoFullscreenIframe = document.getElementById('videoFullscreenIframe');
+        const videoFullscreenClose = document.getElementById('videoFullscreenClose');
 
         // Elementos senha
         const senhaModal = document.getElementById('senhaModal');
@@ -1124,44 +1217,111 @@
         audio.volume = 0.9;
         audio.preload = "auto";
 
-        // ===== FUNÇÃO DE VARREDURA =====
-        function validarMusicas(lista) {
-            let validas = [];
-            let erros = [];
-            let total = lista.length;
-            let processadas = 0;
-            const ids = new Set();
-            const unicos = lista.filter(m => {
-                if (ids.has(m.id)) { return false; }
-                ids.add(m.id);
-                return true;
-            });
+        // ============================================================
+        // ===== SISTEMA DE PROTEÇÃO CONTRA COMPARTILHAMENTO =====
+        // ============================================================
 
-            unicos.forEach((musica) => {
-                processadas++;
-                let percentual = Math.round((processadas / total) * 100);
-                splashProgress.textContent = `${processadas} de ${total} músicas (${percentual}%)`;
-
-                let erro = false;
-                let problemas = [];
-                if (!musica.src || musica.src.trim() === '') { erro = true; problemas.push('Arquivo não especificado'); }
-                if (!musica.title || musica.title.trim() === '') { erro = true; problemas.push('Título vazio'); }
-                if (!musica.artist || musica.artist.trim() === '') { erro = true; problemas.push('Artista vazio'); }
-                if (!musica.genero || musica.genero.trim() === '') { erro = true; problemas.push('Gênero não definido'); }
-
-                if (erro) {
-                    erros.push({ ...musica, problemas: problemas.join('; ') });
-                } else {
-                    validas.push(musica);
+        // ===== 1. BLOQUEAR CLIQUE DIREITO =====
+        document.addEventListener('contextmenu', function(e) {
+            const elementosBloqueados = ['#videoFullscreenIframe', '.app', 'video', '.video-bg', 'audio', '#videoFullscreenModal'];
+            for (let sel of elementosBloqueados) {
+                if (e.target.closest(sel)) {
+                    e.preventDefault();
+                    showNotification('🚫 Ação não permitida', 1000);
+                    return false;
                 }
-            });
+            }
+        });
 
-            musicasComErro = erros;
-            erroCount = erros.length;
-            splashStatusText.textContent = `✅ ${validas.length} válidas • ❌ ${erros.length} com erro`;
-            splashProgress.textContent = `Concluído!`;
-            return validas;
+        // ===== 2. BLOQUEAR TECLAS DE ATALHO =====
+        document.addEventListener('keydown', function(e) {
+            const teclasBloqueadas = [
+                (e.ctrlKey && e.key === 'c'),
+                (e.ctrlKey && e.key === 'u'),
+                (e.ctrlKey && e.key === 's'),
+                (e.ctrlKey && e.shiftKey && e.key === 'i'),
+                (e.ctrlKey && e.shiftKey && e.key === 'j'),
+                (e.key === 'F12')
+            ];
+            
+            if (teclasBloqueadas.some(v => v === true)) {
+                e.preventDefault();
+                showNotification('🚫 Função desativada', 1000);
+                return false;
+            }
+        });
+
+        // ===== 3. BLOQUEAR ARRASTAR =====
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // ===== 4. BLOQUEAR COMPARTILHAMENTO =====
+        if (navigator.share) {
+            const shareOriginal = navigator.share;
+            navigator.share = function(data) {
+                if (data.url && data.url.includes('youtube.com')) {
+                    showNotification('🚫 Não é possível compartilhar este link', 1500);
+                    return Promise.reject(new Error('Compartilhamento bloqueado'));
+                }
+                return shareOriginal.call(this, data);
+            };
         }
+
+        // ============================================================
+        // ===== FUNÇÕES DO VÍDEO FULLSCREEN =====
+        // ============================================================
+
+        function abrirVideoFullscreen() {
+            const modal = document.getElementById('videoFullscreenModal');
+            const iframe = document.getElementById('videoFullscreenIframe');
+            
+            // Link só é inserido no momento do clique
+            iframe.src = LINK_YOUTUBE;
+            modal.classList.add('open');
+            
+            // Tenta entrar em tela cheia do navegador
+            try {
+                document.documentElement.requestFullscreen();
+            } catch(e) {}
+            
+            showNotification('📺 Vídeo em tela cheia!', 1500);
+            toggleFab();
+        }
+
+        function fecharVideoFullscreen() {
+            const modal = document.getElementById('videoFullscreenModal');
+            modal.classList.remove('open');
+            
+            // Sai da tela cheia se estiver
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+            
+            // Remove o link ao fechar (evita que fique salvo)
+            const iframe = document.getElementById('videoFullscreenIframe');
+            iframe.src = 'about:blank';
+            
+            // Restaura após 1 segundo
+            setTimeout(() => {
+                iframe.src = LINK_YOUTUBE;
+            }, 100);
+        }
+
+        // Evento do botão Voltar
+        videoFullscreenClose.addEventListener('click', fecharVideoFullscreen);
+
+        // Fechar com ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && videoFullscreenModal.classList.contains('open')) {
+                fecharVideoFullscreen();
+            }
+        });
+
+        // ============================================================
+        // ===== FUNÇÕES DO PLAYER =====
+        // ============================================================
 
         function showNotification(msg, duration = 1500, isError = false) {
             notification.textContent = msg;
@@ -1328,11 +1488,47 @@
                 splashStatusText.textContent = '📥 Carregando dados...';
                 let processados = dados.map(item => ({ ...item }));
                 splashStatusText.textContent = '🔍 Validando músicas...';
-                const validas = validarMusicas(processados);
+                
+                let validas = [];
+                let erros = [];
+                let total = processados.length;
+                let processadas = 0;
+                const ids = new Set();
+                const unicos = processados.filter(m => {
+                    if (ids.has(m.id)) { return false; }
+                    ids.add(m.id);
+                    return true;
+                });
+
+                unicos.forEach((musica) => {
+                    processadas++;
+                    let percentual = Math.round((processadas / total) * 100);
+                    splashProgress.textContent = `${processadas} de ${total} músicas (${percentual}%)`;
+
+                    let erro = false;
+                    let problemas = [];
+                    if (!musica.src || musica.src.trim() === '') { erro = true; problemas.push('Arquivo não especificado'); }
+                    if (!musica.title || musica.title.trim() === '') { erro = true; problemas.push('Título vazio'); }
+                    if (!musica.artist || musica.artist.trim() === '') { erro = true; problemas.push('Artista vazio'); }
+                    if (!musica.genero || musica.genero.trim() === '') { erro = true; problemas.push('Gênero não definido'); }
+
+                    if (erro) {
+                        erros.push({ ...musica, problemas: problemas.join('; ') });
+                    } else {
+                        validas.push(musica);
+                    }
+                });
+
+                musicasComErro = erros;
+                erroCount = erros.length;
+                splashStatusText.textContent = `✅ ${validas.length} válidas • ❌ ${erros.length} com erro`;
+                splashProgress.textContent = `Concluído!`;
+
                 if (validas.length === 0) {
                     splashStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Nenhuma música válida!';
                     return;
                 }
+                
                 musicas = validas.map(m => {
                     let g = (m.genero || "POP").toUpperCase().trim();
                     if (g === "FORRO" || g === "FORRÓ" || g === "FORRÓ ANTIGO") g = "FORRÓ";
@@ -1936,21 +2132,9 @@
             }
         }
 
-        // ===== ABRIR LINK YOUTUBE =====
-        function abrirYoutube() {
-            window.open(LINK_YOUTUBE, '_blank');
-            showNotification('📺 Abrindo Vídeo YouTube...', 1500);
-            toggleFab();
-        }
-
+        // ============================================================
         // ===== EVENTOS =====
-        document.getElementById('progressBar').addEventListener('click', (e) => {
-            if (audio.duration && !isNaN(audio.duration)) {
-                const rect = e.currentTarget.getBoundingClientRect();
-                audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
-                showControls();
-            }
-        });
+        // ============================================================
 
         // FAB Events
         fabMain.addEventListener('click', toggleFab);
@@ -1965,8 +2149,8 @@
         fabBusca.addEventListener('touchstart', (e) => { e.preventDefault(); openBusca(); }, { passive: false });
         fabFeedback.addEventListener('click', openFeedbackModal);
         fabFeedback.addEventListener('touchstart', (e) => { e.preventDefault(); openFeedbackModal(); }, { passive: false });
-        fabYoutube.addEventListener('click', abrirYoutube);
-        fabYoutube.addEventListener('touchstart', (e) => { e.preventDefault(); abrirYoutube(); }, { passive: false });
+        fabYoutube.addEventListener('click', abrirVideoFullscreen);
+        fabYoutube.addEventListener('touchstart', (e) => { e.preventDefault(); abrirVideoFullscreen(); }, { passive: false });
 
         playBtn.addEventListener('click', togglePlay);
         document.getElementById('nextBtn').addEventListener('click', nextTrack);
@@ -1999,6 +2183,14 @@
             toggleFab();
         }
 
+        document.getElementById('progressBar').addEventListener('click', (e) => {
+            if (audio.duration && !isNaN(audio.duration)) {
+                const rect = e.currentTarget.getBoundingClientRect();
+                audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+                showControls();
+            }
+        });
+
         document.getElementById('shareBtn').addEventListener('click', () => {
             if (navigator.share) {
                 navigator.share({ title: 'Rádio Play 12', url: location.href });
@@ -2028,7 +2220,7 @@
         document.getElementById('closeFeedbackBtn').addEventListener('click', () => feedbackModal.classList.remove('open'));
         document.getElementById('closeStatsBtn').addEventListener('click', () => statsModal.classList.remove('open'));
 
-        // ===== EVENTOS SENHA =====
+        // ===== SENHA =====
         senhaBtn.addEventListener('click', verificarSenha);
         senhaInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') verificarSenha();
@@ -2051,7 +2243,7 @@
         document.addEventListener('click', () => showControls());
         document.addEventListener('touchstart', () => showControls());
 
-        // ===== BUSCA EVENTOS =====
+        // ===== BUSCA =====
         searchInput.addEventListener('input', (e) => {
             if (searchTimeout) clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => performSearch(e.target.value), 300);
@@ -2118,7 +2310,6 @@
         window.addEventListener('load', function() {
             iniciarPlaylist(PLAYLIST_ORIGINAL);
             
-            // Inicia o timer da senha após 5 segundos
             setTimeout(() => {
                 if (!senhaLiberada && !estaBloqueado) {
                     iniciarTimerSenha();
