@@ -6,6 +6,7 @@
     <title>RÁDIO PLAY 12 • Player Rápido</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ===== TODO O CSS (MANTIDO IGUAL) ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #000; overflow: hidden; height: 100vh; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --neon-purple: #8E2DE2; --error-red: #ef4444; --success-green: #22c55e; }
@@ -212,79 +213,6 @@
         .senha-box .erro-senha { color: #ff4444; font-size: 0.85rem; margin-top: 10px; display: none; }
         .senha-box .erro-senha.show { display: block; }
         
-        /* ===== VÍDEO FULLSCREEN ===== */
-        .video-fullscreen-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 99998;
-            display: none;
-            flex-direction: column;
-        }
-        .video-fullscreen-modal.open { display: flex; }
-        .video-fullscreen-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px 16px;
-            background: rgba(0,0,0,0.95);
-            z-index: 10;
-            border-bottom: 2px solid var(--neon-cyan);
-            min-height: 56px;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .video-fullscreen-close {
-            background: none;
-            border: none;
-            color: var(--neon-cyan);
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 18px;
-            border-radius: 30px;
-            border: 1px solid var(--neon-cyan);
-            transition: all 0.2s;
-            font-weight: bold;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .video-fullscreen-close:active {
-            background: var(--neon-cyan);
-            color: #000;
-            transform: scale(0.95);
-        }
-        .video-fullscreen-header .titulo-video {
-            color: white;
-            font-weight: bold;
-            font-size: 0.95rem;
-            flex: 1;
-            text-align: center;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .video-fullscreen-header .titulo-video i {
-            color: #FF0000;
-            margin-right: 8px;
-        }
-        #videoFullscreenIframe {
-            flex: 1;
-            width: 100%;
-            border: none;
-            background: #000;
-            pointer-events: auto;
-        }
-        .video-fullscreen-modal * {
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-        }
-        
         @media (max-width: 480px) {
             .search-container { width: 280px; right: 10px; }
             .fab-main { width: 60px; height: 60px; font-size: 1.6rem; }
@@ -293,8 +221,6 @@
             .genres-grid { gap: 8px; }
             .genre-card { font-size: 1rem; }
             .search-box input { font-size: 0.85rem; padding: 10px 12px; }
-            .video-fullscreen-close { font-size: 0.85rem; padding: 6px 14px; }
-            .video-fullscreen-header .titulo-video { font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -422,21 +348,6 @@
         </div>
     </div>
 
-    <!-- ===== VÍDEO FULLSCREEN ===== -->
-    <div class="video-fullscreen-modal" id="videoFullscreenModal">
-        <div class="video-fullscreen-header">
-            <button class="video-fullscreen-close" id="videoFullscreenClose">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </button>
-            <span class="titulo-video"><i class="fab fa-youtube"></i> Vídeo YouTube</span>
-        </div>
-        <iframe id="videoFullscreenIframe" 
-                src="about:blank" 
-                frameborder="0" 
-                allowfullscreen>
-        </iframe>
-    </div>
-
     <!-- ===== NOTIFICATION ===== -->
     <div class="notification" id="notification">Mensagem</div>
     <div class="loading" id="loading"><i class="fas fa-circle-notch fa-spin"></i><span>Carregando...</span></div>
@@ -456,7 +367,7 @@
 
         // ==================== PLAYLIST (EXEMPLO) ====================
         const PLAYLIST_ORIGINAL = [
- // ============================================================
+             // ============================================================
             // GÊNERO: SERTANEJO
             // ============================================================
             {"id":1,"title":"Corpo Nu","artist":"Panda","src":"Panda_Corpo_Nu_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
@@ -1138,7 +1049,6 @@
             {"id":599,"title":"Tem_Que_Ser_Voc","artist":"Victor_Leo","src":"Victor_Leo_Tem_Que_Ser_Voc__muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
             {"id":600,"title":"Pr_Mudar_Minha_Vida","artist":"Zez_Di_Camargo_Luciano","src":"Zez_Di_Camargo_Luciano_Pr_Mudar_Minha_Vida_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"}
             
-         
         ];
 
         // ===== VARIÁVEIS =====
@@ -1203,9 +1113,6 @@
         const fabFeedback = document.getElementById('fabFeedback');
         const fabYoutube = document.getElementById('fabYoutube');
         const searchContainer = document.getElementById('searchContainer');
-        const videoFullscreenModal = document.getElementById('videoFullscreenModal');
-        const videoFullscreenIframe = document.getElementById('videoFullscreenIframe');
-        const videoFullscreenClose = document.getElementById('videoFullscreenClose');
 
         // Elementos senha
         const senhaModal = document.getElementById('senhaModal');
@@ -1218,12 +1125,12 @@
         audio.preload = "auto";
 
         // ============================================================
-        // ===== SISTEMA DE PROTEÇÃO CONTRA COMPARTILHAMENTO =====
+        // ===== SISTEMA DE PROTEÇÃO =====
         // ============================================================
 
-        // ===== 1. BLOQUEAR CLIQUE DIREITO =====
+        // Bloquear clique direito
         document.addEventListener('contextmenu', function(e) {
-            const elementosBloqueados = ['#videoFullscreenIframe', '.app', 'video', '.video-bg', 'audio', '#videoFullscreenModal'];
+            const elementosBloqueados = ['#videoFullscreenIframe', '.app', 'video', '.video-bg', 'audio'];
             for (let sel of elementosBloqueados) {
                 if (e.target.closest(sel)) {
                     e.preventDefault();
@@ -1233,7 +1140,7 @@
             }
         });
 
-        // ===== 2. BLOQUEAR TECLAS DE ATALHO =====
+        // Bloquear teclas
         document.addEventListener('keydown', function(e) {
             const teclasBloqueadas = [
                 (e.ctrlKey && e.key === 'c'),
@@ -1243,7 +1150,6 @@
                 (e.ctrlKey && e.shiftKey && e.key === 'j'),
                 (e.key === 'F12')
             ];
-            
             if (teclasBloqueadas.some(v => v === true)) {
                 e.preventDefault();
                 showNotification('🚫 Função desativada', 1000);
@@ -1251,73 +1157,41 @@
             }
         });
 
-        // ===== 3. BLOQUEAR ARRASTAR =====
+        // Bloquear arrastar
         document.addEventListener('dragstart', function(e) {
             e.preventDefault();
             return false;
         });
 
-        // ===== 4. BLOQUEAR COMPARTILHAMENTO =====
-        if (navigator.share) {
-            const shareOriginal = navigator.share;
-            navigator.share = function(data) {
-                if (data.url && data.url.includes('youtube.com')) {
-                    showNotification('🚫 Não é possível compartilhar este link', 1500);
-                    return Promise.reject(new Error('Compartilhamento bloqueado'));
-                }
-                return shareOriginal.call(this, data);
-            };
-        }
-
         // ============================================================
-        // ===== FUNÇÕES DO VÍDEO FULLSCREEN =====
+        // ===== FUNÇÃO PARA ABRIR VÍDEO (NOVA ABA) =====
         // ============================================================
 
         function abrirVideoFullscreen() {
-            const modal = document.getElementById('videoFullscreenModal');
-            const iframe = document.getElementById('videoFullscreenIframe');
+            // Abre em nova aba
+            const novaAba = window.open(LINK_YOUTUBE, '_blank');
             
-            // Link só é inserido no momento do clique
-            iframe.src = LINK_YOUTUBE;
-            modal.classList.add('open');
+            // Tenta colocar em tela cheia
+            if (novaAba) {
+                try {
+                    novaAba.onload = function() {
+                        try {
+                            novaAba.document.documentElement.requestFullscreen();
+                        } catch(e) {
+                            console.log('Não foi possível ativar fullscreen na nova aba');
+                        }
+                    };
+                } catch(e) {
+                    console.log('Erro ao tentar fullscreen:', e);
+                }
+            } else {
+                // Se o popup foi bloqueado, abre na mesma aba
+                window.location.href = LINK_YOUTUBE;
+            }
             
-            // Tenta entrar em tela cheia do navegador
-            try {
-                document.documentElement.requestFullscreen();
-            } catch(e) {}
-            
-            showNotification('📺 Vídeo em tela cheia!', 1500);
+            showNotification('📺 Abrindo vídeo em nova aba...', 1500);
             toggleFab();
         }
-
-        function fecharVideoFullscreen() {
-            const modal = document.getElementById('videoFullscreenModal');
-            modal.classList.remove('open');
-            
-            // Sai da tela cheia se estiver
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-            }
-            
-            // Remove o link ao fechar (evita que fique salvo)
-            const iframe = document.getElementById('videoFullscreenIframe');
-            iframe.src = 'about:blank';
-            
-            // Restaura após 1 segundo
-            setTimeout(() => {
-                iframe.src = LINK_YOUTUBE;
-            }, 100);
-        }
-
-        // Evento do botão Voltar
-        videoFullscreenClose.addEventListener('click', fecharVideoFullscreen);
-
-        // Fechar com ESC
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && videoFullscreenModal.classList.contains('open')) {
-                fecharVideoFullscreen();
-            }
-        });
 
         // ============================================================
         // ===== FUNÇÕES DO PLAYER =====
