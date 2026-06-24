@@ -153,7 +153,7 @@
         .stats-info p { margin: 10px 0; font-size: 0.95rem; }
         .history-indicator { position: fixed; top: 120px; right: 10px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); padding: 4px 10px; border-radius: 15px; font-size: 0.6rem; color: var(--neon-cyan); z-index: 25; border: 1px solid rgba(0,243,255,0.2); }
         
-        /* ===== MODAL SENHA ===== */
+        /* ===== MODAL SENHA (DESATIVADO) ===== */
         .senha-modal {
             position: fixed;
             top: 0;
@@ -335,8 +335,8 @@
         <button id="closeFeedbackBtn" class="close-feedback">Cancelar</button>
     </div>
 
-    <!-- ===== MODAL SENHA ===== -->
-    <div class="senha-modal" id="senhaModal">
+    <!-- ===== MODAL SENHA (DESATIVADO - OCULTO) ===== -->
+    <div class="senha-modal" id="senhaModal" style="display: none !important;">
         <div class="senha-box">
             <i class="fas fa-lock"></i>
             <h2>🔐 Acesso Restrito</h2>
@@ -359,15 +359,17 @@
 
     <script>
         // ==================== CONFIGURAÇÕES ====================
-        const TEMPO_TESTE_GRATIS = 5;
-        const SENHA_CORRETA = 'admin123';
+        // SENHA DESATIVADA - O sistema fica liberado permanentemente
+        const TEMPO_TESTE_GRATIS = 999999; // Praticamente infinito
+        const SENHA_CORRETA = 'admin123'; // Mantido mas não será usado
+        const SENHA_ATIVADA = false; // <-- SENHA DESATIVADA!
         const NUMERO_WHATSAPP = "5512988461978";
         const MAX_HISTORICO = 15;
         const LINK_YOUTUBE = 'https://sites.google.com/view/rogersjc/in%C3%ADcio';
 
-        // ==================== PLAYLIST (EXEMPLO) ====================
+        // ==================== PLAYLIST COMPLETA ====================
         const PLAYLIST_ORIGINAL = [
-             // ============================================================
+            // ============================================================
             // GÊNERO: SERTANEJO
             // ============================================================
             {"id":1,"title":"Corpo Nu","artist":"Panda","src":"Panda_Corpo_Nu_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
@@ -898,7 +900,6 @@
             {"id":282,"title":"Nothing But The Love","artist":"WRABEL","src":"WRABEL_nothing_but_the_love_muzzik.m4a","genero":"GLOBAL HITS","tipo":"normal"},
             {"id":283,"title":"Plug da Nova feat Veigh Ghard","artist":"Plug da Nova","src":"Plug_da_Plug_da_Nova_feat_Veigh_Ghard__muzzik.m4a","genero":"GLOBAL HITS","tipo":"normal"},
             {"id":284,"title":"Give Me The Night","artist":"Randy Crawford","src":"Give_Me_The_Night_Randy_Crawford_muzzik.m4a","genero":"GLOBAL HITS","tipo":"normal"},
-            // ID 285 CORRIGIDO: "sr" -> "src"
             {"id":285,"title":"Dj Goja Mi Chico","artist":"Dj Goja","src":"Dj_Goja_Mi_Chico_muzzika.m4a","genero":"GLOBAL HITS","tipo":"normal"},
             {"id":527,"title":"Don't Need Love","artist":"Unknown","src":"Don_t_Need_Don_t_Need_Love_muzzik.m4a","genero":"GLOBAL HITS","tipo":"normal"},
             {"id":528,"title":"Beyoncé","artist":"Beyoncé","src":"Beyonc_Beyonc__muzzika.m4a","genero":"GLOBAL HITS","tipo":"normal"},
@@ -909,7 +910,6 @@
             {"id":533,"title":"MENOS FOCO MAIS ANSIEDADE","artist":"Andreoli MC","src":"MENOS_FOCO_MAIS_ANSIEDADE_CE_T_NERVOSA_Andreoli_MC_Lele_Jp_Mc_Jacar_Mc_Ryan_sp_Mc_Luuky_Zano_muzzika.m4a","genero":"GLOBAL HITS","tipo":"normal"},
             {"id":534,"title":"Plug da Nova","artist":"Plug da Nova","src":"Plug_da_Plug_da_Nova_feat_Veigh_Ghard__muzzika.m4a","genero":"GLOBAL HITS","tipo":"normal"},
             {"id":535,"title":"Insanou Renascer","artist":"Unknown","src":"Insanou_Renascer_muzzik.m4a","genero":"GLOBAL HITS","tipo":"normal"},
-            // ID 571 CORRIGIDO: "GLOBAL HITIS" -> "GLOBAL HITS"
             {"id":571,"title":"Eu_S_Quero_Voc","artist":"anacastelaoficial_zefelipe","src":"Eu_S_Quero_Voc_anacastelaoficial_zefelipe_muzzik.m4a","genero":"GLOBAL HITS","tipo":"normal"},
 
             // ============================================================
@@ -998,72 +998,32 @@
             // GÊNERO: CRISTÃ HITS
             // ============================================================
             {"id":550,"title":"Eu Escolho Deus","artist":"Marquinhos Gomes","src":"Eu_Escolho_Eu_Escolho_Deus_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
-            // ID 551 CORRIGIDO: "não-desite" -> "nao_desite"
             {"id":551,"title":"Ele Nao Desiste de Você","artist":"Marquinhos Gomes","src":"ele_nao_desite.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
             {"id":552,"title":"Ah Jesus - Coração Igual ao Teu","artist":"Julliany Souza","src":"JULLIANY_SOUZA_AH_JESUS_CORA_O_IGUAL_AO_TEU_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
             {"id":553,"title":"Vai","artist":"Zion Thariel","src":"Zion_Thariel_Zion_Thariel_Vai_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
             {"id":554,"title":"Ningu_m_Te_Ama_Como_Eu","artist":"Thiago_Brado","src":"Thiago_Brado_Ningu_m_Te_Ama_Como_Eu_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
             {"id":555,"title":"Cicatrizes","artist":"Bruna_Karla","src":"Bruna_Karla_Cicatrizes_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
-            {"id":556,"title":"Sweet_Child_O_Mine","artist":"Guns_N_Roses","src":"Guns_N_Roses_Sweet_Child_O_Mine_muzzik.m4a","genero":"POP","tipo":"normal"},
-            {"id":557,"title":"Cora","artist":"Ze-Vaquero","src":"Cora_o_Cora_o_muzzik.m4a","genero":"FORRÓ","tipo":"normal"},
-            {"id":558,"title":"Haver_Sinais","artist":"Jorge_Mateus_Lauana_Prado","src":"Jorge_Mateus_Lauana_Prado_Haver_Sinais_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
             {"id":559,"title":"Deixa","artist":"Maria-mar","src":"Maria_Mar_al_Deixa_muzzik.m4a","genero":"CRISTÃ HITS","tipo":"normal"},
-            {"id":560,"title":"Eu-sou","artist":"ze_vaqueiro","src":"Meu_Eu_Em_Voc_Z_Vaqueiro_muzzik.m4a","genero":"POP","tipo":"normal"},
-            {"id":561,"title":"Mas_Que_Nada","artist":"Sergio_Mendes","src":"S_rgio_Mendes_Mas_Que_Nada_muzzik.m4a","genero":"MPB","tipo":"normal"},
-            {"id":562,"title":"U_I_Still_Haven_t_Found_What_I_m_Looking_For","artist":"U_I_Still_Haven_t_Found_What","src":"U_I_Still_Haven_t_Found_What_I_m_Looking_For_muzzik.m4a","genero":"POP","tipo":"normal"},
-            {"id":563,"title":"Oi_Balde_Escolhas","artist":"Oi_Balde_Escolhas","src":"Z_Neto_e_Cristiano_Oi_Balde_Escolhas_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":564,"title":"Deep_Is_Your_Love","artist":"Take_That","src":"Take_That_How_Deep_Is_Your_Love_muzzik.m4a","genero":"POP","tipo":"normal"},
-            {"id":565,"title":"Liga_o_Urbana","artist":"Bruno_Marrone","src":"Bruno_Marrone_Liga_o_Urbana_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":566,"title":"P_gina_Virada","artist":"Chit_ozinho_e_Chit_ozinho_e_Xoror","src":"Chit_ozinho_e_Chit_ozinho_e_Xoror_P_gina_Virada_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":567,"title":"Na_Hora_De_Amar","artist":"Cleiton_e_Camargo","src":"Cleiton_e_Camargo_Na_Hora_De_Amar_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":568,"title":"Dou_a_Dou_a_Vida_por_um_Beijo","artist":"zeze","src":"Dou_a_Dou_a_Vida_por_um_Beijo_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":569,"title":"Ela_Ela_demais","artist":"Rick-e-Rener","src":"Ela_Ela_demais_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":570,"title":"Bloqueado","artist":"Gusttavo_Lima","src":"Gusttavo_Lima_Bloqueado_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":572,"title":"Perrengue","artist":"Gusttavo_Lima","src":"Gusttavo_Lima_Perrengue_DVD_O_Embaixador_In_Cariri_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":573,"title":"Henrique_e_Juliano_N_O_GOSTO_EU_AMO","artist":"Henrique_e_Juliano","src":"Henrique_e_Juliano_N_O_GOSTO_EU_AMO_DVD_Ao_Vivo_No_Ibirapuera_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":574,"title":"Idas_e_Idas_e_voltas","artist":"Idas_e_Idas_e_voltas_muzzik","src":"Idas_e_Idas_e_voltas_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":575,"title":"agua_Com_A_car","artist":"Luan_Santana","src":"Luan_Santana_gua_Com_A_car_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":576,"title":"Graveto","artist":"Marilia_Mendon","src":"Mar_lia_Mendon_a_Graveto_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":577,"title":"Melhor_Ou_Melhor_Ou_Pior","artist":"Melhor_Ou_Melhor_Ou_Pior_muzz","src":"Melhor_Ou_Melhor_Ou_Pior_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":578,"title":"Michel_Tel_Anuncia","artist":"Michel_Tel_Anuncia_o_Sertanejinho_do_Tel","src":"Michel_Tel_Anuncia_o_Sertanejinho_do_Tel__muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":579,"title":"Os_Amantes_Os_Amantes_Porque","artist":"Os_Amantes_Os_Amantes_Porque_muz","src":"Os_Amantes_Os_Amantes_Porque_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":580,"title":"Sai_dessa_Sai_dessa_cora","artist":"gean","src":"Sai_dessa_Sai_dessa_cora_o_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":581,"title":"Borboletas","artist":"V_tor_e_V_tor_e_L_o_Borboletas","src":"V_tor_e_V_tor_e_L_o_Borboletas_udio_Oficial__muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":582,"title":"Voc_Fugiu_Voc_Fugiu_de_Mim","artist":"Fernendinha","src":"Voc_Fugiu_Voc_Fugiu_de_Mim_muzzik.m4a","genero":"FORRÓ","tipo":"normal"},
-            {"id":583,"title":"Cem_Mil","artist":"Gusttavo_Lima","src":"Cem_Mil_Gusttavo_Lima_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":584,"title":"SINONEMO","artist":"Chit_ozinho_Xoror_Sin_nimos_Part_Z_Ramalho","src":"Chit_ozinho_Xoror_Sin_nimos_Part_Z_Ramalho_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":585,"title":"Decida_Ao_Decida","artist":"Decida_Ao_Decida_Ao_Vivo","src":"Decida_Ao_Decida_Ao_Vivo__muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":586,"title":"Bica_D_A_gua","artist":"Edson_Hudson","src":"Edson_Hudson_Bica_D_A_gua_Mod_o_Sempre_Mod_o_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":587,"title":"Eu_juro_Eu_juro","artist":"Leandro","src":"Eu_juro_Eu_juro_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":588,"title":"Anti_Amor","artist":"Gustavo_Mioto","src":"Gustavo_Mioto_Anti_Amor_Part_Jorge_e_Mateus_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":589,"title":"Romance_No_Deserto_","artist":"Gusttavo_Lima","src":"Gusttavo_Lima_Part_Fagner_Romance_No_Deserto_DVD_O_Embaixador_In_Cariri_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":590,"title":"A_MAIOR_SAUDADE","artist":"Henrique_e_Juliano","src":"Henrique_e_Juliano_A_MAIOR_SAUDADE_DVD_Manifesto_Musical_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":591,"title":"Horizonte_azul","artist":"Leandro-Leonardo","src":"Horizonte_azul_Horizonte_azul_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":592,"title":"Cobaia","artist":"Lauana_Prado","src":"Lauana_Prado_Cobaia_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":593,"title":"S_de_Saudade","artist":"Luiza_Martins","src":"Luiza_Martins_S_de_Saudade_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":594,"title":"N_o_Aprendi_Dizer_Adeus_","artist":"Mar_lia_Mendon_a_Maiara_e_Maraisa","src":"Mar_lia_Mendon_a_Maiara_e_Maraisa_N_o_Aprendi_Dizer_Adeus_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":595,"title":"Memo_ria_Memo_ria_Cac_ador_de_Corac_o_es","artist":"Memo_ria_Memo","src":"Memo_ria_Memo_ria_Cac_ador_de_Corac_o_es_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":596,"title":"Meu_Erro_O_Sol_Sertanejinho","artist":"Michel_Tel","src":"Michel_Tel_Meu_Erro_O_Sol_Sertanejinho_do_Tel__muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":597,"title":"Nos_Bares_da_Cidade_","artist":"Rick_Renner","src":"Rick_Renner_Nos_Bares_da_Cidade_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":598,"title":"T_Mal_T_Mal","artist":"T_Mal_T_Mal_muz","src":"T_Mal_T_Mal_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":599,"title":"Tem_Que_Ser_Voc","artist":"Victor_Leo","src":"Victor_Leo_Tem_Que_Ser_Voc__muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-            {"id":600,"title":"Pr_Mudar_Minha_Vida","artist":"Zez_Di_Camargo_Luciano","src":"Zez_Di_Camargo_Luciano_Pr_Mudar_Minha_Vida_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
-             { id: 601, title: " is thais love.opus", artist: "Bob Marley ", src: "Bob Marley - is thais love.opus", genero: "Reggae" },
-  { id: 602, title: "Baby_i_love_your_way", artist: "mountain", src: "Big_mountain_Baby_i_love_your_way_muzzik.m4a", genero: "Reggae" },
-  { id: 603, title: "A Sombra da Maldade ", artist: "Cidade Negra ", src: "Cidade Negra - A Sombra da Maldade.m4a", genero: "Reggae" },
-  { id: 604, title: "Girassol", artist: "Cidade Negra ", src: "CidadeNegraGirassol.m4a", genero: "Reggae" },
-  { id: 605, title: "Akundum.m4a", artist: "Akundum.m4a", src: "Emaconhada-Akundum.m4a", genero: "Reggae" },
-  { id: 606, title: "PeoplPlay", artist: "Game", src: "GamePeoplPlay.m4a", genero: "Reggae" },
-  { id: 607, title: "PerdidoVersãoRoots.", artist: "Legiã Urbana–Tempo PerdidoVersãoRoots.m4a", src: "Legiã Urbana-Tempo PerdidoVersãoRoots.m4a", genero: "Reggae" },
-  { id: 608, title: "Anunciação ", artist: "Maneva", src: "Maneva - Anunciação (Tudo Vira Reggae - Ao Vivo).m4a", genero: "Reggae" },
-  { id: 609, title: "Garotos", artist: "Maneva", src: "Maneva - Garotos II (Tudo Vira Reggae - Ao Vivo).m4a", genero: "Reggae" },
-  { id: 610, title: " Anthem of Strength & Purp", artist: "My Dreams Can’t Die _ Roots Reggae ", src: "My Dreams Can’t Die _ Roots Reggae Anthem of Strength & Purpose.m4a", genero: "Reggae" },
-  { id: 611, title: "Natiruts Acústico", artist: "Natiruts", src: "Natiruts - Groove Bom (Natiruts Acústico Ao Vivo no Rio de Janeiro).m4a", genero: "Reggae" },
-  { id: 612, title: "Pérola Negra ", artist: "Natiruts Acústico", src: "Natiruts - Pérola Negra (Natiruts Acústico Ao Vivo no Rio de Janeiro) ft. Luiz Melodia.m4a", genero: "Reggae" },
-  { id: 613, title: "Presente", artist: "De Um Beija-Flor", src: "Presente De Um Beija-Flor.m4a", genero: "Reggae" },
-  { id: 614, title: "O beijo-e-a-reza", artist: "Skank", src: "Skank-O beijo-e-a-reza.m4a", genero: "Reggae" },
-  { id: 615, title: "Uma Onda Que Passa", artist: "Tribo de Jah", src: "Tribo de Jah - Uma Onda Que Passou (E Eu Não Dropei).m4a", genero: "Reggae" },
-  { id: 616, title: "Zóio De Lula", artist: "charles", src: "Zóio De Lula.m4a", genero: "Reggae" }
+
+            // ============================================================
+            // GÊNERO: REGGAE (NOVO!)
+            // ============================================================
+            {"id":601,"title":"Is This Love","artist":"Bob Marley","src":"Bob Marley - is thais love.opus","genero":"REGGAE","tipo":"normal"},
+            {"id":602,"title":"Baby I Love Your Way","artist":"Big Mountain","src":"Big_mountain_Baby_i_love_your_way_muzzik.m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":603,"title":"A Sombra da Maldade","artist":"Cidade Negra","src":"Cidade Negra - A Sombra da Maldade.m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":604,"title":"Girassol","artist":"Cidade Negra","src":"CidadeNegraGirassol.m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":605,"title":"Akundum","artist":"Emaconhada","src":"Emaconhada-Akundum.m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":606,"title":"People Play","artist":"Game","src":"GamePeoplPlay.m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":607,"title":"Tempo Perdido (Versão Roots)","artist":"Legião Urbana","src":"Legiã Urbana-Tempo PerdidoVersãoRoots.m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":608,"title":"Anunciação","artist":"Maneva","src":"Maneva - Anunciação (Tudo Vira Reggae - Ao Vivo).m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":609,"title":"Garotos","artist":"Maneva","src":"Maneva - Garotos II (Tudo Vira Reggae - Ao Vivo).m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":610,"title":"My Dreams Can't Die","artist":"Roots Reggae","src":"My Dreams Can’t Die _ Roots Reggae Anthem of Strength & Purpose.m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":611,"title":"Groove Bom","artist":"Natiruts","src":"Natiruts - Groove Bom (Natiruts Acústico Ao Vivo no Rio de Janeiro).m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":612,"title":"Pérola Negra","artist":"Natiruts","src":"Natiruts - Pérola Negra (Natiruts Acústico Ao Vivo no Rio de Janeiro) ft. Luiz Melodia.m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":613,"title":"Presente de Um Beija-Flor","artist":"Natiruts","src":"Presente De Um Beija-Flor.m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":614,"title":"O Beijo e a Reza","artist":"Skank","src":"Skank-O beijo-e-a-reza.m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":615,"title":"Uma Onda Que Passa","artist":"Tribo de Jah","src":"Tribo de Jah - Uma Onda Que Passou (E Eu Não Dropei).m4a","genero":"REGGAE","tipo":"normal"},
+            {"id":616,"title":"Zóio De Lula","artist":"Charlie Brown Jr.","src":"Zóio De Lula.m4a","genero":"REGGAE","tipo":"normal"}
         ];
 
         // ===== VARIÁVEIS =====
@@ -1091,7 +1051,7 @@
         let fabOpen = false;
         let erroCount = 0;
         let estaBloqueado = false;
-        let senhaLiberada = false;
+        let senhaLiberada = true; // <-- SENHA SEMPRE LIBERADA
         let tempoRestanteTotal = TEMPO_TESTE_GRATIS * 60;
         let autoPlayAttempted = false;
 
@@ -1129,87 +1089,11 @@
         const fabYoutube = document.getElementById('fabYoutube');
         const searchContainer = document.getElementById('searchContainer');
 
-        // Elementos senha
-        const senhaModal = document.getElementById('senhaModal');
-        const senhaInput = document.getElementById('senhaInput');
-        const senhaBtn = document.getElementById('senhaBtn');
-        const senhaErro = document.getElementById('senhaErro');
-        const senhaTempoRestante = document.getElementById('senhaTempoRestante');
-
         audio.volume = 0.9;
         audio.preload = "auto";
 
         // ============================================================
-        // ===== SISTEMA DE PROTEÇÃO =====
-        // ============================================================
-
-        // Bloquear clique direito
-        document.addEventListener('contextmenu', function(e) {
-            const elementosBloqueados = ['#videoFullscreenIframe', '.app', 'video', '.video-bg', 'audio'];
-            for (let sel of elementosBloqueados) {
-                if (e.target.closest(sel)) {
-                    e.preventDefault();
-                    showNotification('🚫 Ação não permitida', 1000);
-                    return false;
-                }
-            }
-        });
-
-        // Bloquear teclas
-        document.addEventListener('keydown', function(e) {
-            const teclasBloqueadas = [
-                (e.ctrlKey && e.key === 'c'),
-                (e.ctrlKey && e.key === 'u'),
-                (e.ctrlKey && e.key === 's'),
-                (e.ctrlKey && e.shiftKey && e.key === 'i'),
-                (e.ctrlKey && e.shiftKey && e.key === 'j'),
-                (e.key === 'F12')
-            ];
-            if (teclasBloqueadas.some(v => v === true)) {
-                e.preventDefault();
-                showNotification('🚫 Função desativada', 1000);
-                return false;
-            }
-        });
-
-        // Bloquear arrastar
-        document.addEventListener('dragstart', function(e) {
-            e.preventDefault();
-            return false;
-        });
-
-        // ============================================================
-        // ===== FUNÇÃO PARA ABRIR VÍDEO (NOVA ABA) =====
-        // ============================================================
-
-        function abrirVideoFullscreen() {
-            // Abre em nova aba
-            const novaAba = window.open(LINK_YOUTUBE, '_blank');
-            
-            // Tenta colocar em tela cheia
-            if (novaAba) {
-                try {
-                    novaAba.onload = function() {
-                        try {
-                            novaAba.document.documentElement.requestFullscreen();
-                        } catch(e) {
-                            console.log('Não foi possível ativar fullscreen na nova aba');
-                        }
-                    };
-                } catch(e) {
-                    console.log('Erro ao tentar fullscreen:', e);
-                }
-            } else {
-                // Se o popup foi bloqueado, abre na mesma aba
-                window.location.href = LINK_YOUTUBE;
-            }
-            
-            showNotification('📺 Abrindo vídeo em nova aba...', 1500);
-            toggleFab();
-        }
-
-        // ============================================================
-        // ===== FUNÇÕES DO PLAYER =====
+        // ===== FUNÇÕES =====
         // ============================================================
 
         function showNotification(msg, duration = 1500, isError = false) {
@@ -1318,6 +1202,7 @@
             const g = (genero || '').toUpperCase().trim();
             if (g === 'SERTANEJO') src = 'sertanejo.mp4';
             else if (g === 'CRISTÃ HITS' || g === 'CRISTÃ' || g === 'GOSPEL' || g === 'EVANGÉLICA') src = 'cristo.mp4';
+            // Pode adicionar vídeo para REGGAE também se quiser: else if (g === 'REGGAE') src = 'reggae.mp4';
             if (!bgVideo.src.includes(src)) {
                 bgVideo.src = src;
                 bgVideo.load();
@@ -1464,60 +1349,10 @@
             }
         }
 
-        // ===== SISTEMA DE SENHA =====
+        // ===== SENHA DESATIVADA =====
         function iniciarTimerSenha() {
-            if (senhaLiberada) return;
-            
-            if (timerInterval) clearInterval(timerInterval);
-            
-            timerInterval = setInterval(() => {
-                if (senhaLiberada) {
-                    clearInterval(timerInterval);
-                    return;
-                }
-                
-                tempoRestanteTotal--;
-                
-                const minutos = Math.floor(tempoRestanteTotal / 60);
-                const segundos = tempoRestanteTotal % 60;
-                const tempoStr = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-                senhaTempoRestante.textContent = `⏰ ${tempoStr}`;
-                
-                if (tempoRestanteTotal <= 0) {
-                    clearInterval(timerInterval);
-                    bloquearPlayer();
-                }
-            }, 1000);
-        }
-
-        function bloquearPlayer() {
-            estaBloqueado = true;
-            senhaModal.classList.add('open');
-            senhaInput.focus();
-            if (isPlaying) {
-                audio.pause();
-                isPlaying = false;
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            }
-            showNotification('⏰ Tempo de teste acabou! Digite a senha.', 3000);
-        }
-
-        function verificarSenha() {
-            const senha = senhaInput.value.trim();
-            if (senha === SENHA_CORRETA) {
-                senhaLiberada = true;
-                estaBloqueado = false;
-                senhaModal.classList.remove('open');
-                senhaErro.classList.remove('show');
-                senhaInput.value = '';
-                showNotification('✅ Senha correta! Acesso liberado!', 2000);
-                if (!isPlaying && isBackgroundActive) playMusic();
-            } else {
-                senhaErro.classList.add('show');
-                senhaInput.value = '';
-                senhaInput.focus();
-                showNotification('❌ Senha incorreta! Tente novamente.', 2000);
-            }
+            // Senha desativada - não faz nada
+            console.log('🔓 Sistema sem senha - acesso liberado');
         }
 
         // ===== FUNÇÕES DO PLAYER =====
@@ -1544,10 +1379,6 @@
         async function playMusic() {
             if (!isBackgroundActive) {
                 showNotification("⚠️ Ative o áudio primeiro!", 1000);
-                return;
-            }
-            if (estaBloqueado) {
-                showNotification('⛔ Acesso bloqueado. Digite a senha.', 2000);
                 return;
             }
             if (!musicas.length) { showNotification("Playlist vazia!", 1500); return; }
@@ -1649,13 +1480,11 @@
 
         function togglePlay() {
             if (!isBackgroundActive) { showNotification("Ative o áudio primeiro!", 1000); return; }
-            if (estaBloqueado) { showNotification('⛔ Acesso bloqueado. Digite a senha.', 2000); return; }
             isPlaying ? pauseMusic() : playMusic();
             showControls();
         }
 
         function nextTrack() {
-            if (estaBloqueado) { showNotification('⛔ Acesso bloqueado', 1500); return; }
             if (modoAtual === "MPB_POP") {
                 const atual = currentPlaylist[0];
                 const nova = getMusicaMPBPOPAntiRepeticao(atual?.id);
@@ -1719,7 +1548,6 @@
         }
 
         function prevTrack() {
-            if (estaBloqueado) { showNotification('⛔ Acesso bloqueado', 1500); return; }
             if (modoAtual === "MPB_POP") {
                 const atual = currentPlaylist[0];
                 const nova = getMusicaMPBPOPAntiRepeticao(atual?.id);
@@ -1897,7 +1725,7 @@
         function buildGenresGrid() {
             const grid = document.getElementById('genresGrid');
             grid.innerHTML = '';
-            const generos = ["MPB/POP", "SERTANEJO", "FORRÓ", "SAMBA", "POP", "MPB", "BREGA", "GLOBAL HITS", "MODA TOP", "CRISTÃ HITS"];
+            const generos = ["MPB/POP", "SERTANEJO", "FORRÓ", "SAMBA", "POP", "MPB", "BREGA", "GLOBAL HITS", "MODA TOP", "CRISTÃ HITS", "REGGAE"];
             const cores = {
                 "MPB/POP": "#00f3ff",
                 "SERTANEJO": "#8B4513",
@@ -1908,7 +1736,8 @@
                 "BREGA": "#ff69b4",
                 "GLOBAL HITS": "#1abc9c",
                 "MODA TOP": "#9b59b6",
-                "CRISTÃ HITS": "#f39c12"
+                "CRISTÃ HITS": "#f39c12",
+                "REGGAE": "#008000" // Verde para Reggae
             };
             generos.forEach(genero => {
                 const filtro = genero === "MPB/POP" ? "MPB_POP" : genero;
@@ -2021,6 +1850,24 @@
             }
         }
 
+        // ===== ABRIR VÍDEO =====
+        function abrirVideoFullscreen() {
+            const novaAba = window.open(LINK_YOUTUBE, '_blank');
+            if (novaAba) {
+                try {
+                    novaAba.onload = function() {
+                        try {
+                            novaAba.document.documentElement.requestFullscreen();
+                        } catch(e) { console.log('Fullscreen não disponível'); }
+                    };
+                } catch(e) { console.log('Erro:', e); }
+            } else {
+                window.location.href = LINK_YOUTUBE;
+            }
+            showNotification('📺 Abrindo vídeo em nova aba...', 1500);
+            toggleFab();
+        }
+
         // ============================================================
         // ===== EVENTOS =====
         // ============================================================
@@ -2109,12 +1956,6 @@
         document.getElementById('closeFeedbackBtn').addEventListener('click', () => feedbackModal.classList.remove('open'));
         document.getElementById('closeStatsBtn').addEventListener('click', () => statsModal.classList.remove('open'));
 
-        // ===== SENHA =====
-        senhaBtn.addEventListener('click', verificarSenha);
-        senhaInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') verificarSenha();
-        });
-
         document.getElementById('tap-to-start').addEventListener('click', async () => {
             showNotification('🔊 Ativando...', 1000);
             await ativarAudio();
@@ -2195,15 +2036,12 @@
             });
         });
 
+        // ============================================================
         // ===== INICIAR =====
+        // ============================================================
         window.addEventListener('load', function() {
             iniciarPlaylist(PLAYLIST_ORIGINAL);
-            
-            setTimeout(() => {
-                if (!senhaLiberada && !estaBloqueado) {
-                    iniciarTimerSenha();
-                }
-            }, 5000);
+            console.log('🔓 Sistema sem senha - Acesso liberado!');
         });
     </script>
 </body>
