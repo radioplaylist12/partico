@@ -6,7 +6,7 @@
     <title>RÁDIO PLAY 12 • Player Rápido</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ===== TODO O SEU CSS (MANTIDO IGUAL) ===== */
+        /* ===== SEU CSS ORIGINAL - MANTIDO IGUAL ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: #000; overflow: hidden; height: 100vh; }
         :root { --neon-cyan: #00f3ff; --neon-pink: #ff2d7f; --neon-purple: #8E2DE2; --error-red: #ef4444; --success-green: #22c55e; }
@@ -363,18 +363,15 @@
         const SENHA_CORRETA = 'admin123';
         const SENHA_ATIVADA = false;
         const NUMERO_WHATSAPP = "5512988461978";
-        const MAX_HISTORICO = 50;
+        const MAX_HISTORICO = 15;
         const LINK_YOUTUBE = 'https://sites.google.com/view/rogersjc/in%C3%ADcio';
 
         // ============================================================
         // ===== SUA PLAYLIST COMPLETA (636 MÚSICAS) =====
+        // ===== MANTENHA SUAS MÚSICAS AQUI =====
         // ============================================================
-        // [TODAS AS SUAS 636 MÚSICAS AQUI - MANTENHA IGUAL]
-        // PARA ECONOMIZAR ESPAÇO, COLOQUEI APENAS ALGUNS EXEMPLOS,
-        // MAS VOCÊ DEVE MANTER SUA PLAYLIST COMPLETA.
-        
         const PLAYLIST_ORIGINAL = [
-           // ============================================================
+ // ============================================================
             // GÊNERO: SERTANEJO
             // ============================================================
             {"id":1,"title":"Corpo Nu","artist":"Panda","src":"Panda_Corpo_Nu_muzzik.m4a","genero":"SERTANEJO"},
@@ -1059,6 +1056,7 @@
             {"id":634,"title":"Saudosa Maloca ","artist":"Péricles & Demônios","src":"Péricles & Demônios da Garoa - Saudosa Maloca (Nos Trilhos do Samba).opus","genero":"SAMBA"},
             {"id":635,"title":"Toneladas","artist":"Quem_Sabe_Faz_Ao_Vivo","src":"Quem_Sabe_Faz_Ao_Vivo_Toneladas_muzzik.m4a","genero":"SAMBA"},
             {"id":636,"title":"Paparico_Paparico_Cilada","artist":"POGODEER","src":"Paparico_Paparico_Cilada__muzzik.m4a","genero":"SAMBA"}
+            
         ];
 
         // ===== VARIÁVEIS =====
@@ -1087,7 +1085,6 @@
         let erroCount = 0;
         let senhaLiberada = true;
         let autoPlayAttempted = false;
-        let isEnding = false;
 
         // ===== DOM ELEMENTS =====
         const audio = document.getElementById('musicPlayer');
@@ -1123,25 +1120,22 @@
         const fabYoutube = document.getElementById('fabYoutube');
         const searchContainer = document.getElementById('searchContainer');
 
-        // ===== VOLUME MÁXIMO =====
+        // ===== CORREÇÃO: VOLUME MÁXIMO =====
         audio.volume = 1.0;
         audio.preload = "auto";
 
         // ============================================================
-        // ===== SUPORTE A SEGUNDO PLANO (TELA FECHADA/BLOQUEADA) =====
+        // ===== SUPORTE A SEGUNDO PLANO (VERSÃO ORIGINAL) =====
         // ============================================================
 
-        // 1. Evento de visibilidade (tela bloqueada/aberta)
+        // Evento de visibilidade (tela bloqueada/aberta)
         document.addEventListener('visibilitychange', function() {
-            if (document.hidden && isPlaying) {
+            if (document.hidden && isPlaying && !audio.paused) {
                 console.log('📱 App em segundo plano - áudio continua.');
-                if (audio.paused) {
-                    audio.play().catch(e => console.log('Não foi possível retomar:', e));
-                }
             }
         });
 
-        // 2. Fallback para pausa automática
+        // Fallback para pausa automática
         audio.addEventListener('pause', function() {
             if (document.hidden && isPlaying && !audio.ended) {
                 console.log('🔄 Tentando retomar áudio em segundo plano...');
@@ -1153,15 +1147,8 @@
             }
         });
 
-        // 3. Keep-alive (evita que o navegador pare o áudio)
-        setInterval(() => {
-            if (document.hidden && isPlaying && audio.paused) {
-                audio.play().catch(() => {});
-            }
-        }, 5000);
-
         // ============================================================
-        // ===== FUNÇÕES =====
+        // ===== FUNÇÕES (MANTIDAS IGUAIS À VERSÃO ORIGINAL) =====
         // ============================================================
 
         function showNotification(msg, duration = 1500, isError = false) {
@@ -1237,7 +1224,7 @@
             let idsHistorico = new Set(historicoReproducao.map(m => m.id));
             let candidatas = lista.filter(m => !idsHistorico.has(m.id));
             if (candidatas.length === 0) {
-                const idsLiberados = historicoReproducao.slice(-5).map(m => m.id);
+                const idsLiberados = historicoReproducao.slice(-3).map(m => m.id);
                 candidatas = lista.filter(m => idsLiberados.includes(m.id));
                 if (candidatas.length === 0) candidatas = [...lista];
             }
@@ -1429,7 +1416,6 @@
             audio.pause();
             audio.src = '';
             audio.load();
-            isEnding = false;
         }
 
         function preloadNext() {
@@ -1487,7 +1473,9 @@
                 return;
             }
 
+            // ===== VOLUME MÁXIMO =====
             audio.volume = 1.0;
+
             trocarVideoPorGenero(track.genero);
             showLoading(true);
             
@@ -1506,15 +1494,16 @@
                     nextTrack();
                 }
                 timeoutCarregando = null;
-            }, 8000);
+            }, 5000);
 
             audio.oncanplay = () => {
                 if (timeoutCarregando) clearTimeout(timeoutCarregando);
                 timeoutCarregando = null;
+                
                 audio.volume = 1.0;
+                
                 audio.play().then(() => {
                     isPlaying = true;
-                    isEnding = false;
                     playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                     startTimer();
                     updateScrollText(track);
@@ -1550,7 +1539,6 @@
         function pauseMusic() {
             audio.pause();
             isPlaying = false;
-            isEnding = false;
             playBtn.innerHTML = '<i class="fas fa-play"></i>';
             stopTimer();
         }
@@ -1562,9 +1550,6 @@
         }
 
         function nextTrack() {
-            if (isEnding) return;
-            isEnding = true;
-            
             if (modoAtual === "MPB_POP") {
                 const atual = currentPlaylist[0];
                 const nova = getMusicaMPBPOPAntiRepeticao(atual?.id);
@@ -1585,7 +1570,6 @@
                         trocarVideoPorGenero(m.genero);
                         if (isPlaying) playMusic();
                     }
-                    isEnding = false;
                     return;
                 }
                 if (currentPlaylist.length === 1) {
@@ -1595,7 +1579,6 @@
                     trocarVideoPorGenero(unica.genero);
                     if (isPlaying) playMusic();
                     showControls();
-                    isEnding = false;
                     return;
                 }
                 let proxima = null;
@@ -1626,15 +1609,10 @@
                     atualizarIndicadorHistorico();
                 }
             }
-            
-            setTimeout(() => { isEnding = false; }, 300);
             showControls();
         }
 
         function prevTrack() {
-            if (isEnding) return;
-            isEnding = true;
-            
             if (modoAtual === "MPB_POP") {
                 const atual = currentPlaylist[0];
                 const nova = getMusicaMPBPOPAntiRepeticao(atual?.id);
@@ -1655,7 +1633,6 @@
                         trocarVideoPorGenero(m.genero);
                         if (isPlaying) playMusic();
                     }
-                    isEnding = false;
                     return;
                 }
                 if (currentPlaylist.length === 1) {
@@ -1665,7 +1642,6 @@
                     trocarVideoPorGenero(unica.genero);
                     if (isPlaying) playMusic();
                     showControls();
-                    isEnding = false;
                     return;
                 }
                 if (shuffleMode) {
@@ -1709,8 +1685,6 @@
                     }
                 }
             }
-            
-            setTimeout(() => { isEnding = false; }, 300);
             showControls();
         }
 
@@ -1729,14 +1703,8 @@
                     progressFill.style.width = percent + '%';
                     currentTimeEl.textContent = formatTime(audio.currentTime);
                     totalTimeEl.textContent = formatTime(audio.duration);
-                    if (audio.currentTime >= audio.duration - 0.3) {
-                        if (audio.currentTime >= audio.duration - 0.1) {
-                            if (!isEnding) {
-                                isEnding = true;
-                                setTimeout(() => { isEnding = false; }, 500);
-                                nextTrack();
-                            }
-                        }
+                    if (audio.currentTime >= audio.duration - 0.5) {
+                        nextTrack();
                     }
                 }
             }, 200);
@@ -1886,6 +1854,7 @@
             clearSearch.style.display = 'flex';
         }
 
+        // ===== CORREÇÃO: BUSCA FUNCIONA =====
         function playSongById(id) {
             const musica = todasMusicas.find(m => m.id === id);
             if (!musica) { 
@@ -2176,8 +2145,6 @@
             console.log('🔓 Sistema sem senha - Acesso liberado!');
             console.log('📊 Total de músicas carregadas:', PLAYLIST_ORIGINAL.length);
             console.log('✅ SUPORTE A SEGUNDO PLANO ATIVADO - Toca com tela fechada!');
-            console.log('✅ CORREÇÃO: Músicas não repetem até acabar a playlist!');
-            console.log('✅ CORREÇÃO: Músicas não pulam antes do fim!');
             console.log('✅ CORREÇÃO: Volume máximo (1.0) aplicado!');
         });
     </script>
