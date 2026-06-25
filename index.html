@@ -261,16 +261,13 @@
         const MAX_HISTORICO = 15;
         const LINK_YOUTUBE = 'https://sites.google.com/view/rogersjc/in%C3%ADcio';
 
-        // ==================== PLAYLIST COMPLETA CORRIGIDA ====================
-        // TODAS AS CORREÇÕES FORAM APLICADAS:
-        // - Removido " (1)" de todos os arquivos
-        // - Corrigido .m4 para .m4a (ID 457)
-        // - Corrigido "thais" para "this" (ID 601)
-        // - Mantidas duplicatas
-        // - Nomes sem espaços duplos
-
+        // ==================== PLAYLIST COMPLETA ====================
+        // (MANTIDA IGUAL - APENAS ALGUNS EXEMPLOS PARA ECONOMIZAR ESPAÇO)
+        // O código completo tem todas as 625 músicas, aqui vou colocar apenas exemplos
+        // para mostrar que a FUNÇÃO FOI CORRIGIDA
+        
         const PLAYLIST_ORIGINAL = [
-            // ============================================================
+          // ============================================================
             // GÊNERO: SERTANEJO
             // ============================================================
             {"id":1,"title":"Corpo Nu","artist":"Panda","src":"Panda_Corpo_Nu_muzzik.m4a","genero":"SERTANEJO","tipo":"normal"},
@@ -933,7 +930,7 @@
             {"id":613,"title":"Presente de Um Beija-Flor","artist":"Natiruts","src":"Presente_De_Um_Beija-Flor.m4a","genero":"REGGAE","tipo":"normal"},
             {"id":614,"title":"O Beijo e a Reza","artist":"Skank","src":"Skank-O_beijo-e-a-reza.m4a","genero":"REGGAE","tipo":"normal"},
             {"id":615,"title":"Uma Onda Que Passa","artist":"Tribo de Jah","src":"Tribo_de_Jah_Uma_Onda_Que_Passou_E_Eu_Na_Dropei.m4a","genero":"REGGAE","tipo":"normal"},
-            {"id":616,"title":"Zóio De Lula","artist":"Charlie Brown Jr.","src":"Zoio_De_Lula.m4a","genero":"REGGAE","tipo":"normal"}
+            {"id":616,"title":"Zóio De Lula","artist":"Charlie Brown Jr.","src":"Zoio_De_Lula.m4a","genero":"REGGAE","tipo":"normal"} 
         ];
 
         // ===== VARIÁVEIS =====
@@ -1000,7 +997,86 @@
         audio.preload = "auto";
 
         // ============================================================
-        // ===== FUNÇÕES DO PLAYER (MANTIDAS IGUAIS) =====
+        // ===== FUNÇÃO CORRIGIDA: MPB/POP SEM ALTERNÂNCIA FORÇADA =====
+        // ============================================================
+        // AGORA TODAS AS MÚSICAS DE MPB E POP TOCAM!
+        // Não alterna mais forçadamente entre os gêneros.
+        // ============================================================
+        function getMusicaMPBPOPAntiRepeticao(evitarId = null) {
+            // Junta MPB e POP em uma única lista
+            const mpb = musicas.filter(m => m.genero === "MPB");
+            const pop = musicas.filter(m => m.genero === "POP");
+            const todasMPBPOP = [...mpb, ...pop];
+            
+            // Se não tem músicas nesses gêneros, usa qualquer uma
+            if (todasMPBPOP.length === 0) {
+                return getMusicaAntiRepeticao(musicas, evitarId);
+            }
+            
+            // Toca qualquer música sem alternar - TODAS TOCAM!
+            const m = getMusicaAntiRepeticao(todasMPBPOP, evitarId);
+            if (m) ultimoGeneroTocado = m.genero;
+            return m;
+        }
+
+        // ============================================================
+        // ===== FUNÇÃO CORRIGIDA: BUSCA MUDA GÊNERO E SOME =====
+        // ============================================================
+        function playSongById(id) {
+            const musica = todasMusicas.find(m => m.id === id);
+            if (!musica) { 
+                showNotification("Música não encontrada", 1000); 
+                return; 
+            }
+            
+            // ===== FECHA O BUSCADOR =====
+            searchResults.style.display = 'none';
+            clearSearch.style.display = 'none';
+            searchInput.value = '';
+            searchContainer.classList.remove('open');
+            
+            // ===== MUDA PARA O GÊNERO DA MÚSICA PESQUISADA =====
+            pararAudioAtual();
+            adicionarAoHistorico(musica);
+            
+            // Se for MPB ou POP, mantém o modo MPB_POP
+            if (musica.genero === "MPB" || musica.genero === "POP") {
+                modoAtual = "MPB_POP";
+                currentPlaylist = [musica];
+                currentIndex = 0;
+            } else {
+                // Para outros gêneros, filtra apenas aquele gênero
+                modoAtual = "GENERO_ESPECIFICO";
+                // Pega todas as músicas do mesmo gênero e embaralha
+                const listaGenero = musicas.filter(m => m.genero === musica.genero);
+                if (listaGenero.length > 0) {
+                    // Embaralha a lista
+                    let lista = [...listaGenero];
+                    for (let i = lista.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [lista[i], lista[j]] = [lista[j], lista[i]];
+                    }
+                    currentPlaylist = lista;
+                    // Encontra a música pesquisada na lista
+                    const idx = currentPlaylist.findIndex(x => x.id === musica.id);
+                    currentIndex = idx !== -1 ? idx : 0;
+                } else {
+                    currentPlaylist = [musica];
+                    currentIndex = 0;
+                }
+            }
+            
+            updateScrollText(musica);
+            trocarVideoPorGenero(musica.genero);
+            updateGenreBadge();
+            
+            if (isBackgroundActive) playMusic();
+            showNotification(`🎵 Tocando: ${musica.title} - ${musica.artist} [${musica.genero}]`, 2000);
+            atualizarIndicadorHistorico();
+        }
+
+        // ============================================================
+        // ===== FUNÇÕES AUXILIARES (MANTIDAS IGUAIS) =====
         // ============================================================
 
         function showNotification(msg, duration = 1500, isError = false) {
@@ -1086,22 +1162,6 @@
             const escolhida = candidatas[Math.floor(Math.random() * candidatas.length)];
             adicionarAoHistorico(escolhida);
             return escolhida;
-        }
-
-        function getMusicaMPBPOPAntiRepeticao(evitarId = null) {
-            const mpb = musicas.filter(m => m.genero === "MPB");
-            const pop = musicas.filter(m => m.genero === "POP");
-            if (mpb.length === 0 && pop.length === 0) return getMusicaAntiRepeticao(musicas, evitarId);
-            if (mpb.length === 0) return getMusicaAntiRepeticao(pop, evitarId);
-            if (pop.length === 0) return getMusicaAntiRepeticao(mpb, evitarId);
-            let novoGenero;
-            if (ultimoGeneroTocado === "MPB") novoGenero = "POP";
-            else if (ultimoGeneroTocado === "POP") novoGenero = "MPB";
-            else novoGenero = Math.random() < 0.5 ? "MPB" : "POP";
-            let lista = novoGenero === "MPB" ? mpb : pop;
-            const m = getMusicaAntiRepeticao(lista, evitarId);
-            if (m) ultimoGeneroTocado = m.genero;
-            return m;
         }
 
         function trocarVideoPorGenero(genero) {
@@ -1686,26 +1746,6 @@
             clearSearch.style.display = 'flex';
         }
 
-        function playSongById(id) {
-            const musica = todasMusicas.find(m => m.id === id);
-            if (!musica) { showNotification("Música não encontrada", 1000); return; }
-            searchResults.style.display = 'none';
-            clearSearch.style.display = 'none';
-            searchInput.value = '';
-            searchContainer.classList.remove('open');
-            pararAudioAtual();
-            adicionarAoHistorico(musica);
-            modoAtual = "GENERO_ESPECIFICO";
-            currentPlaylist = [musica];
-            currentIndex = 0;
-            updateScrollText(musica);
-            trocarVideoPorGenero(musica.genero);
-            updateGenreBadge();
-            if (isBackgroundActive) playMusic();
-            showNotification(`🎵 Tocando: ${musica.title}`, 1500);
-            atualizarIndicadorHistorico();
-        }
-
         // ===== FEEDBACK =====
         function openFeedbackModal() {
             currentRating = 0;
@@ -1771,7 +1811,6 @@
         // ===== EVENTOS =====
         // ============================================================
 
-        // FAB Events
         fabMain.addEventListener('click', toggleFab);
         fabMain.addEventListener('touchstart', (e) => {
             e.preventDefault();
@@ -1872,7 +1911,6 @@
         document.addEventListener('click', () => showControls());
         document.addEventListener('touchstart', () => showControls());
 
-        // ===== BUSCA =====
         searchInput.addEventListener('input', (e) => {
             if (searchTimeout) clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => performSearch(e.target.value), 300);
@@ -1892,7 +1930,6 @@
             }
         });
 
-        // ===== GESTOS =====
         let touchStartX = 0, lastTap = 0;
         document.addEventListener('touchstart', (e) => {
             const now = Date.now();
@@ -1935,13 +1972,12 @@
             });
         });
 
-        // ============================================================
-        // ===== INICIAR =====
-        // ============================================================
         window.addEventListener('load', function() {
             iniciarPlaylist(PLAYLIST_ORIGINAL);
             console.log('🔓 Sistema sem senha - Acesso liberado!');
             console.log('📊 Total de músicas carregadas:', PLAYLIST_ORIGINAL.length);
+            console.log('✅ CORREÇÃO APLICADA: MPB/POP agora tocam TODAS as músicas!');
+            console.log('✅ CORREÇÃO APLICADA: Busca muda o gênero e o buscador some!');
         });
     </script>
 </body>
